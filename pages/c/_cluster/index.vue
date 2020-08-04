@@ -1,5 +1,5 @@
 <script>
-import { NAME as EXPLORER } from '@/config/product/explorer';
+import { NAME as VIRTUAL } from '@/config/product/virtual';
 
 export default {
   layout: 'plain',
@@ -9,7 +9,7 @@ export default {
       name:   'c-cluster-product',
       params: {
         ...route.params,
-        product: EXPLORER,
+        product: VIRTUAL,
       }
     });
   }

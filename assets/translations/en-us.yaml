@@ -10,6 +10,7 @@ product:
   logging: Logging
   ecm: Enterprise Cluster Manager
   rio: Rio
+  virtual: Virtual Machines
 
 generic:
   add: Add

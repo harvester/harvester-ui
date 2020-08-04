@@ -281,15 +281,11 @@ export const actions = {
     }
 
     // console.debug('### Remove Event', data.type, data.id);
-    const obj = getters.byId(data.type, data.id);
-
-    if ( obj ) {
-      state.queue.push({
-        action: 'commit',
-        event:  'remove',
-        body:   obj
-      });
-    }
+    state.queue.push({
+      action: 'commit',
+      event:  'remove',
+      body:   data
+    });
 
     if ( type === 'schema' ) {
       // Clear the current records in the store

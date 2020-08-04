@@ -14,11 +14,13 @@ export default {
     LabeledInput, AsyncButton, Checkbox
   },
 
-  async asyncData({ route, store }) {
-    const providers = await store.dispatch('auth/getAuthProviders');
+  asyncData({ route, store }) {
+    // const providers = await store.dispatch('auth/getAuthProviders');
 
-    const hasGithub = !!findBy(providers, 'id', 'github');
-    const hasLocal = !!findBy(providers, 'id', 'local');
+    // const hasGithub = !!findBy(providers, 'id', 'github');
+    // const hasLocal = !!findBy(providers, 'id', 'local');
+    const hasGithub = false;
+    const hasLocal = true;
 
     return {
       hasGithub,

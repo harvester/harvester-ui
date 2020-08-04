@@ -36,6 +36,7 @@ module.exports = {
     'vue/html-self-closing':    'off',
     'vue/no-v-html':            'off',
     'wrap-iife':                'off',
+    'no-unused-vars':           'off',
 
     'array-bracket-spacing':          'warn',
     'arrow-parens':                   'warn',
@@ -61,7 +62,6 @@ module.exports = {
     'no-eval':                        'warn',
     'no-trailing-spaces':             'warn',
     'no-undef':                       'warn',
-    'no-unused-vars':                 'warn',
     'no-whitespace-before-property':  'warn',
     'object-curly-spacing':           ['warn', 'always'],
     'object-property-newline':        'warn',

@@ -86,7 +86,7 @@ module.exports = {
     ],
   },
 
-  // mode:    'spa', --- Use --spa CLI flag, or ?spa query param.
+  mode: 'spa', // --- Use --spa CLI flag, or ?spa query param.
 
   loading: '~/components/nav/GlobalLoading.vue',
 
@@ -105,9 +105,9 @@ module.exports = {
 
   build: {
     publicPath: resourceBase,
-    // parallel:   true,
-    // cache:      true,
-    // hardSource: true,
+    parallel:   true,
+    cache:      true,
+    hardSource: true,
 
     uglify: {
       uglifyOptions: { compress: !dev },
@@ -126,22 +126,35 @@ module.exports = {
       useShortDoctype:            !dev
     },
 
-    filenames: { chunk: ({ isDev }) => isDev ? '[name].js' : '[name].[contenthash].js' },
+    filenames:    { chunk: ({ isDev }) => isDev ? '[name].js' : '[name].[contenthash].js' },
     // @TODO figure out how to split chunks up better, by product
-    // optimization: {
-    //   splitChunks: {
-    //     cacheGroups: {
-    //       styles: {
-    //         name:    'styles',
-    //         test:    /\.(css|vue)$/,
-    //         chunks:  'all',
-    //         enforce: true
-    //       },
-    //     }
-    //   }
-    // },
+    optimization: {
+      splitChunks: {
+        cacheGroups: {
+          vendors: {
+            test:     /[\\/]node_modules[\\/]/,
+            priority: -10
+          },
+          default: {
+            minChunks:          2,
+            priority:           -20, // 优先级配置项
+            reuseExistingChunk: true
+          },
+          styles: {
+            name:    'styles',
+            test:    /\.(css|vue)$/,
+            chunks:  'all',
+            enforce: true
+          },
+        }
+      }
+    },
     extend(config, { isClient, isDev }) {
-      config.devtool = isClient ? 'source-map' : 'inline-source-map';
+      if ( isDev ) {
+        config.devtool = 'eval-source-map';
+      } else {
+        config.devtool = 'source-map';
+      }
 
       if ( resourceBase ) {
         config.output.publicPath = resourceBase;
@@ -247,6 +260,7 @@ module.exports = {
     '~/plugins/i18n',
     '~/plugins/global-formatters',
     '~/plugins/trim-whitespace',
+    { src: '~/plugins/int-number', ssr: false },
     { src: '~/plugins/extend-router' },
     { src: '~/plugins/lookup', ssr: false },
     { src: '~/plugins/nuxt-client-init', ssr: false },

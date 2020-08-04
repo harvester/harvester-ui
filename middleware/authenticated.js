@@ -55,30 +55,30 @@ export default async function({
   }
 
   // Initial ?setup=admin-password can technically be on any route
-  const initialPass = route.query[SETUP];
+  // const initialPass = route.query[SETUP];
 
-  if ( initialPass ) {
-    const ok = await tryInitialSetup(store, initialPass, isDev);
+  // if ( initialPass ) {
+  //   const ok = await tryInitialSetup(store, initialPass, isDev);
 
-    if ( ok ) {
-      redirect(302, `/auth/setup?${ SETUP }=${ escape(initialPass) }`);
-    } else {
-      redirect(302, '/auth/login');
-    }
-  }
+  //   if ( ok ) {
+  //     redirect(302, `/auth/setup?${ SETUP }=${ escape(initialPass) }`);
+  //   } else {
+  //     redirect(302, '/auth/login');
+  //   }
+  // }
 
   // Make sure you're actually logged in
   if ( store.getters['auth/enabled'] !== false && !store.getters['auth/loggedIn'] ) {
     try {
-      const principals = await store.dispatch('rancher/findAll', {
-        type: NORMAN.PRINCIPAL,
-        opt:  { url: '/v3/principals' }
-      });
+      // const principals = await store.dispatch('rancher/findAll', {
+      //   type: NORMAN.PRINCIPAL,
+      //   opt:  { url: '/v3/principals' }
+      // });
 
-      const me = findBy(principals, 'me', true);
+      // const me = findBy(principals, 'me', true);
 
-      store.commit('auth/hasAuth', true);
-      store.commit('auth/loggedInAs', me.id);
+      // store.commit('auth/hasAuth', true);
+      // store.commit('auth/loggedInAs', me.id);
     } catch (e) {
       const status = e?._status;
 
@@ -122,7 +122,7 @@ export default async function({
     }
   } catch (e) {
     if ( e instanceof ClusterNotFoundError ) {
-      redirect(302, '/clusters');
+      // redirect(302, '/clusters');
     } else {
       store.commit('setError', e);
       redirect(302, '/fail-whale');

@@ -260,11 +260,11 @@ export const actions = {
 
     console.log('Loading management...'); // eslint-disable-line no-console
 
-    try {
-      await dispatch('rancher/findAll', { type: NORMAN.PRINCIPAL, opt: { url: 'principals' } });
-    } catch (e) {
-      // Maybe not Rancher
-    }
+    // try {
+    //   await dispatch('rancher/findAll', { type: NORMAN.PRINCIPAL, opt: { url: 'principals' } });
+    // } catch (e) {
+    //   // Maybe not Rancher
+    // }
 
     await allHash({
       prefs:      dispatch('prefs/loadServer'),
@@ -285,12 +285,12 @@ export const actions = {
       isMultiCluster = true;
     }
 
-    promises.push(dispatch('management/findAll', {
-      type: MANAGEMENT.CLUSTER,
-      opt:  { url: `${ MANAGEMENT.CLUSTER }s` }
-    }));
+    // promises.push(dispatch('management/findAll', {
+    //   type: MANAGEMENT.CLUSTER,
+    //   opt:  { url: `${ MANAGEMENT.CLUSTER }s` }
+    // }));
 
-    await Promise.all(promises);
+    // await Promise.all(promises);
 
     commit('managementChanged', {
       ready: true,
@@ -333,36 +333,38 @@ export const actions = {
     console.log(`Loading ${ isMultiCluster ? 'ECM ' : '' }cluster...`); // eslint-disable-line no-console
 
     // See if it really exists
-    const cluster = await dispatch('management/find', {
-      type: MANAGEMENT.CLUSTER,
-      id,
-      opt:  { url: `${ MANAGEMENT.CLUSTER }s/${ escape(id) }` }
-    });
+    // const cluster = await dispatch('management/find', {
+    //   type: MANAGEMENT.CLUSTER,
+    //   id,
+    //   opt:  { url: `${ MANAGEMENT.CLUSTER }s/${ escape(id) }` }
+    // });
 
-    const clusterBase = `/k8s/clusters/${ escape(id) }/v1`;
-    const externalBase = `/v1/management.cattle.io.clusters/${ escape(id) }`;
+    // const clusterBase = `/k8s/clusters/${ escape(id) }/v1`;
+    // const externalBase = `/v1/management.cattle.io.clusters/${ escape(id) }`;
+    const clusterBase = `/v1`;
+    const externalBase = `/v1/management.cattle.io.clusters`;
 
-    if ( !cluster ) {
-      commit('setCluster', null);
-      commit('cluster/applyConfig', { baseUrl: null });
-      commit('clusterExternal/applyConfig', { baseUrl: null });
-      throw new ClusterNotFoundError(id);
-    }
+    // if ( !cluster ) {
+    //   commit('setCluster', null);
+    //   commit('cluster/applyConfig', { baseUrl: null });
+    //   commit('clusterExternal/applyConfig', { baseUrl: null });
+    //   throw new ClusterNotFoundError(id);
+    // }
 
     // Update the Steve client URLs
     commit('cluster/applyConfig', { baseUrl: clusterBase });
-    isMultiCluster && commit('clusterExternal/applyConfig', { baseUrl: externalBase });
+    // isMultiCluster && commit('clusterExternal/applyConfig', { baseUrl: externalBase });
 
     await Promise.all([
       dispatch('cluster/loadSchemas', true),
-      isMultiCluster && dispatch('clusterExternal/loadSchemas', false),
+      // isMultiCluster && dispatch('clusterExternal/loadSchemas', false),
     ]);
 
     dispatch('cluster/subscribe');
-    isMultiCluster && dispatch('clusterExternal/subscribe');
+    // isMultiCluster && dispatch('clusterExternal/subscribe');
 
     const res = await allHash({
-      projects:   isMultiCluster && dispatch('clusterExternal/findAll', { type: EXTERNAL.PROJECT, opt: { url: 'projects' } }),
+      // projects:   isMultiCluster && dispatch('clusterExternal/findAll', { type: EXTERNAL.PROJECT, opt: { url: 'projects' } }),
       counts:     dispatch('cluster/findAll', { type: COUNT, opt: { url: 'counts' } }),
       namespaces: dispatch('cluster/findAll', { type: NAMESPACE, opt: { url: 'namespaces' } })
     });

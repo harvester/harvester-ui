@@ -15,8 +15,8 @@ const ERR_SERVER = 'server';
 
 export const state = function() {
   return {
-    hasAuth:     null,
-    loggedIn:    false,
+    hasAuth:     true,
+    loggedIn:    true,
     principalId: null,
   };
 };
@@ -186,54 +186,54 @@ export const actions = {
     });
   },
 
-  async login({ dispatch }, { provider, body }) {
-    const authProvider = await dispatch('getAuthProvider', provider);
+  login({ dispatch }, { provider, body }) {
+    // const authProvider = await dispatch('getAuthProvider', provider);
 
-    try {
-      const res = await authProvider.doAction('login', {
-        description:  'Dashboard UI session',
-        responseType: 'cookie',
-        ttl:          16 * 60 * 60 * 1000,
-        ...body
-      }, { redirectUnauthorized: false });
+    // try {
+    //   // const res = await authProvider.doAction('login', {
+    //   //   description:  'Dashboard UI session',
+    //   //   responseType: 'cookie',
+    //   //   ttl:          16 * 60 * 60 * 1000,
+    //   //   ...body
+    //   // }, { redirectUnauthorized: false });
 
-      if ( process.server ) {
-        const parsed = setCookieParser(res._headers['set-cookie'] || []);
+    //   // if ( process.server ) {
+    //   //   const parsed = setCookieParser(res._headers['set-cookie'] || []);
 
-        for ( const opt of parsed ) {
-          const key = opt.name;
-          const value = opt.value;
+    //   //   for ( const opt of parsed ) {
+    //   //     const key = opt.name;
+    //   //     const value = opt.value;
 
-          delete opt.name;
-          delete opt.value;
+    //   //     delete opt.name;
+    //   //     delete opt.value;
 
-          opt.encode = x => x;
-          opt.sameSite = false;
+    //   //     opt.encode = x => x;
+    //   //     opt.sameSite = false;
 
-          this.$cookies.set(key, value, opt);
-        }
-      }
+    //   //     this.$cookies.set(key, value, opt);
+    //   //   }
+    //   // }
 
-      return true;
-    } catch (err) {
-      if ( err._status >= 400 && err._status <= 499 ) {
-        return Promise.reject(ERR_CLIENT);
-      }
+    //   return true;
+    // } catch (err) {
+    //   if ( err._status >= 400 && err._status <= 499 ) {
+    //     return Promise.reject(ERR_CLIENT);
+    //   }
 
-      return Promise.reject(ERR_SERVER);
-    }
+    //   return Promise.reject(ERR_SERVER);
+    // }
   },
 
-  async logout({ dispatch, commit }, clearToken = true) {
+  logout({ dispatch, commit }, clearToken = true) {
     if ( clearToken !== false ) {
       try {
-        await dispatch('rancher/request', {
-          url:           '/v3/tokens?action=logout',
-          method:        'post',
-          data:          {},
-          headers:       { 'Content-Type': 'application/json' },
-          logoutOnError: false,
-        }, { root: true });
+        // await dispatch('rancher/request', {
+        //   url:           '/v3/tokens?action=logout',
+        //   method:        'post',
+        //   data:          {},
+        //   headers:       { 'Content-Type': 'application/json' },
+        //   logoutOnError: false,
+        // }, { root: true });
       } catch (e) {
       }
     }
