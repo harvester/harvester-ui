@@ -1,13 +1,11 @@
 <script>
 import LabeledInput from '@/components/form/LabeledInput';
 import Banner from '@/components/Banner';
-import Checkbox from '@/components/form/Checkbox';
 import { clone } from '@/utils/object';
 
 export default {
   components: {
     LabeledInput,
-    Checkbox,
     Banner
   },
 
@@ -34,7 +32,7 @@ export default {
       publicKey:     '',
       sshName:       '',
       errors:        [],
-      isSelectAll:   false
+      isAll:         false
     };
   },
 
@@ -47,11 +45,18 @@ export default {
   watch: {
     ssh_key() {
       if (this.ssh_key.length === this.sshList.length) {
-        this.isSelectAll = true;
+        this.isAll = true;
       } else {
-        this.isSelectAll = false;
+        this.isAll = false;
       }
       this.$emit('update:sshKey', clone(this.ssh_key));
+    },
+    isAll(neu) {
+      if (neu) {
+        this.$set(this, 'ssh_key', clone(this.sshList));
+      } else {
+        this.$set(this, 'ssh_key', []);
+      }
     }
   },
 
@@ -102,14 +107,6 @@ export default {
     cancelKey() {
       this.hide();
     },
-
-    chooseAll(neu) {
-      if (neu) {
-        this.$set(this, 'ssh_key', clone(this.sshList));
-      } else {
-        this.$set(this, 'ssh_key', []);
-      }
-    }
   }
 };
 </script>
@@ -120,12 +117,13 @@ export default {
       <h3>Choose your SSH keys</h3>
       <div class="keyLisk">
         <div class="ssh mr-20">
-          <Checkbox v-model="isSelectAll" label="Select all" type="checkbox" @input="chooseAll" />
+          <input id="Select all" v-model="isAll" type="checkbox">
+          <label class="checkbox-label" for="Select all">Select all</label>
         </div>
 
         <div v-for="item in ssh" :key="item.metadata.uid" class="ssh mr-20">
-          <input :id="item.metadata.name" v-model="ssh_key" type="checkbox" class="mr-5" :value="item.metadata.name">
-          <label :for="item.metadata.name">{{ item.metadata.name }}</label>
+          <input :id="item.metadata.name" v-model="ssh_key" type="checkbox" class="custom mr-5" :value="item.metadata.name">
+          <label class="checkbox-label" :for="item.metadata.name">{{ item.metadata.name }}</label>
         </div>
       </div>
     </div>
@@ -181,6 +179,9 @@ export default {
     display: flex;
     justify-content: flex-end;
   }
+}
+.custom {
+  border: 1px solid var(--border);
 }
 
 .box {

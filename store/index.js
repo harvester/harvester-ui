@@ -362,11 +362,12 @@ export const actions = {
 
     dispatch('cluster/subscribe');
     // isMultiCluster && dispatch('clusterExternal/subscribe');
-
+    const VMI = 'kubevirt.io.virtualmachineinstance';
     const res = await allHash({
       // projects:   isMultiCluster && dispatch('clusterExternal/findAll', { type: EXTERNAL.PROJECT, opt: { url: 'projects' } }),
       counts:     dispatch('cluster/findAll', { type: COUNT, opt: { url: 'counts' } }),
-      namespaces: dispatch('cluster/findAll', { type: NAMESPACE, opt: { url: 'namespaces' } })
+      namespaces: dispatch('cluster/findAll', { type: NAMESPACE, opt: { url: 'namespaces' } }),
+      vmi:        dispatch('cluster/findAll', { type: VMI, opt: { url: `${ VMI }s` } })
     });
 
     commit('updateNamespaces', {

@@ -24,13 +24,18 @@ export default {
 
   computed: {
     filterImage() {
-      return this.images.filter( I => I.spec.displayName.includes(this.searchKey));
+      return this.images.filter( (I) => {
+        return I.spec.displayName.includes(this.searchKey) && I?.status?.conditions?.[0].status === 'True';
+      });
     },
   },
 
   watch: {
     activeName(neu) {
       this.$emit('update:imageName', neu);
+    },
+    imageName(neu) {
+      this.activeName = neu;
     }
   },
 
@@ -72,7 +77,7 @@ export default {
 
           <div class="info">
             <span>{{ item.spec.displayName }}</span>
-            <span>{{ item.spec.displayName }}</span>
+            <span>{{ item.spec.description }}</span>
           </div>
 
           <i v-if="activeName == item.spec.displayName" class="icon icon-checkmark checkmark" />

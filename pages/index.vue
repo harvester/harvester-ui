@@ -1,7 +1,7 @@
 <script>
 export default {
-  middleware({ redirect } ) {
-    return redirect({ name: 'clusters' });
+  middleware({ redirect, route } ) {
+    return redirect('/c/local');
   }
 };
 </script>

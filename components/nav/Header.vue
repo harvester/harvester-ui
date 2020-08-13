@@ -112,10 +112,11 @@ export default {
         background-color: var(--header-logo);
         mask: url("~assets/images/logo.svg") no-repeat center;
         height: 30px;
-        width: 64px;
+        width: 42px;
         position: absolute;
         top: 9px;
-        left: -30px;
+        // left: -30px;
+        left: 0px;
         z-index: 2;
       }
     }

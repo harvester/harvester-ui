@@ -8,7 +8,6 @@ import WindowManager from '@/components/nav/WindowManager';
 import PromptRemove from '@/components/PromptRemove';
 import Group from '@/components/nav/Group';
 import Header from '@/components/nav/Header';
-import Footer from '@/components/nav/Footer';
 import { COUNT, SCHEMA, STEVE } from '@/config/types';
 import { BASIC, FAVORITE, USED } from '@/store/type-map';
 import { addObjects, replaceWith, clear } from '@/utils/array';
@@ -21,7 +20,6 @@ export default {
     Jump,
     PromptRemove,
     Header,
-    Footer,
     ActionMenu,
     Group,
     WindowManager
@@ -234,7 +232,6 @@ export default {
 
     <main v-if="clusterReady">
       <nuxt class="outlet" />
-      <Footer />
 
       <ActionMenu />
       <PromptRemove />
@@ -308,7 +305,7 @@ export default {
       flex-direction: column;
       padding: 20px 20px 70px 20px;
       min-height: 100%;
-      margin-bottom: calc(-1 * var(--footer-height) - 1px);
+      // margin-bottom: calc(-1 * var(--footer-height) - 1px);
     }
 
     FOOTER {

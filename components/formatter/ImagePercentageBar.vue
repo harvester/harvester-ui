@@ -1,12 +1,5 @@
 <script>
-import PercentageBarComponent from '../PercentageBar';
-
-/**
- * This is a wrapper around the PercentageBar component which provides the interface
- * that formatters are expected to have.
- */
 export default {
-  components: { PercentageBarComponent },
   props:      {
     value: {
       type:     Number,
@@ -30,5 +23,5 @@ export default {
 </script>
 
 <template>
-  <PercentageBarComponent :value="percentage" />
+  <el-progress :text-inside="true" :stroke-width="14" :percentage="percentage" :status="percentage === 100 ? 'success' : 'warning'"></el-progress>
 </template>

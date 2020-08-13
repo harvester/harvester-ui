@@ -36,7 +36,10 @@ export default {
       this.value.metadata.generateName = 'image-';
     }
 
-    return { url: this.value.spec.url };
+    return {
+      url:         this.value.spec.url,
+      displayName: this.value?.spec?.displayName || ''
+    };
   },
 
   watch: {
@@ -46,11 +49,14 @@ export default {
 
       this.value.spec.url = neu;
       if (filesFormat.includes(fileSuffiic)) {
-        this.value.spec.displayName = suffixName;
+        this.displayName = suffixName;
         this.errors = [];
       } else {
         this.errors = ['The URL you have entered ends in an extension that we do not support. We only accept image files that end in gz, bz2, vmdk, vhdx, qcow, qcow2, vdi, raw, img, xz. (.zip is not supported).'];
       }
+    },
+    displayName(neu) {
+      this.value.spec.displayName = neu;
     }
   }
 };
@@ -76,7 +82,7 @@ export default {
     <div class="row mb-20">
       <div class="col span-12">
         <LabeledInput
-          v-model="value.spec.displayName"
+          v-model="displayName"
           :mode="mode"
           label="Image Name"
         />

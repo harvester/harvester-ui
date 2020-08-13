@@ -18,6 +18,7 @@ export const NAME = 'virtual';
 const IMAGE = 'vm.cattle.io.image';
 const VIRTUAL_MACHINE = 'kubevirt.io.virtualmachine';
 const SSH = 'vm.cattle.io.keypair';
+const TEMPLATE = 'vm.cattle.io.template';
 
 export function init(store) {
   const {
@@ -81,6 +82,20 @@ export function init(store) {
     exact: true,
   });
 
+  basicType([TEMPLATE]);
+  virtualType({
+    label:      'Templates',
+    group:      'root',
+    namespaced: true,
+    name:       TEMPLATE,
+    weight:     89,
+    route:      {
+      name:     'c-cluster-product-resource',
+      params:   { resource: TEMPLATE }
+    },
+    exact: true,
+  });
+
   basicType([
     PV,
     PVC,
@@ -121,6 +136,44 @@ export function init(store) {
       label:     'Data',
       value:     'dataPreview',
       formatter: 'SecretData'
+    },
+    AGE
+  ]);
+
+  headers(VIRTUAL_MACHINE, [
+    {
+      name:      'status',
+      label:     'State',
+      value:     'id',
+      formatter: 'vmState'
+    },
+    NAMESPACE_NAME,
+    {
+      name:      'node',
+      label:     'Node',
+      value:     'id',
+      formatter: 'nodeName'
+    },
+    {
+      name:      'ip',
+      label:     'IP Address',
+      value:     'id',
+      formatter: 'ipAddress'
+    },
+    AGE
+  ]);
+
+  headers(TEMPLATE, [
+    NAMESPACE_NAME,
+    {
+      name:      'default',
+      label:     'Default version',
+      value:     'spec.defaultVersionId',
+    },
+    {
+      name:      'latest',
+      label:     'Latest version',
+      value:     'status.defaultVersion',
     },
     AGE
   ]);

@@ -13,7 +13,7 @@ export default {
 
   props: {
     value: {
-      type:    Object,
+      type:    Array,
       default: () => {
         return {};
       }
@@ -22,6 +22,7 @@ export default {
 
   data() {
     return {
+      rows:       clone(this.value),
       type:       'add',
       rowIndex:   0,
       errors:     [],
@@ -92,8 +93,8 @@ export default {
 
     networkOption() {
       return [{
-        label: 'macvlan-conf',
-        value: 'macvlan-conf'
+        label: 'macvlan',
+        value: 'macvlan'
       }];
     },
 
@@ -107,35 +108,10 @@ export default {
         value: 'sriov'
       }];
     },
-
-    rows() {
-      const networks = this.value?.networks || [];
-      const interfaces = this.value?.domain?.devices?.interfaces || [];
-
-      const out = interfaces.map( (O, index) => {
-        const network = networks.find( (N) => {
-          return O.name === N.name;
-        });
-
-        const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
-
-        return {
-          ...O,
-          type,
-          networkName: network?.multus?.networkName || 'Pod Networking',
-          index
-        };
-      });
-
-      return out;
-    }
   },
 
   methods: {
     updateAdd() {
-      const interfaces = [];
-      const networks = [];
-
       if (this.type === 'add') {
         this.rows.splice(this.rowIndex, 0, this.currentRow);
       } else if (this.type === 'delete') {
@@ -143,45 +119,8 @@ export default {
       } else {
         this.rows.splice(this.rowIndex, 1, this.currentRow);
       }
-      this.rows.forEach( (O) => {
-        const _interface = {};
-        const network = {};
 
-        if (O.networkName === 'Pod Networking') {
-          _interface.masquerade = {};
-          network.pod = {};
-        } else {
-          if (O.sriov) {
-            _interface.sriov = {};
-          } else if (O.bridge) {
-            _interface.bridge = {};
-          }
-          _interface.macAddress = O.macAddress;
-          network.multus = { networkName: O.networkName };
-        }
-
-        _interface.model = O.model;
-        _interface.name = O.name;
-        network.name = O.name;
-
-        interfaces.push(_interface);
-
-        networks.push(network);
-      });
-
-      const spec = {
-        ...this.value,
-        domain: {
-          ...this.value.domain,
-          devices: {
-            ...this.value.domain.devices,
-            interfaces,
-          },
-        },
-        networks
-      };
-
-      this.$emit('input', spec);
+      this.$emit('input', this.rows);
     },
     beforeCancel() {
       this.$set(this, 'errors', []);

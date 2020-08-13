@@ -8,10 +8,10 @@ import { sortBy } from '@/utils/sort';
 import { NAMESPACE, PVC } from '@/config/types';
 
 const SOURCE_TYPE = {
-  AttachCloned: 'Attach Cloned Disks',
-  Attach:       'Attach Disks',
-  BLANK:        'blank',
-  URL:          'url'
+  ATTACH:        'Attach Disks',
+  BLANK:         'blank',
+  ATTACH_VOLUME: 'attach volume',
+  URL:           'url'
 };
 
 export default {
@@ -23,7 +23,7 @@ export default {
 
   props:      {
     value: {
-      type:    Object,
+      type:    Array,
       default: () => {
         return {};
       }
@@ -32,11 +32,13 @@ export default {
 
   data() {
     return {
-      type:       'add',
-      errors:     [],
-      rowIndex:   0,
-      currentRow: {},
-      pvcs:       [],
+      rows:           clone(this.value),
+      type:           'add',
+      errors:         [],
+      rowIdx:         0,
+      currentRow:     {},
+      pvcs:           [],
+      enableAdvanced: false
     };
   },
 
@@ -44,15 +46,15 @@ export default {
     isUrl() {
       return this.currentRow.source === SOURCE_TYPE.URL;
     },
-    isAttachCloned() {
-      return this.currentRow.source === SOURCE_TYPE.AttachCloned;
-    },
-    isAttach() {
-      return this.currentRow.source === SOURCE_TYPE.Attach;
-    },
+
     isBlank() {
       return this.currentRow.source === SOURCE_TYPE.BLANK;
     },
+
+    isAttachVolume() {
+      return this.currentRow.source === SOURCE_TYPE.ATTACH_VOLUME;
+    },
+
     namespaceOptions() {
       const choices = this.$store.getters['cluster/all'](NAMESPACE);
 
@@ -67,6 +69,7 @@ export default {
         'label'
       );
     },
+
     pvcOption() {
       const choices = this.$store.getters['cluster/all'](PVC);
 
@@ -120,14 +123,8 @@ export default {
 
     sourceOption() {
       return [{
-        label: 'Blank',
+        label: SOURCE_TYPE.BLANK,
         value: SOURCE_TYPE.BLANK
-      }, {
-        label: 'Attach Cloned Disks',
-        value: SOURCE_TYPE.AttachCloned
-      }, {
-        label: 'Attach Disks',
-        value: SOURCE_TYPE.Attach
       }];
     },
 
@@ -178,205 +175,72 @@ export default {
     accessModeOption() {
       return [{
         label: 'Single User(RWO)',
-        value: 'RWO'
+        value: 'ReadWriteOnce'
       }, {
         label: 'Shared Access(RWX)',
-        value: 'RWX'
+        value: 'ReadWriteMany'
       }, {
         label: 'Read Only(ROX)',
-        value: 'ROX'
+        value: 'ReadOnlyMany'
       }];
-    },
-
-    rows() {
-      const _dataVolumeTemplates = this.value?.dataVolumeTemplates || [];
-      const _disk = this.value?.template?.spec?.domain?.devices?.disks || [];
-      const _volume = this.value?.template?.spec?.volumes || [];
-
-      const out = _disk.map( (DISK, index) => {
-        const volume = _volume.find( (V) => {
-          return V.name === DISK.name;
-        });
-
-        let source = '';
-        let pvcName = '';
-        let pvcNS = '';
-        let accessMode = '';
-        let size = '';
-        const unit = '';
-        let volumeMode = '';
-        let storageClassName = '';
-        let url = '';
-
-        if (volume?.dataVolume && volume?.dataVolume?.name) {
-          const volumeName = volume.dataVolume.name;
-
-          const DVT = _dataVolumeTemplates.find( (T) => {
-            return T.metadata.name === volumeName;
-          });
-
-          if (DVT) {
-            if (DVT.spec?.source?.blank) {
-              source = 'blank';
-            } else if (DVT.spec?.source?.pvc) {
-              source = 'Attach Cloned Disks';
-              pvcName = DVT.spec?.source?.pvcname;
-              pvcNS = DVT.spec?.source?.pvc.namespace;
-            } else if (DVT.spec?.source?.http?.url) {
-              source = 'url';
-              url = DVT.spec?.source?.http?.url;
-            }
-
-            accessMode = DVT.spec?.pvc?.accessModes?.[0];
-            size = DVT.spec?.pvc?.resources?.requests?.storage;
-            volumeMode = DVT.spec?.pvc?.volumeMode;
-            storageClassName = DVT.spec?.pvc?.storageClassName;
-          }
-        }
-
-        const bus = DISK.disk.bus;
-
-        return {
-          index,
-          source,
-          name: DISK.name,
-          bus,
-          pvcName,
-          pvcNS,
-          accessMode,
-          size,
-          unit,
-          volumeMode,
-          url,
-          storageClassName
-        };
-      });
-
-      return out;
     },
   },
 
   methods: {
-    updateIndex(index, type) {
-      this.rowIndex = index;
-      this.type = type;
-      this.$set(this, 'currentRow', clone(this.rows[this.rowIndex]) || { name: `disk-${ index - 1 }`, pvcNS: 'default' });
-    },
     beforeCancel() {
       this.$set(this, 'errors', []);
     },
+
+    showAdvanced() {
+      this.enableAdvanced = !this.enableAdvanced;
+    },
+
+    updateIndex(idx, type) {
+      this.rowIdx = idx;
+      this.type = type;
+      this.$set(this, 'currentRow', clone(this.rows[this.rowIdx]) || {
+        name:       `disk-${ idx - 1 }`,
+        pvcNS:      'default',
+        unit:       'Gi',
+        accessMode: 'ReadWriteOnce',
+        volumeMode: 'Filesystem',
+        bus:        'virtio'
+      });
+    },
+
     updateAdd() {
       const dataVolumeTemplates = [];
       const disks = [];
       const volumes = [];
 
       if (this.type === 'add') {
-        this.rows.splice(this.rowIndex, 0, this.currentRow);
+        this.rows.splice(this.rowIdx, 0, this.currentRow);
       } else if (this.type === 'delete') {
-        this.rows.splice(this.rowIndex, 1);
+        this.rows.splice(this.rowIdx, 1);
       } else {
-        this.rows.splice(this.rowIndex, 1, this.currentRow);
+        this.rows.splice(this.rowIdx, 1, this.currentRow);
       }
 
-      console.log('----out disk', this.currentRow, this.rows);
-      this.rows.forEach( (R) => {
-        const dataVolumeName = randomstring.generate(5);
-        let _volume = {};
-        let _dataVolumeTemplate = {};
-
-        const _disk = {
-          disk: { bus: R.bus },
-          name: R.name
-        };
-
-        if (R.source !== 'Attach Disks') {
-          _volume = {
-            name:       R.name,
-            dataVolume: { name: dataVolumeName }
-          };
-        } else {
-          _volume = {
-            name:                  dataVolumeName,
-            persistentVolumeClaim: { claimName: R.pvc }
-          };
-        }
-
-        _dataVolumeTemplate = {
-          apiVersion: 'cdi.kubevirt.io/v1alpha1',
-          kind:       'DataVolume',
-          metadata:   { name: dataVolumeName },
-          spec:       {
-            pvc: {
-              accessModes: [
-                R.accessMode
-              ],
-              resources:  { requests: { storage: `${ R.size }${ R.unit }` } },
-              volumeMode: R.volumeMode
-            }
-          }
-        };
-
-        if (R.bootOrder) { // is rootdisk
-          _disk.bootOrder = 1;
-        }
-
-        switch (R.source) {
-        case 'Attach Disks':
-          _dataVolumeTemplate = null;
-          break;
-
-        case 'url':
-          _dataVolumeTemplate.spec.source = { http: { url: 'https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-uec.tar.gz' } };
-          break;
-
-        case 'break':
-          _dataVolumeTemplate.spec.pvc.storageClassName = R.storageClassName;
-          _dataVolumeTemplate.spec.source = { blank: {} };
-          break;
-
-        case 'Attach Cloned Disks':
-          _dataVolumeTemplate.spec.pvc.storageClassName = R.storageClassName;
-          _dataVolumeTemplate.spec.source = {
-            pvc: {
-              name:      R.pvcName,
-              namespace: R.pvcNS
-            }
-          };
-          break;
-        default:
-        }
-
-        disks.push(_disk);
-        volumes.push(_volume);
-        dataVolumeTemplates.push(_dataVolumeTemplate);
-      });
-
-      const spec = {
-        ...this.value,
-        dataVolumeTemplates,
-        template: {
-          spec: {
-            domain: {
-              ...this.value.template.spec.domain,
-              devices: {
-                ...this.value.template.spec.domain.devices,
-                disks,
-              },
-            },
-            volumes
-          }
-        }
-      };
-
-      this.$emit('input', spec);
+      this.$emit('input', this.rows);
     },
+
     validateError() {
+      let hasError = false;
+
+      if (!this.currentRow.source) {
+        hasError = true;
+      }
+
       if (this.isBlank) {
+        if (!this.currentRow.size || !this.currentRow.storageClassName || !this.currentRow.name) {
+          hasError = true;
+        }
+      }
 
-      } else if (this.isAttachCloned) {
-
-      } else if (this.isAttach) {
-
+      if (hasError) {
+        this.errors.splice(0, 1, 'Please fill in all required fields.');
+      } else {
+        this.errors.splice(0, 1);
       }
     }
   }
@@ -397,50 +261,27 @@ export default {
       @validateError="validateError"
     >
       <template v-slot:content>
-        <LabeledSelect
-          v-model="currentRow.source"
-          :options="sourceOption"
-          label="Source"
-          class="mb-20"
-          required
-        />
+        <LabeledSelect v-model="currentRow.source" :options="sourceOption" label="Source" required />
 
-        <LabeledInput
-          v-if="isUrl"
-          v-model="currentRow.url"
-          label="Url"
-          class="mb-20"
-          required
-        />
+        <div class="min-spacer"></div>
 
-        <LabeledInput v-model="currentRow.name" label="Name" class="mb-20" required />
+        <template v-if="isUrl">
+          <LabeledInput v-model="currentRow.url" label="Url" required />
+          <div class="min-spacer"></div>
+        </template>
 
-        <LabeledSelect
-          v-if="isAttachCloned"
-          v-model="currentRow.pvcNS"
-          label="PVC Namespace"
-          :options="namespaceOptions"
-          class="mb-20"
-          required
-        />
+        <LabeledInput v-model="currentRow.name" label="Name" required />
 
-        <LabeledSelect
-          v-if="isAttachCloned || isAttach"
-          v-model="currentRow.pvcName"
-          label="Persistent Volume Claim"
-          :options="pvcOption"
-          class="mb-20"
-          required
-        />
+        <div class="min-spacer"></div>
 
-        <div v-if="!isAttach" class="row mb-20">
+        <template v-if="isAttachVolume">
+          <LabeledSelect v-model="currentRow.pvcName" label="Persistent Volume Claim" :options="pvcOption" required />
+          <div class="min-spacer"></div>
+        </template>
+
+        <div v-if="!isAttachVolume" class="row mb-20">
           <div class="col span-8">
-            <LabeledInput
-              v-model.number="currentRow.size"
-              v-int-number
-              label="Size"
-              required
-            />
+            <LabeledInput v-model.number="currentRow.size" v-int-number label="Size" required />
           </div>
 
           <div class="col span-4">
@@ -448,31 +289,40 @@ export default {
           </div>
         </div>
 
-        <LabeledSelect
-          v-model="currentRow.bus"
-          label="Interface"
-          :options="InterfaceOption"
-          class="mb-20"
-          required
-        />
+        <LabeledSelect v-model="currentRow.bus" label="Interface" :options="InterfaceOption" required />
 
-        <LabeledSelect
-          v-if="!isAttach"
-          v-model="currentRow.storageClassName"
-          label="Storage Class"
-          :options="storageOption"
-          class="mb-20"
-          required
-        />
+        <div class="min-spacer"></div>
 
-        <template v-if="!isAttach">
-          <div>Show Advanced</div>
+        <template v-if="!isAttachVolume">
+          <LabeledSelect v-model="currentRow.storageClassName" label="Storage Class" :options="storageOption" required />
+          <div class="min-spacer"></div>
+        </template>
 
-          <LabeledSelect v-model="currentRow.volumeMode" class="mb-20" label="Volume Mode" :options="volumeModeOption" />
+        <template v-if="!isAttachVolume">
+          <div class="advanced mb-5" @click="showAdvanced">
+            <i v-if="enableAdvanced" class="el-icon-arrow-down"></i>
+            <i v-else class="el-icon-arrow-right"></i>
+            Show Advanced
+          </div>
 
-          <LabeledSelect v-model="currentRow.accessMode" class="mb-20" label="Access Model" :options="accessModeOption" />
+          <div v-if="enableAdvanced">
+            <LabeledSelect v-model="currentRow.volumeMode" label="Volume Mode" :options="volumeModeOption" />
+
+            <div class="min-spacer"></div>
+
+            <LabeledSelect v-model="currentRow.accessMode" label="Access Model" :options="accessModeOption" />
+
+            <div class="min-spacer"></div>
+          </div>
         </template>
       </template>
     </VMModal>
   </div>
 </template>
+
+<style lang="scss" scoped>
+  .advanced {
+    color: #004080;
+    cursor: pointer;
+  }
+</style>

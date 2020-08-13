@@ -119,3 +119,14 @@ export const RIO = {
 };
 
 export const GATEKEEPER = { CONSTRAINT_TEMPLATE: 'templates.gatekeeper.sh.constrainttemplate' };
+
+// rancher vm
+
+export const VM_TEMPLATE = {
+  template: 'vm.cattle.io.template',
+  version:  'vm.cattle.io.templateversion'
+};
+
+export const VMI = 'kubevirt.io.virtualmachineinstance';
+export const IMAGE = 'vm.cattle.io.image';
+export const SSH = 'vm.cattle.io.keypair';

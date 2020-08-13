@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import jsyaml from 'js-yaml';
+import _ from 'lodash';
 import compact from 'lodash/compact';
 import uniq from 'lodash/uniq';
 import isEmpty from 'lodash/isEmpty';
@@ -302,6 +303,18 @@ export default {
 
       return state.split(/-/).map(ucFirst).join('-');
     };
+  },
+
+  getStatusConditionOfType(type, defaultValue = []) {
+    const conditions = _.get(this, 'status.conditions') === undefined
+      ? defaultValue
+      : this.status.conditions;
+
+    return conditions.find( cond => cond.type === type);
+  },
+
+  getStatusPhase() {
+    return this?.status?.phase;
   },
 
   stateColor() {

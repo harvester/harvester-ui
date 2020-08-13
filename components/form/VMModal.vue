@@ -87,18 +87,18 @@ export default {
     >
       <template v-slot:row-actions="scope">
         <div class="action">
-          <button type="button" class="btn btn-sm bg-primary mr-15" @click="handleRow(scope.row, 'modify')">
+          <button type="button" :disabled="scope.row.name === 'rootdisk' || scope.row.name === 'nic-0'" class="btn btn-sm bg-primary mr-15" @click="handleRow(scope.row, 'modify')">
             modify
           </button>
 
-          <button type="button" class="btn btn-sm bg-primary" @click="handleRow(scope.row, 'delete')">
+          <button type="button" :disabled="scope.row.name === 'rootdisk' || scope.row.name === 'nic-0'" class="btn btn-sm bg-primary" @click="handleRow(scope.row, 'delete')">
             delete
           </button>
         </div>
       </template>
     </SortableTable>
 
-    <modal :name="modalName" height="auto" :click-to-close="false">
+    <modal :name="modalName" height="auto" :scrollable="true" :click-to-close="false" :pivot-y="0.2">
       <div class="modal">
         <div class="title mb-20">
           <span>{{ title }}</span>

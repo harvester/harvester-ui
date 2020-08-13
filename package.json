@@ -43,6 +43,7 @@
     "dayjs": "^1.8.16",
     "diff2html": "^2.11.2",
     "dompurify": "^2.0.12",
+    "element-ui": "^2.13.2",
     "event-target-shim": "^5.0.1",
     "express": "^4.17.1",
     "file-saver": "^2.0.2",
