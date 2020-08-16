@@ -539,10 +539,10 @@ export default {
       <div class="col span-6">
         <LabeledInput v-model="value.metadata.name" label="Template Name" required />
       </div>
-
+<!-- 
       <div class="col span-6">
         <LabeledSelect v-model="value.metadata.namespace" :options="namespaceOptions" label="Namespace" />
-      </div>
+      </div> -->
     </div>
 
     <!-- <div class="min-spacer"></div> -->
@@ -589,14 +589,6 @@ export default {
 
     <h2>Cloud-init:</h2>
     <TextAreaAutoGrow ref="value" v-model="cloudInit" :minHeight="160" />
-
-    <div class="spacer"></div>
-
-    <h2>Finalize and create:</h2>
-    <LabeledInput v-model="hostname" label="Host Name" required />
-    <div class="tip mt-6 mt-5">
-      Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes, and periods.
-    </div>
 
     <div class="spacer"></div>
 

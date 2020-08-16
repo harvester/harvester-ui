@@ -128,5 +128,8 @@ export const VM_TEMPLATE = {
 };
 
 export const VMI = 'kubevirt.io.virtualmachineinstance';
+export const VM = 'kubevirt.io.virtualmachine';
 export const IMAGE = 'vm.cattle.io.image';
 export const SSH = 'vm.cattle.io.keypair';
+export const NETWORK_ATTACHMENT = 'k8s.cni.cncf.io.networkattachmentdefinition';
+export const DATA_VOLUME = 'cdi.kubevirt.io.datavolume';

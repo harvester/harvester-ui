@@ -5,7 +5,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { clone } from '@/utils/object';
 import { sortBy } from '@/utils/sort';
-import { NAMESPACE, PVC } from '@/config/types';
+import { NAMESPACE, PVC, STORAGE_CLASS } from '@/config/types';
 
 const SOURCE_TYPE = {
   ATTACH:        'Attach Disks',
@@ -88,6 +88,21 @@ export default {
       );
     },
 
+    storageOption() {
+      const choices = this.$store.getters['cluster/all'](STORAGE_CLASS);
+
+      return sortBy(
+        choices
+          .map((obj) => {
+            return {
+              label: obj.metadata.name,
+              value: obj.metadata.name
+            };
+          }),
+        'label'
+      );
+    },
+
     headers() {
       return [{
         name:     'name',
@@ -105,6 +120,7 @@ export default {
         name:     'Size',
         label:    'Size',
         value:    'size',
+        formatter: 'valueUnit',
         width:    120,
       },
       {
@@ -155,19 +171,12 @@ export default {
       }];
     },
 
-    storageOption() {
-      return [{
-        label: 'hostpath',
-        value: 'hostpath'
-      }];
-    },
-
     volumeModeOption() {
       return [{
         label: 'FileSystem',
         value: 'Filesystem'
       }, {
-        label: 'Blokc',
+        label: 'Block',
         value: 'Block'
       }];
     },
@@ -196,15 +205,17 @@ export default {
     },
 
     updateIndex(idx, type) {
+      console.log('---a index', idx);
       this.rowIdx = idx;
       this.type = type;
       this.$set(this, 'currentRow', clone(this.rows[this.rowIdx]) || {
-        name:       `disk-${ idx - 1 }`,
-        pvcNS:      'default',
-        unit:       'Gi',
-        accessMode: 'ReadWriteOnce',
-        volumeMode: 'Filesystem',
-        bus:        'virtio'
+        name:             `disk-${ idx - 1 }`,
+        pvcNS:            'default',
+        unit:             'Gi',
+        accessMode:       'ReadWriteOnce',
+        volumeMode:       'Filesystem',
+        bus:              'virtio',
+        storageClassName: this.storageOption?.[0]?.value || ''
       });
     },
 
@@ -221,6 +232,9 @@ export default {
         this.rows.splice(this.rowIdx, 1, this.currentRow);
       }
 
+      this.rows.forEach((o, index) => {
+        o.index = index;
+      });
       this.$emit('input', this.rows);
     },
 
@@ -251,7 +265,7 @@ export default {
   <div>
     <VMModal
       modal-name="disk"
-      title="Add Diska"
+      title="Add Disk"
       :rows="rows"
       :headers="headers"
       :errors="errors"

@@ -3,6 +3,8 @@ import { clone } from '@/utils/object';
 import VMModal from '@/components/form/VMModal';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
+import { sortBy } from '@/utils/sort';
+import { NETWORK_ATTACHMENT } from '@/config/types';
 
 export default {
   components: {
@@ -92,10 +94,18 @@ export default {
     },
 
     networkOption() {
-      return [{
-        label: 'macvlan',
-        value: 'macvlan'
-      }];
+      const choices = this.$store.getters['cluster/all'](NETWORK_ATTACHMENT);
+
+      return sortBy(
+        choices
+          .map((obj) => {
+            return {
+              label: obj.metadata.name,
+              value: obj.metadata.name
+            };
+          }),
+        'label'
+      );
     },
 
     typeOpton() {
@@ -119,6 +129,10 @@ export default {
       } else {
         this.rows.splice(this.rowIndex, 1, this.currentRow);
       }
+
+      this.rows.forEach((o, index) => {
+        o.index = index;
+      });
 
       this.$emit('input', this.rows);
     },

@@ -177,6 +177,12 @@ export default {
     });
   },
 
+  getLabelValue() {
+    return (label) => {
+      return _.get(this, ['metadata', 'labels', label]);
+    };
+  },
+
   annotations() {
     const all = this.metadata?.annotations || {};
 
@@ -305,12 +311,14 @@ export default {
     };
   },
 
-  getStatusConditionOfType(type, defaultValue = []) {
-    const conditions = _.get(this, 'status.conditions') === undefined
-      ? defaultValue
-      : this.status.conditions;
+  getStatusConditionOfType() {
+    return (type, defaultValue = []) => {
+      const conditions = _.get(this, 'status.conditions') === undefined
+        ? defaultValue
+        : this.status.conditions;
 
-    return conditions.find( cond => cond.type === type);
+      return conditions.find( cond => cond.type === type);
+    };
   },
 
   getStatusPhase() {

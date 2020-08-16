@@ -38,7 +38,7 @@ export const getters = {
   },
 
   charts(state) {
-    return state.charts.slice();
+    return state.charts?.slice();
   },
 
   chart(state) {

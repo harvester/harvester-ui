@@ -33,6 +33,14 @@ export const NAME = {
   canBeVariable: true,
 };
 
+// export const NAMESPACE = {
+//   name:          'namespace',
+//   label:         'Namespace',
+//   value:         'namespace',
+//   sort:          ['nameSort'],
+//   canBeVariable: true,
+// };
+
 export const SIMPLE_NAME = {
   name:          'name',
   labelKey:      'tableHeaders.simpleName',

@@ -71,10 +71,6 @@ export default {
           :class="{active: activeName == item.spec.displayName}"
           @click="selected(item.spec.displayName)"
         >
-          <div class="logo">
-            <span class="circle"></span>
-          </div>
-
           <div class="info">
             <span>{{ item.spec.displayName }}</span>
             <span>{{ item.spec.description }}</span>
@@ -120,18 +116,6 @@ export default {
     border: 1px solid black;
     display: flex;
     padding: 20px;
-
-    .logo {
-      display: flex;
-      align-items: center;
-
-      .circle {
-        width: 48px;
-        height: 48px;
-        background-color: #6f6f6f;
-        border-radius: 50%;
-      }
-    }
 
     .info {
       display: flex;

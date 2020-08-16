@@ -2,7 +2,7 @@ import {
   CONFIG_MAP, HELM_RELEASE,
   NAMESPACE, NODE, SECRET, INGRESS,
   WORKLOAD, WORKLOAD_TYPES, SERVICE, HPA, NETWORK_POLICY, PV, PVC, STORAGE_CLASS, POD,
-  RBAC,
+  RBAC, IMAGE, VM, SSH
 } from '@/config/types';
 
 import {
@@ -15,9 +15,6 @@ import { DSL } from '@/store/type-map';
 
 export const NAME = 'virtual';
 
-const IMAGE = 'vm.cattle.io.image';
-const VIRTUAL_MACHINE = 'kubevirt.io.virtualmachine';
-const SSH = 'vm.cattle.io.keypair';
 const TEMPLATE = 'vm.cattle.io.template';
 
 export function init(store) {
@@ -40,16 +37,16 @@ export function init(store) {
     icon:                'compass'
   });
 
-  basicType([VIRTUAL_MACHINE]);
+  basicType([VM]);
   virtualType({
     label:      'Virtual Machine',
     group:      'root',
     namespaced: true,
-    name:       VIRTUAL_MACHINE,
+    name:       VM,
     weight:     299,
     route:      {
       name:     'c-cluster-product-resource',
-      params:   { resource: VIRTUAL_MACHINE }
+      params:   { resource: VM }
     },
     exact: true,
   });
@@ -96,20 +93,34 @@ export function init(store) {
     exact: true,
   });
 
-  basicType([
-    PV,
-    PVC,
-    SECRET,
-    STORAGE_CLASS,
-    CONFIG_MAP
-  ], 'storage');
+  basicType([PV]);
+  virtualType({
+    label:      'Volumes',
+    group:      'root',
+    namespaced: true,
+    name:       PV,
+    weight:     88,
+    route:      {
+      name:     'c-cluster-product-resource',
+      params:   { resource: PV }
+    },
+    exact: true,
+  });
 
-  basicType([
-    RBAC.ROLE,
-    RBAC.CLUSTER_ROLE,
-    RBAC.ROLE_BINDING,
-    RBAC.CLUSTER_ROLE_BINDING,
-  ], 'rbac');
+  // basicType([
+  //   PV,
+  //   PVC,
+  //   SECRET,
+  //   STORAGE_CLASS,
+  //   CONFIG_MAP
+  // ], 'storage');
+
+  // basicType([
+  //   RBAC.ROLE,
+  //   RBAC.CLUSTER_ROLE,
+  //   RBAC.ROLE_BINDING,
+  //   RBAC.CLUSTER_ROLE_BINDING,
+  // ], 'rbac');
 
   weightGroup('storage', 96, true);
   weightGroup('rbac', 95, true);
@@ -140,7 +151,7 @@ export function init(store) {
     AGE
   ]);
 
-  headers(VIRTUAL_MACHINE, [
+  headers(VM, [
     {
       name:      'status',
       label:     'State',
@@ -190,6 +201,44 @@ export function init(store) {
       value:     'status.progress',
       sort:      'status.progress',
       formatter: 'ImagePercentageBar'
+    },
+    AGE
+  ]);
+
+  headers(PV, [
+    STATE,
+    NAME_COL,
+    {
+      name:      'size',
+      label:     'Size',
+      value:     'spec.capacity.storage',
+      sort:      'spec.capacity.storage',
+    },
+    {
+      name:      'volumeMode',
+      label:     'Volume Type',
+      value:     'spec.volumeMode',
+      sort:      'spec.volumeMode',
+    },
+    {
+      name:      'accessMode',
+      label:     'access Mode',
+      value:     "$['spec']['accessModes'][0]",
+      sort:      'spec.accessModes',
+    },
+    {
+      name:      'AttachedVM',
+      label:     'Attached VM',
+      type:      'attached',
+      sort:      'name',
+      formatter: 'volumesState'
+    },
+    {
+      name:      'Status',
+      label:     'Status',
+      type:       'status',
+      sort:      'Status',
+      formatter: 'volumesState'
     },
     AGE
   ]);

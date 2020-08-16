@@ -5,8 +5,8 @@ import { clone } from '@/utils/object';
 
 export default {
   components: {
-    LabeledInput,
-    Banner
+    Banner,
+    LabeledInput
   },
 
   props: {
@@ -27,12 +27,14 @@ export default {
 
   data() {
     return {
-      selectAllKeys: 'selectAllKeys',
-      ssh_key:       this.sshKey,
-      publicKey:     '',
-      sshName:       '',
-      errors:        [],
-      isAll:         false
+      checkedSsh:          this.sshKey,
+      publicKey:        '',
+      sshName:          '',
+      searchKey:        '',
+      errors:           [],
+      isAll:            false,
+      checkAll:         false,
+      isIndeterminate:  true
     };
   },
 
@@ -43,19 +45,18 @@ export default {
   },
 
   watch: {
-    ssh_key() {
-      if (this.ssh_key.length === this.sshList.length) {
-        this.isAll = true;
-      } else {
-        this.isAll = false;
-      }
-      this.$emit('update:sshKey', clone(this.ssh_key));
+    checkedSsh() {
+      this.$emit('update:sshKey', clone(this.checkedSsh));
     },
-    isAll(neu) {
-      if (neu) {
-        this.$set(this, 'ssh_key', clone(this.sshList));
-      } else {
-        this.$set(this, 'ssh_key', []);
+    publicKey(neu) {
+      const splitSSH = neu.split(/\s+/);
+
+      if (splitSSH.length === 3) {
+        if (splitSSH[2].includes('@')) {
+          if (splitSSH[2].split('@')) {
+            this.sshName = splitSSH[2].split('@')[0];
+          }
+        }
       }
     }
   },
@@ -67,6 +68,18 @@ export default {
 
     hide() {
       this.$modal.hide('newSSH');
+    },
+
+    handleCheckAllChange(val) {
+      this.checkedSsh = val ? this.sshList : [];
+      this.isIndeterminate = false;
+    },
+
+    handleCheckedChange(value) {
+      const checkedCount = value.length;
+
+      this.checkAll = checkedCount === this.sshList.length;
+      this.isIndeterminate = checkedCount > 0 && checkedCount < this.sshList.length;
     },
 
     async saveKey() {
@@ -94,6 +107,8 @@ export default {
           },
         });
 
+        this.checkedSsh.push(this.sshName);
+
         this.hide();
       } catch (err) {
         this.errors = [err.message];
@@ -115,16 +130,25 @@ export default {
   <div>
     <div class="box mb-20">
       <h3>Choose your SSH keys</h3>
-      <div class="keyLisk">
-        <div class="ssh mr-20">
-          <input id="Select all" v-model="isAll" type="checkbox">
-          <label class="checkbox-label" for="Select all">Select all</label>
-        </div>
 
-        <div v-for="item in ssh" :key="item.metadata.uid" class="ssh mr-20">
-          <input :id="item.metadata.name" v-model="ssh_key" type="checkbox" class="custom mr-5" :value="item.metadata.name">
-          <label class="checkbox-label" :for="item.metadata.name">{{ item.metadata.name }}</label>
+      <div class="row">
+        <div class="col span-4">
+          <input v-model="searchKey" placeholder="Search" />
         </div>
+      </div>
+
+      <div class="min-spacer"></div>
+
+      <div class="keyLisk">
+        <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAllChange">
+          Select All
+        </el-checkbox>
+        <div style="margin: 15px 0;"></div>
+        <el-checkbox-group v-model="checkedSsh" @change="handleCheckedChange">
+          <el-checkbox v-for="ssh in sshList" :key="ssh" :label="ssh">
+            {{ ssh }}
+          </el-checkbox>
+        </el-checkbox-group>
       </div>
     </div>
 
@@ -187,11 +211,6 @@ export default {
 .box {
   border: 1px solid var(--tabbed-container-bg);
   padding: 20px;
-
-  .keyLisk {
-    display: flex;
-    align-items: center;
-  }
 
   .ssh {
     display: flex;

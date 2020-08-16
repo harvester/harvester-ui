@@ -78,7 +78,7 @@ export default {
   },
 
   isBeingStopped() {
-    if (vm && !this.isVMExpectedRunning(vm) && this.isVMCreated(vm)) {
+    if (this && !this.isVMExpectedRunning && this.isVMCreated) {
       return { status: STOPPING };
     }
 
@@ -86,11 +86,11 @@ export default {
   },
 
   isOff() {
-    return this && !this.isVMExpectedRunning() ? { status: OFF } : null;
+    return !this.isVMExpectedRunning ? { status: OFF } : null;
   },
 
   isWaitingForVMI() {
-    if (this && this.isVMExpectedRunning() && !this.isVMCreated()) {
+    if (this && this.isVMExpectedRunning && !this.isVMCreated) {
       return { status: WAITING, message: VMI_WAITING_MESSAGE };
     }
 
@@ -129,7 +129,7 @@ export default {
           return true;
         }
 
-        return this.isVMCreated(); // if there is no change request we can assume created is representing running (current and expected)
+        return this.isVMCreated; // if there is no change request we can assume created is representing running (current and expected)
       }
     }
 
@@ -138,5 +138,9 @@ export default {
 
   isVMCreated() {
     return !!this?.status?.created;
+  },
+
+  getDataVolumeTemplates() {
+    return _.get(this, 'spec.dataVolumeTemplates') == null ? [] : this.spec.dataVolumeTemplates;
   }
 };

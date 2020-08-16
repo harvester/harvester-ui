@@ -26,15 +26,32 @@ export default {
     if ( !this.value.spec ) {
       spec = {};
       this.value.spec = spec;
+      this.value.metadata = { name: '' };
     }
 
-    return {};
+    return { publicKey: this.value.spec.publicKey || '' };
   },
+
+  watch: {
+    publicKey(neu) {
+      this.value.spec.publicKey = neu;
+
+      const splitSSH = neu.split(/\s+/);
+
+      if (splitSSH.length === 3) {
+        if (splitSSH[2].includes('@')) {
+          if (splitSSH[2].split('@')) {
+            this.value.metadata.name = splitSSH[2].split('@')[0];
+          }
+        }
+      }
+    }
+  }
 };
 </script>
 
 <template>
-  <form>
+  <div>
     <LabeledInput
       v-model="value.metadata.name"
       label="Name"
@@ -45,17 +62,17 @@ export default {
     <div class="row">
       <div class="col span-12">
         <LabeledInput
-          v-model="value.spec.publicKey"
+          v-model="publicKey"
           type="multiline"
-          label="SSH-Key"
           :min-height="160"
+          label="SSH-Key"
           required
         />
       </div>
     </div>
 
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
-  </form>
+  </div>
 </template>
 
 <style lang="scss" scoped>

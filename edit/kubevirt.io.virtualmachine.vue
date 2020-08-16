@@ -1,18 +1,18 @@
 <script>
 import moment from 'moment';
 import randomstring from 'randomstring';
+import Footer from '@/components/form/Footer';
+import Checkbox from '@/components/form/Checkbox';
+import AddSSHKey from '@/components/form/AddSSHKey';
+import DiskModal from '@/components/form/DiskModal';
+import ChooseImage from '@/components/form/ChooseImage';
 import LabeledInput from '@/components/form/LabeledInput';
+import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
-import Footer from '@/components/form/Footer';
 import CreateEditView from '@/mixins/create-edit-view';
-import AddSSHKey from '@/components/form/AddSSHKey';
-import ChooseImage from '@/components/form/ChooseImage';
-import Checkbox from '@/components/form/Checkbox';
-import DiskModal from '@/components/form/DiskModal';
-import NetworkModal from '@/components/form/NetworkModal';
 import {
-  NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, VMI
+  NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, VMI, STORAGE_CLASS, NETWORK_ATTACHMENT
 } from '@/config/types';
 import { MemoryUnit } from '@/config/map';
 import { allHash } from '@/utils/promise';
@@ -52,17 +52,19 @@ export default {
 
   async fetch() {
     const hash = await allHash({
-      template:        this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template }),
-      templateVersion: this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
-      image:           this.$store.dispatch('cluster/findAll', { type: IMAGE }),
-      ssh:             this.$store.dispatch('cluster/findAll', { type: SSH }),
-      pvcs:            this.$store.dispatch('cluster/findAll', { type: PVC, url: `${ PVC }s` }),
+      ssh:                this.$store.dispatch('cluster/findAll', { type: SSH }),
+      pvcs:               this.$store.dispatch('cluster/findAll', { type: PVC }),
+      image:              this.$store.dispatch('cluster/findAll', { type: IMAGE }),
+      template:           this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template }),
+      storageClass:       this.$store.dispatch('cluster/findAll', { type: STORAGE_CLASS }),
+      templateVersion:    this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
+      networkAttachment:  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT }),
     });
 
+    this.ssh = hash.ssh;
+    this.images = hash.image;
     this.templates = hash.template;
     this.templateVersion = hash.templateVersion;
-    this.images = hash.image;
-    this.ssh = hash.ssh;
   },
 
   data() {
@@ -71,7 +73,7 @@ export default {
     if ( !spec ) {
       spec = {
         dataVolumeTemplates: [],
-        running:             false,
+        running:             true,
         template:            {
           spec: {
             domain: {
@@ -108,9 +110,10 @@ export default {
       this.value.spec = spec;
     }
 
+    const imageName = this.$route.query?.image || '';
+
     return {
       spec,
-      hostname:        '',
       source:          '',
       sshName:         '',
       publicKey:       '',
@@ -120,20 +123,15 @@ export default {
       ssh:             [],
       versionName:     '',
       versionOption:   [],
-      imageName:       '',
+      imageName,
       sshKey:          [],
-      cores:           '',
       description:     '',
-      name:            '',
       templateVersion: [],
-      memory:          '',
-      memoryUnit:      'Gi',
       namespace:       'default',
       cloudInit:       '',
       sshErrors:       [],
-      diskRows:        [],
-      networkRows:     [],
-      isRunning: false
+      isRunning:       true,
+      useTemplate:     false
     };
   },
   // moment().format('YYYYMMDDHHMMSS')
@@ -152,6 +150,51 @@ export default {
       return MemoryUnit;
     },
 
+    memory: {
+      get() {
+        const value = this.spec?.template?.spec?.domain?.resources?.requests?.memory.split(/(?=([a-zA-Z]{2}))/)[0] || '';
+
+        return value;
+      },
+      set(value) {
+        const neu = `${ value }${ this.memoryUnit }`;
+
+        this.$set(this.spec.template.spec.domain.resources.requests, 'memory', neu);
+      }
+    },
+
+    memoryUnit: {
+      get() {
+        const value = this.spec?.template?.spec?.domain?.resources?.requests?.memory.split(/(?=([a-zA-Z]{2}))/)[1] || 'Gi';
+
+        return value;
+      },
+      set(value) {
+        const neu = `${ this.memory }${ value }`;
+
+        this.$set(this.spec.template.spec.domain.resources.requests, 'memory', neu);
+      }
+    },
+
+    cores: {
+      get() {
+        return this.spec?.template?.spec?.domain?.cpu?.cores || '';
+      },
+      set(value) {
+        this.$set(this.spec.template.spec.domain.cpu, 'cores', value);
+      }
+    },
+
+    hostname: {
+      get() {
+        return this.spec.template.spec.hostname || '';
+      },
+      set(neu) {
+        this.$set(this.value.metadata, 'name', neu);
+        this.$set(this.spec.template.spec, 'hostname', neu);
+      }
+    },
+
     namespaceOptions() {
       const choices = this.$store.getters['cluster/all'](NAMESPACE);
 
@@ -166,34 +209,117 @@ export default {
         'label'
       );
     },
-  },
 
-  created() {
-    this.formatSpec(this.spec);
+    diskRows: {
+      get() {
+        const _dataVolumeTemplates = this.spec?.dataVolumeTemplates || [];
+        const _disks = this.spec?.template?.spec?.domain?.devices?.disks || [];
+        const _volumes = this.spec?.template?.spec?.template?.spec?.volumes || [];
+
+        const out = _disks.map( (DISK, index) => {
+          const volume = _volumes.find( (V) => {
+            return V.name === DISK.name;
+          });
+
+          let source = '';
+          let pvcName = '';
+          let pvcNS = '';
+          let accessMode = '';
+          let size = '';
+          const unit = '';
+          let volumeMode = '';
+          let storageClassName = '';
+          let url = '';
+
+          if (volume?.dataVolume && volume?.dataVolume?.name) {
+            const volumeName = volume.dataVolume.name;
+
+            const DVT = _dataVolumeTemplates.find( (T) => {
+              return T.metadata.name === volumeName;
+            });
+
+            if (DVT) {
+              if (DVT.spec?.source?.blank) {
+                source = SOURCE_TYPE.BLANK;
+              } else if (DVT.spec?.source?.pvc) {
+                source = SOURCE_TYPE.ATTACH_CLONED;
+                pvcName = DVT.spec?.source?.pvcname;
+                pvcNS = DVT.spec?.source?.pvc.namespace;
+              } else {
+                source = 'url';
+                url = DVT.spec?.source?.http?.url;
+              }
+
+              accessMode = DVT.spec?.pvc?.accessModes?.[0];
+              size = DVT.spec?.pvc?.resources?.requests?.storage;
+              volumeMode = DVT.spec?.pvc?.volumeMode;
+              storageClassName = DVT.spec?.pvc?.storageClassName;
+            }
+          }
+
+          const bus = DISK.disk.bus;
+
+          return {
+            index,
+            source,
+            name: DISK.name,
+            bus,
+            pvcName,
+            pvcNS,
+            accessMode,
+            size,
+            unit,
+            volumeMode,
+            url,
+            storageClassName,
+          };
+        });
+
+        return out;
+      },
+
+      set(neu) {
+
+      }
+    },
+
+    networkRows: {
+      get() {
+        const networks = this.spec?.networks || [];
+        const interfaces = this.spec?.template?.spec?.domain?.devices?.interfaces || [];
+
+        console.log('this.spec', this.spec?.domain?.devices?.interfaces);
+        const out = interfaces.map( (O, index) => {
+          const network = networks.find( (N) => {
+            return O.name === N.name;
+          });
+
+          const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
+
+          return {
+            ...O,
+            type,
+            networkName: network?.multus?.networkName || 'Pod Networking',
+            index
+          };
+        });
+
+        return out;
+      },
+
+      set() {
+
+      }
+    }
   },
 
   watch: {
-    memory(neu) {
-      this.value.spec.template.spec.domain.resources.requests.memory = `${ neu }${ this.memoryUnit }`;
-    },
-    memoryUnit(neu) {
-      this.value.spec.template.spec.domain.resources.requests.memory = `${ this.memory }${ neu }`;
-    },
-    cores(neu) {
-      this.value.spec.template.spec.domain.cpu.cores = neu;
-    },
-    hostname(neu) {
-      this.value.spec.template.spec.hostname = neu;
-      this.value.metadata.name = neu;
-    },
     templateName(id) {
       const templateSpec = this.templateVersion.find( (V) => {
         return V.spec.templateId;
       });
 
-      this.formatSpec(templateSpec.spec.vm);
       this.imageName = 'new2' || templateSpec.spec.imageId.split(':')[1];
-      console.log('---imageId', templateSpec.spec.imageId, templateSpec.spec.imageId.split(':'));
     }
   },
 
@@ -209,34 +335,13 @@ export default {
       const url = this.schema.linkFor('collection');
 
       this.normalizeSpec();
-      this.$delete(this.value, 'type'); // vm yarm not type prop
+      this.$delete(this.value, 'type');
       this.save(buttonCb, url);
     },
 
     normalizeSpec() {
       this.parseNetworkRows();
       this.parseDiskRows();
-    },
-
-    formatSpec(spec) {
-      const specMemory = spec?.template?.spec?.domain?.resources?.requests?.memory;
-      const cores = spec?.template?.spec?.domain?.cpu?.cores || '';
-      const hostname = spec?.template?.spec?.hostname || '';
-
-      const diskRows = this.getDiskRows(spec);
-      const networkRows = this.getNetworkRows(spec.template.spec);
-      const memory = specMemory.split(/\D+/)?.[0] || '';
-      const memoryUnit = specMemory.split(/\d+/)?.[1] || 'Gi';
-
-      console.log('---update spec', spec, diskRows, cores, hostname);
-
-      this.$set(this, 'memory', memory);
-      this.$set(this, 'memoryUnit', memoryUnit);
-      this.$set(this, 'cores', cores);
-      this.$set(this, 'hostname', hostname);
-
-      this.$set(this, 'diskRows', diskRows);
-      this.$set(this, 'networkRows', networkRows);
     },
 
     updateImageName(neu) {
@@ -252,80 +357,12 @@ export default {
       this.$set(this, 'sshKey', neu);
     },
 
-    getDiskRows(spec) {
-      const _dataVolumeTemplates = spec?.dataVolumeTemplates || [];
-      const _disks = spec?.template?.spec?.domain?.devices?.disks || [];
-      const _volumes = spec?.template?.spec?.volumes || [];
-
-      const out = _disks.map( (DISK, index) => {
-        const volume = _volumes.find( (V) => {
-          return V.name === DISK.name;
-        });
-
-        let source = '';
-        let pvcName = '';
-        let pvcNS = '';
-        let accessMode = '';
-        let size = '';
-        const unit = '';
-        let volumeMode = '';
-        let storageClassName = '';
-        let url = '';
-
-        if (volume?.dataVolume && volume?.dataVolume?.name) {
-          const volumeName = volume.dataVolume.name;
-
-          const DVT = _dataVolumeTemplates.find( (T) => {
-            return T.metadata.name === volumeName;
-          });
-
-          if (DVT) {
-            if (DVT.spec?.source?.blank) {
-              source = SOURCE_TYPE.BLANK;
-            } else if (DVT.spec?.source?.pvc) {
-              source = SOURCE_TYPE.ATTACH_CLONED;
-              pvcName = DVT.spec?.source?.pvcname;
-              pvcNS = DVT.spec?.source?.pvc.namespace;
-            } else {
-              source = 'url';
-              url = DVT.spec?.source?.http?.url;
-            }
-
-            accessMode = DVT.spec?.pvc?.accessModes?.[0];
-            size = DVT.spec?.pvc?.resources?.requests?.storage;
-            volumeMode = DVT.spec?.pvc?.volumeMode;
-            storageClassName = DVT.spec?.pvc?.storageClassName;
-          }
-        }
-
-        const bus = DISK.disk.bus;
-
-        return {
-          index,
-          source,
-          name: DISK.name,
-          bus,
-          pvcName,
-          pvcNS,
-          accessMode,
-          size,
-          unit,
-          volumeMode,
-          url,
-          storageClassName,
-        };
-      });
-
-      return out;
-    },
-
     parseDiskRows() {
       const dataVolumeTemplates = [];
       const disks = [];
       const volumes = [];
 
       this.diskRows.forEach( (R) => {
-
         const dataVolumeName = `${ this.hostname }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
         let _dataVolumeTemplate = {};
 
@@ -409,7 +446,7 @@ export default {
 
       const spec = {
         ...this.spec,
-        running: this.isRunning,
+        running:  this.isRunning,
         dataVolumeTemplates,
         template: {
           ...this.spec.template,
@@ -436,28 +473,6 @@ export default {
       }
 
       this.$set(this.value, 'spec', spec);
-    },
-
-    getNetworkRows(spec) {
-      const networks = spec?.networks || [];
-      const interfaces = spec?.domain?.devices?.interfaces || [];
-
-      const out = interfaces.map( (O, index) => {
-        const network = networks.find( (N) => {
-          return O.name === N.name;
-        });
-
-        const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
-
-        return {
-          ...O,
-          type,
-          networkName: network?.multus?.networkName || 'Pod Networking',
-          index
-        };
-      });
-
-      return out;
     },
 
     parseNetworkRows() {
@@ -510,13 +525,17 @@ export default {
 
 <template>
   <div id="vm">
-    <h2>Use an existing VM Template:</h2>
     <div class="row">
       <div class="col span-6">
         <LabeledSelect v-model="value.metadata.namespace" :options="namespaceOptions" label="Namespace" />
       </div>
+    </div>
 
-      <div class="col span-6">
+    <div class="min-spacer"></div>
+    <Checkbox v-model="useTemplate" class="check" type="checkbox" label="Use an existing VM Template:" />
+    <div class="min-spacer"></div>
+    <div class="row">
+      <div v-if="useTemplate" class="col span-6">
         <LabeledSelect v-model="templateName" label="template" :options="templateOption" />
       </div>
     </div>
