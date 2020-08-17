@@ -313,9 +313,7 @@ export default {
 
   getStatusConditionOfType() {
     return (type, defaultValue = []) => {
-      const conditions = _.get(this, 'status.conditions') === undefined
-        ? defaultValue
-        : this.status.conditions;
+      const conditions = _.get(this, 'status.conditions') === undefined ? defaultValue : this.status.conditions;
 
       return conditions.find( cond => cond.type === type);
     };

@@ -41,6 +41,11 @@ export default {
   computed: {
     sshList() {
       return this.ssh.map( O => O.metadata.name);
+    },
+    filterSSHList() {
+      return this.sshList.filter( (O) => {
+        return O.includes(this.searchKey);
+      });
     }
   },
 
@@ -145,8 +150,8 @@ export default {
         </el-checkbox>
         <div style="margin: 15px 0;"></div>
         <el-checkbox-group v-model="checkedSsh" @change="handleCheckedChange">
-          <el-checkbox v-for="ssh in sshList" :key="ssh" :label="ssh">
-            {{ ssh }}
+          <el-checkbox v-for="item in filterSSHList" :key="item" :label="item">
+            {{ item }}
           </el-checkbox>
         </el-checkbox-group>
       </div>

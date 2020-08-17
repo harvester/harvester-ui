@@ -105,35 +105,35 @@ export default {
 
     headers() {
       return [{
-        name:     'name',
-        label:    'Name',
-        value:    'name',
-        width:    100,
+        name:  'name',
+        label: 'Name',
+        value: 'name',
+        width: 100,
       },
       {
-        name:     'Source',
-        label:    'Source',
-        value:    'source',
-        width:    100,
+        name:  'Source',
+        label: 'Source',
+        value: 'source',
+        width: 100,
       },
       {
-        name:     'Size',
-        label:    'Size',
-        value:    'size',
+        name:      'Size',
+        label:     'Size',
+        value:     'size',
         formatter: 'valueUnit',
-        width:    120,
+        width:     120,
       },
       {
-        name:     'Interface',
-        label:    'Interface',
-        value:    'bus',
-        width:    100,
+        name:  'Interface',
+        label: 'Interface',
+        value: 'bus',
+        width: 100,
       },
       {
-        name:     'Storage Class',
-        label:    'Storage Class',
-        value:    'storageClassName',
-        width:    120,
+        name:  'Storage Class',
+        label: 'Storage Class',
+        value: 'storageClassName',
+        width: 120,
       }];
     },
 
@@ -194,6 +194,11 @@ export default {
       }];
     },
   },
+  watch: {
+    value(neu) {
+      this.rows = neu;
+    }
+  },
 
   methods: {
     beforeCancel() {
@@ -205,7 +210,6 @@ export default {
     },
 
     updateIndex(idx, type) {
-      console.log('---a index', idx);
       this.rowIdx = idx;
       this.type = type;
       this.$set(this, 'currentRow', clone(this.rows[this.rowIdx]) || {

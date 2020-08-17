@@ -65,7 +65,6 @@ export default {
       this.show();
       const { index } = row;
 
-      console.log('----index', index, type);
       this.$emit('update:index', index, type);
       if (type === 'delete') {
         this.$emit('update:add');

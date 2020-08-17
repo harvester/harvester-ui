@@ -119,6 +119,11 @@ export default {
       }];
     },
   },
+  watch: {
+    value(neu) {
+      this.rows = neu;
+    }
+  },
 
   methods: {
     updateAdd() {

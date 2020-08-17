@@ -254,7 +254,7 @@ export default {
     if (failingContainer) {
       return {
         status:  POD_STATUS_CONTAINER_FAILING,
-        message: getContainerStatusReason(failingContainer),
+        message: this.getContainerStatusReason(failingContainer),
       };
     }
 

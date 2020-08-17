@@ -27,4 +27,8 @@ export default {
       });
     };
   },
+
+  isReady() {
+    return this?.status?.conditions?.[0].status === 'True';
+  }
 };

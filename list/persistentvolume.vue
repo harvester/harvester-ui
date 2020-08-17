@@ -18,17 +18,16 @@ export default {
 
   async fetch() {
     const hash = await allHash({
-      pv: this.$store.dispatch('cluster/findAll', { type: PV }),
-      vm: this.$store.dispatch('cluster/findAll', { type: VM }),
+      pv:         this.$store.dispatch('cluster/findAll', { type: PV }),
+      vm:         this.$store.dispatch('cluster/findAll', { type: VM }),
       dataVolume: this.$store.dispatch('cluster/findAll', { type: DATA_VOLUME })
-    })
+    });
+
     this.pv = hash.pv;
   },
 
   data() {
-    return { 
-      pv: [],
-    };
+    return { pv: [] };
   },
 
   computed: {

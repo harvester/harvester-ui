@@ -21,25 +21,7 @@ $ yarn start
 $ yarn generate
 ```
 
-## Multiple GitHub auth configs
-Auth supports multiple GitHub auth URLs and using the appropriate one based on the Host header that a request comes in on.  This is particularly useful for development against a server that already has GitHub setup.
-
-In `management.cattle.io.authconfig`, edit the `github` entry.  Add a `hostnameToClientId` map of Host header value -> GitHub client ID:
-
-```yaml
-hostnameToClientId:
-  "localhost:8005": <your GitHub Client ID for localhost:8005>
-```
-
-In the `secret`, namespace `cattle-global-data`, edit `githubconfig-clientsecret`.  Add GitHub client ID -> base64-encoded client secret to the `data` section:
-
-```yaml
-data:
-  clientsecret: <the normal client secret already configured>
-  <your client id>: <your base64-encoded client secret for localhost:8005>
- ```
-
- ## Running with standalone Steve on a Mac
+## Running with standalone Steve on a Mac
  ```bash
  cd steve
  make run-host
