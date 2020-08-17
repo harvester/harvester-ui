@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { VM } from '@/config/types';
+import { _EDIT, MODE } from '@/config/query-params';
 
 export default {
   availableActions() {
@@ -11,6 +12,12 @@ export default {
         enabled:    true,
         icon:       'icon icon-fw icon-spinner',
         label:      'Create a virtual Machine',
+      },
+      {
+        action:     'addVersion',
+        enabled:    true,
+        icon:       'icon icon-fw icon-spinner',
+        label:      'Add templateVersion',
       },
       ...out
     ];
@@ -27,4 +34,18 @@ export default {
       });
     };
   },
+
+  addVersion() {
+    return (moreQuery = {}) => {
+      const location = this.detailLocation;
+
+      location.query = {
+        ...location.query,
+        [MODE]: _EDIT,
+        ...moreQuery
+      };
+
+      this.currentRouter().push(location);
+    };
+  }
 };

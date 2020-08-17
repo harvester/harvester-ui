@@ -103,11 +103,11 @@ export default {
     }
     const { running, runStrategy } = this.spec;
 
-    if (running != null) {
+    if (running !== null) {
       return running;
     }
 
-    if (runStrategy != null) {
+    if (runStrategy !== null) {
       let changeRequests;
 
       switch (runStrategy) {
@@ -141,6 +141,6 @@ export default {
   },
 
   getDataVolumeTemplates() {
-    return _.get(this, 'spec.dataVolumeTemplates') == null ? [] : this.spec.dataVolumeTemplates;
+    return _.get(this, 'spec.dataVolumeTemplates') === null ? [] : this.spec.dataVolumeTemplates;
   }
 };

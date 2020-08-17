@@ -1,47 +1,49 @@
 <script>
+import { IMAGE } from '@/config/types';
+const TIP = 'An external URL to the .iso, .img, .qcow2 or .raw that the virtual machine should be created from.';
+
 export default {
   props: {
-    images: {
-      type: Array,
-      default() {
-        return [];
-      }
-    },
-
-    imageName: {
+    value: {
       type:    String,
       default: ''
     }
   },
 
   data() {
+    const images = this.$store.getters['cluster/all'](IMAGE) || [];
+
     return {
+      images,
+      tip:        TIP,
       searchKey:  '',
-      activeName: this.imageName,
-      tip:        'An external URL to the .iso, .img, .qcow2 or .raw that the virtual machine should be created from.'
+      activeName: this.value,
     };
   },
 
   computed: {
-    filterImage() {
+    readiedImages() {
       return this.images.filter( (I) => {
-        return I.spec.displayName.includes(this.searchKey) && I?.status?.conditions?.[0].status === 'True';
+        return I.spec.displayName.includes(this.searchKey) && I.isReady;
       });
-    },
+    }
   },
 
   watch: {
-    activeName(neu) {
-      this.$emit('update:imageName', neu);
+    activeName: {
+      handler(neu) {
+        this.$emit('input', neu);
+      },
+      immediate: true
     },
-    imageName(neu) {
+    value(neu) {
       this.activeName = neu;
     }
   },
 
   methods: {
-    selected(gameName) {
-      this.activeName = gameName;
+    selected(neu) {
+      this.activeName = neu;
     }
   }
 };
@@ -65,7 +67,7 @@ export default {
 
       <div class="list">
         <div
-          v-for="item in filterImage"
+          v-for="item in readiedImages"
           :key="item.id"
           class="image mb-10"
           :class="{active: activeName == item.spec.displayName}"

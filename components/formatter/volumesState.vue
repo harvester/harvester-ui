@@ -3,7 +3,7 @@ import { VM, DATA_VOLUME } from '@/config/types';
 export default {
   props: {
     value: {
-      type: Object,
+      type:    Object,
       default: () => {}
     },
     row: {
@@ -21,9 +21,9 @@ export default {
     const vmList = this.$store.getters['cluster/all'](VM) || [];
 
     return {
-      vmList: vmList,
-      dataVolumeList: dataVolumeList,
-    }
+      vmList,
+      dataVolumeList,
+    };
   },
 
   computed: {
@@ -33,35 +33,38 @@ export default {
         const readyCondition = this.dataVolume?.getStatusConditionOfType('Ready');
 
         if (boundCondition?.status === 'True') {
-          return 'In-use'
-        } else if (readyCondition?.status === 'True' && boundCondition?.status === "False") {
-          return 'available'
+          return 'In-use';
+        } else if (readyCondition?.status === 'True' && boundCondition?.status === 'False') {
+          return 'available';
         } else {
-          return 'N/A'
+          return 'N/A';
         }
       }
 
       if (this.col.type === 'status') {
         const readyCondition = this.dataVolume?.getStatusConditionOfType('Ready');
+
         return readyCondition?.status === 'True' ? 'ready' : 'noready';
       }
 
       if (this.col.type === 'attached') {
-        return this.vm?.metadata?.name || 'N/A'
+        return this.vm?.metadata?.name || 'N/A';
       }
-      return ''
+
+      return '';
     },
     dataVolume() {
-      const id = `${this.value?.namespace}/${this.value?.name}`;
-      return this.dataVolumeList.find( D => {
+      const id = `${ this.value?.namespace }/${ this.value?.name }`;
+
+      return this.dataVolumeList.find( (D) => {
         return D.id === id;
-      })
+      });
     },
 
     vm() {
-      return this.vmList.find( D => {
+      return this.vmList.find( (D) => {
         return D.metadata?.uid === this.dataVolume?.metadata?.ownerReferences?.[0]?.uid;
-      })
+      });
     },
   }
 };
