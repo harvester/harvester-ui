@@ -109,7 +109,7 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/latest
-    target: releases.rancher.com/harvester/latest
+    target: releases.rancher.com/harvester-ui/latest
     token:
       from_secret: google_auth_key
 
@@ -146,7 +146,7 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/${DRONE_BRANCH}
-    target: releases.rancher.com/harvester/${DRONE_BRANCH}
+    target: releases.rancher.com/harvester-ui/${DRONE_BRANCH}
     token:
       from_secret: google_auth_key
 
@@ -180,7 +180,7 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/${DRONE_TAG}
-    target: releases.rancher.com/harvester/${DRONE_TAG}
+    target: releases.rancher.com/harvester-ui/${DRONE_TAG}
     token:
       from_secret: google_auth_key
 
@@ -216,7 +216,7 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/${DRONE_BRANCH}.tar.gz
-    target: releases.rancher.com/harvester/latest.tar.gz
+    target: releases.rancher.com/harvester-ui/latest.tar.gz
     token:
       from_secret: google_auth_key
 
@@ -253,7 +253,7 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/${DRONE_BRANCH}.tar.gz
-    target: releases.rancher.com/harvester/${DRONE_BRANCH}.tar.gz
+    target: releases.rancher.com/harvester-ui/${DRONE_BRANCH}.tar.gz
     token:
       from_secret: google_auth_key
 
@@ -287,6 +287,6 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/${DRONE_TAG}.tar.gz
-    target: releases.rancher.com/harvester/${DRONE_TAG}.tar.gz
+    target: releases.rancher.com/harvester-ui/${DRONE_TAG}.tar.gz
     token:
       from_secret: google_auth_key

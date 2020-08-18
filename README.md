@@ -1,7 +1,7 @@
-# dashboard
-[![Build Status](http://drone-publish.rancher.io/api/badges/rancher/dashboard/status.svg)](http://drone-publish.rancher.io/rancher/dashboard)
+# harvester-ui
+[![Build Status](http://drone-publish.rancher.io/api/badges/rancher/harvester-ui/status.svg)](http://drone-publish.rancher.io/rancher/harvester-ui)
 
-Dashboard UI.  For the other Rancher UI see [rancher/ui](https://github.com/rancher/ui).
+Harvester UI.  For the other Rancher UI see [rancher/ui](https://github.com/rancher/ui).
 
 ## Build Setup
 
@@ -11,7 +11,7 @@ $ yarn install
 
 # serve with hot reload at https://localhost:8005
 # using the endpoint for your Steve (or Rancher) API
-$ API=http://localhost:8989 yarn devx
+$ API=http://localhost:8989 yarn dev
 
 # build for production and launch server
 $ yarn build
@@ -44,13 +44,13 @@ data:
  cd steve
  make run-host
 
- cd dashboard
- docker build -f Dockerfile.dev -t rancherlabs/dashboard:dev
+ cd harvester-ui
+ docker build -f Dockerfile.dev -t rancher/harvester-ui:dev
  docker run -v $(pwd):/src \
    -v dashboard_node:/src/node_modules \
    -p 8005:8005 \
    -e API=http://172.17.0.1:8989 \
-   rancherlabs/dashboard:dev
+   rancher/harvester-ui:dev
  
  # The first time will take forever installing node_modules into the volume; it will be faster next time.
  #
