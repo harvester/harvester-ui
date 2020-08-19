@@ -291,7 +291,9 @@ export default {
         letter-spacing: 0.1em;
         line-height: initial;
 
-        A { padding-left: 0; }
+        A {
+          padding-left: 0;
+        }
       }
     }
   }

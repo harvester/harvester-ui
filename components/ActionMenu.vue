@@ -105,7 +105,8 @@ export default {
     left: 0;
     z-index: z-index('dropdownContent');
 
-    color: var(--dropdown-text);
+    // color: var(--dropdown-text);
+    color: #000;
     background-color: var(--dropdown-bg);
     border: 1px solid var(--dropdown-border);
 

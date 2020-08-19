@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { VM } from '@/config/types';
-import { _EDIT, MODE } from '@/config/query-params';
+import { MODE, _ADD, _EDIT } from '@/config/query-params';
 
 export default {
   availableActions() {
@@ -42,6 +42,7 @@ export default {
       location.query = {
         ...location.query,
         [MODE]: _EDIT,
+        type:   _ADD,
         ...moreQuery
       };
 

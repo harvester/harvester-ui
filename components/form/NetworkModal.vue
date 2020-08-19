@@ -121,6 +121,8 @@ export default {
   },
   watch: {
     value(neu) {
+      // eslint-disable-next-line no-console
+      console.log('----neu', neu);
       this.rows = neu;
     }
   },
