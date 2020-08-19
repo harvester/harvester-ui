@@ -138,30 +138,31 @@ export default {
 
       this.normalizeSpec();
       const versionInfo = await this.$store.dispatch('management/request', {
-        method:  (this.mode === 'edit' && !this.isAdd) ? 'PUT' : 'POST',
+        method:  'POST',
         headers: {
           'content-type': 'application/json',
           accept:         'application/json',
         },
-        url:  (this.mode === 'edit' && !this.isAdd) ? `v1/vm.cattle.io.templateversions/${ this.value.metadata.namespace }/${ this.value.metadata.name }` : `v1/vm.cattle.io.templateversions`,
+        url:  (this.mode === 'edit' && !this.isAdd) ? `v1/harvester.cattle.io.virtualmachinetemplateversions/${ this.value.metadata.namespace }/${ this.value.metadata.name }` : `v1/harvester.cattle.io.virtualmachinetemplateversions`,
         data: (this.mode === 'edit' && !this.isAdd) ? {
           ...this.defaultVersion,
           spec: { ...this.spec }
         } : {
-          apiVersion: 'vm.cattle.io/v1alpha1',
-          kind:       'vm.cattle.io.templateversion',
-          type:       'vm.cattle.io.templateversion',
+          apiVersion: 'harvester.cattle.io/v1alpha1',
+          kind:       'harvester.cattle.io.virtualmachinetemplateversion',
+          type:       'harvester.cattle.io.virtualmachinetemplateversion',
           metadata:   { namespace: this.value.metadata.namespace },
           spec:       {
             templateId: `${ this.value.metadata.namespace }:${ this.value.metadata.name }`,
+            keyPairIds: ['dev:guangbochen'],
             vm:         { ...this.spec }
           }
         },
       });
 
-      if (this.isDefaultVersion || this.mode === _CREATE) {
-        await this.setVersion(versionInfo.id);
-      }
+      // if (this.isDefaultVersion || this.mode === _CREATE) {
+      //   await this.setVersion(versionInfo.id);
+      // }
     },
 
     async setVersion(id) {
@@ -172,7 +173,7 @@ export default {
           'content-type': 'application/json',
           accept:         'application/json',
         },
-        url:  `v1/vm.cattle.io.templates/default/${ this.value.metadata.name }`,
+        url:  `v1/harvester.cattle.io.virtualmachinetemplates/default/${ this.value.metadata.name }`,
         data: {
           ...this.value,
           spec: {

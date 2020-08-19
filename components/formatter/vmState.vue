@@ -306,16 +306,7 @@ export default {
 
 <template>
   <span :key="state" :class="{'badge-state': true, 'bg-success': isRun, 'bg-error': isErrorS, 'bg-warning': isOf, 'bg-tip': isOther}">
-    <template v-if="state === 'Running'">
-      {{ state }}
-    </template>
-    <template v-else-if="state === 'Off'">
-      {{ state }}
-    </template>
-    <template v-else-if="state === 'Stoping'">
-      {{ state }}
-    </template>
-    <template v-else>
+    <template>
       {{ state }}
     </template>
   </span>
@@ -326,6 +317,7 @@ export default {
     padding: 5px 10px;
     border: 1px solid transparent;
     border-radius: 20px;
+    max-width: 250px !important;
 
     &.bg-info {
       border-color: var(--primary);

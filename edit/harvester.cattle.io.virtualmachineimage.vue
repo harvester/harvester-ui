@@ -3,8 +3,9 @@ import LabeledInput from '@/components/form/LabeledInput';
 import Footer from '@/components/form/Footer';
 import CreateEditView from '@/mixins/create-edit-view';
 import ResourceTabs from '@/components/form/ResourceTabs';
+import { _CREATE } from '@/config/query-params';
 
-const filesFormat = ['gz', 'bz2', 'vmdk', 'vhdx', 'qcow', 'qcow2', 'vdi', 'raw', 'img', 'xz'];
+const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
 
 export default {
   name: 'EditImage',
@@ -52,7 +53,7 @@ export default {
         this.displayName = suffixName;
         this.errors = [];
       } else {
-        this.errors = ['The URL you have entered ends in an extension that we do not support. We only accept image files that end in gz, bz2, vmdk, vhdx, qcow, qcow2, vdi, raw, img, xz. (.zip is not supported).'];
+        this.errors = ['The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats).'];
       }
     },
     displayName(neu) {
@@ -73,7 +74,7 @@ export default {
         />
       </div>
     </div>
-    <h5 class="mb-20 tip">
+    <h5 v-if="isCreate" class="mb-20 tip">
       Protip: CDI supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>.
       Bootable ISO images can also be used and are treated like <code>raw</code> images.
       Images may be compressed with either the <code>gz</code> or <code>xz</code> format.
@@ -89,7 +90,7 @@ export default {
       </div>
     </div>
 
-    <div class="row mb-20">
+    <div v-if="isCreate" class="row mb-20">
       <div class="col span-12">
         <LabeledInput
           v-model="value.spec.description"

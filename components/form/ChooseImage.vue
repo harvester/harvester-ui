@@ -83,7 +83,7 @@ export default {
       </div>
 
       <div class="mt-20">
-        <nuxt-link to="/c/local/virtual/vm.cattle.io.image">
+        <nuxt-link to="/c/local/virtual/harvester.cattle.io.virtualmachineimage">
           Add Image
         </nuxt-link>
       </div>
