@@ -1,13 +1,11 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 import { NORMAN } from '@/config/types';
-import ProductSwitcher from './ProductSwitcher';
 import ClusterSwitcher from './ClusterSwitcher';
 import NamespaceFilter from './NamespaceFilter';
 
 export default {
   components: {
-    ProductSwitcher,
     ClusterSwitcher,
     NamespaceFilter,
   },
@@ -34,7 +32,9 @@ export default {
 <template>
   <header>
     <div class="product">
-      <ProductSwitcher />
+      <div class="productName">
+        Rancher
+      </div>
       <div class="logo" alt="Logo" />
     </div>
 
@@ -104,6 +104,14 @@ export default {
     grid-template-rows:    var(--header-height);
 
     > .product {
+      .productName {
+        color: #fff;
+        font-size: 18px;
+        line-height: 50px;
+        left: 84px;
+        position: absolute;
+      }
+
       grid-area: product;
       background-color: var(--header-dropdown);
       position: relative;
@@ -111,12 +119,12 @@ export default {
       .logo {
         background-color: var(--header-logo);
         mask: url("~assets/images/logo.svg") no-repeat center;
-        height: 30px;
-        width: 42px;
+        height: 33px;
+        width: 56px;
         position: absolute;
         top: 9px;
         // left: -30px;
-        left: 0px;
+        left: 15px;
         z-index: 2;
       }
     }

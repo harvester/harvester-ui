@@ -179,7 +179,7 @@ export function init(store) {
     {
       name:      'default',
       label:     'Default version',
-      value:     'spec.defaultVersionId',
+      value:     'status.defaultVersion',
     },
     {
       name:      'latest',
@@ -193,14 +193,15 @@ export function init(store) {
     STATE,
     {
       ...NAME_COL,
-      value: 'spec.displayName'
+      value: 'spec.displayName',
+      width:     300
     },
     {
       name:      'Uploaded',
       label:     'Uploaded',
       value:     'status.progress',
       sort:      'status.progress',
-      formatter: 'ImagePercentageBar'
+      formatter: 'ImagePercentageBar',
     },
     AGE
   ]);

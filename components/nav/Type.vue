@@ -133,6 +133,7 @@ export default {
   .root.child {
     A {
       padding-left: 0;
+      color: #fff !important;
     }
   }
 </style>

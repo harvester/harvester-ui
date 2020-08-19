@@ -111,6 +111,8 @@ const STATES = {
   untriggered:        { color: 'success', icon: 'tag' },
   updating:           { color: 'warning', icon: 'tag' },
   waiting:            { color: 'info', icon: 'tag' },
+  imported:           { color: 'success', icon: 'dot-open' },
+  validated:          { color: 'success', icon: 'dot-open' },
 };
 
 const SORT_ORDER = {

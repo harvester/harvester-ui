@@ -180,9 +180,7 @@ export default {
       },
 
       set(neu) {
-        // eslint-disable-next-line no-console
-        console.log('-----set disk');
-        // this.parseDiskRows(neu)
+        this.parseDiskRows(neu);
       }
     },
 
@@ -210,6 +208,9 @@ export default {
       },
 
       set(neu) {
+        // eslint-disable-next-line no-console
+        console.log('----set ne', neu);
+        this.parseNetworkRows(neu);
       }
     }
   },
@@ -219,16 +220,16 @@ export default {
       this.$set(this, 'sshKey', neu);
     },
     normalizeSpec() {
-      this.parseNetworkRows();
-      this.parseDiskRows();
+      this.parseNetworkRows(this.networkRows);
+      this.parseDiskRows(this.diskRows);
     },
 
-    parseDiskRows(neu) {
+    parseDiskRows(disk) {
       const disks = [];
       const volumes = [];
       const dataVolumeTemplates = [];
 
-      this.diskRows.forEach( (R) => {
+      disk.forEach( (R) => {
         const dataVolumeName = `${ this.hostname }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
         let _dataVolumeTemplate = {};
 
@@ -340,18 +341,24 @@ export default {
         delete spec.template.spec.volumes;
       }
 
-      this.$set(this.value, 'spec', spec);
+      if (this.pageType === 'vm') {
+        this.$set(this.value, 'spec', spec);
+      } else {
+        this.$set(this, 'spec', spec);
+      }
     },
 
-    parseNetworkRows() {
+    parseNetworkRows(networkRow) {
       const interfaces = [];
       const networks = [];
 
-      this.networkRows.forEach( (O) => {
+      // eslint-disable-next-line no-console
+      console.log('----par net', networkRow);
+      networkRow.forEach( (O) => {
         const _interface = {};
         const network = {};
 
-        if (O.networkName === 'Pod Networking') {
+        if (O.networkName === 'nic-0') {
           _interface.masquerade = {};
           network.pod = {};
         } else {
@@ -373,6 +380,8 @@ export default {
         networks.push(network);
       });
 
+      // eslint-disable-next-line no-console
+      console.log('------network', interfaces, networkRow);
       const spec = {
         ...this.spec.template.spec,
         domain: {
@@ -385,7 +394,11 @@ export default {
         networks
       };
 
-      this.$set(this.value.spec.template, 'spec', spec);
+      if (this.pageType === 'vm') {
+        this.$set(this.value.spec.template, 'spec', spec);
+      } else {
+        this.$set(this.spec.template, 'spec', spec);
+      }
     },
   },
 

@@ -15,7 +15,7 @@ $medium    : #DCDEE7;
 $light     : #EEEFF4;
 
 //light sidebar and box
-$lighter   : #F4F5FA;
+$lighter   : #293a4b;
 
 //light body bg
 $lightest  : #FFFFFF;
@@ -63,9 +63,9 @@ $selected: rgba($primary, .5);
   --scrollbar-thumb-dropdown   : #{$lighter};
   --scrollbar-track            : transparent;
 
-  --header-bg                  : #3797D5;
+  --header-bg                  : #293a4b;
   --header-logo                : #{$lightest};
-  --header-dropdown            : #317DB0;
+  --header-dropdown            : #293a4b;
   --header-height              : 50px;
   --nav-width                  : 220px;
   --nav-bg                     : #{$lighter};
@@ -85,10 +85,11 @@ $selected: rgba($primary, .5);
   --shadow                     : #{rgba($dark, 0.75)};
 
 
-  --dropdown-bg                : #{$lighter};
+  // --dropdown-bg                : #{$lighter};
+  --dropdown-bg                : #fff;
   --dropdown-border            : #{$medium};
   --dropdown-divider           : #{$medium};
-  --dropdown-text              : #{$link};
+  --dropdown-text              : #fff;
   --dropdown-hover-text        : darken($link, 1%);
   --dropdown-hover-bg          : #{$selected};
   --dropdown-active-text       : var(--active-text);
@@ -135,7 +136,7 @@ $selected: rgba($primary, .5);
   --tabbed-border              : #{$medium};
   --tabbed-container-bg        : #{$lighter};
 
-  --yaml-editor-bg             : #{$lighter};
+  --yaml-editor-bg             : #f5f5f5;
 
   --diff-border                : var(--border);
   --diff-header-bg             : var(--nav-bg);

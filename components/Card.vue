@@ -47,7 +47,7 @@ export default {
  .card-container {
    padding: 10px;
    border: 1px solid  var(--border);
-   background: var(--nav-bg);
+   background: #fff;
    display: grid;
    padding: 1.25rem;
    grid-gap: .75rem;

@@ -18,10 +18,21 @@ export default {
     percentage() {
       return Number.parseFloat(this.value);
     }
+  },
+  methods: {
+    customColorMethod(percentage) {
+      if (percentage < 30) {
+        return '#909399';
+      } else if (percentage < 70) {
+        return '#e6a23c';
+      } else {
+        return '#67c23a';
+      }
+    },
   }
 };
 </script>
 
 <template>
-  <el-progress :text-inside="true" :stroke-width="14" :percentage="percentage" :status="percentage === 100 ? 'success' : 'warning'"></el-progress>
+  <el-progress :stroke-width="10" :percentage="percentage" :color="customColorMethod"></el-progress>
 </template>

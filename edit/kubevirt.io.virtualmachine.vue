@@ -1,4 +1,5 @@
 <script>
+import _ from 'lodash';
 import moment from 'moment';
 import Footer from '@/components/form/Footer';
 import Checkbox from '@/components/form/Checkbox';
@@ -88,6 +89,7 @@ export default {
       namespace:       'default',
       isRunning:       true,
       useTemplate:     false,
+      pageType:        'vm',
     };
   },
 
@@ -108,7 +110,6 @@ export default {
         return this.spec.template.spec.hostname || `vm-${ moment().format('YYYY-MMDD-HHmm') }`;
       },
       set(neu) {
-        this.$set(this.value.metadata, 'name', neu);
         this.$set(this.spec.template.spec, 'hostname', neu);
       }
     },
@@ -123,11 +124,6 @@ export default {
       });
 
       this.$set(this, 'spec', templateSpec.spec.vm);
-    },
-
-    spec() {
-      // eslint-disable-next-line no-console
-      console.log('---spec update');
     }
   },
 
@@ -145,6 +141,8 @@ export default {
       }
       this.$set(this.value, 'type', 'kubevirt.io.virtualmachine');
       const url = this.schema.linkFor('collection');
+
+      this.$set(this.value.metadata, 'name', this.hostname);
 
       this.normalizeSpec();
       this.$delete(this.value, 'type');

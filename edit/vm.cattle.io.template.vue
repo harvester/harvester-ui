@@ -9,9 +9,11 @@ import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
+import { VM_TEMPLATE } from '@/config/types';
 
-import CreateEditView from '@/mixins/create-edit-view';
 import VM_MIXIN from '@/mixins/vm';
+import CreateEditView from '@/mixins/create-edit-view';
+import { _EDIT, _CREATE, _ADD } from '@/config/query-params';
 
 export default {
   name: 'EditVM',
@@ -39,16 +41,26 @@ export default {
 
   data() {
     let templateSpec = this.value.spec;
+    const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
+
+    let spec = null;
+    let defaultVersion = null;
+
+    if (this.mode === _EDIT) {
+      defaultVersion = choices.find( (O) => {
+        return this.value.spec.defaultVersionId.replace(':', '/') === O.id;
+      });
+
+      spec = defaultVersion?.spec?.vm;
+    }
 
     if (!templateSpec) {
       templateSpec = {
         description:      '',
         defaultVersionId: ''
       };
-      this.value.spec = templateSpec;
+      this.$set(this.value, 'spec', templateSpec);
     }
-
-    let spec = null;
 
     if ( !spec ) {
       spec = {
@@ -57,7 +69,7 @@ export default {
           spec: {
             domain: {
               cpu: {
-                cores:   1,
+                cores:   '',
                 sockets: 1,
                 threads: 1
               },
@@ -75,7 +87,7 @@ export default {
                 networkInterfaceMultiqueue: true,
                 rng:                        {}
               },
-              resources: { requests: { memory: '1Gi' } }
+              resources: { requests: { memory: '' } }
             },
             networks: [{
               name: 'nic-0',
@@ -96,33 +108,18 @@ export default {
       description:      '',
       templateVersion:  [],
       namespace:        'default',
+      defaultVersion,
       isRunning:        true,
       useTemplate:      false,
-      isDefaultVersion:  true
+      isDefaultVersion:  false
     };
   },
 
   computed: {
-    templateOption() {
-      return this.templates.map( (T) => {
-        return {
-          label: T.id,
-          value: T.id
-        };
-      });
-    },
+    isAdd() {
+      return this.$route.query.type === _ADD;
+    }
   },
-
-  watch: {
-    templateName(id) {
-      const templateSpec = this.templateVersion.find( (V) => {
-        return V.spec.templateId;
-      });
-
-      // this.imageName = 'new2' || templateSpec.spec.imageId.split(':')[1];
-    },
-  },
-  // moment().format('YYYYMMDDHHMMSS')
 
   created() {
     const imageName = this.$route.query?.image || '';
@@ -132,17 +129,25 @@ export default {
 
   methods: {
     async saveVMT(buttonCb) {
-      await this.save(buttonCb);
+      if (!this.isAdd) {
+        await this.save(buttonCb);
+      } else {
+        buttonCb(true);
+        this.done();
+      }
 
       this.normalizeSpec();
       const versionInfo = await this.$store.dispatch('management/request', {
-        method:  this.mode === 'edit' ? 'PUT' : 'POST',
+        method:  (this.mode === 'edit' && !this.isAdd) ? 'PUT' : 'POST',
         headers: {
           'content-type': 'application/json',
           accept:         'application/json',
         },
-        url:  this.mode === 'edit' ? `v1/vm.cattle.io.templateversions/${ this.value.metadata.namespace }:${ this.value.metadata.name }` : `v1/vm.cattle.io.templateversions`,
-        data: {
+        url:  (this.mode === 'edit' && !this.isAdd) ? `v1/vm.cattle.io.templateversions/${ this.value.metadata.namespace }/${ this.value.metadata.name }` : `v1/vm.cattle.io.templateversions`,
+        data: (this.mode === 'edit' && !this.isAdd) ? {
+          ...this.defaultVersion,
+          spec: { ...this.spec }
+        } : {
           apiVersion: 'vm.cattle.io/v1alpha1',
           kind:       'vm.cattle.io.templateversion',
           type:       'vm.cattle.io.templateversion',
@@ -154,7 +159,7 @@ export default {
         },
       });
 
-      if (this.isDefaultVersion) {
+      if (this.isDefaultVersion || this.mode === _CREATE) {
         await this.setVersion(versionInfo.id);
       }
     },
@@ -162,7 +167,7 @@ export default {
     async setVersion(id) {
       delete this.value._type;
       await this.$store.dispatch('management/request', {
-        method:  'put',
+        method:  'PUT',
         headers: {
           'content-type': 'application/json',
           accept:         'application/json',
@@ -185,11 +190,11 @@ export default {
   <div id="vm">
     <div class="row">
       <div class="col span-6">
-        <LabeledInput v-model="value.metadata.name" label="Template Name" required />
+        <LabeledInput v-model="value.metadata.name" :disabled="isAdd" label="Template Name" required />
       </div>
 
       <div class="col span-6">
-        <LabeledInput v-model="value.spec.description" label="Description" />
+        <LabeledInput v-model="value.spec.description" :disabled="isAdd" label="Description" />
       </div>
     </div>
     <div class="min-spacer"></div>

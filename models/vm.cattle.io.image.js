@@ -30,5 +30,15 @@ export default {
 
   isReady() {
     return this?.status?.conditions?.[0].status === 'True';
-  }
+  },
+
+  stateDisplay() {
+    const status = this.getStatusConditionOfType('imported')?.status;
+
+    return status === 'True' ? 'Imported' : status === 'Unknown' ? 'Unknown' : 'Failed';
+  },
+
+  stateBackground() {
+    return this.stateColor(this.stateDisplay).replace('text-', 'bg-');
+  },
 };

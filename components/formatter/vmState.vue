@@ -307,13 +307,13 @@ export default {
 <template>
   <span :key="state" :class="{'badge-state': true, 'bg-success': isRun, 'bg-error': isErrorS, 'bg-warning': isOf, 'bg-tip': isOther}">
     <template v-if="state === 'Running'">
-      <i class="el-icon-refresh"></i> {{ state }}
+      {{ state }}
     </template>
     <template v-else-if="state === 'Off'">
-      <i class="el-icon-remove-outline"></i> {{ state }}
+      {{ state }}
     </template>
     <template v-else-if="state === 'Stoping'">
-      <i class="el-icon-video-pause"></i> {{ state }}
+      {{ state }}
     </template>
     <template v-else>
       {{ state }}
