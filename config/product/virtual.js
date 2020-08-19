@@ -2,7 +2,7 @@ import {
   CONFIG_MAP, HELM_RELEASE,
   NAMESPACE, NODE, SECRET, INGRESS,
   WORKLOAD, WORKLOAD_TYPES, SERVICE, HPA, NETWORK_POLICY, PV, PVC, STORAGE_CLASS, POD,
-  RBAC, IMAGE, VM, SSH
+  RBAC, IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME
 } from '@/config/types';
 
 import {
@@ -15,7 +15,7 @@ import { DSL } from '@/store/type-map';
 
 export const NAME = 'virtual';
 
-const TEMPLATE = 'vm.cattle.io.template';
+const TEMPLATE = VM_TEMPLATE.template;
 
 export function init(store) {
   const {
@@ -93,16 +93,16 @@ export function init(store) {
     exact: true,
   });
 
-  basicType([PV]);
+  basicType([DATA_VOLUME]);
   virtualType({
     label:      'Volumes',
     group:      'root',
     namespaced: true,
-    name:       PV,
+    name:       DATA_VOLUME,
     weight:     88,
     route:      {
       name:     'c-cluster-product-resource',
-      params:   { resource: PV }
+      params:   { resource: DATA_VOLUME }
     },
     exact: true,
   });
@@ -156,7 +156,8 @@ export function init(store) {
       name:      'status',
       label:     'State',
       value:     'id',
-      formatter: 'vmState'
+      formatter: 'vmState',
+      width:     300
     },
     NAMESPACE_NAME,
     {

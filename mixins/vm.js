@@ -136,7 +136,7 @@ export default {
             const DVT = _dataVolumeTemplates.find( (T) => {
               return T.metadata.name === volumeName;
             });
-            
+
             if (DVT) {
               if (DVT.spec?.source?.blank) {
                 source = SOURCE_TYPE.BLANK;
@@ -186,8 +186,8 @@ export default {
           };
         });
 
-        return out.filter( O => {
-          return O.name !== 'cloudinitdisk'
+        return out.filter( (O) => {
+          return O.name !== 'cloudinitdisk';
         });
       },
 

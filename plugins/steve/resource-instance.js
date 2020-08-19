@@ -114,6 +114,8 @@ const STATES = {
   imported:           { color: 'success', icon: 'dot-open' },
   validated:          { color: 'success', icon: 'dot-open' },
   progress:           { color: 'warning', icon: 'x' },
+  'in-use':           { color: 'success', icon: 'dot-open' },
+  'N/A':              { color: 'warning', icon: 'x' },
 };
 
 const SORT_ORDER = {

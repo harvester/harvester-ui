@@ -1,7 +1,9 @@
 <script>
+import CopyToClipboardText from '@/components/CopyToClipboardText';
 
 export default {
-  props: {
+  components: { CopyToClipboardText },
+  props:      {
     value: {
       type:     String,
       default: ''
@@ -41,7 +43,5 @@ export default {
 </script>
 
 <template>
-  <span>
-    {{ ip }}
-  </span>
+  <CopyToClipboardText v-if="ip" :text="ip" />
 </template>

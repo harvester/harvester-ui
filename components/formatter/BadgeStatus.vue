@@ -3,30 +3,20 @@
 export default {
   props: {
     value: {
+      type:     String,
+      required: true
+    },
+    row: {
       type:     Object,
       required: true
     }
   },
-
-  data() {
-    return { state: '' };
-  },
-
-  watch: {
-    value: {
-      handler() {
-        this.state = this.value.stateDisplay;
-      },
-      deep:      true,
-      immediate: true
-    }
-  }
 };
 </script>
 
 <template>
-  <span :class="{'badge-state': true, [value.stateBackground]: true}">
-    {{ state }}
+  <span :class="{'badge-state': true, [row.stateBackground]: true}">
+    {{ row.statusDisplay }}
   </span>
 </template>
 

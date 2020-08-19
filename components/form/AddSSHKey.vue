@@ -93,7 +93,7 @@ export default {
 
         return;
       }
-      const SSH = 'vm.cattle.io.keypair';
+      const SSH = 'harvester.cattle.io.keypair';
 
       try {
         const data = await this.$store.dispatch('cluster/request', {

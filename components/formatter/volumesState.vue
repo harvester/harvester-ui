@@ -28,25 +28,6 @@ export default {
 
   computed: {
     formatValue() {
-      if (this.col.type === 'state') {
-        const boundCondition = this.dataVolume?.getStatusConditionOfType('Bound');
-        const readyCondition = this.dataVolume?.getStatusConditionOfType('Ready');
-
-        if (boundCondition?.status === 'True') {
-          return 'In-use';
-        } else if (readyCondition?.status === 'True' && boundCondition?.status === 'False') {
-          return 'available';
-        } else {
-          return 'N/A';
-        }
-      }
-
-      if (this.col.type === 'status') {
-        const readyCondition = this.dataVolume?.getStatusConditionOfType('Ready');
-
-        return readyCondition?.status === 'True' ? 'ready' : 'noready';
-      }
-
       if (this.col.type === 'attached') {
         return this.vm?.metadata?.name || 'N/A';
       }
@@ -63,7 +44,7 @@ export default {
 
     vm() {
       return this.vmList.find( (D) => {
-        return D.metadata?.uid === this.dataVolume?.metadata?.ownerReferences?.[0]?.uid;
+        return D.metadata?.uid === this.row?.metadata?.ownerReferences?.[0]?.uid;
       });
     },
   }

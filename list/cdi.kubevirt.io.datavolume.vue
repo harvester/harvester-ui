@@ -23,27 +23,20 @@ export default {
       dataVolume: this.$store.dispatch('cluster/findAll', { type: DATA_VOLUME })
     });
 
-    this.pv = hash.pv;
+    this.dataVolume = hash.dataVolume;
   },
 
   data() {
-    return { pv: [] };
+    return { dataVolume: [] };
   },
 
   computed: {
     rows() {
-      return this.pv;
+      return this.dataVolume;
     },
     headers() {
       return [
-        {
-          name:      'state',
-          label:     'State',
-          type:      'state',
-          sort:      'name',
-          value:     'spec.claimRef',
-          formatter: 'volumesState'
-        },
+        STATE,
         {
           ...NAME,
           width: 300
@@ -51,20 +44,20 @@ export default {
         {
           name:      'size',
           label:     'Size',
-          value:     'spec.capacity.storage',
-          sort:      'spec.capacity.storage',
+          value:     'spec.pvc.resources.requests.storage',
+          sort:      'spec.pvc.resources.requests.storage',
         },
         {
           name:      'volumeMode',
           label:     'Volume Type',
-          value:     'spec.volumeMode',
-          sort:      'spec.volumeMode',
+          value:     'spec.pvc.volumeMode',
+          sort:      'spec.pvc.volumeMode',
         },
         {
           name:      'accessMode',
           label:     'access Mode',
-          value:     "$['spec']['accessModes'][0]",
-          sort:      'spec.accessModes',
+          value:     "$['spec']['pvc']['accessModes'][0]",
+          sort:      "$['spec']['pvc']['accessModes'][0]",
         },
         {
           name:      'AttachedVM',
@@ -75,12 +68,13 @@ export default {
           formatter: 'volumesState'
         },
         {
-          name:      'Status',
-          label:     'Status',
-          type:      'status',
-          value:     'spec.claimRef',
-          sort:      'Status',
-          formatter: 'volumesState'
+          name:      'status',
+          labelKey:  'tableHeaders.state',
+          sort:      ['stateSort', 'nameSort'],
+          value:     'statusDisplay',
+          width:     100,
+          default:   'unknown',
+          formatter: 'BadgeStatus',
         },
         AGE,
       ];

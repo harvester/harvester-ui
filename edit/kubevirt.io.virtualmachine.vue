@@ -76,10 +76,8 @@ export default {
               pod:  {}
             }],
             volumes: [{
-              "dataVolume": {
-                "name": "okd-rootdisk-vpbhd"
-              },
-              "name": "rootdisk"
+              dataVolume: { name: 'okd-rootdisk-vpbhd' },
+              name:       'rootdisk'
             }]
           }
         }
