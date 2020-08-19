@@ -149,7 +149,11 @@ export default {
     updateIndex(index, type) {
       this.rowIndex = index;
       this.type = type;
-      this.currentRow = clone(this.rows[this.rowIndex]) || { name: `nic-${ index }` };
+      const networkName = this.networkOption?.[0]?.value || '';
+
+      this.currentRow = clone(this.rows[this.rowIndex]) || {
+        name: `nic-${ index }`, model: 'virtio', networkName, type: 'bridge'
+      };
     },
 
     validateError() {
@@ -163,6 +167,14 @@ export default {
         this.$set(this, 'errors', []);
       } else {
         this.errors.splice(0, 1, 'Please fill in all required fields.');
+      }
+    },
+
+    validateMac(value) {
+      if (!/^[A-F0-9]{2}(-[A-F0-9]{2}){5}$|^[A-F0-9]{2}(:[A-F0-9]{2}){5}$/.test(value)) {
+        this.errors.splice(0, 1, 'Invalid MAC address format.');
+      } else {
+        this.$set(this, 'errors', []);
       }
     }
   }
@@ -218,9 +230,19 @@ export default {
           v-model="currentRow.macAddress"
           label="Mac Address"
           required
+          @input="validateMac"
         />
-        <h5>MAC address as seen inside the guest system.</h5>
+        <h5 class="tip">
+          Protip: MAC address as seen inside the guest system.
+        </h5>
       </template>
     </VMModal>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.tip {
+  font-size: 13px;
+  font-style: italic;
+}
+</style>

@@ -35,7 +35,11 @@ export default {
   stateDisplay() {
     const status = this.getStatusConditionOfType('imported')?.status;
 
-    return status === 'True' ? 'Imported' : status === 'Unknown' ? 'Unknown' : 'Failed';
+    if (status === undefined) {
+      return 'Unknown';
+    }
+
+    return status === 'True' ? 'Imported' : status === 'Unknown' ? 'Progress' : 'Failed';
   },
 
   stateBackground() {

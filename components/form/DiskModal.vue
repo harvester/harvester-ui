@@ -214,8 +214,10 @@ export default {
       this.type = type;
       this.$set(this, 'currentRow', clone(this.rows[this.rowIdx]) || {
         name:             `disk-${ idx - 1 }`,
+        source:           'blank',
         pvcNS:            'default',
         unit:             'Gi',
+        size:             10,
         accessMode:       'ReadWriteOnce',
         volumeMode:       'Filesystem',
         bus:              'virtio',

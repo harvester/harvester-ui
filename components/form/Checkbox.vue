@@ -122,7 +122,7 @@ export default {
 }
 
 .checkbox-box input:checked ~ .checkbox-custom {
-    background-color:var(--dropdown-text);
+    background-color:var(--primary);
     border-radius: 3px;
     -webkit-transform: rotate(0deg) scale(1);
     -ms-transform: rotate(0deg) scale(1);

@@ -73,10 +73,10 @@ export default {
         />
       </div>
     </div>
-    <h5 class="mb-20">
-      Supports the raw and qcow2 image formats which are supported by qemu.
-      Bootable ISO images can also be used and are treated like raw images.
-      Images may be compressed with either the gz or xz format.
+    <h5 class="mb-20 tip">
+      Protip: CDI supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>.
+      Bootable ISO images can also be used and are treated like <code>raw</code> images.
+      Images may be compressed with either the <code>gz</code> or <code>xz</code> format.
     </h5>
 
     <div class="row mb-20">
@@ -109,5 +109,17 @@ export default {
 <style lang="scss" scoped>
 .resize {
   resize: auto;
+}
+.tip {
+  font-size: 13px;
+  font-style: italic;
+}
+code {
+  border-radius: 2px;
+  color: #e96900;
+  font-size: .8rem;
+  margin: 0 2px;
+  padding: 3px 5px;
+  white-space: pre-wrap;
 }
 </style>
