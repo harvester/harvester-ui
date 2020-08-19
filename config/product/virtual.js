@@ -184,7 +184,7 @@ export function init(store) {
     {
       name:      'latest',
       label:     'Latest version',
-      value:     'status.defaultVersion',
+      value:     'status.latestVersion',
     },
     AGE
   ]);

@@ -34,15 +34,12 @@ export default {
       templateVersion:    this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
       networkAttachment:  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT }),
     });
-
-    this.ssh = hash.ssh;
   },
 
   data() {
     return {
       source:     '',
       sshKey:     [],
-      ssh:        [],
       imageName:  '',
       sshName:    '',
       publicKey:  '',
@@ -51,6 +48,12 @@ export default {
   },
 
   computed: {
+    ssh() {
+      const ssh = this.$store.getters['cluster/all'](SSH);
+
+      return ssh;
+    },
+
     UnitOption() {
       return MemoryUnit;
     },
@@ -134,28 +137,27 @@ export default {
               return T.metadata.name === volumeName;
             });
 
-            if (DVT) {
-              if (DVT.spec?.source?.blank) {
-                source = SOURCE_TYPE.BLANK;
-              } else if (DVT.spec?.source?.pvc) {
-                source = SOURCE_TYPE.ATTACH_CLONED;
-                pvcName = DVT.spec?.source?.pvcname;
-                pvcNS = DVT.spec?.source?.pvc.namespace;
-              } else {
-                source = 'url';
-                url = DVT.spec?.source?.http?.url;
-                const image = images.find( (I) => {
-                  return DVT.spec?.source?.http?.url === I?.status?.downloadUrl;
-                });
+            if (DVT.spec?.source?.blank) {
+              source = SOURCE_TYPE.BLANK;
+            } else if (DVT.spec?.source?.pvc) {
+              source = SOURCE_TYPE.ATTACH_CLONED;
+              pvcName = DVT.spec?.source?.pvcname;
+              pvcNS = DVT.spec?.source?.pvc.namespace;
+            } else {
+              source = 'url';
+              url = DVT.spec?.source?.http?.url;
+              const image = images.find( (I) => {
+                return DVT.spec?.source?.http?.url === I?.status?.downloadUrl;
+              });
 
-                this.imageName = image?.spec.displayName;
-              }
-
-              accessMode = DVT.spec?.pvc?.accessModes?.[0];
-              size = DVT.spec?.pvc?.resources?.requests?.storage;
-              volumeMode = DVT.spec?.pvc?.volumeMode;
-              storageClassName = DVT.spec?.pvc?.storageClassName;
+              this.imageName = image?.spec.displayName;
             }
+
+            accessMode = DVT?.spec?.pvc?.accessModes?.[0];
+            size = DVT?.spec?.pvc?.resources?.requests?.storage || '10';
+
+            volumeMode = DVT?.spec?.pvc?.volumeMode;
+            storageClassName = DVT?.spec?.pvc?.storageClassName;
           }
 
           const bus = DISK.disk.bus;

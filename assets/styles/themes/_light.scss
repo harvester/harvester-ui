@@ -89,7 +89,7 @@ $selected: rgba($primary, .5);
   --dropdown-bg                : #fff;
   --dropdown-border            : #{$medium};
   --dropdown-divider           : #{$medium};
-  --dropdown-text              : #fff;
+  --dropdown-text              : #000;
   --dropdown-hover-text        : darken($link, 1%);
   --dropdown-hover-bg          : #{$selected};
   --dropdown-active-text       : var(--active-text);
@@ -115,7 +115,7 @@ $selected: rgba($primary, .5);
 
   --sortable-table-bg          : transparent;
   --sortable-table-header-bg   : transparent;
-  --sortable-table-accent-bg   : #{$lighter};
+  --sortable-table-accent-bg   : #F4F5FA;
   --sortable-table-accent-alt  : #{$lightest};
   --sortable-table-top-divider : var(--border);
   --sortable-table-body-divider : #{$darker};
@@ -134,7 +134,7 @@ $selected: rgba($primary, .5);
   --tooltip-text               : var(--tag-primary);
 
   --tabbed-border              : #{$medium};
-  --tabbed-container-bg        : #{$lighter};
+  --tabbed-container-bg        : #f4f5fa;
 
   --yaml-editor-bg             : #f5f5f5;
 

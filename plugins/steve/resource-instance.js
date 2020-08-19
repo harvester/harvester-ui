@@ -113,6 +113,7 @@ const STATES = {
   waiting:            { color: 'info', icon: 'tag' },
   imported:           { color: 'success', icon: 'dot-open' },
   validated:          { color: 'success', icon: 'dot-open' },
+  progress:           { color: 'warning', icon: 'x' },
 };
 
 const SORT_ORDER = {
@@ -315,7 +316,7 @@ export default {
 
   getStatusConditionOfType() {
     return (type, defaultValue = []) => {
-      const conditions = _.get(this, 'status.conditions') === undefined ? defaultValue : this.status.conditions;
+      const conditions = Array.isArray(_.get(this, 'status.conditions')) ? this.status.conditions : defaultValue;
 
       return conditions.find( cond => cond.type === type);
     };
