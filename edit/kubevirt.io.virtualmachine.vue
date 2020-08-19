@@ -75,7 +75,12 @@ export default {
               name: 'nic-0',
               pod:  {}
             }],
-            volumes: []
+            volumes: [{
+              "dataVolume": {
+                "name": "okd-rootdisk-vpbhd"
+              },
+              "name": "rootdisk"
+            }]
           }
         }
       };

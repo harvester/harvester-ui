@@ -125,7 +125,7 @@ export default {
           let pvcNS = '';
           let accessMode = '';
           let size = '';
-          const unit = '';
+          let unit = '';
           let volumeMode = '';
           let storageClassName = '';
           let url = '';
@@ -136,28 +136,36 @@ export default {
             const DVT = _dataVolumeTemplates.find( (T) => {
               return T.metadata.name === volumeName;
             });
+            
+            if (DVT) {
+              if (DVT.spec?.source?.blank) {
+                source = SOURCE_TYPE.BLANK;
+              } else if (DVT.spec?.source?.pvc) {
+                source = SOURCE_TYPE.ATTACH_CLONED;
+                pvcName = DVT.spec?.source?.pvcname;
+                pvcNS = DVT.spec?.source?.pvc.namespace;
+              } else {
+                source = 'url';
+                url = DVT.spec?.source?.http?.url;
+                const image = images.find( (I) => {
+                  return DVT.spec?.source?.http?.url === I?.status?.downloadUrl;
+                });
 
-            if (DVT.spec?.source?.blank) {
-              source = SOURCE_TYPE.BLANK;
-            } else if (DVT.spec?.source?.pvc) {
-              source = SOURCE_TYPE.ATTACH_CLONED;
-              pvcName = DVT.spec?.source?.pvcname;
-              pvcNS = DVT.spec?.source?.pvc.namespace;
-            } else {
-              source = 'url';
-              url = DVT.spec?.source?.http?.url;
-              const image = images.find( (I) => {
-                return DVT.spec?.source?.http?.url === I?.status?.downloadUrl;
-              });
+                this.imageName = image?.spec.displayName;
+              }
 
-              this.imageName = image?.spec.displayName;
+              accessMode = DVT?.spec?.pvc?.accessModes?.[0];
+              size = DVT?.spec?.pvc?.resources?.requests?.storage.split(/(?=([a-zA-Z]{2}))/)[0] || '10';
+              unit = DVT?.spec?.pvc?.resources?.requests?.storage.split(/(?=([a-zA-Z]{2}))/)[1] || 'Gi';
+              volumeMode = DVT?.spec?.pvc?.volumeMode;
+              storageClassName = DVT?.spec?.pvc?.storageClassName;
             }
+          }
 
-            accessMode = DVT?.spec?.pvc?.accessModes?.[0];
-            size = DVT?.spec?.pvc?.resources?.requests?.storage || '10';
-
-            volumeMode = DVT?.spec?.pvc?.volumeMode;
-            storageClassName = DVT?.spec?.pvc?.storageClassName;
+          if (size === '') {
+            size = 10;
+            unit = 'Gi';
+            source = 'url';
           }
 
           const bus = DISK.disk.bus;
@@ -178,7 +186,9 @@ export default {
           };
         });
 
-        return out;
+        return out.filter( O => {
+          return O.name !== 'cloudinitdisk'
+        });
       },
 
       set(neu) {
@@ -256,7 +266,7 @@ export default {
               accessModes: [
                 accessModel
               ],
-              resources:  { requests: { storage: '10Gi' } },
+              resources:  { requests: { storage: `${ R.size }${ R.unit }` } },
               volumeMode: R.volumeMode || 'Filesystem'
             }
           }
