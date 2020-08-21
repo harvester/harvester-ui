@@ -1,3 +1,5 @@
+import { VMI } from '@/config/types';
+
 const PAUSED = 'Paused';
 const PAUSED_VM_MODAL_MESSAGE = 'This VM has been paused. If you wish to unpause it, please click the Unpause button below. For further details, please check with your system administrator.';
 const VMIPhase = {
@@ -27,5 +29,9 @@ export default {
     }
 
     return null;
+  },
+
+  getVMIApiPath() {
+    return `/apis/subresources.kubevirt.io/v1alpha3/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
   }
 };

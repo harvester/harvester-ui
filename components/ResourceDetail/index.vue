@@ -16,7 +16,7 @@ import GenericResourceDetail from './Generic';
 // So you have to call this in the page and pass it in as a prop.
 export async function asyncData(ctx) {
   const { params, store, route } = ctx;
-  const resource = params.resource;
+  const resource = params.realresource || params.resource;
   const hasCustomEdit = store.getters['type-map/hasCustomEdit'](resource);
   const hasCustomDetail = store.getters['type-map/hasCustomDetail'](resource);
   const realMode = realModeFor(route.query.mode, params.id);
@@ -59,7 +59,7 @@ export async function defaultAsyncData(ctx, resource) {
   let { namespace, id } = params;
 
   if ( !resource ) {
-    resource = params.resource;
+    resource = params.realresource || params.resource;
   }
 
   // There are 5 "real" modes that you can start in: view, edit, create, stage, clone
