@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { VMI } from '@/config/types';
 
 const VMI_WAITING_MESSAGE =
   'The virtual machine is waiting for resources to become available.';
@@ -42,6 +43,12 @@ export default {
         icon:       'icon icon-fw icon-play',
         label:      'start',
       },
+      {
+        action:     'openConsole',
+        enabled:    true,
+        icon:       'icon icon-fw icon-play',
+        label:      'Open Console',
+      },
       ...out
     ];
   },
@@ -61,6 +68,27 @@ export default {
   startVM() {
     return () => {
       this.doAction('startVM', {});
+    };
+  },
+
+  openConsole() {
+    return () => {
+      const location = this.consoleLocation;
+
+      window.open(this.currentRouter().resolve(location).href, '_blank');
+    };
+  },
+
+  consoleLocation() {
+    return {
+      name:   `c-cluster-virtual-realresource-namespace-id-console`,
+      params: {
+        product:      'virtual',
+        cluster:      this.$rootGetters['clusterId'],
+        realresource: 'kubevirt.io.virtualmachineinstance',
+        namespace:    this.metadata?.namespace,
+        id:           this.metadata.name,
+      }
     };
   },
 
