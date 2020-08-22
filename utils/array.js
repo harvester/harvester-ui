@@ -153,3 +153,12 @@ export function uniq(ary) {
 
   return out;
 }
+
+export function mapValueLabel(ary) {
+  return ary.map( (value) => {
+    return {
+      value,
+      label: value
+    };
+  });
+}

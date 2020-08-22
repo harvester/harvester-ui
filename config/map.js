@@ -9,3 +9,14 @@ export const MemoryUnit = [{
   label: 'TiB',
   value: 'Ti'
 }];
+
+export const InterfaceOption = [{
+  label: 'VirtIO',
+  value: 'virtio'
+}, {
+  label: 'STAT',
+  value: 'sata'
+}, {
+  label: 'SCSI',
+  value: 'scsi'
+}];

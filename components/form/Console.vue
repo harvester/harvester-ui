@@ -15,6 +15,7 @@ export default {
   computed: {
     url() {
       const isDev = process.env.dev;
+
       const ip = !isDev ? `${ window.location.hostname }:${ window.location.port }` : process.env.api.split('//')[1];
 
       return `wss://${ ip }${ this.value?.getVMIApiPath }`;

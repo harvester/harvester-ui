@@ -34,5 +34,13 @@ export default {
 </script>
 
 <template>
-  <el-progress :stroke-width="10" :percentage="percentage" :color="customColorMethod"></el-progress>
+  <div class="parent">
+    <el-progress :stroke-width="10" :percentage="percentage" :color="customColorMethod"></el-progress>
+  </div>
 </template>
+
+<style lang="scss" scoped>
+.parent {
+  width: 80%;
+}
+</style>

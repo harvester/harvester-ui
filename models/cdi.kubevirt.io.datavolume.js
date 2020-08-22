@@ -23,5 +23,9 @@ export default {
     const readyCondition = this?.getStatusConditionOfType('Ready');
 
     return readyCondition?.status === 'True' ? 'Ready' : 'NoReady';
+  },
+
+  phaseStatus() {
+    return this?.status?.phase;
   }
 };

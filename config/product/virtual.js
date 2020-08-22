@@ -204,6 +204,19 @@ export function init(store) {
       sort:      'status.progress',
       formatter: 'ImagePercentageBar',
     },
+    {
+      name:      'downloadUrl',
+      label:     'DownloadUrl',
+      value:     'status.downloadUrl',
+      sort:      'status.downloadUrl',
+    },
+    {
+      name:      'downloadedBytes',
+      label:     'DownloadedBytes',
+      value:     'status.downloadedBytes',
+      sort:      'status.downloadedBytes',
+      formatter: 'ByteFormat',
+    },
     AGE
   ]);
 
