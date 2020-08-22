@@ -22,8 +22,7 @@ if [[ "${DIR}" == "master" ]]; then
   DIR="latest"
 fi
 
-# BASE=https://releases.rancher.com/dashboard/${DIR}
-BASE=https://rancher-harvester.s3-ap-southeast-1.amazonaws.com/ui/${DIR}
+BASE=https://releases.rancher.com/harvester-ui/${DIR}
 
 echo "Building for ${BASE}..."
 

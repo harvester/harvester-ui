@@ -33,13 +33,13 @@ export const NAME = {
   canBeVariable: true,
 };
 
-// export const NAMESPACE = {
-//   name:          'namespace',
-//   label:         'Namespace',
-//   value:         'namespace',
-//   sort:          ['nameSort'],
-//   canBeVariable: true,
-// };
+export const NAMESPACE = {
+  name:          'namespace',
+  label:         'Namespace',
+  value:         'metadata.namespace',
+  sort:          ['nameSort'],
+  canBeVariable: true,
+};
 
 export const SIMPLE_NAME = {
   name:          'name',

@@ -2,6 +2,7 @@
 import LabeledInput from '@/components/form/LabeledInput';
 import Banner from '@/components/Banner';
 import { clone } from '@/utils/object';
+import { SSH } from '@/config/types';
 
 export default {
   components: {
@@ -10,13 +11,6 @@ export default {
   },
 
   props: {
-    ssh: {
-      type:    Array,
-      default: () => {
-        return [];
-      }
-    },
-
     sshKey: {
       type:    Array,
       default: () => {
@@ -27,7 +21,7 @@ export default {
 
   data() {
     return {
-      checkedSsh:          this.sshKey,
+      checkedSsh:       this.sshKey,
       publicKey:        '',
       sshName:          '',
       searchKey:        '',
@@ -39,6 +33,9 @@ export default {
   },
 
   computed: {
+    ssh() {
+      return this.$store.getters['cluster/all'](SSH);
+    },
     sshList() {
       return this.ssh.map( O => O.metadata.name);
     },

@@ -51,7 +51,7 @@ export default {
     >
       <KeyValue
         key="labels"
-        v-model="labels"
+        v-model="value.metadata.labels"
         :mode="mode"
         :initial-empty-row="true"
         :pad-left="false"

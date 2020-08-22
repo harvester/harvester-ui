@@ -1,11 +1,11 @@
 <script>
 import LabeledSelect from '@/components/form/LabeledSelect';
+import Collapse from '@/components/Collapse';
 import { sortBy } from '@/utils/sort';
-import { InterfaceOption } from '@/config/map';
 import { STORAGE_CLASS, PVC, IMAGE } from '@/config/types';
 
 export default {
-  components: { LabeledSelect },
+  components: { LabeledSelect, Collapse },
 
   props: {
     value: {
@@ -22,18 +22,17 @@ export default {
       return I?.status?.downloadUrl === this.value?.source?.http?.url;
     })?.spec?.displayName : '';
 
-    const accessMode = this.value?.pvc?.accessModes?.[0];
+    const accessMode = this.value?.pvc?.accessModes?.[0] || 'ReadWriteOnce';
     const storageClassName = this.value?.pvc?.storageClassName;
-    const volumeMode = this.value?.pvc?.volumeMode;
+    const volumeMode = this.value?.pvc?.volumeMode || 'FileSystem';
 
     return {
       image,
       source,
-      Interface:        '',
       accessMode,
       volumeMode,
       storageClassName,
-      isShowAdvanced:   false,
+      isShowAdvanced: false,
     };
   },
 
@@ -67,12 +66,14 @@ export default {
       ];
     },
 
-    InterfaceOption() {
-      return InterfaceOption;
-    },
-
     storageOption() {
       const choices = this.$store.getters['cluster/all'](STORAGE_CLASS);
+
+      choices.map( (O) => {
+        if (O.metadata?.annotations?.['storageclass.kubernetes.io/is-default-class']) {
+          this.storageClassName = O.metadata.name;
+        }
+      });
 
       return sortBy(
         choices
@@ -151,10 +152,6 @@ export default {
 
       this.$emit('input', spec);
     },
-
-    handlerAdvanced() {
-      this.isShowAdvanced = !this.isShowAdvanced;
-    }
   }
 };
 </script>
@@ -181,15 +178,6 @@ export default {
     />
 
     <LabeledSelect
-      v-model="Interface"
-      label="Interface"
-      :options="InterfaceOption"
-      required
-      class="mb-20"
-      @input="update"
-    />
-
-    <LabeledSelect
       v-model="storageClassName"
       label="Storage Class"
       :options="storageOption"
@@ -198,21 +186,10 @@ export default {
       @input="update"
     />
 
-    <h1 @click="handlerAdvanced">
-      Show Advanced
-    </h1>
-
-    <div v-if="isShowAdvanced">
+    <Collapse :open.sync="isShowAdvanced">
       <LabeledSelect v-model="volumeMode" label="Volume Mode" :options="volumeModeOption" class="mb-20" />
 
       <LabeledSelect v-model="accessMode" label="Access Model" :options="accessModeOption" />
-    </div>
+    </Collapse>
   </div>
 </template>
-
-<style lang="scss" scoped>
-h1 {
-  cursor: pointer;
-  color: var(--link-text);
-}
-</style>

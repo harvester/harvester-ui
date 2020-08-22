@@ -26,6 +26,6 @@ export default {
   },
 
   phaseStatus() {
-    return this?.status?.phase;
+    return this?.status?.phase || 'N/A';
   }
 };

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import _ from 'lodash';
 import randomstring from 'randomstring';
 import { sortBy } from '@/utils/sort';
@@ -6,6 +7,7 @@ import { MemoryUnit } from '@/config/map';
 import {
   NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, VMI, STORAGE_CLASS, NETWORK_ATTACHMENT
 } from '@/config/types';
+import { STORAGE_CLASS_LABEL } from '@/config/labels-annotations';
 
 const SOURCE_TYPE = {
   ATTACH_CLONED: 'Attach Cloned Disks',
@@ -44,6 +46,7 @@ export default {
       sshName:    '',
       publicKey:  '',
       cloudInit:  '',
+      showCloudInit: false
     };
   },
 
@@ -54,42 +57,12 @@ export default {
       return ssh;
     },
 
-    UnitOption() {
-      return MemoryUnit;
-    },
-
     memory: {
       get() {
-        const value = this.spec?.template?.spec?.domain?.resources?.requests?.memory.split(/(?=([a-zA-Z]{2}))/)[0] || '';
-
-        return value;
+        return this.spec.template.spec.domain.resources.requests.memory;
       },
-      set(value) {
-        const neu = `${ value }${ this.memoryUnit }`;
-
-        this.$set(this.spec.template.spec.domain.resources.requests, 'memory', neu);
-      }
-    },
-
-    memoryUnit: {
-      get() {
-        const value = this.spec?.template?.spec?.domain?.resources?.requests?.memory.split(/(?=([a-zA-Z]{2}))/)[1] || 'Gi';
-
-        return value;
-      },
-      set(value) {
-        const neu = `${ this.memory }${ value }`;
-
-        this.$set(this.spec.template.spec.domain.resources.requests, 'memory', neu);
-      }
-    },
-
-    cores: {
-      get() {
-        return this.spec?.template?.spec?.domain?.cpu?.cores || '';
-      },
-      set(value) {
-        this.$set(this.spec.template.spec.domain.cpu, 'cores', value);
+      set(neu) {
+        this.$set(this.spec.template.spec.domain.resources.requests, 'memory', neu)
       }
     },
 
@@ -107,83 +80,30 @@ export default {
         'label'
       );
     },
+
+    images() {
+      return this.$store.getters['cluster/all'](IMAGE);
+    },
+
+    storageClasss() {
+      return this.$store.getters['cluster/all'](STORAGE_CLASS)
+    },
+
+    defaultStorageClass() {
+      let defaultValue = '';
+      this.storageClasss.map( (O) => {
+        if (O.metadata?.annotations?.[STORAGE_CLASS_LABEL.DEFAULT_CALSS]) {
+          defaultValue = O.metadata.name;
+        }
+      });
+      return defaultValue
+    },
     diskRows: {
       get() {
-        const images = this.$store.getters['cluster/all'](IMAGE);
-
         const _disks = this.spec?.template?.spec?.domain?.devices?.disks || [];
-        const _volumes = this.spec?.template?.spec?.volumes || [];
-        const _dataVolumeTemplates = this.spec?.dataVolumeTemplates || [];
 
-        const out = _disks.map( (DISK, index) => {
-          const volume = _volumes.find( (V) => {
-            return V.name === DISK.name;
-          });
-
-          let source = '';
-          let pvcName = '';
-          let pvcNS = '';
-          let accessMode = '';
-          let size = '';
-          let unit = '';
-          let volumeMode = '';
-          let storageClassName = '';
-          let url = '';
-
-          if (volume?.dataVolume && volume?.dataVolume?.name) {
-            const volumeName = volume.dataVolume.name;
-
-            const DVT = _dataVolumeTemplates.find( (T) => {
-              return T.metadata.name === volumeName;
-            });
-
-            if (DVT) {
-              if (DVT.spec?.source?.blank) {
-                source = SOURCE_TYPE.BLANK;
-              } else if (DVT.spec?.source?.pvc) {
-                source = SOURCE_TYPE.ATTACH_CLONED;
-                pvcName = DVT.spec?.source?.pvcname;
-                pvcNS = DVT.spec?.source?.pvc.namespace;
-              } else {
-                source = 'url';
-                url = DVT.spec?.source?.http?.url;
-                const image = images.find( (I) => {
-                  return DVT.spec?.source?.http?.url === I?.status?.downloadUrl;
-                });
-
-                this.imageName = image?.spec.displayName;
-              }
-
-              accessMode = DVT?.spec?.pvc?.accessModes?.[0];
-              size = DVT?.spec?.pvc?.resources?.requests?.storage.split(/(?=([a-zA-Z]{2}))/)[0] || '10';
-              unit = DVT?.spec?.pvc?.resources?.requests?.storage.split(/(?=([a-zA-Z]{2}))/)[1] || 'Gi';
-              volumeMode = DVT?.spec?.pvc?.volumeMode;
-              storageClassName = DVT?.spec?.pvc?.storageClassName;
-            }
-          }
-
-          if (size === '') {
-            size = 10;
-            unit = 'Gi';
-            source = 'url';
-          }
-
-          const bus = DISK.disk.bus;
-
-          return {
-            index,
-            source,
-            name: DISK.name,
-            bus,
-            pvcName,
-            pvcNS,
-            accessMode,
-            size,
-            unit,
-            volumeMode,
-            url,
-            storageClassName,
-          };
+        let out = _disks.map( (DISK, index) => {
+          return this.getVolumeForDisk(DISK);
         });
 
         return out.filter( (O) => {
@@ -198,7 +118,7 @@ export default {
 
     networkRows: {
       get() {
-        const networks = this.spec?.networks || [];
+        const networks = this.spec?.template?.spec?.networks || [];
         const interfaces = this.spec?.template?.spec?.domain?.devices?.interfaces || [];
 
         const out = interfaces.map( (O, index) => {
@@ -221,13 +141,88 @@ export default {
 
       set(neu) {
         // eslint-disable-next-line no-console
-        console.log('----set ne', neu);
         this.parseNetworkRows(neu);
       }
     }
   },
 
   methods: {
+    getVolumeForDisk(DISK) {
+      const _volumes = this.spec?.template?.spec?.volumes || [];
+      const volume = _volumes.find( (V) => V.name === DISK.name);
+
+      return this.getDVTemplateForVolume(volume, DISK);
+    },
+    getDVTemplateForVolume(volume, DISK) {
+      const _dataVolumeTemplates = this.spec?.dataVolumeTemplates || [];
+      const volumeName = volume.dataVolume.name;
+      const DVT = _dataVolumeTemplates.find( (T) => T.metadata.name === volumeName);
+
+      let index = '';
+      let source = '';
+      let pvcName = '';
+      let pvcNS = '';
+      let accessMode = '';
+      let size = '';
+      let unit = '';
+      let volumeMode = '';
+      let storageClassName = '';
+      let url = '';
+      let bootOrder = '';
+
+      if (volume?.dataVolume && volume?.dataVolume?.name) {
+        const DVT = _dataVolumeTemplates.find( (T) => T.metadata.name === volumeName);
+        
+        if (DVT) {
+          if (DVT.spec?.source?.blank) {
+            source = SOURCE_TYPE.BLANK;
+          } else if (DVT.spec?.source?.pvc) {
+            source = SOURCE_TYPE.ATTACH_CLONED;
+            pvcName = DVT.spec?.source?.pvcname;
+            pvcNS = DVT.spec?.source?.pvc.namespace;
+          } else {
+            source = 'url';
+            url = DVT.spec?.source?.http?.url;
+            const image = this.images.find( (I) => DVT.spec?.source?.http?.url === I?.status?.downloadUrl);
+
+            this.imageName = image?.spec.displayName;
+          }
+
+          accessMode = DVT?.spec?.pvc?.accessModes?.[0];
+          size = DVT?.spec?.pvc?.resources?.requests?.storage.split(/(?=([a-zA-Z]{2}))/)[0] || '10';
+          unit = DVT?.spec?.pvc?.resources?.requests?.storage.split(/(?=([a-zA-Z]{2}))/)[1] || 'Gi';
+          volumeMode = DVT?.spec?.pvc?.volumeMode;
+          storageClassName = DVT?.spec?.pvc?.storageClassName || this.defaultStorageClass;
+        }
+      }
+
+
+      if (size === '') {
+        size = 10;
+        unit = 'Gi';
+        source = 'blank';
+        bootOrder = 1;
+        storageClassName = this.defaultStorageClass;
+      }
+
+      const bus = DISK.disk?.bus || 'sata';
+
+      return {
+        index,
+        source,
+        name: DISK.name,
+        bootOrder,
+        bus,
+        pvcName,
+        pvcNS,
+        accessMode,
+        size,
+        unit,
+        volumeMode,
+        url,
+        storageClassName,
+      };
+    },
     updateSSHKey(neu) {
       this.$set(this, 'sshKey', neu);
     },
@@ -272,8 +267,8 @@ export default {
           }
         };
 
-        if (R.bootOrder) {
-          _disk.bootOrder = 1;
+        if (R.name === 'rootdisk') {
+          _disk.bootOrder = R.bootOrder;
         }
 
         switch (R.source) {
@@ -321,7 +316,10 @@ export default {
 
         volumes.push({
           name:             'cloudinitdisk',
-          cloudInitNoCloud: { userData: `#cloud-config\nname: ${ name }\nhostname: ${ hostName }\nssh_authorized_keys:${ sshString }${ initScript }` }
+          cloudInitNoCloud: {
+            userData: `#cloud-config\nname: ${ name }\nhostname: ${ hostName }\nssh_authorized_keys:${ sshString }${ initScript }`,
+            // networkData: `network:\n  version: 1\n  config:\n ${ initCloudNetworkData }`
+          }
         });
       }
 
@@ -364,19 +362,17 @@ export default {
       const interfaces = [];
       const networks = [];
 
-      // eslint-disable-next-line no-console
-      console.log('----par net', networkRow);
       networkRow.forEach( (O) => {
         const _interface = {};
         const network = {};
 
-        if (O.networkName === 'nic-0') {
+        if (O.name === 'nic-0') {
           _interface.masquerade = {};
           network.pod = {};
         } else {
-          if (O.sriov) {
+          if (O.type === 'sriov') {
             _interface.sriov = {};
-          } else if (O.bridge) {
+          } else if (O.type === 'bridge') {
             _interface.bridge = {};
           }
           _interface.macAddress = O.macAddress;
@@ -393,7 +389,6 @@ export default {
       });
 
       // eslint-disable-next-line no-console
-      console.log('------network', interfaces, networkRow);
       const spec = {
         ...this.spec.template.spec,
         domain: {
@@ -405,6 +400,7 @@ export default {
         },
         networks
       };
+      console.log('------network', interfaces, networkRow, spec);
 
       if (this.pageType === 'vm') {
         this.$set(this.value.spec.template, 'spec', spec);

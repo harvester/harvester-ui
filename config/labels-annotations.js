@@ -15,6 +15,8 @@ export const RIO = { STACK: 'rio.cattle.io/stack' };
 
 export const CERTMANAGER = { ISSUER: 'cert-manager.io/issuer-name' };
 
+export const STORAGE_CLASS_LABEL = { DEFAULT_CALSS: 'storageclass.kubernetes.io/is-default-class' };
+
 export const NODE_ROLES = {
   CONTROL_PLANE: 'node-role.kubernetes.io/controlplane',
   WORKER:        'node-role.kubernetes.io/worker',
@@ -48,3 +50,8 @@ export const ANNOTATIONS_TO_FOLD = [
   /^kubectl\.kubernetes\.io\/.*$/,
   /^objectset\.rio\.cattle\.io\/.*$/,
 ];
+
+export const LABEL_IMAGE = {
+  'harvester.cattle.io/format': 'raw',
+  'harvester.cattle.io/os':     'linux'
+};

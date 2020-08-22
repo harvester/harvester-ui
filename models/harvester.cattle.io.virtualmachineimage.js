@@ -39,7 +39,7 @@ export default {
       return 'Unknown';
     }
 
-    return status === 'True' ? 'Imported' : status === 'Unknown' ? 'Progress' : 'Failed';
+    return status === 'True' ? 'Imported' : status === 'Unknown' ? 'In-progress' : 'Failed';
   },
 
   stateBackground() {

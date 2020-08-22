@@ -6,7 +6,7 @@ import {
 } from '@/config/types';
 
 import {
-  STATE, NAME as NAME_COL, NAMESPACE_NAME, AGE, KEYS,
+  STATE, NAME as NAME_COL, NAMESPACE_NAME, NAMESPACE as NAMESPACE_COL, AGE, KEYS,
   INGRESS_TARGET, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM,
   SPEC_TYPE, TARGET_PORT, SELECTOR
 } from '@/config/table-headers';
@@ -159,7 +159,8 @@ export function init(store) {
       formatter: 'vmState',
       width:     300
     },
-    NAMESPACE_NAME,
+    NAME_COL,
+    NAMESPACE_COL,
     {
       name:      'node',
       label:     'Node',
@@ -176,7 +177,8 @@ export function init(store) {
   ]);
 
   headers(TEMPLATE, [
-    NAMESPACE_NAME,
+    NAME_COL,
+    NAMESPACE_COL,
     {
       name:      'default',
       label:     'Default version',
@@ -205,55 +207,12 @@ export function init(store) {
       formatter: 'ImagePercentageBar',
     },
     {
-      name:      'downloadUrl',
-      label:     'DownloadUrl',
-      value:     'status.downloadUrl',
-      sort:      'status.downloadUrl',
-    },
-    {
       name:      'downloadedBytes',
-      label:     'DownloadedBytes',
+      label:     'Size',
       value:     'status.downloadedBytes',
       sort:      'status.downloadedBytes',
       formatter: 'ByteFormat',
-    },
-    AGE
-  ]);
-
-  headers(PV, [
-    STATE,
-    NAME_COL,
-    {
-      name:      'size',
-      label:     'Size',
-      value:     'spec.capacity.storage',
-      sort:      'spec.capacity.storage',
-    },
-    {
-      name:      'volumeMode',
-      label:     'Volume Type',
-      value:     'spec.volumeMode',
-      sort:      'spec.volumeMode',
-    },
-    {
-      name:      'accessMode',
-      label:     'access Mode',
-      value:     "$['spec']['accessModes'][0]",
-      sort:      'spec.accessModes',
-    },
-    {
-      name:      'AttachedVM',
-      label:     'Attached VM',
-      type:      'attached',
-      sort:      'name',
-      formatter: 'volumesState'
-    },
-    {
-      name:      'Status',
-      label:     'Status',
-      type:       'status',
-      sort:      'Status',
-      formatter: 'volumesState'
+      width:     120
     },
     AGE
   ]);

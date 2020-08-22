@@ -89,7 +89,7 @@ export default {
     state() {
       const state =
       (this.vmiResource && this.vmiResource.isPaused?.status) ||
-      this.row.isVMError ||
+      this.row.isVMError?.status ||
       this.row.isBeingStopped?.status ||
       this.row.isOff?.status ||
       this.isError()?.status ||
