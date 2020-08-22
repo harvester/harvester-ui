@@ -13,6 +13,18 @@ export default {
     value: {
       type:    String,
       default: ''
+    },
+    valueName: {
+      type:     String,
+      default: 'value'
+    },
+    valueCol: {
+      type:    Number,
+      default: 6
+    },
+    unitCol: {
+      type:    Number,
+      default: 6
     }
   },
 
@@ -74,16 +86,12 @@ export default {
 
 <template>
   <div class="row" @input="update">
-    <div class="col span-6">
-      <LabeledInput v-model.number="size" v-int-number label="Size" required />
+    <div class="col" :class="`span-${ valueCol }`">
+      <LabeledInput v-model.number="size" v-int-number :label="valueName" required />
     </div>
 
-    <div class="col span-6">
+    <div class="col" :class="`span-${ unitCol }`">
       <LabeledSelect v-model="unit" label="Unit" :options="MemoryUnit" required @input="updateUnit" />
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-
-</style>

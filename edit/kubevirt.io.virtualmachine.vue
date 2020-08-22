@@ -9,8 +9,10 @@ import ChooseImage from '@/components/form/ChooseImage';
 import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
+import Collapse from '@/components/Collapse';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import { VM_TEMPLATE } from '@/config/types';
+import MemoryUnit from '@/components/form/MemoryUnit';
 
 import CreateEditView from '@/mixins/create-edit-view';
 import VM_MIXIN from '@/mixins/vm';
@@ -21,7 +23,9 @@ export default {
   components: {
     Footer,
     Checkbox,
+    Collapse,
     DiskModal,
+    MemoryUnit,
     AddSSHKey,
     ChooseImage,
     NetworkModal,
@@ -50,7 +54,7 @@ export default {
           spec: {
             domain: {
               cpu: {
-                cores:   '',
+                cores:   null,
                 sockets: 1,
                 threads: 1
               },
@@ -110,7 +114,9 @@ export default {
 
     hostname: {
       get() {
-        return this.spec.template.spec.hostname || `vm-${ moment().format('YYYY-MMDD-HHmm') }`;
+        const prefix = this.imageName?.split(/[a-zA-Z][-|.]+/)[0];
+
+        return this.spec.template.spec.hostname || `${ prefix }-${ moment().format('YYYY-MMDD-HHmm') }`;
       },
       set(neu) {
         this.$set(this.spec.template.spec, 'hostname', neu);
@@ -166,9 +172,8 @@ export default {
     <div class="min-spacer"></div>
     <Checkbox v-model="useTemplate" class="check" type="checkbox" label="Use an existing VM Template:" />
 
-    <div v-if="useTemplate" class="row">
+    <div v-if="useTemplate" class="row mb-20">
       <div class="col span-6">
-        <div class="min-spacer"></div>
         <LabeledSelect v-model="templateName" label="template" :options="templateOption" />
       </div>
     </div>
@@ -182,15 +187,11 @@ export default {
     <h2>Choose a Size:</h2>
     <div class="row">
       <div class="col span-5">
-        <LabeledInput v-model.number="cores" v-int-number label="CPU Request(core)" required />
+        <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number label="CPU (core)" required />
       </div>
 
-      <div class="col span-5">
-        <LabeledInput v-model.number="memory" v-int-number label="Memory Request" required />
-      </div>
-
-      <div class="col span-2">
-        <LabeledSelect v-model="memoryUnit" v-int-number label="Size" :options="UnitOption" />
+      <div class="col span-7">
+        <MemoryUnit v-model="memory" value-name="Memory" :value-col="8" :unit-col="4" />
       </div>
     </div>
 
@@ -207,12 +208,14 @@ export default {
     <div class="spacer"></div>
 
     <h2>Authentication:</h2>
-    <AddSSHKey :ssh="ssh" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
+    <AddSSHKey :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
 
     <div class="spacer"></div>
 
-    <h2>Cloud-init:</h2>
-    <TextAreaAutoGrow ref="value" v-model="cloudInit" :min-height="160" />
+    <Collapse :open.sync="showCloudInit" title="Cloud-init">
+      <h2>Cloud-init:</h2>
+      <TextAreaAutoGrow ref="value" v-model="cloudInit" :min-height="160" />
+    </Collapse>
 
     <div class="spacer"></div>
 

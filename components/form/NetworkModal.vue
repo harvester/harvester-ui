@@ -1,4 +1,5 @@
 <script>
+/* eslint-disable */
 import { clone } from '@/utils/object';
 import VMModal from '@/components/form/VMModal';
 import LabeledInput from '@/components/form/LabeledInput';
@@ -121,8 +122,6 @@ export default {
   },
   watch: {
     value(neu) {
-      // eslint-disable-next-line no-console
-      console.log('----neu', neu);
       this.rows = neu;
     }
   },
@@ -152,13 +151,12 @@ export default {
       const networkName = this.networkOption?.[0]?.value || '';
 
       this.currentRow = clone(this.rows[this.rowIndex]) || {
-        name: `nic-${ index }`, model: 'virtio', networkName, type: 'bridge'
+        name: `nic-${ index }`, model: 'virtio', networkName, type: 'bridge', cloudNetworkName: ''
       };
     },
 
     validateError() {
       if (
-        this.currentRow.macAddress &&
         this.currentRow.model &&
         this.currentRow.name &&
         this.currentRow.networkName &&
@@ -229,12 +227,17 @@ export default {
         <LabeledInput
           v-model="currentRow.macAddress"
           label="Mac Address"
-          required
           @input="validateMac"
         />
         <h5 class="tip">
           Protip: MAC address as seen inside the guest system.
         </h5>
+
+        <LabeledInput
+          v-model="currentRow.cloudNetworkName"
+          label="Network Name"
+          @input="validateMac"
+        />
       </template>
     </VMModal>
   </div>

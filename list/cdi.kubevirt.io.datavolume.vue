@@ -36,16 +36,7 @@ export default {
     },
     headers() {
       return [
-        {
-          name:      'phase',
-          label:     'Phase',
-          value:     'phaseStatus',
-          sort:      ['stateSort', 'nameSort'],
-          width:     100,
-          default:   'unknown',
-          state:     'phaseStatus',
-          formatter: 'BadgeStatus',
-        },
+        STATE,
         {
           ...NAME,
           width: 300
@@ -84,13 +75,13 @@ export default {
           sort:      'progress',
         },
         {
-          name:      'status',
-          label:      'status',
+          name:      'phase',
+          label:     'Phase',
+          value:     'phaseStatus',
           sort:      ['stateSort', 'nameSort'],
-          value:     'statusDisplay',
-          width:     100,
+          width:     130,
           default:   'unknown',
-          state:     'statusDisplay',
+          state:     'phaseStatus',
           formatter: 'BadgeStatus',
         },
         AGE,

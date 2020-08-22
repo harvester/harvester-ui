@@ -74,11 +74,17 @@ export default {
         />
       </div>
     </div>
-    <h5 v-if="isCreate" class="mb-20 tip">
-      Protip: CDI supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>.
-      Bootable ISO images can also be used and are treated like <code>raw</code> images.
-      Images may be compressed with either the <code>gz</code> or <code>xz</code> format.
-    </h5>
+
+    <div class="mb-10">
+      <el-tooltip v-if="isCreate" placement="top" effect="light">
+        <div slot="content">
+          Protip: supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>.
+          Bootable ISO images can also be used and are treated like <code>raw</code> images.
+          Images may be compressed with either the <code>gz</code> or <code>xz</code> format.
+        </div>
+        <span><i class="el-icon-info"></i></span>
+      </el-tooltip>
+    </div>
 
     <div class="row mb-20">
       <div class="col span-12">
@@ -96,7 +102,7 @@ export default {
           v-model="value.spec.description"
           type="multiline"
           :is-resize="true"
-          label="Notes"
+          label="Description"
         />
       </div>
     </div>

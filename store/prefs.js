@@ -293,52 +293,52 @@ export const actions = {
   },
 
   async loadServer({ state, dispatch, commit }, ignoreKey) {
-    let server = { data: {} };
+    // let server = { data: {} };
 
-    try {
-      const all = await dispatch('management/findAll', {
-        type: STEVE.PREFERENCE,
-        opt:  {
-          url:   'userpreferences',
-          force: true,
-          watch: false
-        }
-      }, { root: true });
+    // try {
+    //   const all = await dispatch('management/findAll', {
+    //     type: STEVE.PREFERENCE,
+    //     opt:  {
+    //       url:   'userpreferences',
+    //       force: true,
+    //       watch: false
+    //     }
+    //   }, { root: true });
 
-      server = all?.[0];
-    } catch (e) {
-      console.error('Error loading preferences', e); // eslint-disable-line no-console
-    }
+    //   server = all?.[0];
+    // } catch (e) {
+    //   console.error('Error loading preferences', e); // eslint-disable-line no-console
+    // }
 
-    if ( !server?.data ) {
-      return;
-    }
+    // if ( !server?.data ) {
+    //   return;
+    // }
 
-    for (const key in definitions) {
-      const definition = definitions[key];
-      let value = clone(server.data[key]);
+    // for (const key in definitions) {
+    //   const definition = definitions[key];
+    //   let value = clone(server.data[key]);
 
-      if ( value === undefined || key === ignoreKey) {
-        continue;
-      }
+    //   if ( value === undefined || key === ignoreKey) {
+    //     continue;
+    //   }
 
-      if ( definition.parseJSON ) {
-        try {
-          value = JSON.parse(value);
-        } catch (err) {
-          console.error('Error parsing server pref', key, value, err); // eslint-disable-line no-console
-          continue;
-        }
-      }
+    //   if ( definition.parseJSON ) {
+    //     try {
+    //       value = JSON.parse(value);
+    //     } catch (err) {
+    //       console.error('Error parsing server pref', key, value, err); // eslint-disable-line no-console
+    //       continue;
+    //     }
+    //   }
 
-      if ( definition.mangleRead ) {
-        value = definition.mangleRead(value);
-      }
+    //   if ( definition.mangleRead ) {
+    //     value = definition.mangleRead(value);
+    //   }
 
-      commit('load', { key, value });
-    }
+    //   commit('load', { key, value });
+    // }
 
-    return server;
+    // return server;
   },
 
   toggleTheme({ getters, dispatch }) {

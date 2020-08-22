@@ -250,6 +250,15 @@ export function containsSomeString(string, matchStrings) {
   return false;
 }
 
+export function matchesSomeRegex(stringRaw, regexes = []) {
+  return regexes.some((regexRaw) => {
+    const string = stringRaw || '';
+    const regex = ensureRegex(regexRaw);
+
+    return string.match(regex);
+  });
+}
+
 export function ensureRegex(strOrRegex, exact = true) {
   if ( typeof strOrRegex === 'string' ) {
     if ( exact ) {

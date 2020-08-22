@@ -103,7 +103,7 @@ export default async function({
   await applyProducts(store);
 
   try {
-    let clusterId = get(route, 'params.cluster');
+    let clusterId = get(route, 'params.cluster') || 'local';
 
     if ( clusterId ) {
       // Run them in parallel

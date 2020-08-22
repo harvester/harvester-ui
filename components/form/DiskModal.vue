@@ -3,6 +3,7 @@ import randomstring from 'randomstring';
 import VMModal from '@/components/form/VMModal';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
+import Collapse from '@/components/Collapse';
 import { clone } from '@/utils/object';
 import { sortBy } from '@/utils/sort';
 import { NAMESPACE, PVC, STORAGE_CLASS } from '@/config/types';
@@ -17,6 +18,7 @@ const SOURCE_TYPE = {
 export default {
   components: {
     VMModal,
+    Collapse,
     LabeledInput,
     LabeledSelect
   },
@@ -205,10 +207,6 @@ export default {
       this.$set(this, 'errors', []);
     },
 
-    showAdvanced() {
-      this.enableAdvanced = !this.enableAdvanced;
-    },
-
     updateIndex(idx, type) {
       this.rowIdx = idx;
       this.type = type;
@@ -318,13 +316,7 @@ export default {
           <div class="min-spacer"></div>
         </template>
 
-        <template v-if="!isAttachVolume">
-          <div class="advanced mb-5" @click="showAdvanced">
-            <i v-if="enableAdvanced" class="el-icon-arrow-down"></i>
-            <i v-else class="el-icon-arrow-right"></i>
-            Show Advanced
-          </div>
-
+        <Collapse v-if="!isAttachVolume" :open.sync="enableAdvanced">
           <div v-if="enableAdvanced">
             <LabeledSelect v-model="currentRow.volumeMode" label="Volume Mode" :options="volumeModeOption" />
 
@@ -334,15 +326,8 @@ export default {
 
             <div class="min-spacer"></div>
           </div>
-        </template>
+        </Collapse>
       </template>
     </VMModal>
   </div>
 </template>
-
-<style lang="scss" scoped>
-  .advanced {
-    color: #004080;
-    cursor: pointer;
-  }
-</style>

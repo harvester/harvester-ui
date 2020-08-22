@@ -5,6 +5,7 @@ import compact from 'lodash/compact';
 import uniq from 'lodash/uniq';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import pickBy from 'lodash/pickBy';
 import isString from 'lodash/isString';
 import {
   displayKeyFor,
@@ -16,7 +17,7 @@ import CustomValidators from '@/utils/custom-validators';
 import { sortableNumericSuffix } from '@/utils/sort';
 import { generateZip, downloadFile } from '@/utils/download';
 import {
-  escapeHtml, ucFirst, coerceStringTypeToScalarType, matchesSomePrefix, containsSomeString
+  escapeHtml, ucFirst, coerceStringTypeToScalarType, matchesSomePrefix, containsSomeString, matchesSomeRegex
 } from '@/utils/string';
 import { get } from '@/utils/object';
 import { eachLimit } from '@/utils/promise';
@@ -52,7 +53,7 @@ const DEFAULT_WAIT_INTERVAL = 1000;
 const DEFAULT_WAIT_TMIMEOUT = 30000;
 
 const STATES = {
-  'in-progress':      { color: 'info', icon: 'tag' },
+  'in-progress':      { color: 'warning', icon: 'tag' },
   'pending-rollback': { color: 'info', icon: 'dot-half' },
   'pending-upgrade':  { color: 'info', icon: 'dot-half' },
   aborted:            { color: 'warning', icon: 'error' },
@@ -116,6 +117,7 @@ const STATES = {
   progress:           { color: 'warning', icon: 'x' },
   'in-use':           { color: 'success', icon: 'dot-open' },
   'N/A':              { color: 'warning', icon: 'x' },
+  'vm-error':         { color: 'error', icon: 'dot' },
 };
 
 const SORT_ORDER = {
@@ -256,6 +258,21 @@ export default {
     }
 
     return out;
+  },
+
+  setLabels() {
+    return (val) => {
+      if ( !this.metadata ) {
+        this.metadata = {};
+      }
+
+      const all = this.metadata.labels || {};
+      const wasIgnored = pickBy(all, (value, key) => {
+        return matchesSomeRegex(key, this.labelsToIgnoreRegexes);
+      });
+
+      Vue.set(this.metadata, 'labels', { ...wasIgnored, ...val });
+    };
   },
 
   setLabel() {
