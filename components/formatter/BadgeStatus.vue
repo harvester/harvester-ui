@@ -9,14 +9,24 @@ export default {
     row: {
       type:     Object,
       required: true
+    },
+    col: {
+      type:     Object,
+      required: true
     }
   },
+
+  computed: {
+    state() {
+      return this.col?.state;
+    }
+  }
 };
 </script>
 
 <template>
   <span :class="{'badge-state': true, [row.stateBackground]: true}">
-    {{ row.statusDisplay }}
+    {{ row[state] }}
   </span>
 </template>
 
