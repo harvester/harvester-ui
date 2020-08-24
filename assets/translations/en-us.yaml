@@ -469,6 +469,50 @@ tableHeaders:
   version: Version
   weight: Weight
 
+vm:
+  detail:
+    tabs:
+      overview: Overview
+      details: Details
+      environment: Environment
+      events: Events
+      console: Console
+      networkInterfaces: Network Interfaces
+      disks: Disks
+    details:
+      title:
+        vmDetails: Virtual Machine Details
+        requirements: Scheduling and resources requirements
+        services: Services
+        users: Logged in users
+      name: Name
+      namespace: Namespace
+      created: Created
+      hostname: Hostname
+      node: Node
+      ipAddress: IP Address
+      status: Status
+      pod: Pod
+      labels: Labels
+      bootOrder: Boot Order
+      annotations: Annotations
+      CDROMs: CD-ROMs
+      description: Description
+      operatingSystem: Operating System
+      template: Template
+      timeZone: Time Zone
+      owner: Owner
+      workloadProfile: Workload Profile
+      nodeSelector: Node Selector
+      flavor: Flavor
+      tolerations: Tolerations
+      dedicatedResources: Dedicated Resources
+      affinityRules: Affinity Rules
+    notAvailable: Not available
+    noOwner: No Owner
+    events:
+      from: Generated from
+    
 node:
   detail:
     detailTop:
