@@ -664,14 +664,14 @@ export default {
 
   linkFor() {
     return (linkName) => {
-      return (this.links || {})[linkName];
+      return (this.links || {})[linkName]?.replace(`${ window.location.origin }/`, '/');
     };
   },
 
   followLink() {
     return (linkName, opt = {}) => {
       if ( !opt.url ) {
-        opt.url = (this.links || {})[linkName];
+        opt.url = (this.links || {})[linkName]?.replace(`${ window.location.origin }/`, '/');
       }
 
       if ( opt.urlSuffix ) {
@@ -989,7 +989,7 @@ export default {
   urlFromAttrs() {
     const schema = this.$getters['schemaFor'](this.type);
     const { metadata:{ namespace = 'default' } } = this;
-    let url = schema.links.collection;
+    let url = schema.links.collection?.replace(`${ window.location.origin }/`, '');
 
     const attributes = schema?.attributes;
 

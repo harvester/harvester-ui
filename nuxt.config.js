@@ -5,7 +5,7 @@ import { directiveSsr as t } from './plugins/i18n';
 import { STANDARD } from './config/private-label';
 
 require('dotenv').config();
-
+const pathnamePattern = /\/k8s\/clusters\/.+?\/proxy\/?/g;
 const version = process.env.VERSION ||
   process.env.DRONE_TAG ||
   process.env.DRONE_VERSION ||
@@ -100,6 +100,7 @@ module.exports = {
   },
 
   router: {
+    mode:       'hash',
     base:       routerBasePath,
     middleware: ['i18n'],
   },
@@ -272,12 +273,12 @@ module.exports = {
   proxy: {
     '/k8s':       proxyWsOpts(api), // Straight to a remote cluster (/k8s/clusters/<id>/)
     '/api':       proxyWsOpts(api), // Management k8s API
-    '/apis':      proxyWsOpts(api), // Management k8s API
-    '/v1':        proxyWsOpts(api), // Management Steve API
-    '/v3':        proxyWsOpts(api), // Rancher API
-    '/v3-public': proxyOpts(api), // Rancher Unauthed API
-    '/api-ui':    proxyOpts(api), // Browser API UI
-    '/meta':      proxyOpts(api), // Browser API UI
+    '/apis':                               proxyWsOpts(api), // Management k8s API
+    '/v1':                                 proxyWsOpts(api), // Management Steve API
+    '/v3':                                 proxyWsOpts(api), // Rancher API
+    '/v3-public':                          proxyOpts(api), // Rancher Unauthed API
+    '/api-ui':                             proxyOpts(api), // Browser API UI
+    '/meta':                               proxyOpts(api), // Browser API UI
   },
 
   // Nuxt server

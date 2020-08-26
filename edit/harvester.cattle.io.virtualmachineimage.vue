@@ -59,6 +59,15 @@ export default {
     displayName(neu) {
       this.value.spec.displayName = neu;
     }
+  },
+
+  methods: {
+    saveImage(buttonCb) {
+      if (this.value.metadata.namespace) {
+        this.$delete(this.value.metadata, 'namespace');
+      }
+      this.save(buttonCb);
+    },
   }
 };
 </script>
@@ -109,7 +118,7 @@ export default {
 
     <ResourceTabs v-model="value" :mode="mode" />
 
-    <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
+    <Footer :mode="mode" :errors="errors" @save="saveImage" @done="done" />
   </form>
 </template>
 
