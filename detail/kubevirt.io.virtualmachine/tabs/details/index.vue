@@ -1,5 +1,6 @@
 <script>
 import { POD } from '@/config/types';
+import VmState from '@/components/formatter/vmState';
 import ResourceState from '../../resource-state/index';
 import LabelsModal from '../../labels-modal';
 import AnnotationsModal from '../../annotations-modal';
@@ -12,6 +13,7 @@ export default {
 
   components: {
     ResourceState,
+    VmState,
     LabelsModal,
     AnnotationsModal,
     DescriptionModal,
@@ -69,9 +71,6 @@ export default {
     },
     hostname() {
       return this.resource?.spec?.hostname || UNDEFINED;
-    },
-    status() {
-      return this.resource?.status?.phase || UNDEFINED;
     },
     pod() {
       const pod = this.allPods.find((p) => {
@@ -166,7 +165,7 @@ export default {
             {{ t("vm.detail.details.status") }}
           </label>
           <div>
-            <span>{{ status }}</span>
+            <VmState v-model="value.id" :row="value" />
           </div>
         </div>
       </div>
