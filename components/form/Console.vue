@@ -9,10 +9,16 @@ export default {
     value: {
       type:     Object,
       required: true,
+      default:  () => {
+        return {};
+      }
     }
   },
 
   computed: {
+    isDown() {
+      return this.isEmpty(this.value);
+    },
     url() {
       const isDev = process.env.dev;
 
@@ -20,12 +26,23 @@ export default {
 
       return `wss://${ ip }${ this.value?.getVMIApiPath }`;
     },
+  },
+
+  methods: {
+    isEmpty(o) {
+      return o !== undefined && Object.keys(o).length === 0;
+    }
   }
 };
 </script>
 
 <template>
   <div id="app">
-    <NovncConsole v-if="url" :url="url" />
+    <div class="vm-console">
+      <NovncConsole v-if="url && !isDown" :url="url" />
+      <p v-if="isDown">
+        {{ t("vm.detail.console.down") }}
+      </p>
+    </div>
   </div>
 </template>
