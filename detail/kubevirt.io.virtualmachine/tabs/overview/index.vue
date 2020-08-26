@@ -7,7 +7,8 @@ import OverviewUtilization from './utilization';
 import OverviewEvents from './events';
 
 export default {
-  name:       'Overview',
+  name: 'Overview',
+
   components: {
     HStack,
     VStack,
@@ -16,10 +17,14 @@ export default {
     OverviewUtilization,
     OverviewEvents,
   },
-  props:      {
+
+  props: {
     resource: {
       type:     Object,
       required: true,
+      default:  () => {
+        return {};
+      }
     },
     events: {
       type:     Array,
@@ -29,24 +34,42 @@ export default {
       type:     String,
       required: true,
     },
+    value: {
+      type:     Object,
+      required: true,
+    }
   },
+
   data() {
     return {};
   },
+
   computed: {
     nics() {
-      const count = this.resource?.spec?.domain?.devices?.interfaces?.length || 0;
+      const count = this.value?.spec?.template?.spec?.domain?.devices?.interfaces?.length || 0;
       const unit = count > 1 ? 'NICs' : 'NIC';
 
       return `${ count } ${ unit }`;
     },
     disks() {
-      const count = this.resource?.spec?.domain?.devices?.disks?.length || 0;
+      const count = this.value?.spec?.template?.spec?.domain?.devices?.disks?.length || 0;
       const unit = count > 1 ? 'DISKs' : 'DISK';
 
       return `${ count } ${ unit }`;
     },
+    status() {
+      return this.value?.status?.phase;
+    },
+    isDown() {
+      return this.isEmpty(this.resource);
+    },
   },
+
+  methods: {
+    isEmpty(o) {
+      return o !== undefined && Object.keys(o).length === 0;
+    }
+  }
 };
 </script>
 
@@ -58,7 +81,7 @@ export default {
           <span>Details</span>
         </div>
         <div>
-          <OverviewDetails :resource="resource" mode="view" />
+          <OverviewDetails v-model="value" :resource="resource" mode="view" />
         </div>
       </el-card>
       <el-card class="box-card">
@@ -77,11 +100,11 @@ export default {
           <span>Status</span>
         </div>
         <div>
-          {{ resource.status.phase }}
+          {{ status }}
           <!-- <VmState :row="resource" /> -->
         </div>
       </el-card>
-      <el-card class="box-card">
+      <el-card v-if="!isDown" class="box-card">
         <div slot="header" class="clearfix">
           <span>Utilization</span>
         </div>
@@ -90,7 +113,7 @@ export default {
         </div>
       </el-card>
     </VStack>
-    <VStack class="vm-overview__right">
+    <VStack v-if="!isDown" class="vm-overview__right">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <span>Events</span>

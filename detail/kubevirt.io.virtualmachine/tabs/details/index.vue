@@ -25,6 +25,9 @@ export default {
     resource: {
       type:     Object,
       required: true,
+      default:  () => {
+        return {};
+      }
     },
     mode: {
       type:     String,
@@ -48,13 +51,13 @@ export default {
 
   computed: {
     name() {
-      return this.resource?.metadata?.name || UNDEFINED;
+      return this.value?.metadata?.name || UNDEFINED;
     },
     namespace() {
-      return this.resource?.metadata?.namespace || UNDEFINED;
+      return this.value?.metadata?.namespace || UNDEFINED;
     },
     creationTimestamp() {
-      const date = new Date(this.resource?.metadata?.creationTimestamp);
+      const date = new Date(this.value?.metadata?.creationTimestamp);
 
       return `${ date.getMonth() + 1 }/${ date.getDate() }/${ date.getUTCFullYear() }`;
     },
@@ -90,9 +93,11 @@ export default {
       return `${ count } ${ unit }`;
     },
     disks() {
-      const disks = this.resource?.spec?.domain?.devices?.disks || [];
+      const disks = this.value?.spec?.template?.spec?.domain?.devices?.disks || [];
 
-      return disks.sort((a, b) => {
+      return disks.filter((disk) => {
+        return !!disk.bootOrder;
+      }).sort((a, b) => {
         if (a.bootOrder < b.bootOrder) {
           return -1;
         }
@@ -101,7 +106,7 @@ export default {
       });
     },
     flavor() {
-      const domain = this.resource?.spec?.domain;
+      const domain = this.value?.spec?.template?.spec?.domain;
 
       return `${ domain.cpu.cores } vCPU , ${ domain.resources.requests.memory } Memory`;
     },
@@ -113,10 +118,11 @@ export default {
     },
     isNode() {
       return 'Node';
-    }
+    },
+    isDown() {
+      return this.isEmpty(this.resource);
+    },
   },
-
-  watch: {},
 
   methods: {
     async getPods() {
@@ -133,6 +139,9 @@ export default {
     toggleDescriptionModal(show) {
       this.descriptionModalShow = show;
     },
+    isEmpty(o) {
+      return o !== undefined && Object.keys(o).length === 0;
+    }
   }
 };
 </script>
@@ -233,7 +242,7 @@ export default {
             {{ t("vm.detail.details.CDROMs") }}
           </label>
           <div>
-            {{ pod }}
+            {{ t("vm.detail.notAvailable") }}
           </div>
         </div>
       </div>
@@ -279,8 +288,11 @@ export default {
           <label>
             {{ t("vm.detail.details.hostname") }}
           </label>
-          <div>
+          <div v-if="!isDown">
             {{ hostname }}
+          </div>
+          <div v-else>
+            {{ t("vm.detail.details.down") }}
           </div>
         </div>
       </div>
@@ -301,8 +313,11 @@ export default {
           <label>
             {{ t("vm.detail.details.timeZone") }}
           </label>
-          <div>
+          <div v-if="!isDown">
             {{ t("vm.detail.notAvailable") }}
+          </div>
+          <div v-else>
+            {{ t("vm.detail.details.down") }}
           </div>
         </div>
       </div>

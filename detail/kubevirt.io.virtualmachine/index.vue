@@ -44,7 +44,7 @@ export default {
     },
     events() {
       return this.allEvents.filter((e) => {
-        return e?.involvedObject?.name === this.vmi?.metadata?.name;
+        return e?.involvedObject?.name === this.value?.metadata?.name;
       }).reverse();
     },
   },
@@ -68,7 +68,7 @@ export default {
     <ResourceTabs v-model="value" :mode="mode">
       <template #before>
         <Tab name="overview" :label="t('vm.detail.tabs.overview')" :weight="1">
-          <Overview :resource="vmi" :events="events" mode="view" />
+          <Overview v-model="value" :resource="vmi" :events="events" mode="view" />
         </Tab>
         <Tab name="details" :label="t('vm.detail.tabs.details')" :weight="2">
           <Details v-model="value" :resource="vmi" mode="edit" />
@@ -76,7 +76,7 @@ export default {
         <Tab name="environment" :label="t('vm.detail.tabs.environment')" :weight="3">
         </Tab>
         <Tab name="events" :label="t('vm.detail.tabs.events')" :weight="4">
-          <Events :events="events" />
+          <Events :resource="vmi" :events="events" />
         </Tab>
         <Tab name="console" :label="t('vm.detail.tabs.console')" :weight="5">
           <Console v-model="vmi" />

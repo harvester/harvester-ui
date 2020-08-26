@@ -9,9 +9,16 @@ export default {
   components: { ResourceState },
 
   props: {
+    value: {
+      type:     Object,
+      required: true
+    },
     resource: {
       type:     Object,
       required: true,
+      default:  () => {
+        return {};
+      }
     },
     mode: {
       type:     String,
@@ -25,13 +32,13 @@ export default {
 
   computed: {
     name() {
-      return this.resource?.metadata?.name || UNDEFINED;
+      return this.value?.metadata?.name || UNDEFINED;
     },
     namespace() {
-      return this.resource?.metadata?.namespace || UNDEFINED;
+      return this.value?.metadata?.namespace || UNDEFINED;
     },
     creationTimestamp() {
-      const date = new Date(this.resource?.metadata?.creationTimestamp);
+      const date = new Date(this.value?.metadata?.creationTimestamp);
 
       if (!date.getMonth) {
         return UNDEFINED;
@@ -48,25 +55,21 @@ export default {
     hostname() {
       return this.resource?.spec?.hostname || UNDEFINED;
     },
-    nics() {
-      const count = this.resource?.spec?.domian?.devices?.interfaces?.length;
-      const unit = count > 1 ? 'NICs' : 'NIC';
-
-      return `${ count } ${ unit }`;
-    },
-    disks() {
-      const count = this.resource?.spec?.domian?.devices?.disks.length;
-      const unit = count > 1 ? 'DISKs' : 'DISK';
-
-      return `${ count } ${ unit }`;
-    },
     isNamespace() {
       return 'Namespace';
     },
     isNode() {
       return 'Node';
-    }
+    },
+    isDown() {
+      return this.isEmpty(this.resource);
+    },
   },
+  methods: {
+    isEmpty(o) {
+      return o !== undefined && Object.keys(o).length === 0;
+    }
+  }
 };
 </script>
 
@@ -92,16 +95,22 @@ export default {
       <label>
         {{ t("vm.detail.details.hostname") }}
       </label>
-      <div>
+      <div v-if="!isDown">
         {{ hostname }}
+      </div>
+      <div v-else>
+        {{ t("vm.detail.details.down") }}
       </div>
     </div>
     <div class="labeled-input view">
       <label>
         {{ t("vm.detail.details.node") }}
       </label>
-      <div>
+      <div v-if="!isDown">
         <ResourceState v-model="isNode" /><span>{{ node }}</span>
+      </div>
+      <div v-else>
+        {{ t("vm.detail.details.down") }}
       </div>
     </div>
     <div class="labeled-input view">
