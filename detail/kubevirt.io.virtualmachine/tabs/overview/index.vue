@@ -1,7 +1,7 @@
 <script>
 import HStack from '@/components/Layout/Stack/HStack';
 import VStack from '@/components/Layout/Stack/VStack';
-// import VmState from '@/components/formatter/vmState';
+import VmState from '@/components/formatter/vmState';
 import OverviewDetails from './details';
 import OverviewUtilization from './utilization';
 import OverviewEvents from './events';
@@ -12,7 +12,7 @@ export default {
   components: {
     HStack,
     VStack,
-    // VmState,
+    VmState,
     OverviewDetails,
     OverviewUtilization,
     OverviewEvents,
@@ -57,9 +57,6 @@ export default {
 
       return `${ count } ${ unit }`;
     },
-    status() {
-      return this.value?.status?.phase;
-    },
     isDown() {
       return this.isEmpty(this.resource);
     },
@@ -100,8 +97,7 @@ export default {
           <span>Status</span>
         </div>
         <div>
-          {{ status }}
-          <!-- <VmState :row="resource" /> -->
+          <VmState v-model="value.id" :row="value" />
         </div>
       </el-card>
       <el-card v-if="!isDown" class="box-card">
