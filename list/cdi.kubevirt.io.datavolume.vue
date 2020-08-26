@@ -18,9 +18,9 @@ export default {
 
   async fetch() {
     const hash = await allHash({
-      pv:         this.$store.dispatch('cluster/findAll', { type: PV }),
-      vm:         this.$store.dispatch('cluster/findAll', { type: VM }),
-      dataVolume: this.$store.dispatch('cluster/findAll', { type: DATA_VOLUME })
+      pv:         this.$store.dispatch('cluster/findAll', { type: PV, opt: { url: `${ PV }s` } }),
+      vm:         this.$store.dispatch('cluster/findAll', { type: VM, opt: { url: `${ VM }s` } }),
+      dataVolume: this.$store.dispatch('cluster/findAll', { type: DATA_VOLUME, opt: { url: `${ DATA_VOLUME }s` } })
     });
 
     this.dataVolume = hash.dataVolume;
@@ -48,14 +48,8 @@ export default {
           sort:      'spec.pvc.resources.requests.storage',
         },
         {
-          name:      'volumeMode',
-          label:     'Volume Type',
-          value:     'spec.pvc.volumeMode',
-          sort:      'spec.pvc.volumeMode',
-        },
-        {
           name:      'accessMode',
-          label:     'access Mode',
+          label:     'Access Mode',
           value:     "$['spec']['pvc']['accessModes'][0]",
           sort:      "$['spec']['pvc']['accessModes'][0]",
         },

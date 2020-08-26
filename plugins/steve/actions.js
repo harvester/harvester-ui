@@ -11,9 +11,7 @@ export default {
     opt.depaginate = opt.depaginate !== false;
     opt.url = opt.url.replace(/\/*$/g, '');
     // eslint-disable-next-line no-console
-    console.log('-----addPrefix', addPrefix(opt.url));
     opt.url = addPrefix(opt.url);
-
     opt.httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
     return this.$axios(opt).then((res) => {

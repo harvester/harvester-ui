@@ -32,9 +32,9 @@ export default {
       pvcs:               this.$store.dispatch('cluster/findAll', { type: PVC }),
       image:              this.$store.dispatch('cluster/findAll', { type: IMAGE }),
       template:           this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template }),
-      storageClass:       this.$store.dispatch('cluster/findAll', { type: STORAGE_CLASS }),
+      storageClass:       this.$store.dispatch('cluster/findAll', { type: STORAGE_CLASS, opt: { url: `${ STORAGE_CLASS }es` } }),
       templateVersion:    this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
-      networkAttachment:  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT }),
+      networkAttachment:  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
     });
   },
 

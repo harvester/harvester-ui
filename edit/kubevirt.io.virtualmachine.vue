@@ -149,7 +149,7 @@ export default {
         return;
       }
       this.$set(this.value, 'type', 'kubevirt.io.virtualmachine');
-      const url = this.schema.linkFor('collection');
+      const url = 'v1/kubevirt.io.virtualmachines';
 
       this.$set(this.value.metadata, 'name', this.hostname);
 
