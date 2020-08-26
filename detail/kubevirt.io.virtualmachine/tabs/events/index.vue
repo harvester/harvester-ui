@@ -77,6 +77,14 @@ export default {
 
 <style lang="scss" scoped>
   .vm-events {
+    .el-card {
+      margin-bottom: 15px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
     .badge-state {
       padding: 2px 5px;
       margin-right: 3px;
