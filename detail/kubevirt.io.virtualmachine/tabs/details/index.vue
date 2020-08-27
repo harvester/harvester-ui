@@ -1,5 +1,6 @@
 <script>
 import { POD } from '@/config/types';
+import CreateEditView from '@/mixins/create-edit-view';
 import VmState from '@/components/formatter/vmState';
 import ResourceState from '../../resource-state/index';
 import LabelsModal from '../../labels-modal';
@@ -18,6 +19,8 @@ export default {
     AnnotationsModal,
     DescriptionModal,
   },
+
+  mixins: [CreateEditView],
 
   props: {
     value: {
@@ -138,6 +141,10 @@ export default {
     toggleDescriptionModal(show) {
       this.descriptionModalShow = show;
     },
+    done() {},
+    update() {
+      this.save(() => {});
+    },
     isEmpty(o) {
       return o !== undefined && Object.keys(o).length === 0;
     }
@@ -202,7 +209,13 @@ export default {
             <a href="javascript:void(0)" @click="toggleLabelsModal(true)">
               {{ labelsCount }} <span class="icon icon-edit"></span>
             </a>
-            <LabelsModal :spec="value" :mode="mode" :visible="labelsModalShow" @close="toggleLabelsModal(false)" />
+            <LabelsModal
+              :spec="value"
+              :mode="mode"
+              :visible="labelsModalShow"
+              @close="toggleLabelsModal(false)"
+              @update="update"
+            />
           </div>
         </div>
       </div>
@@ -231,7 +244,13 @@ export default {
             <a href="javascript:void(0)" @click="toggleAnnotationsModal(true)">
               {{ annotationsCount }} <span class="icon icon-edit"></span>
             </a>
-            <AnnotationsModal :spec="value" :mode="mode" :visible="annotationsModalShow" @close="toggleAnnotationsModal(false)" />
+            <AnnotationsModal
+              :spec="value"
+              :mode="mode"
+              :visible="annotationsModalShow"
+              @close="toggleAnnotationsModal(false)"
+              @update="update"
+            />
           </div>
         </div>
       </div>
@@ -256,7 +275,13 @@ export default {
             <a href="javascript:void(0)" @click="toggleDescriptionModal(true)">
               {{ value.metadata.annotations.description }} <span class="icon icon-edit"></span>
             </a>
-            <DescriptionModal :spec="value" :mode="mode" :visible="descriptionModalShow" @close="toggleDescriptionModal(false)" />
+            <DescriptionModal
+              :spec="value"
+              :mode="mode"
+              :visible="descriptionModalShow"
+              @close="toggleDescriptionModal(false)"
+              @update="update"
+            />
           </div>
         </div>
       </div>

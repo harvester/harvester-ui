@@ -25,8 +25,11 @@ export default {
 
   methods: {
     handleClose() {
-      this.$emit('modal-close');
-    }
+      this.$emit('close');
+    },
+    save() {
+      this.$emit('update');
+    },
   }
 };
 </script>
@@ -46,6 +49,10 @@ export default {
       :pad-left="false"
       :read-allowed="false"
     />
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="handleClose">关 闭</el-button>
+      <el-button type="primary" @click="save">保 存</el-button>
+    </span>
   </el-dialog>
 </template>
 
