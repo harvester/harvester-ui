@@ -2,6 +2,7 @@
 import { POD } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 import VmState from '@/components/formatter/vmState';
+import IPAddress from '@/components/formatter/ipAddress';
 import ResourceState from '../../resource-state/index';
 import LabelsModal from '../../labels-modal';
 import AnnotationsModal from '../../annotations-modal';
@@ -15,6 +16,7 @@ export default {
   components: {
     ResourceState,
     VmState,
+    IPAddress,
     LabelsModal,
     AnnotationsModal,
     DescriptionModal,
@@ -65,9 +67,6 @@ export default {
       const date = new Date(this.value?.metadata?.creationTimestamp);
 
       return `${ date.getMonth() + 1 }/${ date.getDate() }/${ date.getUTCFullYear() }`;
-    },
-    ipAddress() {
-      return this.resource?.status?.interfaces?.[0]?.ipAddress || UNDEFINED;
     },
     node() {
       return this.resource?.status?.nodeName || UNDEFINED;
@@ -291,7 +290,7 @@ export default {
             {{ t("vm.detail.details.ipAddress") }}
           </label>
           <div>
-            {{ ipAddress }}
+            <IPAddress v-model="value.id" :row="value" />
           </div>
         </div>
       </div>
