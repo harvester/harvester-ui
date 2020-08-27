@@ -110,11 +110,11 @@ export default {
       </el-card>
     </VStack>
     <VStack v-if="!isDown" class="vm-overview__right">
-      <el-card class="box-card">
+      <el-card class="box-card events-card">
         <div slot="header" class="clearfix">
           <span>Events</span>
         </div>
-        <div>
+        <div class="">
           <OverviewEvents :events="events" />
         </div>
       </el-card>
@@ -154,6 +154,11 @@ export default {
           margin-bottom: 15px;
         }
       }
+    }
+
+    .events-card .el-card__body {
+      max-height: 500px;
+      overflow: auto;
     }
   }
 </style>
