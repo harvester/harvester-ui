@@ -1,11 +1,19 @@
 <script>
 import LabeledSelect from '@/components/form/LabeledSelect';
+import LabeledInput from '@/components/form/LabeledInput';
 import Collapse from '@/components/Collapse';
+import MemoryUnit from '@/components/form/MemoryUnit';
 import { sortBy } from '@/utils/sort';
 import { STORAGE_CLASS, PVC, IMAGE } from '@/config/types';
+import { InterfaceOption } from '@/config/map';
 
 export default {
-  components: { LabeledSelect, Collapse },
+  components: {
+    LabeledSelect,
+    Collapse,
+    MemoryUnit,
+    LabeledInput
+  },
 
   props: {
     value: {
@@ -17,7 +25,7 @@ export default {
   },
 
   data() {
-    const source = this.value?.source?.blank ? 'blank' : 'url';
+    const source = this.value?.source?.blank ? 'blank' : this.value?.source?.registry?.url ? 'container' : 'url';
     const image = source === 'url' ? this.$store.getters['cluster/all'](IMAGE).find( (I) => {
       return I?.status?.downloadUrl === this.value?.source?.http?.url;
     })?.spec?.displayName : '';
@@ -25,10 +33,16 @@ export default {
     const accessMode = this.value?.pvc?.accessModes?.[0] || 'ReadWriteOnce';
     const storageClassName = this.value?.pvc?.storageClassName;
     const volumeMode = this.value?.pvc?.volumeMode || 'FileSystem';
+    const container = this.value?.source?.registry?.url || '';
+    const storage = this.value.pvc?.resources?.requests?.storage || '';
+    const inter = 'virtio';
 
     return {
+      inter,
+      container,
       image,
       source,
+      storage,
       accessMode,
       volumeMode,
       storageClassName,
@@ -45,6 +59,10 @@ export default {
       return this.source === 'url';
     },
 
+    isContainer() {
+      return this.source === 'container';
+    },
+
     sourceOption() {
       return [{
         value: 'blank',
@@ -52,11 +70,11 @@ export default {
       }, {
         value: 'url',
         label: 'VM Image'
-      }
-      // , {
-      //   value: 'container',
-      //   label: 'Container'
-      // }, {
+      }, {
+        value: 'container',
+        label: 'Container'
+      },
+      // {
       //   value: 'pvc',
       //   label: 'Clone Disk'
       // }, {
@@ -64,6 +82,10 @@ export default {
       //   label: 'Use Existing PVC'
       // }
       ];
+    },
+
+    interfaceOption() {
+      return InterfaceOption;
     },
 
     storageOption() {
@@ -137,12 +159,13 @@ export default {
 
   methods: {
     update() {
-      const source = this.isBlank ? { blank: {} } : { http: { url: this.imgUrl } };
+      const source = this.isBlank ? { blank: {} } : this.container ? { registry: { url: this.container } } : { http: { url: this.imgUrl } };
 
       const spec = {
         ...this.value,
         pvc: {
           ...this.value.pvc,
+          resources:        { requests: { storage: this.storage } },
           accessModes:      [this.accessMode],
           volumeMode:       this.volumeMode,
           storageClassName: this.storageClassName
@@ -167,6 +190,16 @@ export default {
       @input="update"
     />
 
+    <MemoryUnit v-model="storage" value-name="Size (GiB)" class="mb-20" />
+
+    <LabeledInput
+      v-if="isContainer"
+      v-model="container"
+      label="Container Image"
+      class="mb-20"
+      required
+    />
+
     <LabeledSelect
       v-if="isVmImage"
       v-model="image"
@@ -178,6 +211,7 @@ export default {
     />
 
     <LabeledSelect
+      v-if="!isContainer"
       v-model="storageClassName"
       label="Storage Class"
       :options="storageOption"

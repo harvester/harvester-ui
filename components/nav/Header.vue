@@ -1,14 +1,8 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 import { NORMAN } from '@/config/types';
-import ClusterSwitcher from './ClusterSwitcher';
-import NamespaceFilter from './NamespaceFilter';
 
 export default {
-  components: {
-    ClusterSwitcher,
-    NamespaceFilter,
-  },
 
   computed: {
     ...mapState(['managementReady', 'clusterReady', 'isMultiCluster']),
@@ -38,21 +32,21 @@ export default {
       <div class="logo" alt="Logo" />
     </div>
 
-    <div class="kubectl">
+    <!-- <div class="kubectl">
       <button :disabled="!showShell" type="button" class="btn btn-sm role-tertiary" @click="currentCluster.openShell()">
         <i class="icon icon-terminal" />
       </button>
-    </div>
+    </div> -->
 
-    <div class="cluster">
+    <!-- <div class="cluster">
       <ClusterSwitcher v-if="isMultiCluster" />
-    </div>
+    </div> -->
 
     <div class="top">
-      <nuxt-link v-if="currentProduct.name === 'explorer'" :to="{name: 'c-cluster-apps'}" class="btn role-tertiary apps-button">
+      <!-- <nuxt-link v-if="currentProduct.name === 'explorer'" :to="{name: 'c-cluster-apps'}" class="btn role-tertiary apps-button">
         <i class="icon icon-lg icon-marketplace pr-5" /> Apps
       </nuxt-link>
-      <NamespaceFilter v-if="clusterReady && currentProduct && currentProduct.showNamespaceFilter" />
+      <NamespaceFilter v-if="clusterReady && currentProduct && currentProduct.showNamespaceFilter" /> -->
     </div>
 
     <div class="user">
@@ -99,7 +93,7 @@ export default {
       margin-left: 10px;
     }
 
-    grid-template-areas:  "product top kubectl cluster user";
+    grid-template-areas:  "product top top cluster user";
     grid-template-columns: var(--nav-width) auto 50px min-content var(--header-height);
     grid-template-rows:    var(--header-height);
 

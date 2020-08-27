@@ -1,4 +1,5 @@
 <script>
+/* eslint-disable */
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { MemoryUnit } from '@/config/map';
@@ -86,12 +87,12 @@ export default {
 
 <template>
   <div class="row" @input="update">
-    <div class="col" :class="`span-${ valueCol }`">
+    <div class="col span-12">
       <LabeledInput v-model.number="size" v-int-number :label="valueName" required />
     </div>
 
-    <div class="col" :class="`span-${ unitCol }`">
+    <!-- <div class="col" :class="`span-${ unitCol }`">
       <LabeledSelect v-model="unit" label="Unit" :options="MemoryUnit" required @input="updateUnit" />
-    </div>
+    </div> -->
   </div>
 </template>

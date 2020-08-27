@@ -37,10 +37,6 @@ export default {
     }
   },
 
-  data() {
-    return {};
-  },
-
   methods: {
     show() {
       this.$modal.show(this.modalName);
@@ -91,7 +87,7 @@ export default {
             modify
           </button>
 
-          <button type="button" class="btn btn-sm bg-primary" @click="handleRow(scope.row, 'delete')">
+          <button type="button" class="btn btn-sm bg-primary" :disabled="scope.row.disableDelete" @click="handleRow(scope.row, 'delete')">
             delete
           </button>
         </div>

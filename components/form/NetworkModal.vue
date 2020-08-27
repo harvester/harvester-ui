@@ -151,7 +151,7 @@ export default {
       const networkName = this.networkOption?.[0]?.value || '';
 
       this.currentRow = clone(this.rows[this.rowIndex]) || {
-        name: `nic-${ index }`, model: 'virtio', networkName, type: 'bridge', cloudNetworkName: ''
+        name: `nic-${ index }`, model: 'virtio', networkName, type: 'bridge'
       };
     },
 
@@ -232,12 +232,6 @@ export default {
         <h5 class="tip">
           Protip: MAC address as seen inside the guest system.
         </h5>
-
-        <LabeledInput
-          v-model="currentRow.cloudNetworkName"
-          label="Network Name"
-          @input="validateMac"
-        />
       </template>
     </VMModal>
   </div>

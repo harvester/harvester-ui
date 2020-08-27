@@ -6,7 +6,6 @@ import NameNsDescription from '@/components/form/NameNsDescription';
 import Footer from '@/components/form/Footer';
 import CreateEditView from '@/mixins/create-edit-view';
 import VolumeSource from '@/components/form/VolumeSource';
-import MemoryUnit from '@/components/form/MemoryUnit';
 import { _CREATE } from '@/config/query-params';
 import { allHash } from '@/utils/promise';
 import { mapValueLabel } from '@/utils/array';
@@ -17,7 +16,6 @@ export default {
 
   components: {
     Footer,
-    MemoryUnit,
     VolumeSource,
     LabeledInput,
     LabeledSelect,
@@ -61,17 +59,6 @@ export default {
     };
   },
 
-  computed: {
-    storage: {
-      get() {
-        return this.spec.pvc.resources.requests.storage;
-      },
-      set(neu) {
-        this.$set(this.spec.pvc.resources.requests, 'storage', neu)
-      }
-    },
-  },
-
   watch: {
     spec(neu) {
       Object.assign(this.value.spec, neu);
@@ -87,10 +74,6 @@ export default {
       :mode="mode"
       name-label="Name"
     />
-
-    <MemoryUnit v-model="storage" />
-
-    <hr class="mt-40 mb-40" />
 
     <VolumeSource v-model="spec" />
 

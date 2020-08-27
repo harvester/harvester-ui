@@ -3,7 +3,7 @@ import SortableTable from '@/components/SortableTable';
 import { STATE, NAME } from '@/config/table-headers';
 
 export default {
-  name:       'ListSSH',
+  name:       'ListImage',
   components: { SortableTable },
 
   props: {
@@ -20,19 +20,34 @@ export default {
 
   data() {
     return {
-      headers:         [
+      headers: [
         STATE,
         {
           ...NAME,
-          width: 250
+          value: 'spec.displayName',
+          width:     300
         },
         {
-          name:      'Fingerprint',
-          label:     'Fingerprint',
-          value:     'status.fingerPrint',
-        }
+          name:      'Uploaded',
+          label:     'Uploaded',
+          value:     'status.progress',
+          sort:      'status.progress',
+          formatter: 'ImagePercentageBar',
+        },
+        {
+          name:      'downloadedBytes',
+          label:     'Size',
+          value:     'status.downloadedBytes',
+          sort:      'status.downloadedBytes',
+          formatter: 'ByteFormat',
+          width:     120
+        },
       ],
     };
+  },
+
+  typeDisplay() {
+    return 'Image';
   },
 };
 </script>
