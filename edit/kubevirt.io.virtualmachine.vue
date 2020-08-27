@@ -64,11 +64,7 @@ export default {
                   model:      'virtio',
                   name:       'nic-0'
                 }],
-                disks: [{
-                  bootOrder: 1,
-                  disk:      { bus: 'virtio' },
-                  name:      'rootdisk'
-                }],
+                disks:                      [],
                 networkInterfaceMultiqueue: true,
                 rng:                        {}
               },
@@ -79,10 +75,7 @@ export default {
               name: 'nic-0',
               pod:  {}
             }],
-            volumes: [{
-              dataVolume: { name: 'okd-rootdisk-vpbhd' },
-              name:       'rootdisk'
-            }]
+            volumes: []
           }
         }
       };
@@ -191,7 +184,7 @@ export default {
       </div>
 
       <div class="col span-7">
-        <MemoryUnit v-model="memory" value-name="Memory" :value-col="8" :unit-col="4" />
+        <MemoryUnit v-model="memory" value-name="Memory (Gi)" :value-col="8" :unit-col="4" />
       </div>
     </div>
 

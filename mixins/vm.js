@@ -9,11 +9,18 @@ import {
 } from '@/config/types';
 import { STORAGE_CLASS_LABEL } from '@/config/labels-annotations';
 
+// const SOURCE_TYPE = {
+//   ATTACH_CLONED: 'Attach Cloned Disks',
+//   ATTACH:        'Attach Disks',
+//   BLANK:         'blank',
+//   URL:           'url'
+// };
+
 const SOURCE_TYPE = {
-  ATTACH_CLONED: 'Attach Cloned Disks',
-  ATTACH:        'Attach Disks',
-  BLANK:         'blank',
-  URL:           'url'
+  URL:            'VM Image',
+  BLANK:          'blank',
+  ATTACH_VOLUME:  'attach volume',
+  CONTAINER_DISK: 'Container'
 };
 
 export default {
@@ -98,13 +105,89 @@ export default {
       });
       return defaultValue
     },
+
     diskRows: {
       get() {
+        const _volumes = this.spec?.template?.spec?.volumes || [];
+        const _dataVolumeTemplates = this.spec?.dataVolumeTemplates || [];
         const _disks = this.spec?.template?.spec?.domain?.devices?.disks || [];
+        let out = [];
 
-        let out = _disks.map( (DISK, index) => {
-          return this.getVolumeForDisk(DISK);
-        });
+        if (_disks.length === 0) {
+          out.push({
+            index: 0,
+            source: 'VM Image',
+            disableSource: true,
+            accessMode: 'ReadWriteOnce',
+            bus: 'virtio',
+            name: "rootdisk",
+            pvcNS: "",
+            pvcName: "",
+            size: '10Gi',
+            storageClassName: this.defaultStorageClass,
+            url: this.imageName,
+            volumeMode: "Filesystem",
+            disableDelete: true,
+            bootOrder: 1
+          })
+        } else {
+          out = _disks.map( (DISK, index) => {
+            const volume = _volumes.find( (V) => V.name === DISK.name);
+
+            let source = '';
+            let pvcName = '';
+            let pvcNS = '';
+            let accessMode = '';
+            let size = '';
+            let volumeMode = '';
+            let storageClassName = '';
+            let url = '';
+
+            if (volume?.dataVolume && volume?.dataVolume?.name) {
+              const volumeName = volume.dataVolume.name;
+
+              const DVT = _dataVolumeTemplates.find( (T) => {
+                return T.metadata.name === volumeName;
+              });
+
+              if (DVT) {
+                if (DVT.spec?.source?.blank) {
+                  source = SOURCE_TYPE.BLANK;
+                } else if (DVT.spec?.source?.pvc) {
+                  source = SOURCE_TYPE.ATTACH_CLONED;
+                  pvcName = DVT.spec?.source?.pvcname;
+                  pvcNS = DVT.spec?.source?.pvc.namespace;
+                } else if (DVT.spec?.source?.http?.url) {
+                  source = SOURCE_TYPE.URL;
+                  url = DVT.spec.source.http.url;
+
+                  // this.imageName = this.getImageSource(DVT.spec.source.http.url)
+                }
+
+                accessMode = DVT?.spec?.pvc?.accessModes?.[0];
+                size = DVT?.spec?.pvc?.resources?.requests?.storage || '10Gi';
+                volumeMode = DVT?.spec?.pvc?.volumeMode;
+                storageClassName = DVT?.spec?.pvc?.storageClassName;
+              }
+            }
+
+            const bus = DISK.disk.bus;
+
+            return {
+              index,
+              source,
+              name: DISK.name,
+              bus,
+              pvcName,
+              pvcNS,
+              accessMode,
+              size,
+              volumeMode,
+              url,
+              storageClassName,
+            };
+          });
+        }
 
         return out.filter( (O) => {
           return O.name !== 'cloudinitdisk';
@@ -140,95 +223,38 @@ export default {
       },
 
       set(neu) {
-        // eslint-disable-next-line no-console
         this.parseNetworkRows(neu);
       }
     }
   },
 
   methods: {
-    getVolumeForDisk(DISK) {
-      const _volumes = this.spec?.template?.spec?.volumes || [];
-      const volume = _volumes.find( (V) => V.name === DISK.name);
-
-      return this.getDVTemplateForVolume(volume, DISK);
-    },
-    getDVTemplateForVolume(volume, DISK) {
-      const _dataVolumeTemplates = this.spec?.dataVolumeTemplates || [];
-      const volumeName = volume.dataVolume.name;
-      const DVT = _dataVolumeTemplates.find( (T) => T.metadata.name === volumeName);
-
-      let index = '';
-      let source = '';
-      let pvcName = '';
-      let pvcNS = '';
-      let accessMode = '';
-      let size = '';
-      let unit = '';
-      let volumeMode = '';
-      let storageClassName = '';
-      let url = '';
-      let bootOrder = '';
-
-      if (volume?.dataVolume && volume?.dataVolume?.name) {
-        const DVT = _dataVolumeTemplates.find( (T) => T.metadata.name === volumeName);
-        
-        if (DVT) {
-          if (DVT.spec?.source?.blank) {
-            source = SOURCE_TYPE.BLANK;
-          } else if (DVT.spec?.source?.pvc) {
-            source = SOURCE_TYPE.ATTACH_CLONED;
-            pvcName = DVT.spec?.source?.pvcname;
-            pvcNS = DVT.spec?.source?.pvc.namespace;
-          } else {
-            source = 'url';
-            url = DVT.spec?.source?.http?.url;
-            const image = this.images.find( (I) => DVT.spec?.source?.http?.url === I?.status?.downloadUrl);
-
-            this.imageName = image?.spec.displayName;
-          }
-
-          accessMode = DVT?.spec?.pvc?.accessModes?.[0];
-          size = DVT?.spec?.pvc?.resources?.requests?.storage.split(/(?=([a-zA-Z]{2}))/)[0] || '10';
-          unit = DVT?.spec?.pvc?.resources?.requests?.storage.split(/(?=([a-zA-Z]{2}))/)[1] || 'Gi';
-          volumeMode = DVT?.spec?.pvc?.volumeMode;
-          storageClassName = DVT?.spec?.pvc?.storageClassName || this.defaultStorageClass;
-        }
-      }
-
-
-      if (size === '') {
-        size = 10;
-        unit = 'Gi';
-        source = 'blank';
-        bootOrder = 1;
-        storageClassName = this.defaultStorageClass;
-      }
-
-      const bus = DISK.disk?.bus || 'sata';
-
-      return {
-        index,
-        source,
-        name: DISK.name,
-        bootOrder,
-        bus,
-        pvcName,
-        pvcNS,
-        accessMode,
-        size,
-        unit,
-        volumeMode,
-        url,
-        storageClassName,
-      };
-    },
     updateSSHKey(neu) {
       this.$set(this, 'sshKey', neu);
     },
     normalizeSpec() {
       this.parseNetworkRows(this.networkRows);
       this.parseDiskRows(this.diskRows);
+    },
+
+    getImageSource(url) {
+      const image = this.images.find( (I) => {
+        return url === I?.status?.downloadUrl;
+      });
+      return image?.spec?.displayName
+    },
+
+    parseDisk(R) {
+      const _disk = {
+        disk: { bus: R.bus },
+        name: R.name,
+      };
+      
+      if ( R.bootOrder ) {
+        _disk.bootOrder = R.bootOrder;
+      }
+
+      return _disk;
     },
 
     parseDiskRows(disk) {
@@ -238,21 +264,17 @@ export default {
 
       disk.forEach( (R) => {
         const dataVolumeName = `${ this.hostname }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
-        let _dataVolumeTemplate = {};
 
-        const _disk = {
-          disk: { bus: R.bus },
-          name: R.name
-        };
+        const _disk = this.parseDisk(R);
 
         const _volume = {
           name:       R.name,
           dataVolume: { name: dataVolumeName }
         };
 
-        const accessModel = R.accessMode || 'ReadWriteOnce';
+        const accessModel = R.accessMode;
 
-        _dataVolumeTemplate = {
+        let _dataVolumeTemplate = {
           apiVersion: 'cdi.kubevirt.io/v1alpha1',
           kind:       'DataVolume',
           metadata:   { name: dataVolumeName },
@@ -261,15 +283,11 @@ export default {
               accessModes: [
                 accessModel
               ],
-              resources:  { requests: { storage: `${ R.size }${ R.unit }` } },
-              volumeMode: R.volumeMode || 'Filesystem'
+              resources:  { requests: { storage: R.size } },
+              volumeMode: R.volumeMode
             }
           }
         };
-
-        if (R.name === 'rootdisk') {
-          _disk.bootOrder = R.bootOrder;
-        }
 
         switch (R.source) {
         case SOURCE_TYPE.BLANK:
@@ -277,7 +295,7 @@ export default {
           _dataVolumeTemplate.spec.source = { blank: {} };
           break;
 
-        default:
+        case SOURCE_TYPE.URL:
           _dataVolumeTemplate.spec.source = { http: { url: this.source } };
         }
 
@@ -286,27 +304,7 @@ export default {
         dataVolumeTemplates.push(_dataVolumeTemplate);
       });
 
-      const sshValue = this.ssh.filter( (O) => {
-        if (this.sshKey.includes(O.metadata.name)) {
-          return true;
-        }
-      });
-      const hostName = this.hostname;
-      const name = 'default';
-
-      let sshString = '';
-
-      sshValue.map( (S) => {
-        const sshKey = S.spec.publicKey.replace(/\s+/g, '    \n    ');
-
-        sshString += `\n   - >-\n    ${ sshKey }`;
-      });
-
-      let initScript = '';
-
-      if (this.cloudInit) {
-        initScript += `\n${ this.cloudInit }`;
-      }
+      const sshString = this.getSSHString();
 
       if (!disks.find( D => D.name === 'cloudinitdisk')) {
         disks.push({
@@ -317,8 +315,8 @@ export default {
         volumes.push({
           name:             'cloudinitdisk',
           cloudInitNoCloud: {
-            userData: `#cloud-config\nname: ${ name }\nhostname: ${ hostName }\nssh_authorized_keys:${ sshString }${ initScript }`,
-            // networkData: `network:\n  version: 1\n  config:\n ${ initCloudNetworkData }`
+            userData: `#cloud-config\nname: default\nhostname: ${ this.hostname }\nssh_authorized_keys:${ sshString }`,
+            // networkData: this.getNetworkData()
           }
         });
       }
@@ -343,12 +341,9 @@ export default {
         }
       };
 
-      if (dataVolumeTemplates.length === 0) {
-        delete spec.dataVolumeTemplates;
-      }
-
       if (volumes.length === 0) {
         delete spec.template.spec.volumes;
+        delete spec.dataVolumeTemplates;
       }
 
       if (this.pageType === 'vm') {
@@ -356,6 +351,33 @@ export default {
       } else {
         this.$set(this, 'spec', spec);
       }
+    },
+
+    getSSHString() {
+      const sshValue = this.ssh.filter( (O) => {
+        if (this.sshKey.includes(O.metadata.name)) {
+          return true;
+        }
+      });
+
+      let sshString = '';
+
+      sshValue.map( (S) => {
+        const sshKey = S.spec.publicKey.replace(/\s+/g, '    \n    ');
+
+        sshString += `\n   - >-\n    ${ sshKey }`;
+      });
+
+      return sshString
+    },
+
+    getNetworkData() {
+      let initScript = '';
+
+      if (this.cloudInit) {
+        initScript += `\n${ this.cloudInit }`;
+      }
+      return `network:\n  version: 1\n  config:\n ${ initCloudNetworkData }`;
     },
 
     parseNetworkRows(networkRow) {

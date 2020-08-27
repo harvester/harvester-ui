@@ -83,9 +83,9 @@ export default {
     },
   },
 
-  // typeDisplay() {
-  //   return 'Volumes';
-  // },
+  typeDisplay() {
+    return 'Volumes';
+  },
 };
 </script>
 

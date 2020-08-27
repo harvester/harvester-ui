@@ -128,6 +128,9 @@ export default {
       span:first-child {
         font-size: 18px;
       }
+      span {
+        word-break: break-all;
+      }
     }
   }
 }

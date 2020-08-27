@@ -1,7 +1,10 @@
 <script>
+import CopyToClipboardText from '@/components/formatter/CopyToClipboardText';
 import { getFileSize } from '@/utils/units';
 
 export default {
+  components: { CopyToClipboardText },
+
   props: {
     value: {
       type:     Object,
@@ -35,25 +38,32 @@ export default {
       <div slot="header" class="clearfix">
         <h2>{{ value.spec.displayName }}</h2>
       </div>
-      <div class="row">
-        <div class="col span-3">
-          <div>Url</div>
-          <div>{{ value.spec.url }}</div>
-        </div>
 
-        <div class="col span-3">
+      <div class="row">
+        <div class="col span-12">
+          <div>Url</div>
+          <div><CopyToClipboardText v-model="value.spec.url" /></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col span-12">
+          <div>DownloadUrl</div>
+          <div><CopyToClipboardText v-model="downloadUrl" /></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col span-12">
+          <div>Size</div>
+          <div>{{ formattedValue }}</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col span-12">
           <div>Notes</div>
           <div>{{ description }}</div>
-        </div>
-
-        <div class="col span-3">
-          <div>DownloadUrl</div>
-          <div>{{ downloadUrl }}</div>
-        </div>
-
-        <div class="col span-3">
-          <div>DownloadedBytes</div>
-          <div>{{ formattedValue }}</div>
         </div>
       </div>
     </el-card>
@@ -63,9 +73,8 @@ export default {
 <style lang="scss" scoped>
 .row {
   height: 54px;
-  div:first-child {
-    border-right: 1px solid #eaeded;
-  }
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eaeded;
 
   .col {
     div:first-child {

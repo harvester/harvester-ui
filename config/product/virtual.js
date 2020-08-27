@@ -153,11 +153,9 @@ export function init(store) {
 
   headers(VM, [
     {
-      name:      'status',
-      label:     'State',
+      ...STATE,
       value:     'id',
       formatter: 'vmState',
-      width:     300
     },
     NAME_COL,
     NAMESPACE_COL,
@@ -188,31 +186,6 @@ export function init(store) {
       name:      'latest',
       label:     'Latest version',
       value:     'status.latestVersion',
-    },
-    AGE
-  ]);
-
-  headers(IMAGE, [
-    STATE,
-    {
-      ...NAME_COL,
-      value: 'spec.displayName',
-      width:     300
-    },
-    {
-      name:      'Uploaded',
-      label:     'Uploaded',
-      value:     'status.progress',
-      sort:      'status.progress',
-      formatter: 'ImagePercentageBar',
-    },
-    {
-      name:      'downloadedBytes',
-      label:     'Size',
-      value:     'status.downloadedBytes',
-      sort:      'status.downloadedBytes',
-      formatter: 'ByteFormat',
-      width:     120
     },
     AGE
   ]);
