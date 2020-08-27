@@ -1,4 +1,5 @@
 <script>
+import IPAddress from '@/components/formatter/ipAddress';
 import ResourceState from '../../resource-state/index';
 
 const UNDEFINED = 'n/a';
@@ -6,7 +7,10 @@ const UNDEFINED = 'n/a';
 export default {
   name: 'Details',
 
-  components: { ResourceState },
+  components: {
+    ResourceState,
+    IPAddress,
+  },
 
   props: {
     value: {
@@ -118,7 +122,7 @@ export default {
         {{ t("vm.detail.details.ipAddress") }}
       </label>
       <div>
-        <span>{{ ipAddress }}</span>
+        <IPAddress v-model="value.id" :row="value" />
       </div>
     </div>
     <div class="labeled-input view">
