@@ -203,21 +203,33 @@ export default {
       get() {
         const networks = this.spec?.template?.spec?.networks || [];
         const interfaces = this.spec?.template?.spec?.domain?.devices?.interfaces || [];
+        let out = [];
 
-        const out = interfaces.map( (O, index) => {
-          const network = networks.find( (N) => {
-            return O.name === N.name;
+        if (interfaces.length === 0 ) {
+          out.push({
+            index: 0,
+            model: 'virtio',
+            name: 'nic-0',
+            networkName: 'Pod Networking',
+            type: 'masquerade',
+            disableDelete: true,
+          })
+        } else {
+          out = interfaces.map( (O, index) => {
+            const network = networks.find( (N) => {
+              return O.name === N.name;
+            });
+
+            const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
+
+            return {
+              ...O,
+              type,
+              networkName: network?.multus?.networkName || 'Pod Networking',
+              index
+            };
           });
-
-          const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
-
-          return {
-            ...O,
-            type,
-            networkName: network?.multus?.networkName || 'Pod Networking',
-            index
-          };
-        });
+        }
 
         return out;
       },
@@ -402,37 +414,50 @@ export default {
       return `network:\n  version: 1\n  config:\n ${ initCloudNetworkData }`;
     },
 
+    parseInterface(R) {
+      const _interface = {};
+      if (R.name === 'nic-0') {
+        _interface.masquerade = {};
+      } else {
+        const type = R.type;
+        _interface[type] = {};
+      }
+
+      if (R.macAddress) {
+        _interface.macAddress = R.macAddress;
+      }
+      
+      _interface.model = R.model;
+      _interface.name = R.name;
+
+      return _interface
+    },
+
+    parseNetwork(R) {
+      const _network = {};
+
+      if (R.name === 'nic-0') {
+        _network.pod = {};
+      } else {
+        _network.multus = { networkName: R.networkName };
+      }
+      _network.name = R.name;
+
+      return _network;
+    },
+
     parseNetworkRows(networkRow) {
       const interfaces = [];
       const networks = [];
 
-      networkRow.forEach( (O) => {
-        const _interface = {};
-        const network = {};
-
-        if (O.name === 'nic-0') {
-          _interface.masquerade = {};
-          network.pod = {};
-        } else {
-          if (O.type === 'sriov') {
-            _interface.sriov = {};
-          } else if (O.type === 'bridge') {
-            _interface.bridge = {};
-          }
-          _interface.macAddress = O.macAddress;
-          network.multus = { networkName: O.networkName };
-        }
-
-        _interface.model = O.model;
-        _interface.name = O.name;
-        network.name = O.name;
-
+      networkRow.forEach( (R) => {
+        const _interface = this.parseInterface(R);
+        const _network = this.parseNetwork(R);
+    
         interfaces.push(_interface);
-
-        networks.push(network);
+        networks.push(_network);
       });
 
-      // eslint-disable-next-line no-console
       const spec = {
         ...this.spec.template.spec,
         domain: {
@@ -444,7 +469,6 @@ export default {
         },
         networks
       };
-      console.log('------network', interfaces, networkRow, spec);
 
       if (this.pageType === 'vm') {
         this.$set(this.value.spec.template, 'spec', spec);

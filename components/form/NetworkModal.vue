@@ -20,6 +20,10 @@ export default {
       default: () => {
         return {};
       }
+    },
+    namespace: {
+      type: String,
+      default: ''
     }
   },
 
@@ -99,6 +103,7 @@ export default {
 
       return sortBy(
         choices
+          .filter((C) => C.metadata.namespace === this.namespace)
           .map((obj) => {
             return {
               label: obj.metadata.name,
@@ -107,6 +112,10 @@ export default {
           }),
         'label'
       );
+    },
+
+    isMasquerade() {
+      return this.currentRow.type === 'masquerade'
     },
 
     typeOpton() {
@@ -120,6 +129,7 @@ export default {
       }];
     },
   },
+
   watch: {
     value(neu) {
       this.rows = neu;
@@ -196,6 +206,7 @@ export default {
         <LabeledInput
           v-model="currentRow.name"
           label="Name"
+          :disabled="isMasquerade"
           class="mb-20"
           required
         />
@@ -211,6 +222,7 @@ export default {
         <LabeledSelect
           v-model="currentRow.networkName"
           label="Network"
+          :disabled="isMasquerade"
           :options="networkOption"
           class="mb-20"
           required
@@ -219,6 +231,7 @@ export default {
         <LabeledSelect
           v-model="currentRow.type"
           label="Type"
+          :disabled="isMasquerade"
           :options="typeOpton"
           class="mb-20"
           required
@@ -227,6 +240,7 @@ export default {
         <LabeledInput
           v-model="currentRow.macAddress"
           label="Mac Address"
+          :disabled="isMasquerade"
           @input="validateMac"
         />
         <h5 class="tip">
