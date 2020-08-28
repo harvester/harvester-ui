@@ -257,6 +257,55 @@ export default {
       return _disk;
     },
 
+    parseVolume(R, dataVolumeName) {
+      const _volume = {
+        name:       R.name,
+      };
+
+      if (R.source === SOURCE_TYPE.CONTAINER_DISK) {
+        _volume.containerDisk = {
+          image: R.container
+        }
+      } else {
+        _volume.dataVolume = {
+          name: dataVolumeName
+        }
+      }
+
+      return _volume;
+    },
+
+    parseDateVolumeTemplate(R, dataVolumeName) {
+      const accessModel = R.accessMode;
+      
+      const _dataVolumeTemplate = {
+        apiVersion: 'cdi.kubevirt.io/v1alpha1',
+        kind:       'DataVolume',
+        metadata:   { name: dataVolumeName },
+        spec:       {
+          pvc: {
+            accessModes: [
+              accessModel
+            ],
+            resources:  { requests: { storage: R.size } },
+            volumeMode: R.volumeMode
+          }
+        }
+      };
+
+      switch (R.source) {
+        case SOURCE_TYPE.BLANK:
+          _dataVolumeTemplate.spec.pvc.storageClassName = R.storageClassName;
+          _dataVolumeTemplate.spec.source = { blank: {} };
+          break;
+
+        case SOURCE_TYPE.URL:
+          _dataVolumeTemplate.spec.source = { http: { url: this.source } };
+      }
+
+      return _dataVolumeTemplate
+    },
+
     parseDiskRows(disk) {
       const disks = [];
       const volumes = [];
@@ -266,42 +315,15 @@ export default {
         const dataVolumeName = `${ this.hostname }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
 
         const _disk = this.parseDisk(R);
-
-        const _volume = {
-          name:       R.name,
-          dataVolume: { name: dataVolumeName }
-        };
-
-        const accessModel = R.accessMode;
-
-        let _dataVolumeTemplate = {
-          apiVersion: 'cdi.kubevirt.io/v1alpha1',
-          kind:       'DataVolume',
-          metadata:   { name: dataVolumeName },
-          spec:       {
-            pvc: {
-              accessModes: [
-                accessModel
-              ],
-              resources:  { requests: { storage: R.size } },
-              volumeMode: R.volumeMode
-            }
-          }
-        };
-
-        switch (R.source) {
-        case SOURCE_TYPE.BLANK:
-          _dataVolumeTemplate.spec.pvc.storageClassName = R.storageClassName;
-          _dataVolumeTemplate.spec.source = { blank: {} };
-          break;
-
-        case SOURCE_TYPE.URL:
-          _dataVolumeTemplate.spec.source = { http: { url: this.source } };
-        }
+        const _volume = this.parseVolume(R, dataVolumeName);
+        const _dataVolumeTemplate = this.parseDateVolumeTemplate(R, dataVolumeName);
 
         disks.push(_disk);
         volumes.push(_volume);
-        dataVolumeTemplates.push(_dataVolumeTemplate);
+
+        if (R.source !== SOURCE_TYPE.CONTAINER_DISK) {
+          dataVolumeTemplates.push(_dataVolumeTemplate);
+        }
       });
 
       const sshString = this.getSSHString();
