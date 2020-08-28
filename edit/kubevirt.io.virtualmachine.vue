@@ -59,11 +59,7 @@ export default {
                 threads: 1
               },
               devices: {
-                interfaces: [{
-                  masquerade: {},
-                  model:      'virtio',
-                  name:       'nic-0'
-                }],
+                interfaces:                 [],
                 disks:                      [],
                 networkInterfaceMultiqueue: true,
                 rng:                        {}
@@ -71,11 +67,8 @@ export default {
               resources: { requests: { memory: '' } }
             },
             hostname: '',
-            networks: [{
-              name: 'nic-0',
-              pod:  {}
-            }],
-            volumes: []
+            networks: [],
+            volumes:  []
           }
         }
       };
@@ -196,7 +189,7 @@ export default {
     <div class="spacer"></div>
 
     <h2>Networking:</h2>
-    <NetworkModal v-model="networkRows" />
+    <NetworkModal v-model="networkRows" :namespace="value.metadata.namespace" />
 
     <div class="spacer"></div>
 
