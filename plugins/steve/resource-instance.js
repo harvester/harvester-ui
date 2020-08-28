@@ -794,7 +794,7 @@ export default {
   remove() {
     return async(opt = {}) => {
       if ( !opt.url ) {
-        opt.url = (this.links || {})['self'];
+        opt.url = (this.links || {})['self'].replace(`${ window.location.origin }/`, '');
       }
 
       opt.method = 'delete';

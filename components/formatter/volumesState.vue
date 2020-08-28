@@ -1,5 +1,7 @@
 <script>
 import { VM, DATA_VOLUME } from '@/config/types';
+import { get } from '@/utils/object';
+
 export default {
   props: {
     value: {
@@ -47,12 +49,24 @@ export default {
         return D.metadata?.uid === this.row?.metadata?.ownerReferences?.[0]?.uid;
       });
     },
+
+    to() {
+      return this.vm?.detailLocation;
+    },
   }
 };
 </script>
 
 <template>
-  <span>
-    {{ formatValue }}
-  </span>
+  <div>
+    <span v-if="col.type !== 'attached'">
+      {{ formatValue }}
+    </span>
+
+    <span else>
+      <n-link v-if="to" :to="to">
+        {{ formatValue }}
+      </n-link>
+    </span>
+  </div>
 </template>

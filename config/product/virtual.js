@@ -151,29 +151,6 @@ export function init(store) {
     AGE
   ]);
 
-  headers(VM, [
-    {
-      ...STATE,
-      value:     'id',
-      formatter: 'vmState',
-    },
-    NAME_COL,
-    NAMESPACE_COL,
-    {
-      name:      'node',
-      label:     'Node',
-      value:     'id',
-      formatter: 'nodeName'
-    },
-    {
-      name:      'ip',
-      label:     'IP Address',
-      value:     'id',
-      formatter: 'ipAddress'
-    },
-    AGE
-  ]);
-
   headers(TEMPLATE, [
     NAME_COL,
     NAMESPACE_COL,
