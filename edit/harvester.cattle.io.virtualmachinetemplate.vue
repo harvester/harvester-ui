@@ -1,4 +1,5 @@
 <script>
+/* eslint-disable */
 import moment from 'moment';
 import Footer from '@/components/form/Footer';
 import Checkbox from '@/components/form/Checkbox';
@@ -9,6 +10,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
+import MemoryUnit from '@/components/form/MemoryUnit';
 import { VM_TEMPLATE } from '@/config/types';
 
 import VM_MIXIN from '@/mixins/vm';
@@ -23,6 +25,7 @@ export default {
     Checkbox,
     LabeledInput,
     LabeledSelect,
+    MemoryUnit,
     AddSSHKey,
     TextAreaAutoGrow,
     DiskModal,
@@ -69,31 +72,21 @@ export default {
           spec: {
             domain: {
               cpu: {
-                cores:   '',
+                cores:   null,
                 sockets: 1,
                 threads: 1
               },
               devices: {
-                interfaces: [{
-                  masquerade: {},
-                  model:      'virtio',
-                  name:       'nic-0'
-                }],
-                disks: [{
-                  bootOrder: 1,
-                  disk:      { bus: 'virtio' },
-                  name:      'rootdisk'
-                }],
+                interfaces:                 [],
+                disks:                      [],
                 networkInterfaceMultiqueue: true,
                 rng:                        {}
               },
               resources: { requests: { memory: '' } }
             },
-            networks: [{
-              name: 'nic-0',
-              pod:  {}
-            }],
-            volumes: []
+            hostname: '',
+            networks: [],
+            volumes:  []
           }
         }
       };
@@ -154,7 +147,7 @@ export default {
           metadata:   { namespace: this.value.metadata.namespace },
           spec:       {
             templateId: `${ this.value.metadata.namespace }:${ this.value.metadata.name }`,
-            keyPairIds: ['dev:guangbochen'],
+            keyPairIds: ['harvester-system:proxy-1'],
             vm:         { ...this.spec }
           }
         },
@@ -210,15 +203,11 @@ export default {
     <h2>Choose a Size:</h2>
     <div class="row">
       <div class="col span-5">
-        <LabeledInput v-model.number="cores" v-int-number label="CPU Request(core)" required />
+        <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number label="CPU Request(core)" required />
       </div>
 
-      <div class="col span-5">
-        <LabeledInput v-model.number="memory" v-int-number label="Memory Request" required />
-      </div>
-
-      <div class="col span-2">
-        <LabeledSelect v-model="memoryUnit" v-int-number label="Size" :options="UnitOption" />
+      <div class="col span-7">
+        <MemoryUnit v-model="memory" value-name="Memory (Gi)" :value-col="8" :unit-col="4" />
       </div>
     </div>
 

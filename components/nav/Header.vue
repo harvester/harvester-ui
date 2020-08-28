@@ -1,6 +1,6 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
-import { NORMAN } from '@/config/types';
+import { NORMAN, VM } from '@/config/types';
 
 export default {
 
@@ -20,6 +20,18 @@ export default {
       return !!this.currentCluster?.links?.shell;
     }
   },
+
+  methods: {
+    goVM() {
+      this.$router.replace({
+        name:   'c-cluster-product-resource',
+        params: {
+          resource: VM,
+          product:  'virtual',
+        }
+      });
+    }
+  }
 };
 </script>
 
@@ -29,7 +41,7 @@ export default {
       <div class="productName">
         Rancher
       </div>
-      <div class="logo" alt="Logo" />
+      <div class="logo" alt="Logo" @click="goVM" />
     </div>
 
     <!-- <div class="kubectl">
@@ -114,6 +126,7 @@ export default {
         background-color: var(--header-logo);
         mask: url("~assets/images/logo.svg") no-repeat center;
         height: 33px;
+        cursor: pointer;
         width: 56px;
         position: absolute;
         top: 9px;
