@@ -28,36 +28,24 @@ export default {
 
   watch: {
     sortedTabs(tabs) {
-      const {
-        defaultTab,
-        $route: { hash }
-      } = this;
+      const { defaultTab } = this;
       const activeTab = tabs.find(t => t.active);
-      const windowHash = hash.slice(1);
-      const windowHashTabMatch = tabs.find(t => t.name === windowHash && !t.active);
       const firstTab = head(tabs) || null;
 
       if (isEmpty(activeTab)) {
-        if (!isEmpty(windowHashTabMatch)) {
-          this.select(windowHashTabMatch.name);
-        } else if (!isEmpty(defaultTab) && !isEmpty(tabs.find(t => t.name === defaultTab))) {
+        if (!isEmpty(defaultTab) && !isEmpty(tabs.find(t => t.name === defaultTab))) {
           this.select(defaultTab);
         } else if (firstTab?.name) {
           this.select(firstTab.name);
         }
-      } else if (activeTab?.name === windowHash) {
-        this.select(activeTab.name);
       }
     },
   },
 
   mounted() {
-    window.addEventListener('hashchange', this.hashChange);
-
     this.$nextTick(() => {
       const {
         $children,
-        $route: { hash },
         defaultTab,
         sortedTabs,
       } = this;
@@ -65,11 +53,6 @@ export default {
       this.tabs = $children;
 
       let tab;
-      const selected = (hash || '').replace(/^#/, '');
-
-      if ( selected ) {
-        tab = this.find(selected);
-      }
 
       if ( !tab ) {
         tab = this.find(defaultTab);
@@ -85,34 +68,18 @@ export default {
     });
   },
 
-  unmounted() {
-    // window.removeEventListener('hashchange', this.hashChange);
-  },
-
   methods: {
-    hashChange() {
-      this.select(this.$route.hash);
-    },
-
     find(name) {
       return this.sortedTabs.find(x => x.name === name );
     },
 
     select(name/* , event */) {
-      const {
-        sortedTabs,
-        $route: { hash: routeHash },
-      } = this;
+      const { sortedTabs } = this;
 
       const selected = this.find(name);
-      const hashName = `#${ name }`;
 
       if ( !selected || selected.disabled) {
         return;
-      }
-
-      if (routeHash !== hashName) {
-        // window.location.hash = `#${ name }`;
       }
 
       for ( const tab of sortedTabs ) {
@@ -168,7 +135,6 @@ export default {
         role="presentation"
       >
         <a
-          :aria-controls="'#' + tab.name"
           :aria-selected="tab.active"
           role="tab"
           @click.prevent="select(tab.name, $event)"
