@@ -12,6 +12,7 @@ import LabeledSelect from '@/components/form/LabeledSelect';
 import Collapse from '@/components/Collapse';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import { VM_TEMPLATE } from '@/config/types';
+import { allHash } from '@/utils/promise';
 import MemoryUnit from '@/components/form/MemoryUnit';
 
 import CreateEditView from '@/mixins/create-edit-view';
@@ -81,6 +82,7 @@ export default {
       isRunning:       true,
       useTemplate:     false,
       pageType:        'vm',
+      templateVersion:  []
     };
   },
 
@@ -109,19 +111,38 @@ export default {
   },
 
   watch: {
-    templateName(defaultVersion) {
-      const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
+    async templateName(defaultVersion) {
+      const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version });
+
       const id = defaultVersion.replace(':', '/');
       const templateSpec = choices.find( (V) => {
         return V.id === id;
       });
+      const sshKey = [];
 
+      if (templateSpec.spec?.keyPairIds?.length > 0) {
+        templateSpec.spec.keyPairIds.map( (O) => {
+          const ssh = O.split(':')[1];
+
+          sshKey.push(ssh);
+        });
+      }
+
+      this.$set(this, 'sshKey', sshKey);
       this.$set(this, 'spec', templateSpec.spec.vm);
     }
   },
 
   created() {
     this.imageName = this.$route.query?.image || '';
+  },
+
+  mounted() {
+    if (this.$route.query?.template) {
+      this.$nextTick(() => {
+        this.templateName = this.$route.query?.template;
+      });
+    }
   },
 
   methods: {
@@ -192,7 +213,7 @@ export default {
     <div class="spacer"></div>
 
     <h2>Authentication:</h2>
-    <AddSSHKey :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
+    <AddSSHKey :key="sshKey" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
 
     <div class="spacer"></div>
 

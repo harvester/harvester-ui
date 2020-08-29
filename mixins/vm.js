@@ -43,6 +43,7 @@ export default {
       templateVersion:    this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
       networkAttachment:  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
     });
+    this.templateVersion = hash.templateVersion;
   },
 
   data() {
@@ -52,8 +53,8 @@ export default {
       imageName:  '',
       sshName:    '',
       publicKey:  '',
-      cloudInit:  '',
-      showCloudInit: false
+      showCloudInit: false,
+      templateVersion: []
     };
   },
 
@@ -90,6 +91,17 @@ export default {
 
     images() {
       return this.$store.getters['cluster/all'](IMAGE);
+    },
+
+    cloudInit: {
+      get() {
+        return this.getCustomScript()
+      },
+
+      set(neu) {
+        console.log('---', neu.split('\n'))
+        console.log('------change init script', neu)
+      }
     },
 
     storageClasss() {
@@ -319,6 +331,18 @@ export default {
       return _dataVolumeTemplate
     },
 
+    getCustomScript() {
+      const sshString = this.getSSHString();
+      let out = ''
+      if (this.hostname) {
+        out =  `#cloud-config\nname: default\nhostname: ${ this.hostname }`;
+      } else {
+        out =  `#cloud-config\nname: default`;
+      }
+
+      return `${ out }${ sshString }`;
+    },
+
     parseDiskRows(disk) {
       const disks = [];
       const volumes = [];
@@ -339,7 +363,6 @@ export default {
         }
       });
 
-      const sshString = this.getSSHString();
 
       if (!disks.find( D => D.name === 'cloudinitdisk')) {
         disks.push({
@@ -350,8 +373,7 @@ export default {
         volumes.push({
           name:             'cloudinitdisk',
           cloudInitNoCloud: {
-            userData: `#cloud-config\nname: default\nhostname: ${ this.hostname }\nssh_authorized_keys:${ sshString }`,
-            // networkData: this.getNetworkData()
+            userData: this.getCustomScript()
           }
         });
       }
@@ -395,25 +417,19 @@ export default {
           return true;
         }
       });
+      if (sshValue.length === 0) {
+        return '';
+      }
 
-      let sshString = '';
+      let sshString = '\nssh_authorized_keys:';
 
       sshValue.map( (S) => {
-        const sshKey = S.spec.publicKey.replace(/\s+/g, '    \n    ');
+        const sshKey = S.spec.publicKey.replace(/s\+/g, '    \n    ');
 
         sshString += `\n   - >-\n    ${ sshKey }`;
       });
 
       return sshString
-    },
-
-    getNetworkData() {
-      let initScript = '';
-
-      if (this.cloudInit) {
-        initScript += `\n${ this.cloudInit }`;
-      }
-      return `network:\n  version: 1\n  config:\n ${ initCloudNetworkData }`;
     },
 
     parseInterface(R) {

@@ -1,6 +1,4 @@
 <script>
-/* eslint-disable */
-import moment from 'moment';
 import Footer from '@/components/form/Footer';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
@@ -8,7 +6,6 @@ import DiskModal from '@/components/form/DiskModal';
 import ChooseImage from '@/components/form/ChooseImage';
 import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
-import LabeledSelect from '@/components/form/LabeledSelect';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import { VM_TEMPLATE } from '@/config/types';
@@ -18,13 +15,12 @@ import CreateEditView from '@/mixins/create-edit-view';
 import { _EDIT, _CREATE, _ADD } from '@/config/query-params';
 
 export default {
-  name: 'EditVM',
+  name: 'EditVMTEMPLATE',
 
   components: {
     Footer,
     Checkbox,
     LabeledInput,
-    LabeledSelect,
     MemoryUnit,
     AddSSHKey,
     TextAreaAutoGrow,
@@ -82,7 +78,6 @@ export default {
               },
               resources: { requests: { memory: '' } }
             },
-            hostname: '',
             networks: [],
             volumes:  []
           }
@@ -102,13 +97,29 @@ export default {
       defaultVersion,
       isRunning:        true,
       useTemplate:      false,
-      isDefaultVersion:  false
+      isDefaultVersion:  false,
+      keyPairIds:       []
     };
   },
 
   computed: {
     isAdd() {
       return this.$route.query.type === _ADD;
+    }
+  },
+
+  watch: {
+    sshKey(neu) {
+      const out = [];
+
+      this.ssh.map( (I) => {
+        if (neu.includes(I.metadata.name)) {
+          const name = `${ I.metadata.namespace }:${ I.metadata.name }`;
+
+          out.push(name);
+        }
+      });
+      this.keyPairIds = out;
     }
   },
 
@@ -145,26 +156,25 @@ export default {
           metadata:   { namespace: this.value.metadata.namespace },
           spec:       {
             templateId: `${ this.value.metadata.namespace }:${ this.value.metadata.name }`,
-            keyPairIds: ['harvester-system:proxy-1'],
+            keyPairIds: this.keyPairIds,
             vm:         { ...this.spec }
           }
         },
       });
-
-      // if (this.isDefaultVersion || this.mode === _CREATE) {
-      //   await this.setVersion(versionInfo.id);
-      // }
     },
 
     async setVersion(id) {
       delete this.value._type;
+
+      const url = `v1/harvester.cattle.io.virtualmachinetemplates/default/${ this.value.metadata.name }`;
+
       await this.$store.dispatch('management/request', {
         method:  'PUT',
         headers: {
           'content-type': 'application/json',
           accept:         'application/json',
         },
-        url:  `v1/harvester.cattle.io.virtualmachinetemplates/default/${ this.value.metadata.name }`,
+        url,
         data: {
           ...this.value,
           spec: {
@@ -222,7 +232,7 @@ export default {
     <div class="spacer"></div>
 
     <h2>Authentication:</h2>
-    <AddSSHKey :ssh="ssh" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
+    <AddSSHKey :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
 
     <div class="spacer"></div>
 
@@ -234,11 +244,3 @@ export default {
     <Footer :mode="mode" :errors="errors" @save="saveVMT" @done="done" />
   </div>
 </template>
-
-<style lang="scss" scoped>
-#vm {
-  .tip {
-    color: #8e8e92;
-  }
-}
-</style>

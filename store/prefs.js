@@ -80,7 +80,7 @@ export const TIME_FORMAT = create('time-format', 'h:mm:ss a', {
 });
 
 export const TIME_ZONE = create('time-zone', 'local');
-export const DEV = create('dev', false, { parseJSON });
+export const DEV = create('dev', true, { parseJSON });
 
 // --------------------
 

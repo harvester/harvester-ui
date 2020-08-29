@@ -8,7 +8,7 @@ export default {
 
     return [
       {
-        action:     'createFromImage',
+        action:     'createFromTemplate',
         enabled:    true,
         icon:       'icon icon-fw icon-spinner',
         label:      'Create a virtual Machine',
@@ -23,14 +23,14 @@ export default {
     ];
   },
 
-  createFromImage() {
+  createFromTemplate() {
     return () => {
       const router = this.currentRouter();
 
       router.push({
         name:   `c-cluster-product-resource-create`,
         params: { resource: VM },
-        query:  { template: this.id }
+        query:  { template: this.spec.defaultVersionId }
       });
     };
   },
