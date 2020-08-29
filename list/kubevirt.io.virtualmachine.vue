@@ -43,7 +43,10 @@ export default {
           value:     'id',
           formatter: 'ipAddress'
         },
-        AGE
+        {
+          ...AGE,
+          sort: 'metadata.creationTimestamp:desc',
+        }
       ];
     },
   },

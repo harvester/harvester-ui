@@ -115,10 +115,20 @@ export default {
     },
 
     isMasquerade() {
-      return this.currentRow.type === 'masquerade'
+      return this.currentRow.name === 'nic-0'
     },
 
     typeOpton() {
+      if (this.currentRow.networkName === 'Pod Networking') {
+        return [{
+          label: 'masquerade',
+          value: 'masquerade'
+        }, {
+          label: 'bridge',
+          value: 'bridge'
+        }]
+      }
+
       return [{
         label: 'bridge',
         value: 'bridge'
@@ -231,7 +241,6 @@ export default {
         <LabeledSelect
           v-model="currentRow.type"
           label="Type"
-          :disabled="isMasquerade"
           :options="typeOpton"
           class="mb-20"
           required

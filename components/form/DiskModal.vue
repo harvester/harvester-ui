@@ -392,7 +392,6 @@ export default {
           label="bootOrder"
           class="mb-20"
           :options="bootOrderOption"
-          :disabled="currentRow.name === 'rootdisk'"
         />
 
         <Collapse v-if="!isAttachVolume && !isContainerDisk" :open.sync="enableAdvanced">

@@ -17,6 +17,12 @@ export default {
   computed: {
     percentage() {
       return Number.parseFloat(this.value);
+    },
+    state() {
+      return this.row.stateDisplay;
+    },
+    errorMessage() {
+      return this.row.getStatusConditionOfType('imported')?.reason;
     }
   },
   methods: {
@@ -36,11 +42,15 @@ export default {
 <template>
   <div class="parent">
     <el-progress :stroke-width="10" :percentage="percentage" :color="customColorMethod"></el-progress>
+    <span v-if="state === 'Failed'" class="error">{{ errorMessage }}</span>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .parent {
   width: 80%;
+}
+.error {
+  color: var(--error);
 }
 </style>

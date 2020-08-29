@@ -86,7 +86,7 @@ export default {
   },
 
   unmounted() {
-    window.removeEventListener('hashchange', this.hashChange);
+    // window.removeEventListener('hashchange', this.hashChange);
   },
 
   methods: {
@@ -112,7 +112,7 @@ export default {
       }
 
       if (routeHash !== hashName) {
-        window.location.hash = `#${ name }`;
+        // window.location.hash = `#${ name }`;
       }
 
       for ( const tab of sortedTabs ) {

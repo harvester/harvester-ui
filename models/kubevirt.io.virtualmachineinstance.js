@@ -1,4 +1,5 @@
 import { VMI } from '@/config/types';
+import { getPrefix } from '@/utils/url';
 
 const PAUSED = 'Paused';
 const PAUSED_VM_MODAL_MESSAGE = 'This VM has been paused. If you wish to unpause it, please click the Unpause button below. For further details, please check with your system administrator.';
@@ -32,6 +33,12 @@ export default {
   },
 
   getVMIApiPath() {
-    return `/apis/subresources.kubevirt.io/v1alpha3/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
+    const prefix = getPrefix();
+
+    if (!prefix) {
+      return `/apis/subresources.kubevirt.io/v1alpha3/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
+    } else {
+      return `/${ prefix }/apis/subresources.kubevirt.io/v1alpha3/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
+    }
   }
 };

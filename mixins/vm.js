@@ -235,6 +235,7 @@ export default {
       },
 
       set(neu) {
+        console.log('----neu', neu)
         this.parseNetworkRows(neu);
       }
     }
@@ -382,6 +383,7 @@ export default {
 
       if (this.pageType === 'vm') {
         this.$set(this.value, 'spec', spec);
+        this.$set(this, 'spec', spec);
       } else {
         this.$set(this, 'spec', spec);
       }
@@ -416,12 +418,8 @@ export default {
 
     parseInterface(R) {
       const _interface = {};
-      if (R.name === 'nic-0') {
-        _interface.masquerade = {};
-      } else {
-        const type = R.type;
-        _interface[type] = {};
-      }
+      const type = R.type;
+      _interface[type] = {};
 
       if (R.macAddress) {
         _interface.macAddress = R.macAddress;
@@ -469,9 +467,10 @@ export default {
         },
         networks
       };
-
+      
       if (this.pageType === 'vm') {
         this.$set(this.value.spec.template, 'spec', spec);
+        this.$set(this.spec.template, 'spec', spec);
       } else {
         this.$set(this.spec.template, 'spec', spec);
       }
