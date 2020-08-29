@@ -40,5 +40,9 @@ export default {
     } else {
       return `${ prefix }/apis/subresources.kubevirt.io/v1alpha3/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
     }
+  },
+
+  getSerialConsolePath() {
+    return `/apis/subresources.kubevirt.io/v1alpha3/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/console`;
   }
 };

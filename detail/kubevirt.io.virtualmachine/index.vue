@@ -3,7 +3,7 @@ import { EVENT, VMI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 import ResourceTabs from '@/components/form/ResourceTabs';
 import Tab from '@/components/Tabbed/Tab';
-import Console from '@/components/form/Console';
+import OverviewConsole from './tabs/console/';
 import Overview from './tabs/overview/';
 import Details from './tabs/details/';
 import Events from './tabs/events/';
@@ -12,7 +12,7 @@ export default {
   name: 'Novnc',
 
   components: {
-    Console,
+    OverviewConsole,
     Details,
     Events,
     Overview,
@@ -79,7 +79,7 @@ export default {
           <Events :resource="vmi" :events="events" />
         </Tab>
         <Tab name="console" :label="t('vm.detail.tabs.console')" :weight="5">
-          <Console v-model="vmi" />
+          <OverviewConsole v-model="vmi" />
         </Tab>
         <Tab name="networkInterfaces" :label="t('vm.detail.tabs.networkInterfaces')" :weight="6">
         </Tab>
