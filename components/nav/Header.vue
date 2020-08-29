@@ -38,10 +38,12 @@ export default {
 <template>
   <header>
     <div class="product">
-      <div class="productName">
-        Rancher
+      <div class="go" @click="goVM">
+        <div class="productName">
+          Rancher
+        </div>
+        <div class="logo" alt="Logo" />
       </div>
-      <div class="logo" alt="Logo" @click="goVM" />
     </div>
 
     <!-- <div class="kubectl">
@@ -110,6 +112,10 @@ export default {
     grid-template-rows:    var(--header-height);
 
     > .product {
+      .go {
+        cursor: pointer;
+      }
+
       .productName {
         color: #fff;
         font-size: 18px;
@@ -126,7 +132,6 @@ export default {
         background-color: var(--header-logo);
         mask: url("~assets/images/logo.svg") no-repeat center;
         height: 33px;
-        cursor: pointer;
         width: 56px;
         position: absolute;
         top: 9px;

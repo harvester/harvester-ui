@@ -1,5 +1,5 @@
 <script>
-import { STATE, AGE, NAME, NAMESPACE as NAMESPACE_COL } from '@/config/table-headers';
+import { STATE, AGE, NAME } from '@/config/table-headers';
 import ResourceTable from '@/components/ResourceTable';
 import { SCHEMA, DATA_VOLUME, VM, PV } from '@/config/types';
 import { allHash } from '@/utils/promise';
@@ -24,8 +24,8 @@ export default {
   computed: {
     headers() {
       return [
+        STATE,
         NAME,
-        NAMESPACE_COL,
         {
           name:      'default',
           label:     'Default version',

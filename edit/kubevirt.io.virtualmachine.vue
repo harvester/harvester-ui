@@ -61,8 +61,6 @@ export default {
               devices: {
                 interfaces:                 [],
                 disks:                      [],
-                networkInterfaceMultiqueue: true,
-                rng:                        {}
               },
               resources: { requests: { memory: '' } }
             },
@@ -102,7 +100,7 @@ export default {
       get() {
         const prefix = this.imageName?.split(/[a-zA-Z][-|.]+/)[0];
 
-        return this.spec.template.spec.hostname || `${ prefix }-${ moment().format('YYYY-MMDD-HHmm') }`;
+        return this.spec.template.spec.hostname || `${ prefix.toLowerCase() }-${ moment().format('YYYY-MMDD-HHmm') }`;
       },
       set(neu) {
         this.$set(this.spec.template.spec, 'hostname', neu);

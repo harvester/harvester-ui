@@ -79,8 +79,6 @@ export default {
               devices: {
                 interfaces:                 [],
                 disks:                      [],
-                networkInterfaceMultiqueue: true,
-                rng:                        {}
               },
               resources: { requests: { memory: '' } }
             },
