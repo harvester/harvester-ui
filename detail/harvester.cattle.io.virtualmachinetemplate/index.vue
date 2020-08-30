@@ -4,22 +4,33 @@ import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
+import Detail from './details.vue';
+import Version from './versions.vue';
 
 export default {
+  name:       'DetailVMT',
   components: {
     Tab,
+    Detail,
+    Version,
     Tabbed,
     LabeledSelect,
     LabeledInput
   },
+
   props: {
     value: {
       type:     Object,
       required: true
     }
   },
+
   data() {
-    return {};
+    const defaultVersion = this.value?.status?.defaultVersion;
+
+    return {
+      versions: [],
+    };
   },
 
   computed: {
@@ -29,6 +40,17 @@ export default {
 
     defaultVersion() {
       return this.value?.status?.defaultVersion || '-';
+    }
+  },
+
+  mounted() {
+    this.getVersions();
+  },
+
+  methods: {
+    async getVersions() {
+      const versions = (await this.value.followLink('versions')).data || [];
+      this.versions = versions;
     }
   }
 };
@@ -62,11 +84,11 @@ export default {
 
     <Tabbed v-bind="$attrs">
       <Tab label="Detail" name="detail">
-        <h1>Detail</h1>
+        <Detail :all-version="versions" :default-version="defaultVersion" />
       </Tab>
 
       <Tab label="Versions" name="version">
-        <h1>version</h1>
+        <Version v-model="versions" :default-version="defaultVersion" />
       </Tab>
     </Tabbed>
   </div>

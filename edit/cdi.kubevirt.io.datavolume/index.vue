@@ -1,15 +1,12 @@
 <script>
 /* eslint-disable */
-import LabeledInput from '@/components/form/LabeledInput';
-import LabeledSelect from '@/components/form/LabeledSelect';
 import NameNsDescription from '@/components/form/NameNsDescription';
 import Footer from '@/components/form/Footer';
+import ResourceTabs from '@/components/form/ResourceTabs';
 import CreateEditView from '@/mixins/create-edit-view';
-import VolumeSource from '@/components/form/VolumeSource';
-import { _CREATE } from '@/config/query-params';
+import VolumeSource from './VolumeSource';
 import { allHash } from '@/utils/promise';
-import { mapValueLabel } from '@/utils/array';
-import { NAMESPACE, STORAGE_CLASS, PVC, IMAGE } from '@/config/types';
+import { STORAGE_CLASS, IMAGE } from '@/config/types';
 
 export default {
   name: 'volume',
@@ -17,8 +14,7 @@ export default {
   components: {
     Footer,
     VolumeSource,
-    LabeledInput,
-    LabeledSelect,
+    ResourceTabs,
     NameNsDescription
   },
 
@@ -56,6 +52,8 @@ export default {
     }
     return {
       spec,
+      randow: Math.random(),
+      index: 0
     };
   },
 
@@ -63,7 +61,14 @@ export default {
     spec(neu) {
       Object.assign(this.value.spec, neu);
     }
-  }
+  },
+
+  methods: {
+    updateAnnotation(neu) {
+      this.randow = Math.random();
+      this.$set(this.value.metadata, 'annotations', neu)
+    }
+  },
 };
 </script>
 
@@ -75,12 +80,10 @@ export default {
       name-label="Name"
     />
 
-    <VolumeSource v-model="spec" />
+    <VolumeSource v-model="spec" class="mb-20" @update:annotation="updateAnnotation" />
+
+    <ResourceTabs v-model="value" :mode="mode" :key="randow" />
 
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
   </div>
 </template>
-
-<style lang="scss" scoped>
-
-</style>
