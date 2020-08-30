@@ -66,7 +66,11 @@ export default {
   methods: {
     updateAnnotation(neu) {
       this.randow = Math.random();
-      this.$set(this.value.metadata, 'annotations', neu)
+      console.log('-----a', this.value.metadata.annotations)
+      this.$set(this.value.metadata, 'annotations', {
+        ...this.value.metadata.annotations,
+        ...neu
+      })
     }
   },
 };

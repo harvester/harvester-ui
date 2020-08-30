@@ -27,6 +27,10 @@ export default {
 
     description() {
       return this.value.spec.description || '-';
+    },
+
+    errorMessage() {
+      return this.value.getStatusConditionOfType('imported')?.reason || '-';
     }
   }
 };
@@ -48,6 +52,15 @@ export default {
 
       <div class="row">
         <div class="col span-12">
+          <div>Message</div>
+          <div :class="{ 'error': errorMessage !== '-' }">
+            {{ errorMessage }}
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col span-12">
           <div>DownloadUrl</div>
           <div><CopyToClipboardText v-model="downloadUrl" /></div>
         </div>
@@ -62,7 +75,7 @@ export default {
 
       <div class="row">
         <div class="col span-12">
-          <div>Notes</div>
+          <div>Description</div>
           <div>{{ description }}</div>
         </div>
       </div>
@@ -83,5 +96,8 @@ export default {
       font-weight: 600;
     }
   }
+}
+.error {
+  color: var(--error);
 }
 </style>

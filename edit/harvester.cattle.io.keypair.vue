@@ -56,6 +56,7 @@ export default {
       v-model="value.metadata.name"
       label="Name"
       class="mb-20"
+      :mode="mode"
       required
     />
 
@@ -64,6 +65,7 @@ export default {
         <LabeledInput
           v-model="publicKey"
           type="multiline"
+          :mode="mode"
           :min-height="160"
           label="SSH-Key"
           required
