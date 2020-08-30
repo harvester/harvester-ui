@@ -100,7 +100,6 @@ export default {
 
       set(neu) {
         console.log('---', neu.split('\n'))
-        console.log('------change init script', neu)
       }
     },
 

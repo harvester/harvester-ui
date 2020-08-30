@@ -70,10 +70,11 @@ export default {
       }, {
         value: 'url',
         label: 'VM Image'
-      }, {
-        value: 'container',
-        label: 'Container'
-      },
+      }
+      // , {
+      //   value: 'container',
+      //   label: 'Container'
+      // },
       // {
       //   value: 'pvc',
       //   label: 'Clone Disk'
@@ -140,7 +141,7 @@ export default {
           .map((obj) => {
             return {
               label: obj.spec.displayName,
-              value: obj.spec.displayName
+              value: obj.id
             };
           }),
         'label'
@@ -151,7 +152,7 @@ export default {
       const choices = this.$store.getters['cluster/all'](IMAGE);
 
       return choices.find( (I) => {
-        return I.spec.displayName === this.image;
+        return I.id === this.image;
       })
       ?.status?.downloadUrl;
     }
@@ -160,7 +161,13 @@ export default {
   methods: {
     update() {
       const source = this.isBlank ? { blank: {} } : this.container ? { registry: { url: this.container } } : { http: { url: this.imgUrl } };
+      let imageAnnotations = '';
 
+      if (this.isVmImage && this.image) {
+        imageAnnotations = { 'harvester.cattle.io/imageId': this.image.replace('/', ':') };
+      } else {
+        imageAnnotations = {};
+      }
       const spec = {
         ...this.value,
         pvc: {
@@ -172,6 +179,8 @@ export default {
         },
         source,
       };
+
+      this.$emit('update:annotation', imageAnnotations);
 
       this.$emit('input', spec);
     },
