@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { VMI } from '@/config/types';
+import { getPrefix } from '@/utils/url';
 
 const VMI_WAITING_MESSAGE =
   'The virtual machine is waiting for resources to become available.';
@@ -75,7 +76,13 @@ export default {
     return () => {
       const location = this.consoleLocation;
 
-      window.open(this.currentRouter().resolve(location).href, '_blank');
+      const prefix = getPrefix();
+
+      if (!prefix) {
+        window.open(this.currentRouter().resolve(location).href, '_blank');
+      } else {
+        window.open(`dashboard/${ this.currentRouter().resolve(location).href }`, '_blank');
+      }
     };
   },
 
