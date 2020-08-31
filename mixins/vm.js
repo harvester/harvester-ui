@@ -152,6 +152,12 @@ export default {
             let volumeMode = '';
             let storageClassName = '';
             let url = '';
+            let container = '';
+            
+            if(volume.containerDisk) {
+              source = SOURCE_TYPE.CONTAINER_DISK;
+              container = volume.containerDisk.image;
+            }
 
             if (volume?.dataVolume && volume?.dataVolume?.name) {
               const volumeName = volume.dataVolume.name;
@@ -194,6 +200,7 @@ export default {
               bus,
               pvcName,
               pvcNS,
+              container,
               accessMode,
               size,
               volumeMode,
@@ -289,7 +296,7 @@ export default {
       const _volume = {
         name:       R.name,
       };
-
+      console.log('---r', R)
       if (R.source === SOURCE_TYPE.CONTAINER_DISK) {
         _volume.containerDisk = {
           image: R.container
@@ -329,6 +336,7 @@ export default {
 
         case SOURCE_TYPE.URL:
           _dataVolumeTemplate.spec.source = { http: { url: this.source } };
+
       }
 
       return _dataVolumeTemplate
@@ -372,7 +380,7 @@ export default {
         disks.push(_disk);
         volumes.push(_volume);
 
-        if (R.source !== SOURCE_TYPE.CONTAINER_DISK) {
+        if (R.source !== SOURCE_TYPE.CONTAINER_DISK && R.name !== 'cdrom-disk') {
           dataVolumeTemplates.push(_dataVolumeTemplate);
         }
       });
