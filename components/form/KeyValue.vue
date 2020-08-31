@@ -261,6 +261,45 @@ export default {
     },
   },
 
+  watch: {
+    value: { // TODO
+      handler(neu) {
+        if ( !this.asMap ) {
+          const rows = (this.value || []).slice() ;
+
+          rows.map((row) => {
+            row._display = this.displayProps(row[this.valueName]);
+          });
+
+          return { rows };
+        }
+
+        const input = this.value || {};
+        const rows = [];
+
+        Object.keys(input).forEach((key) => {
+          let value = input[key];
+
+          if ( this.valueBase64 ) {
+            value = base64Decode(value);
+          }
+          rows.push({
+            key,
+            value,
+            _display: this.displayProps(value)
+          });
+        });
+
+        if ( !rows.length && this.initialEmptyRow && this.mode !== _VIEW) {
+          rows.push({ [this.keyName]: '', [this.valueName]: '' });
+        }
+
+        this.$set(this, 'rows', rows);
+      },
+      deep: true
+    }
+  },
+
   created() {
     this.queueUpdate = debounce(this.update, 500);
   },
@@ -611,9 +650,6 @@ export default {
 
   .empty {
     text-align: center;
-  }
-
-  .create {
   }
 
   .view {

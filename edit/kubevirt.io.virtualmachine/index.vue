@@ -89,7 +89,7 @@ export default {
 
       return choices.map( (T) => {
         return {
-          label: T.id,
+          label: T.metadata.name,
           value: T.spec.defaultVersionId
         };
       });
@@ -131,7 +131,6 @@ export default {
           sshKey.push(ssh);
         });
       }
-
       this.$set(this, 'sshKey', sshKey);
       this.$set(this, 'spec', templateSpec.spec.vm);
     },
@@ -199,11 +198,11 @@ export default {
 
     <h2>Choose a Size:</h2>
     <div class="row">
-      <div class="col span-5">
+      <div class="col span-6">
         <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number label="CPU (core)" required />
       </div>
 
-      <div class="col span-7">
+      <div class="col span-6">
         <MemoryUnit v-model="memory" value-name="Memory (Gi)" :value-col="8" :unit-col="4" />
       </div>
     </div>
@@ -221,7 +220,7 @@ export default {
     <div class="spacer"></div>
 
     <h2>Authentication:</h2>
-    <AddSSHKey :key="JSON.toString(sshKey)" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
+    <AddSSHKey :key="sshKey.toString()" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
 
     <div class="spacer"></div>
 
