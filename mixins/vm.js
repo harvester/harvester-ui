@@ -227,7 +227,7 @@ export default {
             index: 0,
             model: 'virtio',
             name: 'nic-0',
-            networkName: 'Pod Networking',
+            networkName: 'Pod Network',
             type: 'masquerade',
             disableDelete: true,
           })
@@ -242,7 +242,7 @@ export default {
             return {
               ...O,
               type,
-              networkName: network?.multus?.networkName || 'Pod Networking',
+              networkName: network?.multus?.networkName || 'Pod Network',
               index,
               disableDelete: network.name === 'nic-0' ? true : false,
             };

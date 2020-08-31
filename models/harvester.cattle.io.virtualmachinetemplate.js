@@ -11,7 +11,7 @@ export default {
         action:     'createFromTemplate',
         enabled:    true,
         icon:       'icon icon-fw icon-spinner',
-        label:      'Create a virtual Machine',
+        label:      'Create a Virtual Machine',
       },
       {
         action:     'addVersion',

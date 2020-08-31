@@ -61,13 +61,6 @@ export default {
 
       <div class="row">
         <div class="col span-12">
-          <div>DownloadUrl</div>
-          <div><CopyToClipboardText v-model="downloadUrl" /></div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col span-12">
           <div>Size</div>
           <div>{{ formattedValue }}</div>
         </div>

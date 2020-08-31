@@ -10,7 +10,7 @@ export default {
         action:     'createFromImage',
         enabled:    true,
         icon:       'icon icon-fw icon-spinner',
-        label:      'Create a virtual Machine',
+        label:      'Create a Virtual Machine',
       },
       ...out
     ];

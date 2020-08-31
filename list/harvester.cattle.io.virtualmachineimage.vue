@@ -29,7 +29,7 @@ export default {
         },
         {
           name:      'Uploaded',
-          label:     'Uploaded',
+          label:     'Progress',
           value:     'status.progress',
           sort:      'status.progress',
           formatter: 'ImagePercentageBar',

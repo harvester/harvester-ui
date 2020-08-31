@@ -123,7 +123,7 @@ export default {
     },
 
     typeOpton() {
-      if (this.currentRow.networkName === 'Pod Networking') {
+      if (this.currentRow.networkName === 'Pod Network') {
         return [{
           label: 'masquerade',
           value: 'masquerade'
@@ -208,7 +208,7 @@ export default {
     <VMModal
       :can-edit="canEdit"
       modal-name="network"
-      title="Add Networking Interface"
+      title="Add Network Interface"
       :rows="rows"
       :headers="headers"
       :errors="errors"

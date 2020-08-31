@@ -28,12 +28,12 @@ export default {
         NAME,
         {
           name:      'default',
-          label:     'Default version',
+          label:     'Default Version',
           value:     'status.defaultVersion',
         },
         {
           name:      'latest',
-          label:     'Latest version',
+          label:     'Latest Version',
           value:     'status.latestVersion',
         },
         AGE
