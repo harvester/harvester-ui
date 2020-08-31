@@ -44,7 +44,6 @@ export default {
       templateVersion:    this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
       networkAttachment:  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
     });
-    this.templateVersion = hash.templateVersion;
   },
 
   data() {
@@ -55,7 +54,6 @@ export default {
       sshName:    '',
       publicKey:  '',
       showCloudInit: false,
-      templateVersion: []
     };
   },
 
