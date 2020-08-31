@@ -189,7 +189,7 @@ export default {
             Cancel
           </button>
           <button class="btn bg-primary btn-sm" @click="saveKey">
-            Save SSH Key
+            Save
           </button>
         </div>
       </div>

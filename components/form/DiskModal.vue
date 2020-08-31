@@ -138,7 +138,7 @@ export default {
       },
       {
         name:  'Interface',
-        label: 'Interface',
+        label: 'Bus',
         value: 'bus',
         width: 90,
       },
@@ -149,7 +149,7 @@ export default {
         width: 90,
       }, {
         name:  'bootOrder',
-        label: 'bootOrder',
+        label: 'Boot Order',
         value: 'bootOrder',
         width: 70,
       }];
@@ -170,10 +170,10 @@ export default {
 
     UnitOption() {
       return [{
-        label: 'MiB',
+        label: 'Mi',
         value: 'Mi'
       }, {
-        label: 'GiB',
+        label: 'Gi',
         value: 'Gi'
       },
       {
@@ -380,9 +380,9 @@ export default {
           required
         />
 
-        <MemoryUnit v-if="!isContainerDisk" v-model="currentRow.size" value-name="Size (GiB)" class="mb-20" />
+        <MemoryUnit v-if="!isContainerDisk" v-model="currentRow.size" value-name="Size (Gi)" class="mb-20" />
 
-        <LabeledSelect v-model="currentRow.bus" label="Interface" class="mb-20" :options="InterfaceOption" required />
+        <LabeledSelect v-model="currentRow.bus" label="Bus" class="mb-20" :options="InterfaceOption" required />
 
         <LabeledSelect
           v-if="!isContainerDisk"
@@ -395,7 +395,7 @@ export default {
 
         <LabeledSelect
           v-model="currentRow.bootOrder"
-          label="bootOrder"
+          label="Boot Order"
           class="mb-20"
           :options="bootOrderOption"
         />

@@ -52,19 +52,15 @@ export default {
 <template>
   <div>
     <h2 :style="{'display':'flex'}">
-      Choose a source: <i v-tooltip="tip" class="icon icon-info" style="font-size: 12px" />
+      Choose an Image:
     </h2>
 
-    <div class="box">
-      <div class="row mb-20">
-        <div class="col span-6">
-          <input
-            v-model="searchKey"
-            placeholder="Search"
-          />
-        </div>
+    <div class="row mb-20">
+      <div class="col span-6">
+        <input v-model="searchKey" placeholder="Search" />
       </div>
-
+    </div>
+    <div class="box">
       <div class="list">
         <div
           v-for="item in readiedImages"

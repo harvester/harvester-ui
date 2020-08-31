@@ -199,8 +199,6 @@ export default {
       @input="update"
     />
 
-    <MemoryUnit v-model="storage" value-name="Size (GiB)" class="mb-20" />
-
     <LabeledInput
       v-if="isContainer"
       v-model="container"
@@ -212,12 +210,14 @@ export default {
     <LabeledSelect
       v-if="isVmImage"
       v-model="image"
-      label="Select Image"
+      label="Select an Image"
       :options="ImageOption"
       required
       class="mb-20"
       @input="update"
     />
+
+    <MemoryUnit v-model="storage" value-name="Size (Gi)" class="mb-20" />
 
     <LabeledSelect
       v-if="!isContainer"

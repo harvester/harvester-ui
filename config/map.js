@@ -1,8 +1,8 @@
 export const MemoryUnit = [{
-  label: 'MiB',
+  label: 'Mi',
   value: 'Mi'
 }, {
-  label: 'GiB',
+  label: 'Gi',
   value: 'Gi'
 },
 {
