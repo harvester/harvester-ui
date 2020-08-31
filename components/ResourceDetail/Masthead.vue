@@ -2,13 +2,13 @@
 import { PROJECT } from '@/config/labels-annotations';
 import { NAMESPACE, EXTERNAL } from '@/config/types';
 import ButtonGroup from '@/components/ButtonGroup';
-import BadgeState from '@/components/BadgeState';
+import VmState from '@/components/formatter/vmState';
 import Banner from '@/components/Banner';
 import { get } from '@/utils/object';
 
 export default {
   components: {
-    BadgeState, Banner, ButtonGroup
+    Banner, ButtonGroup, VmState
   },
   props:      {
     value: {
@@ -160,7 +160,7 @@ export default {
           </nuxt-link>
           <span class="title" v-html="h1" />
         </h1>
-        <BadgeState v-if="mode==='view'" :value="value" />
+        <VmState v-if="mode==='view'" v-model="value.id" :row="value" />
       </div>
       <!-- //TODO use  nuxt-link for an internal project detail page once it exists -->
       <div v-if="mode==='view'" class="subheader">
