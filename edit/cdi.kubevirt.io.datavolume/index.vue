@@ -1,15 +1,14 @@
 <script>
-/* eslint-disable */
 import NameNsDescription from '@/components/form/NameNsDescription';
 import Footer from '@/components/form/Footer';
 import ResourceTabs from '@/components/form/ResourceTabs';
 import CreateEditView from '@/mixins/create-edit-view';
-import VolumeSource from './VolumeSource';
 import { allHash } from '@/utils/promise';
 import { STORAGE_CLASS, IMAGE } from '@/config/types';
+import VolumeSource from './VolumeSource';
 
 export default {
-  name: 'volume',
+  name: 'Volume',
 
   components: {
     Footer,
@@ -20,13 +19,6 @@ export default {
 
   mixins: [CreateEditView],
 
-  async fetch() {
-    const hash = await allHash({
-      image:         this.$store.dispatch('cluster/findAll', { type: IMAGE }),
-      storageClass:  this.$store.dispatch('cluster/findAll', { type: STORAGE_CLASS }),
-    });
-  },
-
   props: {
     value: {
       type:     Object,
@@ -34,26 +26,25 @@ export default {
     },
   },
 
+  async fetch() {
+    const hash = await allHash({
+      image:         this.$store.dispatch('cluster/findAll', { type: IMAGE }),
+      storageClass:  this.$store.dispatch('cluster/findAll', { type: STORAGE_CLASS }),
+    });
+  },
+
   data() {
     let spec = this.value.spec;
 
     if (!spec) {
-      spec = {
-        pvc: {
-          resources: {
-            requests: {
-              storage: ''
-            }
-          }
-        },
-
-      }
+      spec = { pvc: { resources: { requests: { storage: '' } } } };
       this.value.spec = spec;
     }
+
     return {
       spec,
       randow: Math.random(),
-      index: 0
+      index:  0
     };
   },
 
@@ -66,11 +57,11 @@ export default {
   methods: {
     updateAnnotation(neu) {
       this.randow = Math.random();
-      console.log('-----a', this.value.metadata.annotations)
+
       this.$set(this.value.metadata, 'annotations', {
         ...this.value.metadata.annotations,
         ...neu
-      })
+      });
     }
   },
 };
@@ -86,7 +77,7 @@ export default {
 
     <VolumeSource v-model="spec" class="mb-20" @update:annotation="updateAnnotation" />
 
-    <ResourceTabs v-model="value" :mode="mode" :key="randow" />
+    <ResourceTabs :key="randow" v-model="value" :mode="mode" />
 
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
   </div>

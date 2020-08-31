@@ -173,7 +173,7 @@ export default {
                   source = SOURCE_TYPE.URL;
                   url = DVT.spec.source.http.url;
 
-                  // this.imageName = this.getImageSource(DVT.spec.source.http.url)
+                  this.imageName = this.getImageSource(DVT.spec.source.http.url)
                 }
 
                 accessMode = DVT?.spec?.pvc?.accessModes?.[0];
@@ -185,12 +185,14 @@ export default {
 
             const bus = DISK?.disk?.bus;
             const bootOrder = DISK?.bootOrder;
+            const disableSource = DISK.name ==='rootdisk' ? true : false;
 
             return {
               index,
               bootOrder,
-              source,
+              source: DISK.name === 'rootdisk' ? 'VM Image' : source,
               name: DISK.name,
+              disableSource,
               bus,
               pvcName,
               pvcNS,
@@ -199,6 +201,7 @@ export default {
               volumeMode,
               url,
               storageClassName,
+              disableDelete: DISK.name === 'rootdisk' ? true : false,
             };
           });
         }
@@ -240,7 +243,8 @@ export default {
               ...O,
               type,
               networkName: network?.multus?.networkName || 'Pod Networking',
-              index
+              index,
+              disableDelete: network.name === 'nic-0' ? true : false,
             };
           });
         }
@@ -249,7 +253,6 @@ export default {
       },
 
       set(neu) {
-        console.log('----neu', neu)
         this.parseNetworkRows(neu);
       }
     }

@@ -1,13 +1,13 @@
 <script>
 import { STATE, AGE, NAME } from '@/config/table-headers';
-import ResourceTable from '@/components/ResourceTable';
+import SortableTable from '@/components/SortableTable';
 import { SCHEMA, DATA_VOLUME, VM, PV } from '@/config/types';
 import { allHash } from '@/utils/promise';
 import Loading from '@/components/Loading';
 
 export default {
   name:       'ListPV',
-  components: { ResourceTable },
+  components: { SortableTable },
 
   props: {
     schema: {
@@ -48,5 +48,12 @@ export default {
 </script>
 
 <template>
-  <ResourceTable :schema="schema" :rows="rows" :headers="headers" />
+  <SortableTable
+    v-bind="$attrs"
+    :headers="headers"
+    :rows="[...rows]"
+    key-field="_key"
+    v-on="$listeners"
+  >
+  </SortableTable>
 </template>
