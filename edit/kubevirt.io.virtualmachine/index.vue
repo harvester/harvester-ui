@@ -5,18 +5,16 @@ import Footer from '@/components/form/Footer';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
 import DiskModal from '@/components/form/DiskModal';
-import ChooseImage from '@/components/form/ChooseImage';
 import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import Collapse from '@/components/Collapse';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import { VM_TEMPLATE } from '@/config/types';
-import { allHash } from '@/utils/promise';
 import MemoryUnit from '@/components/form/MemoryUnit';
-
 import CreateEditView from '@/mixins/create-edit-view';
 import VM_MIXIN from '@/mixins/vm';
+import ChooseImage from './ChooseImage';
 
 export default {
   name: 'EditVM',
@@ -77,12 +75,10 @@ export default {
     return {
       spec,
       templateName:    '',
-      description:     '',
       namespace:       'default',
       isRunning:       true,
       useTemplate:     false,
       pageType:        'vm',
-      templateVersion:  []
     };
   },
 

@@ -24,6 +24,10 @@ export default {
     namespace: {
       type: String,
       default: ''
+    },
+    canEdit: {
+      type:    Boolean,
+      default: true
     }
   },
 
@@ -202,6 +206,7 @@ export default {
 <template>
   <div>
     <VMModal
+      :can-edit="canEdit"
       modal-name="network"
       title="Add Networking Interface"
       :rows="rows"

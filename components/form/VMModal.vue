@@ -34,6 +34,10 @@ export default {
       default: () => {
         return [];
       }
+    },
+    canEdit: {
+      type:    Boolean,
+      default: true
     }
   },
 
@@ -81,7 +85,7 @@ export default {
       :row-actions-width="60"
       :table-actions="false"
     >
-      <template v-slot:row-actions="scope">
+      <template v-if="canEdit" v-slot:row-actions="scope">
         <div class="action">
           <button type="button" class="btn btn-sm bg-primary mr-15" @click="handleRow(scope.row, 'modify')">
             modify
@@ -120,7 +124,7 @@ export default {
       </div>
     </modal>
 
-    <button class="btn bg-primary btn-sm mb-20" @click="openModal">
+    <button v-if="canEdit" class="btn bg-primary btn-sm mb-20" @click="openModal">
       {{ title }}
     </button>
   </div>

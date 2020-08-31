@@ -32,6 +32,11 @@ export default {
       default: () => {
         return {};
       }
+    },
+
+    canEdit: {
+      type:    Boolean,
+      default: true
     }
   },
 
@@ -331,6 +336,7 @@ export default {
 <template>
   <div>
     <VMModal
+      :can-edit="canEdit"
       modal-name="disk"
       title="Add Disk"
       :rows="rows"
