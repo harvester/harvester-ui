@@ -32,7 +32,7 @@ export default {
 
     const accessMode = this.value?.pvc?.accessModes?.[0] || 'ReadWriteOnce';
     const storageClassName = this.value?.pvc?.storageClassName;
-    const volumeMode = this.value?.pvc?.volumeMode || 'FileSystem';
+    const volumeMode = this.value?.pvc?.volumeMode || 'Filesystem';
     const container = this.value?.source?.registry?.url || '';
     const storage = this.value.pvc?.resources?.requests?.storage || '';
     const inter = 'virtio';

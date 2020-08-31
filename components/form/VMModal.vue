@@ -118,7 +118,7 @@ export default {
             Cancel
           </button>
           <button class="btn bg-primary btn-sm mr-20" @click="add">
-            Add
+            Save
           </button>
         </div>
       </div>
