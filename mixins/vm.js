@@ -1,5 +1,6 @@
 /* eslint-disable */
 import _ from 'lodash';
+import { safeLoad, safeDump } from 'js-yaml';
 import randomstring from 'randomstring';
 import { sortBy } from '@/utils/sort';
 import { allHash } from '@/utils/promise';
@@ -99,7 +100,7 @@ export default {
       },
 
       set(neu) {
-        console.log('---', neu.split('\n'))
+        this.getCustomScript(neu)
       }
     },
 
@@ -182,7 +183,7 @@ export default {
               }
             }
 
-            const bus = DISK.disk.bus;
+            const bus = DISK?.disk?.bus;
 
             return {
               index,
@@ -330,9 +331,20 @@ export default {
       return _dataVolumeTemplate
     },
 
-    getCustomScript() {
+    getCustomScript(neu) {
+      let newInitScript = {};
+      if (neu) {
+        try {
+          newInitScript = safeLoad(neu);
+          if (newInitScript.hostname) {
+            this.hostname = newInitScript.hostname;
+          }
+        } catch (error) {
+
+        }
+      }
       const sshString = this.getSSHString();
-      let out = ''
+      let out = '';
       if (this.hostname) {
         out =  `#cloud-config\nname: default\nhostname: ${ this.hostname }`;
       } else {

@@ -79,6 +79,7 @@ export default {
       isRunning:       true,
       useTemplate:     false,
       pageType:        'vm',
+      emptyHostname:   false
     };
   },
 
@@ -97,10 +98,17 @@ export default {
     hostname: {
       get() {
         const prefix = this.imageName?.split(/[a-zA-Z][-|.]+/)[0];
+        const time = this.imageName ? `-${ moment().format('YYYY-MMDD-HHmm') }` : '';
 
-        return this.spec.template.spec.hostname || `${ prefix.toLowerCase() }-${ moment().format('YYYY-MMDD-HHmm') }`;
+        if (this.emptyHostname) {
+          return this.spec.template.spec.hostname;
+        } else {
+          return this.spec.template.spec.hostname || `${ prefix.toLowerCase() }${ time }`;
+        }
       },
       set(neu) {
+        this.emptyHostname = !neu;
+
         this.$set(this.spec.template.spec, 'hostname', neu);
       }
     },
@@ -126,6 +134,10 @@ export default {
 
       this.$set(this, 'sshKey', sshKey);
       this.$set(this, 'spec', templateSpec.spec.vm);
+    },
+
+    imageName() {
+      this.emptyHostname = false;
     }
   },
 
@@ -209,7 +221,7 @@ export default {
     <div class="spacer"></div>
 
     <h2>Authentication:</h2>
-    <AddSSHKey :key="sshKey" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
+    <AddSSHKey :key="JSON.toString(sshKey)" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
 
     <div class="spacer"></div>
 
