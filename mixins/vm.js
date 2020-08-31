@@ -179,14 +179,16 @@ export default {
                 accessMode = DVT?.spec?.pvc?.accessModes?.[0];
                 size = DVT?.spec?.pvc?.resources?.requests?.storage || '10Gi';
                 volumeMode = DVT?.spec?.pvc?.volumeMode;
-                storageClassName = DVT?.spec?.pvc?.storageClassName;
+                storageClassName = DVT?.spec?.pvc?.storageClassName  || this.defaultStorageClass;
               }
             }
 
             const bus = DISK?.disk?.bus;
+            const bootOrder = DISK?.bootOrder;
 
             return {
               index,
+              bootOrder,
               source,
               name: DISK.name,
               bus,
@@ -278,7 +280,7 @@ export default {
       if ( R.bootOrder ) {
         _disk.bootOrder = R.bootOrder;
       }
-
+      
       return _disk;
     },
 
@@ -358,7 +360,7 @@ export default {
       const disks = [];
       const volumes = [];
       const dataVolumeTemplates = [];
-
+      console.log('----disk', disk)
       disk.forEach( (R) => {
         const dataVolumeName = `${ this.hostname }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
 
@@ -388,7 +390,7 @@ export default {
           }
         });
       }
-
+      console.log('----disks', disks)
       const spec = {
         ...this.spec,
         running:  this.isRunning,

@@ -92,7 +92,6 @@ export default {
       versionOption:    [],
       description:      '',
       templateVersion:  [],
-      namespace:        'default',
       defaultVersion,
       isRunning:        true,
       useTemplate:      false,
@@ -131,6 +130,7 @@ export default {
   methods: {
     async saveVMT(buttonCb) {
       if (!this.isAdd) {
+        this.value.metadata.namespace = 'harvester-system';
         await this.save(buttonCb);
       } else {
         buttonCb(true);
@@ -144,45 +144,19 @@ export default {
           'content-type': 'application/json',
           accept:         'application/json',
         },
-        url:  (this.mode === 'edit' && !this.isAdd) ? `v1/harvester.cattle.io.virtualmachinetemplateversions/${ this.value.metadata.namespace }/${ this.value.metadata.name }` : `v1/harvester.cattle.io.virtualmachinetemplateversions`,
-        data: (this.mode === 'edit' && !this.isAdd) ? {
-          ...this.defaultVersion,
-          spec: { ...this.spec }
-        } : {
+        url:  `v1/harvester.cattle.io.virtualmachinetemplateversions`,
+        data: {
           apiVersion: 'harvester.cattle.io/v1alpha1',
           kind:       'harvester.cattle.io.virtualmachinetemplateversion',
           type:       'harvester.cattle.io.virtualmachinetemplateversion',
-          metadata:   { namespace: this.value.metadata.namespace },
           spec:       {
-            templateId: `${ this.value.metadata.namespace }:${ this.value.metadata.name }`,
+            templateId: `harvester-system:${ this.value.metadata.name }`,
             keyPairIds: this.keyPairIds,
             vm:         { ...this.spec }
           }
         },
       });
     },
-
-    async setVersion(id) {
-      delete this.value._type;
-
-      const url = `v1/harvester.cattle.io.virtualmachinetemplates/default/${ this.value.metadata.name }`;
-
-      await this.$store.dispatch('management/request', {
-        method:  'PUT',
-        headers: {
-          'content-type': 'application/json',
-          accept:         'application/json',
-        },
-        url,
-        data: {
-          ...this.value,
-          spec: {
-            ...this.value.spec,
-            defaultVersionId: `${ id.replace('/', ':') }`
-          }
-        }
-      });
-    }
   },
 };
 </script>
