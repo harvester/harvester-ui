@@ -75,6 +75,7 @@ export default {
     return {
       spec,
       templateName:    '',
+      templateVersion: '',
       namespace:       'default',
       isRunning:       true,
       useTemplate:     false,
@@ -90,7 +91,19 @@ export default {
       return choices.map( (T) => {
         return {
           label: T.metadata.name,
-          value: T.spec.defaultVersionId
+          value: T.id
+        };
+      });
+    },
+
+    versionOption() {
+      const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
+      const templateId = this.templateName.replace('/', ':');
+
+      return choices.filter( O => O.spec.templateId === templateId).map( (T) => {
+        return {
+          label: T.metadata.name,
+          value: T.id
         };
       });
     },
@@ -115,10 +128,10 @@ export default {
   },
 
   watch: {
-    async templateName(defaultVersion) {
+    async templateVersion(version) {
       const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version });
 
-      const id = defaultVersion.replace(':', '/');
+      const id = version.replace(':', '/');
       const templateSpec = choices.find( (V) => {
         return V.id === id;
       });
@@ -134,7 +147,14 @@ export default {
       this.$set(this, 'sshKey', sshKey);
       this.$set(this, 'spec', templateSpec.spec.vm);
     },
+    async templateName(id) {
+      const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template });
+      const template = choices.find( O => O.id === id);
 
+      if (template.spec.defaultVersionId) {
+        this.templateVersion = template.spec.defaultVersionId.replace(':', '/');
+      }
+    },
     imageName() {
       this.emptyHostname = false;
     }
@@ -187,6 +207,10 @@ export default {
     <div v-if="useTemplate" class="row mb-20">
       <div class="col span-6">
         <LabeledSelect v-model="templateName" label="template" :options="templateOption" />
+      </div>
+
+      <div class="col span-6">
+        <LabeledSelect v-model="templateVersion" label="version" :options="versionOption" />
       </div>
     </div>
 
