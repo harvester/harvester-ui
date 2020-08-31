@@ -3,19 +3,15 @@ import { EVENT, VMI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 import ResourceTabs from '@/components/form/ResourceTabs';
 import Tab from '@/components/Tabbed/Tab';
-import OverviewConsole from './tabs/console/';
-import Overview from './tabs/overview/';
 import Details from './tabs/details/';
 import Events from './tabs/events/';
 
 export default {
-  name: 'Novnc',
+  name: 'VMIDetailsPage',
 
   components: {
-    OverviewConsole,
-    Details,
     Events,
-    Overview,
+    Details,
     ResourceTabs,
     Tab,
   },
@@ -67,23 +63,11 @@ export default {
   <div>
     <ResourceTabs v-model="value" :mode="mode">
       <template #before>
-        <Tab name="overview" :label="t('vm.detail.tabs.overview')" :weight="1">
-          <Overview v-model="value" :resource="vmi" :events="events" mode="view" />
-        </Tab>
-        <Tab name="details" :label="t('vm.detail.tabs.details')" :weight="2">
-          <Details v-model="value" :resource="vmi" mode="edit" />
-        </Tab>
-        <Tab name="environment" :label="t('vm.detail.tabs.environment')" :weight="3">
+        <Tab name="details" :label="t('vm.detail.tabs.details')" :weight="1">
+          <Details v-model="value" :resource="vmi" :events="events" mode="edit" />
         </Tab>
         <Tab name="events" :label="t('vm.detail.tabs.events')" :weight="4">
           <Events :resource="vmi" :events="events" />
-        </Tab>
-        <Tab name="console" :label="t('vm.detail.tabs.console')" :weight="5">
-          <OverviewConsole v-model="vmi" />
-        </Tab>
-        <Tab name="networkInterfaces" :label="t('vm.detail.tabs.networkInterfaces')" :weight="6">
-        </Tab>
-        <Tab name="disks" :label="t('vm.detail.tabs.disks')" :weight="7">
         </Tab>
       </template>
     </ResourceTabs>

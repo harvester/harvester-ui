@@ -50,8 +50,8 @@ export default {
       :read-allowed="false"
     />
     <span slot="footer" class="dialog-footer">
-      <el-button @click="handleClose">关 闭</el-button>
-      <el-button type="primary" @click="save">保 存</el-button>
+      <el-button @click="handleClose">Close</el-button>
+      <el-button type="primary" @click="save">Save</el-button>
     </span>
   </el-dialog>
 </template>

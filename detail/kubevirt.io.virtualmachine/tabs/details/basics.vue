@@ -1,5 +1,7 @@
 <script>
 import IPAddress from '@/components/formatter/ipAddress';
+import Console from '@/components/form/Console';
+import SerialConsole from '@/components/form/SerialConsole';
 import ResourceState from '../../resource-state/index';
 
 const UNDEFINED = 'n/a';
@@ -8,6 +10,8 @@ export default {
   name: 'Details',
 
   components: {
+    Console,
+    SerialConsole,
     ResourceState,
     IPAddress,
   },
@@ -31,7 +35,10 @@ export default {
   },
 
   data() {
-    return {};
+    return {
+      serialShow: false,
+      vncShow:    false,
+    };
   },
 
   computed: {
@@ -50,9 +57,6 @@ export default {
 
       return `${ date.getMonth() + 1 }/${ date.getDate() }/${ date.getUTCFullYear() }`;
     },
-    ipAddress() {
-      return this.resource?.status?.interfaces?.[0]?.ipAddress || UNDEFINED;
-    },
     node() {
       return this.resource?.status?.nodeName || UNDEFINED;
     },
@@ -69,7 +73,24 @@ export default {
       return this.isEmpty(this.resource);
     },
   },
+
   methods: {
+    handleDropdown(c) {
+      switch (c) {
+      case 'vnc':
+        this.showVncPanel();
+        break;
+      case 'serial':
+        this.showSerialPanel();
+        break;
+      }
+    },
+    showVncPanel() {
+      this.vncShow = true;
+    },
+    showSerialPanel() {
+      this.serialShow = true;
+    },
     isEmpty(o) {
       return o !== undefined && Object.keys(o).length === 0;
     }
@@ -78,13 +99,30 @@ export default {
 </script>
 
 <template>
-  <div class="overview-details">
+  <div class="overview-basics">
     <div class="labeled-input view">
       <label>
         {{ t("vm.detail.details.name") }}
       </label>
       <div>
-        <span>{{ name }}</span>
+        <div class="row">
+          <div class="col span-6 overview-basics__name">
+            {{ name }}
+          </div>
+          <div class="col span-6 text-right">
+            <el-dropdown size="mini" split-button type="primary" @click="showVncPanel" @command="handleDropdown">
+              <span class="el-icon-connection">SSH</span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="vnc">
+                  Open in Web VNC
+                </el-dropdown-item>
+                <el-dropdown-item command="serial">
+                  Open in Serial Console
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
+        </div>
       </div>
     </div>
     <div class="labeled-input view">
@@ -133,11 +171,23 @@ export default {
         {{ creationTimestamp }}
       </div>
     </div>
+
+    <el-dialog
+      :visible.sync="vncShow"
+    >
+      <Console v-model="resource" />
+    </el-dialog>
+
+    <el-dialog
+      :visible.sync="serialShow"
+    >
+      <SerialConsole v-model="resource" :show="serialShow" />
+    </el-dialog>
   </div>
 </template>
 
-<style lang="scss" scoped>
-  .overview-details {
+<style lang="scss">
+  .overview-basics {
     display: grid;
     grid-template-columns: 100%;
     grid-template-rows: auto;
@@ -147,6 +197,18 @@ export default {
       padding: 2px 5px;
       font-size: 12px;
       margin-right: 3px;
+    }
+
+    .el-dialog {
+      width: 1024px;
+
+      &__body {
+        padding: 0;
+      }
+
+      &__headerbtn {
+        top: 9px;
+      }
     }
   }
 </style>

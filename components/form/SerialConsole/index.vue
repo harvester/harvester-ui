@@ -21,6 +21,10 @@ export default {
       type:     Object,
       required: true,
     },
+    show: {
+      type:    Boolean,
+      default: false,
+    }
   },
 
   data() {
@@ -43,12 +47,6 @@ export default {
         fontSize:     12,
       };
     },
-  },
-
-  watch: {
-    height() {
-      this.fit();
-    }
   },
 
   beforeDestroy() {
@@ -163,8 +161,10 @@ export default {
       this.socket.addEventListener(EVENT_CONNECTED, (e) => {
         this.isOpen = true;
         this.isOpening = false;
-        this.fit();
-        this.flush();
+        if (this.show) {
+          this.fit();
+          this.flush();
+        }
       });
 
       this.socket.addEventListener(EVENT_DISCONNECTED, (e) => {
@@ -215,14 +215,6 @@ export default {
 
 <template>
   <div>
-    <button class="btn btn-sm bg-primary" @click="clear">
-      <t k="wm.containerShell.clear" />
-    </button>
-    <div class="pull-right text-center ml-5" style="min-width: 80px">
-      <t v-if="isOpen" k="wm.connection.connected" />
-      <t v-else-if="isOpening" k="wm.connection.connecting" class="text-warning" :raw="true" />
-      <t v-else k="wm.connection.disconnected" class="text-error" />
-    </div>
     <div class="shell-container" :class="{'open': isOpen, 'closed': !isOpen}">
       <div ref="xterm" class="shell-body" />
       <resize-observer @notify="fit" />
@@ -234,7 +226,6 @@ export default {
   @import '@/node_modules/xterm/css/xterm.css';
 
   .shell-container {
-    border: 1px solid #e1e1e1;
     height: 100%;
     overflow: hidden;
   }
