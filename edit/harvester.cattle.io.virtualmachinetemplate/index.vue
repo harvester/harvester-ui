@@ -3,16 +3,15 @@ import Footer from '@/components/form/Footer';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
 import DiskModal from '@/components/form/DiskModal';
-import ChooseImage from '@/components/form/ChooseImage';
 import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import { VM_TEMPLATE } from '@/config/types';
-
 import VM_MIXIN from '@/mixins/vm';
 import CreateEditView from '@/mixins/create-edit-view';
 import { _EDIT, _CREATE, _ADD } from '@/config/query-params';
+import ChooseImage from '../kubevirt.io.virtualmachine/ChooseImage';
 
 export default {
   name: 'EditVMTEMPLATE',
