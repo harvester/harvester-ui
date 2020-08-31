@@ -127,9 +127,9 @@ export default {
     getSocketUrl() {
       const isDev = process.env.dev;
 
-      const ip = !isDev ? `${ window.location.hostname }:${ window.location.port }` : process.env.api.split('//')[1];
+      const ip = !isDev ? `` : `wss://${ process.env.api.split('//')[1] }`;
 
-      return `wss://${ ip }${ this.value?.getSerialConsolePath }`;
+      return `${ ip }${ this.value?.getSerialConsolePath }`;
     },
 
     async connect() {
