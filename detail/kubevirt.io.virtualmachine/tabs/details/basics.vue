@@ -108,7 +108,7 @@ export default {
             {{ name }}
           </div>
           <div class="col span-6 text-right">
-            <el-dropdown size="mini" split-button type="primary" @click="showVncPanel" @command="handleDropdown">
+            <el-dropdown v-if="!isDown" size="mini" split-button type="primary" @click="showVncPanel" @command="handleDropdown">
               <span class="el-icon-connection">SSH</span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="vnc">
