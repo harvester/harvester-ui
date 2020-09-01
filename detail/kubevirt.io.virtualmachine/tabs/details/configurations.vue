@@ -1,7 +1,6 @@
 <script>
 import { POD } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
-import ResourceState from '../../resource-state/index';
 import LabelsModal from '../../labels-modal';
 import AnnotationsModal from '../../annotations-modal';
 import DescriptionModal from '../../description-modal';
@@ -12,7 +11,6 @@ export default {
   name: 'Configurations',
 
   components: {
-    ResourceState,
     LabelsModal,
     AnnotationsModal,
     DescriptionModal,
@@ -157,7 +155,7 @@ export default {
             {{ t("vm.detail.details.pod") }}
           </label>
           <div>
-            <ResourceState v-model="isPod" />{{ pod }}
+            {{ pod }}
           </div>
         </div>
       </div>
