@@ -975,7 +975,9 @@ export default {
       const prefix = getPrefix();
 
       if (prefix) {
-        window.open(`${ prefix }${ this.links.self }`, '_blank');
+        const origin = `${ window.location.origin }/`;
+
+        window.open(`${ prefix }${ this.links.self.replace(new RegExp(origin, 'g'), '') }`, '_blank');
       } else {
         window.open(this.links.self, '_blank');
       }
