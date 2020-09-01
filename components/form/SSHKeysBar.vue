@@ -8,6 +8,11 @@ export default {
       type:     Object,
       required: true,
     },
+    pullRight: {
+      type:     Boolean,
+      required: false,
+      default:  false
+    }
   },
 
   async fetch() {
@@ -18,8 +23,17 @@ export default {
     return {
       visible: false,
       allssh:  [],
-      sshkeys: []
+      sshkeys: [],
     };
+  },
+
+  computed: {
+    pullRightStyle() {
+      return {
+        float:   'right',
+        padding: '3px 0'
+      };
+    }
   },
 
   watch: {
@@ -81,7 +95,7 @@ export default {
 
 <template>
   <div class="sshkeys-modal">
-    <el-button style="float: right; padding: 3px 0" type="text" icon="el-icon-view" @click="toggleModal(true)">
+    <el-button :style="[pullRight ? pullRightStyle : '']" type="text" icon="el-icon-view" @click="toggleModal(true)">
       SSH-keys
     </el-button>
     <el-dialog
