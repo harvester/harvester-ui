@@ -2,7 +2,6 @@
 import IPAddress from '@/components/formatter/ipAddress';
 import Console from '@/components/form/Console';
 import SerialConsole from '@/components/form/SerialConsole';
-import ResourceState from '../../resource-state/index';
 
 const UNDEFINED = 'n/a';
 
@@ -12,7 +11,6 @@ export default {
   components: {
     Console,
     SerialConsole,
-    ResourceState,
     IPAddress,
   },
 
@@ -130,7 +128,7 @@ export default {
         {{ t("vm.detail.details.namespace") }}
       </label>
       <div>
-        <ResourceState v-model="isNamespace" />{{ namespace }}
+        {{ namespace }}
       </div>
     </div>
     <div class="labeled-input view">
@@ -149,7 +147,7 @@ export default {
         {{ t("vm.detail.details.node") }}
       </label>
       <div v-if="!isDown">
-        <ResourceState v-model="isNode" /><span>{{ node }}</span>
+        <span>{{ node }}</span>
       </div>
       <div v-else>
         {{ t("vm.detail.details.down") }}
