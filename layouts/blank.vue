@@ -7,7 +7,7 @@ export default {
 
     return {
       bodyAttrs: { class: `theme-${ theme } dashboard-body` },
-      title:     'Dashboard',
+      title:     'Harvester',
     };
   },
 };

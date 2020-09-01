@@ -403,7 +403,7 @@ export default {
         <Collapse v-if="!isAttachVolume && !isContainerDisk" :open.sync="enableAdvanced">
           <div v-if="enableAdvanced">
             <LabeledSelect v-model="currentRow.volumeMode" label="Volume Mode" class="mb-20" :options="volumeModeOption" />
-            <LabeledSelect v-model="currentRow.accessMode" label="Access Model" class="mb-20" :options="accessModeOption" />
+            <LabeledSelect v-model="currentRow.accessMode" label="Access Mode" class="mb-20" :options="accessModeOption" />
           </div>
         </Collapse>
       </template>
