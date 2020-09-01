@@ -261,7 +261,7 @@ export default {
       <template v-slot:label>
         <div>
           <span class="label">Host Name</span>
-          <el-tooltip v-if="isCreate" placement="top" effect="light">
+          <el-tooltip v-if="isCreate" placement="top" effect="dark">
             <div slot="content">
               Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes, and periods.
             </div>
