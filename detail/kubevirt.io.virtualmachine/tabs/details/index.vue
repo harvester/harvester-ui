@@ -2,6 +2,7 @@
 import HStack from '@/components/Layout/Stack/HStack';
 import VStack from '@/components/Layout/Stack/VStack';
 import VmState from '@/components/formatter/vmState';
+import SSHKeysBar from '@/components/form/SSHKeysBar';
 import OverviewBasics from './basics';
 import OverviewConfigurations from './configurations';
 import OverviewEvents from './events';
@@ -18,6 +19,7 @@ export default {
     OverviewConfigurations,
     OverviewEvents,
     OverviewInventory,
+    SSHKeysBar,
   },
 
   props: {
@@ -94,9 +96,7 @@ export default {
       </el-card>
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <el-button style="float: right; padding: 3px 0" type="text" icon="el-icon-view" @click="showKeyModal()">
-            SSH-keys
-          </el-button>
+          <SSHKeysBar :resource="resource" :pull-right="true" />
           <span>Inventory</span>
         </div>
         <div>
