@@ -1,7 +1,6 @@
 <script>
 import IPAddress from '@/components/formatter/ipAddress';
-import Console from '@/components/form/Console';
-import SerialConsole from '@/components/form/SerialConsole';
+import ConsoleBar from '@/components/form/ConsoleBar';
 
 const UNDEFINED = 'n/a';
 
@@ -9,8 +8,7 @@ export default {
   name: 'Details',
 
   components: {
-    Console,
-    SerialConsole,
+    ConsoleBar,
     IPAddress,
   },
 
@@ -33,10 +31,7 @@ export default {
   },
 
   data() {
-    return {
-      serialShow: false,
-      vncShow:    false,
-    };
+    return {};
   },
 
   computed: {
@@ -61,34 +56,12 @@ export default {
     hostname() {
       return this.resource?.spec?.hostname || UNDEFINED;
     },
-    isNamespace() {
-      return 'Namespace';
-    },
-    isNode() {
-      return 'Node';
-    },
     isDown() {
       return this.isEmpty(this.resource);
     },
   },
 
   methods: {
-    handleDropdown(c) {
-      switch (c) {
-      case 'vnc':
-        this.showVncPanel();
-        break;
-      case 'serial':
-        this.showSerialPanel();
-        break;
-      }
-    },
-    showVncPanel() {
-      this.vncShow = true;
-    },
-    showSerialPanel() {
-      this.serialShow = true;
-    },
     isEmpty(o) {
       return o !== undefined && Object.keys(o).length === 0;
     }
@@ -108,17 +81,7 @@ export default {
             {{ name }}
           </div>
           <div class="col span-6 text-right">
-            <el-dropdown v-if="!isDown" size="mini" split-button type="primary" @click="showVncPanel" @command="handleDropdown">
-              <span class="el-icon-connection">SSH</span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="vnc">
-                  Open in Web VNC
-                </el-dropdown-item>
-                <el-dropdown-item command="serial">
-                  Open in Serial Console
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+            <ConsoleBar :resource="resource" />
           </div>
         </div>
       </div>
@@ -169,18 +132,6 @@ export default {
         {{ creationTimestamp }}
       </div>
     </div>
-
-    <el-dialog
-      :visible.sync="vncShow"
-    >
-      <Console v-model="resource" />
-    </el-dialog>
-
-    <el-dialog
-      :visible.sync="serialShow"
-    >
-      <SerialConsole v-model="resource" :show="serialShow" />
-    </el-dialog>
   </div>
 </template>
 
@@ -195,18 +146,6 @@ export default {
       padding: 2px 5px;
       font-size: 12px;
       margin-right: 3px;
-    }
-
-    .el-dialog {
-      width: 1024px;
-
-      &__body {
-        padding: 0;
-      }
-
-      &__headerbtn {
-        top: 9px;
-      }
     }
   }
 </style>

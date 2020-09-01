@@ -55,9 +55,6 @@ export default {
   },
 
   methods: {
-    showKeyModal() {
-      this.$refs['overviewInventory'].toggleModal(true);
-    },
     isEmpty(o) {
       return o !== undefined && Object.keys(o).length === 0;
     }
@@ -95,12 +92,18 @@ export default {
         </div>
       </el-card>
       <el-card class="box-card">
-        <div slot="header" class="clearfix">
-          <SSHKeysBar :resource="resource" :pull-right="true" />
-          <span>Inventory</span>
+        <div slot="header">
+          <div class="row">
+            <div class="col span-8">
+              Inventory
+            </div>
+            <div class="col span-4 text-right">
+              <SSHKeysBar :resource="resource" />
+            </div>
+          </div>
         </div>
         <div>
-          <OverviewInventory ref="overviewInventory" v-model="value" />
+          <OverviewInventory v-model="value" />
         </div>
       </el-card>
     </VStack>

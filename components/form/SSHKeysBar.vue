@@ -7,11 +7,6 @@ export default {
     resource: {
       type:     Object,
       required: true,
-    },
-    pullRight: {
-      type:     Boolean,
-      required: false,
-      default:  false
     }
   },
 
@@ -25,15 +20,6 @@ export default {
       allssh:  [],
       sshkeys: [],
     };
-  },
-
-  computed: {
-    pullRightStyle() {
-      return {
-        float:   'right',
-        padding: '3px 0'
-      };
-    }
   },
 
   watch: {
@@ -95,10 +81,11 @@ export default {
 
 <template>
   <div class="sshkeys-modal">
-    <el-button :style="[pullRight ? pullRightStyle : '']" type="text" icon="el-icon-view" @click="toggleModal(true)">
+    <el-button type="text" icon="el-icon-view" @click="toggleModal(true)">
       SSH-keys
     </el-button>
     <el-dialog
+      class="text-left"
       title="View SSH Keys"
       :visible="visible"
       width="50%"
@@ -132,6 +119,7 @@ export default {
 
 <style lang="scss" scoped>
   .overview-sshkeys {
+    text-align: left;
     max-height: 700px;
     overflow: auto;
 
