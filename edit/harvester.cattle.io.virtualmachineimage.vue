@@ -83,7 +83,7 @@ export default {
           <template v-slot:label>
             <div>
               <span class="label">Enter Url</span>
-              <el-tooltip v-if="isCreate" placement="top" effect="light">
+              <el-tooltip v-if="isCreate" placement="top" effect="dark">
                 <div slot="content">
                   Protip: supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>.
                   Bootable ISO images can also be used and are treated like <code>raw</code> images.
