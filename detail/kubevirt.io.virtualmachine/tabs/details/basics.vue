@@ -76,11 +76,11 @@ export default {
         {{ t("vm.detail.details.name") }}
       </label>
       <div>
-        <div class="row">
-          <div class="col span-6 overview-basics__name">
+        <div class="smart-row">
+          <div class="overview-basics__name">
             {{ name }}
           </div>
-          <div class="col span-6 text-right">
+          <div class="overview-basics__ssh-bar">
             <ConsoleBar :resource="resource" />
           </div>
         </div>
@@ -146,6 +146,19 @@ export default {
       padding: 2px 5px;
       font-size: 12px;
       margin-right: 3px;
+    }
+
+    .smart-row {
+      display: flex;
+      flex-direction: row;
+    }
+
+    &__name {
+      flex: 1;
+    }
+
+    &__ssh-key {
+      min-width: 150px;
     }
   }
 </style>

@@ -73,8 +73,6 @@ export default {
           <OverviewBasics v-model="value" :resource="resource" mode="view" />
         </div>
       </el-card>
-    </VStack>
-    <VStack class="vm-overview__center">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <span>Status</span>
@@ -83,6 +81,8 @@ export default {
           <VmState v-model="value.id" :row="value" />
         </div>
       </el-card>
+    </VStack>
+    <VStack class="vm-overview__center">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <span>Configurations</span>
@@ -122,18 +122,24 @@ export default {
 
 <style lang="scss">
   .vm-overview {
+    flex-wrap: wrap;
+    justify-content: space-between;
+
     &__left, &__right {
       width: 25%;
     }
 
     &__center {
-      flex: 1;
+      width: 45%;
     }
 
     &__left, &__center, &__right {
-        margin-right: 15px;
       .el-card {
         margin-bottom: 15px;
+
+        &__body {
+          overflow: auto;
+        }
       }
       &:last-child, .el-card:last-child {
         margin: 0;
