@@ -7,6 +7,7 @@ import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import pickBy from 'lodash/pickBy';
 import isString from 'lodash/isString';
+import { getPrefix } from '@/utils/url';
 import {
   displayKeyFor,
   validateLength,
@@ -971,7 +972,13 @@ export default {
 
   viewInApi() {
     return () => {
-      window.open(this.links.self, '_blank');
+      const prefix = getPrefix();
+
+      if (prefix) {
+        window.open(`${ prefix }${ this.links.self }`, '_blank');
+      } else {
+        window.open(this.links.self, '_blank');
+      }
     };
   },
 

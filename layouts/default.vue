@@ -199,7 +199,7 @@ export default {
 
     return {
       bodyAttrs: { class: `theme-${ theme } overflow-hidden dashboard-body` },
-      title:     'Dashboard',
+      title:     'Harvester',
     };
   },
 

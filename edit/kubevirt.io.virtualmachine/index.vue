@@ -1,6 +1,7 @@
 <script>
 import _ from 'lodash';
 import moment from 'moment';
+import randomstring from 'randomstring';
 import Footer from '@/components/form/Footer';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
@@ -111,7 +112,7 @@ export default {
     hostname: {
       get() {
         const prefix = this.imageName?.split(/[a-zA-Z][-|.]+/)[0];
-        const time = this.imageName ? `-${ moment().format('YYYY-MMDD-HHmm') }` : '';
+        const time = this.imageName ? `-${ moment().format('YYYY-MMDD-HHmm') }-${ randomstring.generate(5).toLowerCase() }` : '';
 
         if (this.emptyHostname) {
           return this.spec.template.spec.hostname;
