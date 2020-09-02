@@ -1,14 +1,6 @@
 <script>
-import Console from '@/components/form/Console';
-import SerialConsole from '@/components/form/SerialConsole';
-
 export default {
   name: 'ConsoleBar',
-
-  components: {
-    Console,
-    SerialConsole,
-  },
 
   props: {
     resource: {
@@ -21,10 +13,7 @@ export default {
   },
 
   data() {
-    return {
-      serialShow: false,
-      vncShow:    false,
-    };
+    return { };
   },
 
   computed: {
@@ -37,18 +26,22 @@ export default {
     handleDropdown(c) {
       switch (c) {
       case 'vnc':
-        this.showVncPanel();
+        this.showVnc();
         break;
       case 'serial':
-        this.showSerialPanel();
+        this.showSerial();
         break;
       }
     },
-    showVncPanel() {
-      this.vncShow = true;
+    showVnc() {
+      const uid = this.resource.metadata?.ownerReferences?.[0]?.uid;
+
+      window.open(`//${ window.location.host }/#/console/${ uid }/vnc`, '_blank', 'toolbars=0,width=1024,height=400,left=200,top=200');
     },
-    showSerialPanel() {
-      this.serialShow = true;
+    showSerial() {
+      const uid = this.resource.metadata?.ownerReferences?.[0]?.uid;
+
+      window.open(`//${ window.location.host }/#/console/${ uid }/serial`, '_blank', 'toolbars=0,width=1024,height=400,left=200,top=200');
     },
     isEmpty(o) {
       return o !== undefined && Object.keys(o).length === 0;
@@ -63,7 +56,7 @@ export default {
       v-if="!isDown"
       size="mini"
       split-button
-      @click="showVncPanel"
+      @click="showVnc()"
       @command="handleDropdown"
     >
       <span class="el-icon-connection">Console</span>
@@ -76,38 +69,7 @@ export default {
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-
-    <el-dialog
-      :visible.sync="vncShow"
-    >
-      <Console v-model="resource" />
-    </el-dialog>
-
-    <el-dialog
-      :visible.sync="serialShow"
-    >
-      <SerialConsole v-model="resource" :show="serialShow" />
-    </el-dialog>
   </div>
 </template>
 
-<style lang="scss">
-  .overview-web-console {
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: auto;
-    grid-row-gap: 15px;
-
-    .el-dialog {
-      width: 1024px;
-
-      &__body {
-        padding: 0;
-      }
-
-      &__headerbtn {
-        top: 9px;
-      }
-    }
-  }
-</style>
+<style lang="scss"></style>

@@ -31,7 +31,11 @@ export default {
   methods: {
     isEmpty(o) {
       return o !== undefined && Object.keys(o).length === 0;
-    }
+    },
+
+    close() {
+      this.$refs.novncConsole.disconnect();
+    },
   }
 };
 </script>
@@ -39,7 +43,7 @@ export default {
 <template>
   <div id="app">
     <div class="vm-console">
-      <NovncConsole v-if="url && !isDown" :url="url" />
+      <NovncConsole v-if="url && !isDown" ref="novncConsole" :url="url" />
       <p v-if="isDown">
         {{ t("vm.detail.console.down") }}
       </p>
