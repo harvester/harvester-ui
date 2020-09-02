@@ -63,13 +63,13 @@ export default {
       return pod?.metadata?.name || UNDEFINED;
     },
     labelsCount() {
-      const count = Object.keys(this.value?.metadata?.labels).length || 0;
+      const count = Object.keys(this.value?.metadata?.labels || {}).length;
       const unit = count > 1 ? 'Labels' : 'Label';
 
       return `${ count } ${ unit }`;
     },
     annotationsCount() {
-      const count = Object.keys(this.value?.metadata?.annotations).length || 0;
+      const count = Object.keys(this.value?.metadata?.annotations || {}).length || 0;
       const unit = count > 1 ? 'Annotations' : 'Annotation';
 
       return `${ count } ${ unit }`;
