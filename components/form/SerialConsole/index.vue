@@ -1,8 +1,5 @@
 <script>
 import { allHash } from '@/utils/promise';
-import { addParams } from '@/utils/url';
-import { base64Decode, base64Encode } from '@/utils/crypto';
-import Select from '@/components/form/Select';
 
 import Socket, {
   EVENT_CONNECTED,
@@ -21,10 +18,6 @@ export default {
       type:     Object,
       required: true,
     },
-    show: {
-      type:    Boolean,
-      default: false,
-    }
   },
 
   data() {
@@ -35,7 +28,8 @@ export default {
       searchAddon: null,
       isOpen:      false,
       isOpening:   false,
-      backlog:     []
+      backlog:     [],
+      firstTime:   true,
     };
   },
 
@@ -50,13 +44,7 @@ export default {
   },
 
   beforeDestroy() {
-    if ( this.socket ) {
-      this.socket.disconnect();
-    }
-
-    if ( this.terminal ) {
-      this.terminal.dispose();
-    }
+    this.close();
   },
 
   async mounted() {
@@ -165,6 +153,11 @@ export default {
           this.fit();
           this.flush();
         }
+
+        if (this.firstTime) {
+          this.socket.send(this.str2ab('\n'));
+          this.firstTime = false;
+        }
       });
 
       this.socket.addEventListener(EVENT_DISCONNECTED, (e) => {
@@ -209,33 +202,27 @@ export default {
 
       // this.socket.send(this.str2ab(message));
     },
+
+    close() {
+      if ( this.socket ) {
+        this.socket.disconnect();
+      }
+
+      if ( this.terminal ) {
+        this.terminal.dispose();
+      }
+    },
   }
 };
 </script>
 
 <template>
   <div>
-    <div class="shell-container" :class="{'open': isOpen, 'closed': !isOpen}">
-      <div ref="xterm" class="shell-body" />
-      <resize-observer @notify="fit" />
-    </div>
+    <div ref="xterm" />
+    <resize-observer @notify="fit" />
   </div>
 </template>
 
 <style lang="scss">
   @import '@/node_modules/xterm/css/xterm.css';
-
-  .shell-container {
-    height: 100%;
-    overflow: hidden;
-  }
-
-  .shell-body {
-    padding: calc( 2 * var(--outline-width) );
-    height: 100%;
-
-    & > .terminal.focus {
-      outline: var(--outline-width) solid var(--outline);
-    }
-  }
 </style>
