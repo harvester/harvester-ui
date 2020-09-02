@@ -40,7 +40,7 @@ export default {
     <div class="product">
       <div class="go" @click="goVM">
         <div class="productName">
-          Rancher
+          Harvester
         </div>
         <div class="logo" alt="Logo" />
       </div>
