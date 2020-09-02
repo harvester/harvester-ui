@@ -67,18 +67,17 @@ export default {
     <VStack class="vm-overview__left">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <span>Basics</span>
+          <div class="row">
+            <div class="col span-6">
+              <span>Basics</span>
+            </div>
+            <div class="col span-6 text-right">
+              <VmState v-model="value.id" :row="value" />
+            </div>
+          </div>
         </div>
         <div>
           <OverviewBasics v-model="value" :resource="resource" mode="view" />
-        </div>
-      </el-card>
-      <el-card class="box-card">
-        <div slot="header" class="clearfix">
-          <span>Status</span>
-        </div>
-        <div>
-          <VmState v-model="value.id" :row="value" />
         </div>
       </el-card>
     </VStack>
@@ -153,6 +152,13 @@ export default {
     .events-card .el-card__body {
       max-height: 500px;
       overflow: auto;
+    }
+
+    &__left {
+      .badge-state {
+        font-size: 12px;
+        padding: 2px 4px;
+      }
     }
   }
 </style>
