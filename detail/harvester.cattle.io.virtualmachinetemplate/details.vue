@@ -41,7 +41,7 @@ export default {
         let label = '';
 
         if (O.status.version === this.defaultVersion) {
-          label = `${ O.status.version } (默认)`;
+          label = `${ O.status.version } (default)`;
         } else {
           label = O.status.version;
         }

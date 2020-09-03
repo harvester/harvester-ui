@@ -6,6 +6,7 @@ import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import Detail from './details.vue';
 import Version from './versions.vue';
+import { VM_TEMPLATE } from '@/config/types';
 
 export default {
   name:       'DetailVMT',
@@ -28,9 +29,7 @@ export default {
   data() {
     const defaultVersion = this.value?.status?.defaultVersion;
 
-    return {
-      versions: [],
-    };
+    return {};
   },
 
   computed: {
@@ -40,19 +39,12 @@ export default {
 
     defaultVersion() {
       return this.value?.status?.defaultVersion || '-';
+    },
+    versions() {
+      const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version)
+      return choices.filter( O => O.spec.templateId === this.value.id.replace('/', ':'))
     }
   },
-
-  mounted() {
-    this.getVersions();
-  },
-
-  methods: {
-    async getVersions() {
-      const versions = (await this.value.followLink('versions')).data || [];
-      this.versions = versions;
-    }
-  }
 };
 </script>
 
