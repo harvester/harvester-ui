@@ -3,6 +3,7 @@ import HStack from '@/components/Layout/Stack/HStack';
 import VStack from '@/components/Layout/Stack/VStack';
 import VmState from '@/components/formatter/vmState';
 import SSHKeysBar from '@/components/form/SSHKeysBar';
+import { getPrefix } from '@/utils/url';
 import OverviewBasics from './basics';
 import OverviewConfigurations from './configurations';
 import OverviewEvents from './events';
@@ -45,19 +46,58 @@ export default {
   },
 
   data() {
-    return {};
+    return { guestAgentInfo: {} };
   },
 
   computed: {
     isDown() {
       return this.isEmpty(this.resource);
     },
+    isGuestAgentInstalled() {
+      const conditions = this.getVMIConditionsByType('AgentConnected');
+
+      return conditions && conditions.length > 0 && conditions[0].status === 'True';
+    },
+  },
+
+  watch: {
+    isGuestAgentInstalled(neu) {
+      if (neu) {
+        this.getOsInfo();
+      }
+    }
   },
 
   methods: {
     isEmpty(o) {
       return o !== undefined && Object.keys(o).length === 0;
-    }
+    },
+    getUrl(type) {
+      const prefix = getPrefix();
+
+      if (!prefix) {
+        return `/apis/subresources.kubevirt.io/v1alpha3/namespaces/${ this.value.metadata.namespace }/virtualmachineinstances/${ this.value.metadata.name }/${ type }`;
+      } else {
+        return `${ prefix }apis/subresources.kubevirt.io/v1alpha3/namespaces/${ this.value.metadata.namespace }/virtualmachineinstances/${ this.value.metadata.name }/${ type }`;
+      }
+    },
+    async getOsInfo() {
+      const data = await this.$store.dispatch('cluster/request', {
+        method:  'GET',
+        headers: {
+          'content-type': 'application/json',
+          accept:         'application/json',
+        },
+        url: this.getUrl('guestosinfo')
+      });
+
+      this.guestAgentInfo = data;
+    },
+    getVMIConditionsByType(type) {
+      const conditions = this.value?.status?.conditions || [];
+
+      return conditions.filter(cond => cond.type === type);
+    },
   }
 };
 </script>
@@ -77,7 +117,7 @@ export default {
           </div>
         </div>
         <div>
-          <OverviewBasics v-model="value" :resource="resource" mode="view" />
+          <OverviewBasics v-model="value" :resource="resource" :guest-agent-info="guestAgentInfo" mode="view" />
         </div>
       </el-card>
     </VStack>
@@ -87,7 +127,7 @@ export default {
           <span>Configurations</span>
         </div>
         <div>
-          <OverviewConfigurations v-model="value" :resource="resource" :mode="mode" />
+          <OverviewConfigurations v-model="value" :resource="resource" :mode="mode" :guest-agent-info="guestAgentInfo" />
         </div>
       </el-card>
       <el-card class="box-card">

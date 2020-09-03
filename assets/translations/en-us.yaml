@@ -511,6 +511,7 @@ vm:
       down: VM not running
       affinityRules: Affinity Rules
     notAvailable: Not available
+    GuestAgentNotInstalled: Guest agent required
     noOwner: No Owner
     events:
       from: Generated from
