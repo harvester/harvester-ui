@@ -44,10 +44,10 @@ export default {
 <template>
   <div class="vm-inventory">
     <h2>Disks</h2>
-    <DiskModal v-model="diskRows" :can-edit="false" />
+    <DiskModal v-model="diskRows" :row-actions="false" />
     <el-divider></el-divider>
     <h2>Networks</h2>
-    <NetworkModal v-model="networkRows" :can-edit="false" />
+    <NetworkModal v-model="networkRows" :row-actions="false" />
   </div>
 </template>
 

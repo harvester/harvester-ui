@@ -4,25 +4,11 @@ import { safeLoad, safeDump } from 'js-yaml';
 import randomstring from 'randomstring';
 import { sortBy } from '@/utils/sort';
 import { allHash } from '@/utils/promise';
-import { MemoryUnit } from '@/config/map';
+import { MemoryUnit, SOURCE_TYPE } from '@/config/map';
 import {
   NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, VMI, STORAGE_CLASS, NETWORK_ATTACHMENT
 } from '@/config/types';
 import { STORAGE_CLASS_LABEL } from '@/config/labels-annotations';
-
-// const SOURCE_TYPE = {
-//   ATTACH_CLONED: 'Attach Cloned Disks',
-//   ATTACH:        'Attach Disks',
-//   BLANK:         'blank',
-//   URL:           'url'
-// };
-
-const SOURCE_TYPE = {
-  URL:            'VM Image',
-  BLANK:          'blank',
-  ATTACH_VOLUME:  'attach volume',
-  CONTAINER_DISK: 'Container'
-};
 
 export default {
   inheritAttrs: false,
@@ -47,8 +33,11 @@ export default {
   },
 
   data() {
+    let cloudInit = `#cloud-config\nname: default`;;
+    // out =  `#cloud-config\nname: default\nhostname: ${ this.hostname }`;
+
     return {
-      source:     '',
+      cloudInit,
       sshKey:     [],
       imageName:  '',
       sshName:    '',
@@ -92,16 +81,6 @@ export default {
       return this.$store.getters['cluster/all'](IMAGE);
     },
 
-    cloudInit: {
-      get() {
-        return this.getCustomScript()
-      },
-
-      set(neu) {
-        this.getCustomScript(neu)
-      }
-    },
-
     storageClasss() {
       return this.$store.getters['cluster/all'](STORAGE_CLASS)
     },
@@ -126,23 +105,22 @@ export default {
         if (_disks.length === 0) {
           out.push({
             index: 0,
-            source: 'VM Image',
-            disableSource: true,
+            source: SOURCE_TYPE.IMAGE,
+            name: "disk-0",
             accessMode: 'ReadWriteOnce',
             bus: 'virtio',
-            name: "rootdisk",
             pvcNS: "",
             pvcName: "",
             size: '10Gi',
+            type: 'disk',
             storageClassName: this.defaultStorageClass,
-            url: this.imageName,
-            volumeMode: "Filesystem",
+            image: this.imageName,
             disableDelete: true,
-            bootOrder: 1
+            volumeMode: "Filesystem",
           })
         } else {
           out = _disks.map( (DISK, index) => {
-            const volume = _volumes.find( (V) => V.name === DISK.name);
+            const volume = _volumes.find( (V) => V.name === DISK.name );
 
             let source = '';
             let pvcName = '';
@@ -151,17 +129,18 @@ export default {
             let size = '';
             let volumeMode = '';
             let storageClassName = '';
-            let url = '';
+            let image = '';
             let container = '';
-            
-            if(volume.containerDisk) {
+
+            let type = DISK?.cdrom ? 'cd-rom' : 'disk';
+
+            if(volume?.containerDisk) { // is SOURCE_TYPE.CONTAINER_DISK
               source = SOURCE_TYPE.CONTAINER_DISK;
               container = volume.containerDisk.image;
             }
 
             if (volume?.dataVolume && volume?.dataVolume?.name) {
               const volumeName = volume.dataVolume.name;
-
               const DVT = _dataVolumeTemplates.find( (T) => {
                 return T.metadata.name === volumeName;
               });
@@ -169,15 +148,13 @@ export default {
               if (DVT) {
                 if (DVT.spec?.source?.blank) {
                   source = SOURCE_TYPE.BLANK;
-                } else if (DVT.spec?.source?.pvc) {
-                  source = SOURCE_TYPE.ATTACH_CLONED;
-                  pvcName = DVT.spec?.source?.pvcname;
-                  pvcNS = DVT.spec?.source?.pvc.namespace;
-                } else if (DVT.spec?.source?.http?.url) {
-                  source = SOURCE_TYPE.URL;
-                  url = DVT.spec.source.http.url;
-
-                  this.imageName = this.getImageSource(DVT.spec.source.http.url)
+                } else if (DVT.spec?.source?.http) { // url may empty
+                  source = SOURCE_TYPE.IMAGE;
+                  let imageUrl = DVT.spec.source.http.url;
+                  image = this.getImageSource(imageUrl);
+                  if (index === 0) {
+                    this.imageName = image;
+                  }
                 }
 
                 accessMode = DVT?.spec?.pvc?.accessModes?.[0];
@@ -185,18 +162,18 @@ export default {
                 volumeMode = DVT?.spec?.pvc?.volumeMode;
                 storageClassName = DVT?.spec?.pvc?.storageClassName  || this.defaultStorageClass;
               }
+
             }
 
-            const bus = DISK?.disk?.bus;
+            const bus = DISK?.disk?.bus || DISK?.cdrom?.bus;
+
             const bootOrder = DISK?.bootOrder;
-            const disableSource = DISK.name ==='rootdisk' ? true : false;
 
             return {
               index,
               bootOrder,
-              source: DISK.name === 'rootdisk' ? 'VM Image' : source,
+              source,
               name: DISK.name,
-              disableSource,
               bus,
               pvcName,
               pvcNS,
@@ -204,9 +181,10 @@ export default {
               accessMode,
               size,
               volumeMode,
-              url,
+              image,
+              type,
+              disableDelete: index === 0 ? true : false,
               storageClassName,
-              disableDelete: DISK.name === 'rootdisk' ? true : false,
             };
           });
         }
@@ -217,6 +195,7 @@ export default {
       },
 
       set(neu) {
+        console.log('----c disk', neu)
         this.parseDiskRows(neu);
       }
     },
@@ -225,34 +204,22 @@ export default {
       get() {
         const networks = this.spec?.template?.spec?.networks || [];
         const interfaces = this.spec?.template?.spec?.domain?.devices?.interfaces || [];
-        let out = [];
 
-        if (interfaces.length === 0 ) {
-          out.push({
-            index: 0,
-            model: 'virtio',
-            name: 'nic-0',
-            networkName: 'Pod Network',
-            type: 'masquerade',
-            disableDelete: true,
-          })
-        } else {
-          out = interfaces.map( (O, index) => {
-            const network = networks.find( (N) => {
-              return O.name === N.name;
-            });
-
-            const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
-
-            return {
-              ...O,
-              type,
-              networkName: network?.multus?.networkName || 'Pod Network',
-              index,
-              disableDelete: network.name === 'nic-0' ? true : false,
-            };
+        let out = interfaces.map( (O, index) => {
+          const network = networks.find( (N) => {
+            return O.name === N.name;
           });
-        }
+
+          const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
+          const isPod = network?.pod ? true : false;
+          return {
+            ...O,
+            type,
+            networkName: network?.multus?.networkName || 'Pod Network',
+            index,
+            isPod
+          };
+        });
 
         return out;
       },
@@ -269,6 +236,7 @@ export default {
     },
     normalizeSpec() {
       this.parseNetworkRows(this.networkRows);
+
       this.parseDiskRows(this.diskRows);
     },
 
@@ -279,11 +247,32 @@ export default {
       return image?.spec?.displayName
     },
 
+    getUrlFromImage(name) {
+      const image = this.images.find( (I) => {
+        return name === I?.spec?.displayName;
+      });
+      return image?.status?.downloadUrl;
+    },
+
+    getImageResource(name) {
+      return this.images.find( (I) => {
+        return name === I?.spec?.displayName;
+      });
+    },
+
     parseDisk(R) {
-      const _disk = {
-        disk: { bus: R.bus },
-        name: R.name,
-      };
+      let _disk = {};
+      if (R.type === 'disk') {
+        _disk = {
+          disk: { bus: R.bus },
+          name: R.name,
+        };
+      } else if (R.type === 'cd-rom') {
+        _disk = {
+          cdrom: { bus: R.bus },
+          name: R.name,
+        };
+      }
       
       if ( R.bootOrder ) {
         _disk.bootOrder = R.bootOrder;
@@ -292,19 +281,21 @@ export default {
       return _disk;
     },
 
-    parseVolume(R, dataVolumeName) {
+    parseVolume(R, dataVolumeName, isCloudInitDisk = false) {
       const _volume = {
         name:       R.name,
       };
-      console.log('---r', R)
+
       if (R.source === SOURCE_TYPE.CONTAINER_DISK) {
         _volume.containerDisk = {
           image: R.container
         }
-      } else {
+      } else if (R.source === SOURCE_TYPE.IMAGE || R.source === SOURCE_TYPE.BLANK) {
         _volume.dataVolume = {
           name: dataVolumeName
         }
+      } else if (isCloudInitDisk) {
+        // cloudInitNoCloud
       }
 
       return _volume;
@@ -312,64 +303,67 @@ export default {
 
     parseDateVolumeTemplate(R, dataVolumeName) {
       const accessModel = R.accessMode;
-      
+
       const _dataVolumeTemplate = {
         apiVersion: 'cdi.kubevirt.io/v1alpha1',
         kind:       'DataVolume',
         metadata:   { name: dataVolumeName },
         spec:       {
           pvc: {
-            accessModes: [
-              accessModel
-            ],
+            accessModes: [ accessModel ],
             resources:  { requests: { storage: R.size } },
             volumeMode: R.volumeMode
           }
         }
       };
-
       switch (R.source) {
         case SOURCE_TYPE.BLANK:
           _dataVolumeTemplate.spec.pvc.storageClassName = R.storageClassName;
           _dataVolumeTemplate.spec.source = { blank: {} };
           break;
+        case SOURCE_TYPE.IMAGE:
+          _dataVolumeTemplate.spec.source = { http: { url: this.getUrlFromImage(R.image) } };
+          const imageId = this.getImageResource(R.image)?.id?.replace('/', ':')
 
-        case SOURCE_TYPE.URL:
-          _dataVolumeTemplate.spec.source = { http: { url: this.source } };
-
+          _dataVolumeTemplate.metadata.annotations = {
+            'harvester.cattle.io/imageId': imageId
+          }
+          break;
       }
 
       return _dataVolumeTemplate
     },
 
-    getCustomScript(neu) {
-      let newInitScript = {};
-      if (neu) {
-        try {
-          newInitScript = safeLoad(neu);
-          if (newInitScript.hostname) {
-            this.hostname = newInitScript.hostname;
-          }
-        } catch (error) {
+    parseSshKeys(checkedSSH) {
+      let out = [];
+      checkedSSH.map( O => {
+        const ssh = _.find(this.ssh, S => S?.spec?.publicKey === O)
 
+        if (!ssh) {
+          out.push(O);
         }
-      }
-      const sshString = this.getSSHString();
-      let out = '';
-      if (this.hostname) {
-        out =  `#cloud-config\nname: default\nhostname: ${ this.hostname }`;
-      } else {
-        out =  `#cloud-config\nname: default`;
-      }
+      });
 
-      return `${ out }${ sshString }`;
+      return out;
+    },
+
+    getInSshList(arr) {
+      const out = [];
+      arr.map( O => {
+        const ssh = _.find(this.ssh, S => S.spec.publicKey === O)
+
+        if (ssh) {
+          out.push(ssh.metadata.name)
+        }
+      });
+      return out;
     },
 
     parseDiskRows(disk) {
       const disks = [];
       const volumes = [];
       const dataVolumeTemplates = [];
-      console.log('----disk', disk)
+
       disk.forEach( (R) => {
         const dataVolumeName = `${ this.hostname }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
 
@@ -380,7 +374,7 @@ export default {
         disks.push(_disk);
         volumes.push(_volume);
 
-        if (R.source !== SOURCE_TYPE.CONTAINER_DISK && R.name !== 'cdrom-disk') {
+        if (R.source !== SOURCE_TYPE.CONTAINER_DISK) {
           dataVolumeTemplates.push(_dataVolumeTemplate);
         }
       });
@@ -395,11 +389,11 @@ export default {
         volumes.push({
           name:             'cloudinitdisk',
           cloudInitNoCloud: {
-            userData: this.getCustomScript()
+            userData: this.cloudInit
           }
         });
       }
-      console.log('----disks', disks)
+
       const spec = {
         ...this.spec,
         running:  this.isRunning,
@@ -454,6 +448,15 @@ export default {
       return sshString
     },
 
+    getSSHValue(name) {
+      const sshResource = this.ssh.find( O => O.metadata.name === name);
+      return sshResource?.spec?.publicKey || undefined
+    },
+
+    getSSHListValue(arr) {
+      return arr.map( name => this.getSSHValue(name))
+    },
+
     parseInterface(R) {
       const _interface = {};
       const type = R.type;
@@ -472,7 +475,7 @@ export default {
     parseNetwork(R) {
       const _network = {};
 
-      if (R.name === 'nic-0') {
+      if (R.isPod) {
         _network.pod = {};
       } else {
         _network.multus = { networkName: R.networkName };
@@ -518,12 +521,69 @@ export default {
   watch: {
     imageName: {
       handler(neu) {
-        const images = this.$store.getters['cluster/all'](IMAGE);
-        const image = images.find( O => O.spec.displayName === neu );
-
-        this.source = image?.status?.downloadUrl;
+        if (this.diskRows.length > 0) {
+          const _diskRows = _.cloneDeep(this.diskRows);
+          const imageUrl = this.getUrlFromImage(neu);
+          _diskRows[0].image = neu;
+          this.$set(this, 'diskRows', _diskRows);
+        }
       },
       immediate: true
     },
+
+    sshKey(neu) {
+      try {
+        const oldCloudConfig = safeLoad(this.cloudInit);
+        console.log('---int sshKey', oldCloudConfig)
+        if (oldCloudConfig.ssh_authorized_keys) {
+          const checkedSSH = oldCloudConfig.ssh_authorized_keys;
+          console.log('--ss out', checkedSSH)
+          const out = this.parseSshKeys(checkedSSH);
+          console.log('---o', out)
+          const ssh_authorized_keys = this.getSSHListValue(neu);
+          ssh_authorized_keys.push(...out);
+          console.log('---sshkey out', out)
+          oldCloudConfig.ssh_authorized_keys = ssh_authorized_keys;
+        } else {
+          const ssh_authorized_keys = this.getSSHListValue(neu)
+          oldCloudConfig.ssh_authorized_keys = ssh_authorized_keys
+        }
+        console.log('---oldCloudConfig', oldCloudConfig)
+
+        const neuCloudConfig = safeDump(oldCloudConfig);
+
+        this.$set(this, 'cloudInit', neuCloudConfig);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log('---watch sshKey has error');
+      }
+    },
+
+    cloudInit(neu) {
+      let newInitScript = {};
+      let sshString = '';
+      if (neu) {
+        try {
+          console.log('----watch cl', neu)
+          newInitScript = safeLoad(neu);
+          console.log('----newInitScript', newInitScript)
+          console.log('---safeDump', safeDump(neu))
+          if (newInitScript.hostname) {
+            this.hostname = newInitScript.hostname;
+          } else {
+            this.hostname = '';
+          }
+
+          if (newInitScript.ssh_authorized_keys) {
+            const checkedSSH = newInitScript.ssh_authorized_keys
+            const inSshList = this.getInSshList(checkedSSH)
+            console.log('----inSshList', inSshList)
+            this.$set(this, 'sshKey', inSshList)
+          }
+        } catch (error) {
+          console.log('----watch cloudinit err', error)
+        }
+      }
+    }
   }
 };

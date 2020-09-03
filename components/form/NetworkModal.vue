@@ -25,7 +25,7 @@ export default {
       type: String,
       default: ''
     },
-    canEdit: {
+    rowActions: {
       type:    Boolean,
       default: true
     }
@@ -47,31 +47,26 @@ export default {
         name:     'name',
         label:    'Name',
         value:    'name',
-        width:    100,
       },
       {
         name:     'model',
         label:    'Model',
         value:    'model',
-        width:    100,
       },
       {
         name:     'network',
         label:    'Network',
         value:    'networkName',
-        width:    120,
       },
       {
         name:     'type',
         label:    'Type',
         value:    'type',
-        width:    100,
       },
       {
         name:     'macAddress',
         label:    'MAC Address',
         value:    'macAddress',
-        width:    120,
       }];
     },
 
@@ -105,7 +100,7 @@ export default {
     networkOption() {
       const choices = this.$store.getters['cluster/all'](NETWORK_ATTACHMENT);
 
-      return sortBy(
+      const out = sortBy(
         choices
           .filter((C) => C.metadata.namespace === this.namespace)
           .map((obj) => {
@@ -116,10 +111,22 @@ export default {
           }),
         'label'
       );
+
+      const findPodIndex = _.findIndex(this.rows, (o) => {
+        return o.networkName === 'Pod Network'
+      })
+      if (findPodIndex === -1 || (findPodIndex !== -1 && this.rows.length ===1 && this.type !== 'add' )) {
+        out.push({
+          label: 'Pod Network',
+          value: 'Pod Network'
+        })
+      }
+
+      return out;
     },
 
     isMasquerade() {
-      return this.currentRow.name === 'nic-0'
+      return this.currentRow.networkName === 'Pod Network'
     },
 
     typeOpton() {
@@ -147,6 +154,13 @@ export default {
   watch: {
     value(neu) {
       this.rows = neu;
+    },
+    'currentRow.networkName'(neu) {
+      if (neu === 'Pod Network') {
+        this.currentRow.type = 'masquerade'
+      } else {
+        this.currentRow.type = 'bridge'
+      }
     }
   },
 
@@ -206,7 +220,7 @@ export default {
 <template>
   <div>
     <VMModal
-      :can-edit="canEdit"
+      :row-actions="rowActions"
       modal-name="network"
       title="Add Network Interface"
       :rows="rows"
@@ -221,7 +235,6 @@ export default {
         <LabeledInput
           v-model="currentRow.name"
           label="Name"
-          :disabled="isMasquerade"
           class="mb-20"
           required
         />
@@ -237,7 +250,6 @@ export default {
         <LabeledSelect
           v-model="currentRow.networkName"
           label="Network"
-          :disabled="isMasquerade"
           :options="networkOption"
           class="mb-20"
           required
@@ -254,10 +266,10 @@ export default {
         <LabeledInput
           v-model="currentRow.macAddress"
           label="Mac Address"
-          :disabled="isMasquerade"
+          v-if="!isMasquerade"
           @input="validateMac"
         />
-        <h5 class="tip">
+        <h5 class="tip" v-if="!isMasquerade">
           Protip: MAC address as seen inside the guest system.
         </h5>
       </template>
