@@ -58,7 +58,7 @@ export default {
 
 <template>
   <div class="vm-events">
-    <div v-if="!isDown">
+    <div v-if="events.length > 0">
       <el-card v-for="event in events" :key="event.id">
         <div class="row">
           <div class="col span-4">
