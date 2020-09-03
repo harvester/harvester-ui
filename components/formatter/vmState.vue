@@ -147,8 +147,10 @@ export default {
 
   methods: {
     async loadData() {
-      const vmiList = await this.$store.dispatch('cluster/findAll', { type: VMI });
-      const podList = await this.$store.dispatch('cluster/findAll', { type: POD });
+      const podList = await this.$store.getters['cluster/all'](POD);
+      const vmiList = await this.$store.getters['cluster/all'](VMI);
+      // const vmiList = await this.$store.dispatch('cluster/findAll', { type: VMI });
+      // const podList = await this.$store.dispatch('cluster/findAll', { type: POD });
 
       this.podList = podList;
       this.vmiList = vmiList;
