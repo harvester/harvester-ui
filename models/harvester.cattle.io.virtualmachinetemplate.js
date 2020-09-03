@@ -30,7 +30,7 @@ export default {
       router.push({
         name:   `c-cluster-product-resource-create`,
         params: { resource: VM },
-        query:  { template: this.spec.defaultVersionId }
+        query:  { templateId: this.id, version: this.spec.defaultVersionId }
       });
     };
   },

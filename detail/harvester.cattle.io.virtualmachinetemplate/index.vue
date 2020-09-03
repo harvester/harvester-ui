@@ -60,7 +60,11 @@ export default {
   <div class="mt-20">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <h2>Vm template details</h2>
+        <div class="row">
+          <div class="col span-11">
+            <h2>Vm template details</h2>
+          </div>
+        </div>
       </div>
       <div class="row">
         <div class="col span-3">
@@ -97,9 +101,6 @@ export default {
 <style lang="scss" scoped>
 .row {
   height: 54px;
-  div:first-child {
-    border-right: 1px solid #eaeded;
-  }
 
   .col {
     div:first-child {
