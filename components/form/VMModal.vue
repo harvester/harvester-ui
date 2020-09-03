@@ -129,9 +129,9 @@ export default {
       </div>
     </el-dialog>
 
-    <button v-if="rowActions" class="btn bg-primary btn-sm mb-20" @click="openModal">
+    <el-button v-if="rowActions" class="btn btn-sm mb-20 mt-20" @click="openModal">
       {{ title }}
-    </button>
+    </el-button>
   </div>
 </template>
 

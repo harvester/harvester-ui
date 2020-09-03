@@ -131,8 +131,6 @@ export default {
 <template>
   <div>
     <div class="box mb-20">
-      <h3>Choose your SSH keys</h3>
-
       <div class="row">
         <div class="col span-4">
           <input v-model="searchKey" placeholder="Search" />
@@ -152,11 +150,10 @@ export default {
           </el-checkbox>
         </el-checkbox-group>
       </div>
+      <el-button class="btn btn-sm mt-20" @click="addSSH">
+        New SSH Key
+      </el-button>
     </div>
-
-    <button class="btn bg-primary btn-sm" @click="addSSH">
-      New SSH Key
-    </button>
 
     <modal name="newSSH" height="auto">
       <div class="sshModal">

@@ -101,7 +101,7 @@ $selected: rgba($primary, .5);
   --input-label                : #{$secondary};
   --input-placeholder          : #{$disabled};
   --input-border               : var(--border);
-  --input-bg                   : #{$light};
+  --input-bg                   : #{$lightest};
   --input-hover-bg             : var(--body-bg);
   --input-focus-bg             : #{$lightest};
   --input-disabled-text        : #{$dark};
@@ -124,6 +124,8 @@ $selected: rgba($primary, .5);
 
   --tag-primary                : #{$primary};
   --tag-bg                     : #{ligten($primary, 35%)};
+
+  --help-text                  : #{$darker};
 
   --popover-bg                 : var(--body-bg);
   --popover-border             : var(--border);

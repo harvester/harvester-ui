@@ -34,12 +34,20 @@ export default {
       }
     },
     showVnc() {
-      const uid = this.resource.metadata?.ownerReferences?.[0]?.uid;
+      let uid = this.resource.metadata?.ownerReferences?.[0]?.uid;
+
+      if (uid === undefined) {
+        uid = this.resource.metadata.uid;
+      }
 
       window.open(`//${ window.location.host }/#/console/${ uid }/vnc`, '_blank', 'toolbars=0,width=1024,height=400,left=200,top=200');
     },
     showSerial() {
-      const uid = this.resource.metadata?.ownerReferences?.[0]?.uid;
+      let uid = this.resource.metadata?.ownerReferences?.[0]?.uid;
+
+      if (uid === undefined) {
+        uid = this.resource.metadata.uid;
+      }
 
       window.open(`//${ window.location.host }/#/console/${ uid }/serial`, '_blank', 'toolbars=0,width=1024,height=400,left=200,top=200');
     },
