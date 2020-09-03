@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import randomstring from 'randomstring';
+import { safeLoad, safeDump } from 'js-yaml';
 import Footer from '@/components/form/Footer';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
@@ -46,12 +47,14 @@ export default {
   data() {
     let spec = this.value.spec;
 
+    this.value.metadata.labels = { 'harvester.cattle.io/imageId': 'harvester' };
+
     if ( !spec ) {
       spec = {
         dataVolumeTemplates: [],
         running:             true,
         template:            {
-          spec: {
+          spec:     {
             domain: {
               cpu: {
                 cores:   null,
@@ -59,14 +62,21 @@ export default {
                 threads: 1
               },
               devices: {
-                interfaces:                 [],
-                disks:                      [],
+                interfaces:                 [{
+                  masquerade: {},
+                  model:      'virtio',
+                  name:       'default'
+                }],
+                disks: [],
               },
               resources: { requests: { memory: '' } }
             },
             hostname: '',
-            networks: [],
-            volumes:  []
+            networks: [{
+              name: 'default',
+              pod:  {}
+            }],
+            volumes: []
           }
         }
       };
@@ -111,7 +121,7 @@ export default {
 
     hostname: {
       get() {
-        const prefix = this.imageName?.split(/[a-zA-Z][-|.]+/)[0];
+        const prefix = this.imageName?.split(/[a-zA-Z][-|.]+/)[0] || '';
         const time = this.imageName ? `-${ moment().format('YYYY-MMDD-HHmm') }-${ randomstring.generate(5).toLowerCase() }` : '';
 
         if (this.emptyHostname) {
@@ -123,7 +133,24 @@ export default {
       set(neu) {
         this.emptyHostname = !neu;
 
-        this.$set(this.spec.template.spec, 'hostname', neu);
+        const spec = {
+          ...this.spec,
+          template: {
+            ...this.spec.template,
+            metadata: {
+              labels: {
+                'harvester.cattle.io/creator': 'harvester',
+                'harvester.cattle.io/vmname':  neu
+              }
+            },
+            spec: {
+              ...this.spec.template.spec,
+              hostname: neu
+            }
+          }
+        };
+
+        this.$set(this, 'spec', spec);
       }
     },
   },
@@ -156,8 +183,18 @@ export default {
         this.templateVersion = template.spec.defaultVersionId.replace(':', '/');
       }
     },
-    imageName() {
-      this.emptyHostname = false;
+    hostname(neu) {
+      try {
+        const oldCloudConfig = safeLoad(this.cloudInit);
+
+        oldCloudConfig.hostname = neu;
+        const neuCloudConfig = safeDump(oldCloudConfig);
+
+        this.$set(this, 'cloudInit', neuCloudConfig);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log('---watch hostname has error');
+      }
     }
   },
 
@@ -175,7 +212,7 @@ export default {
 
   methods: {
     saveVM(buttonCb) {
-      if (!this.source) {
+      if (!this.imageName) {
         this.errors = ['Please select image!'];
         buttonCb(true);
 

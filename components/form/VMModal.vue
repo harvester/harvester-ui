@@ -35,19 +35,23 @@ export default {
         return [];
       }
     },
-    canEdit: {
+    rowActions: {
       type:    Boolean,
       default: true
     }
   },
 
+  data() {
+    return { dialogVisible: false };
+  },
+
   methods: {
     show() {
-      this.$modal.show(this.modalName);
+      this.dialogVisible = true;
     },
     hide() {
+      this.dialogVisible = false;
       this.$emit('update:cancel');
-      this.$modal.hide(this.modalName);
     },
     add() {
       this.$emit('validateError');
@@ -59,6 +63,7 @@ export default {
     },
     openModal() {
       this.show();
+
       this.$emit('update:index', this.rows.length, 'add');
     },
     handleRow(row, type) {
@@ -82,10 +87,11 @@ export default {
       :rows="rows"
       :search="false"
       :headers="headers"
-      :row-actions-width="60"
+      :row-actions-width="160"
+      :row-actions="rowActions"
       :table-actions="false"
     >
-      <template v-if="canEdit" v-slot:row-actions="scope">
+      <template v-slot:row-actions="scope">
         <div class="action">
           <button type="button" class="btn btn-sm bg-primary mr-15" @click="handleRow(scope.row, 'modify')">
             modify
@@ -98,13 +104,12 @@ export default {
       </template>
     </SortableTable>
 
-    <modal :name="modalName" height="auto" :scrollable="true" :click-to-close="false" :pivot-y="0.2">
+    <el-dialog
+      :title="title"
+      :visible.sync="dialogVisible"
+      width="40%"
+    >
       <div class="modal">
-        <div class="title mb-20">
-          <span>{{ title }}</span>
-          <i class="icon icon-close" @click="hide"></i>
-        </div>
-
         <div class="content mb-20">
           <slot name="content"></slot>
         </div>
@@ -122,9 +127,9 @@ export default {
           </button>
         </div>
       </div>
-    </modal>
+    </el-dialog>
 
-    <button v-if="canEdit" class="btn bg-primary btn-sm mb-20" @click="openModal">
+    <button v-if="rowActions" class="btn bg-primary btn-sm mb-20" @click="openModal">
       {{ title }}
     </button>
   </div>
@@ -136,20 +141,6 @@ export default {
 }
 
 .modal {
-  padding: 10px;
-
-  .title {
-    display: flex;
-    justify-content: space-between;
-    span {
-      font-size: 22px;
-    }
-
-    i {
-      font-size: 22px;
-    }
-  }
-
   .footer {
     display: flex;
     justify-content: flex-end;

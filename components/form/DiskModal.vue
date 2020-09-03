@@ -7,15 +7,9 @@ import LabeledSelect from '@/components/form/LabeledSelect';
 import Collapse from '@/components/Collapse';
 import { clone } from '@/utils/object';
 import { sortBy } from '@/utils/sort';
+import { SOURCE_TYPE, InterfaceOption } from '@/config/map';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import { NAMESPACE, PVC, STORAGE_CLASS, IMAGE } from '@/config/types';
-
-const SOURCE_TYPE = {
-  URL:            'VM Image',
-  BLANK:          'blank',
-  ATTACH_VOLUME:  'attach volume',
-  CONTAINER_DISK: 'Container'
-};
 
 export default {
   components: {
@@ -34,7 +28,7 @@ export default {
       }
     },
 
-    canEdit: {
+    rowActions: {
       type:    Boolean,
       default: true
     }
@@ -53,8 +47,8 @@ export default {
   },
 
   computed: {
-    isUrl() {
-      return this.currentRow.source === SOURCE_TYPE.URL;
+    isImage() {
+      return this.currentRow.source === SOURCE_TYPE.IMAGE;
     },
 
     isBlank() {
@@ -67,21 +61,6 @@ export default {
 
     isContainerDisk() {
       return this.currentRow.source === SOURCE_TYPE.CONTAINER_DISK;
-    },
-
-    namespaceOptions() {
-      const choices = this.$store.getters['cluster/all'](NAMESPACE);
-
-      return sortBy(
-        choices
-          .map((obj) => {
-            return {
-              label: obj.nameDisplay,
-              value: obj.id
-            };
-          }),
-        'label'
-      );
     },
 
     pvcOption() {
@@ -122,36 +101,40 @@ export default {
         name:  'name',
         label: 'Name',
         value: 'name',
-        width: 100,
       },
       {
         name:  'Source',
         label: 'Source',
         value: 'source',
-        width: 100,
       },
       {
         name:      'Size',
         label:     'Size',
         value:     'size',
-        width:     80,
       },
       {
         name:  'Interface',
         label: 'Bus',
         value: 'bus',
-        width: 90,
       },
       {
         name:  'Storage Class',
         label: 'Storage Class',
         value: 'storageClassName',
-        width: 90,
       }, {
         name:  'bootOrder',
         label: 'Boot Order',
         value: 'bootOrder',
-        width: 70,
+      }];
+    },
+
+    typeOption() {
+      return [{
+        label: 'disk',
+        value: 'disk'
+      }, {
+        label: 'cd-rom',
+        value: 'cd-rom'
       }];
     },
 
@@ -160,39 +143,16 @@ export default {
         label: SOURCE_TYPE.BLANK,
         value: SOURCE_TYPE.BLANK
       }, {
-        label: SOURCE_TYPE.URL,
-        value: SOURCE_TYPE.URL
+        label: SOURCE_TYPE.IMAGE,
+        value: SOURCE_TYPE.IMAGE
       }, {
         label: SOURCE_TYPE.CONTAINER_DISK,
         value: SOURCE_TYPE.CONTAINER_DISK
       }];
     },
 
-    UnitOption() {
-      return [{
-        label: 'Mi',
-        value: 'Mi'
-      }, {
-        label: 'Gi',
-        value: 'Gi'
-      },
-      {
-        label: 'TiB',
-        value: 'Ti'
-      }];
-    },
-
     InterfaceOption() {
-      return [{
-        label: 'VirtIO',
-        value: 'virtio'
-      }, {
-        label: 'STAT',
-        value: 'sata'
-      }, {
-        label: 'SCSI',
-        value: 'scsi'
-      }];
+      return InterfaceOption;
     },
 
     volumeModeOption() {
@@ -238,6 +198,7 @@ export default {
 
       return baseOrder;
     },
+
     choosedOrder() {
       return this.rows.map( R => R.bootOrder );
     },
@@ -247,19 +208,9 @@ export default {
     value(neu) {
       this.rows = neu;
     },
-    'currentRow.source'(neu) {
-      if (neu === 'Container') {
-        this.currentRow.accessMode = '';
-        this.currentRow.volumeMode = '';
-        this.currentRow.size = '';
-        this.currentRow.bus = '';
-        this.currentRow.storageClassName = '';
-      } else {
-        this.currentRow.accessMode = 'ReadWriteOnce';
-        this.currentRow.volumeMode = 'Filesystem';
-        this.currentRow.size = '10Gi';
-        this.currentRow.bus = 'virtio';
-        this.currentRow.storageClassName = this.storageOption?.[0]?.value || '';
+    'currentRow.type'(neu) {
+      if (neu === 'cd-rom') {
+        this.$set(this.currentRow, 'bus', 'sata');
       }
     }
   },
@@ -273,10 +224,11 @@ export default {
       this.rowIdx = idx;
       this.type = type;
       this.$set(this, 'currentRow', clone(this.rows[this.rowIdx]) || {
-        name:             `disk-${ idx - 1 }`,
+        name:             `disk-${ idx }`,
         source:           'blank',
         pvcNS:            'default',
         size:             '10Gi',
+        type:             'disk',
         accessMode:       'ReadWriteOnce',
         volumeMode:       'Filesystem',
         bus:              'virtio',
@@ -289,6 +241,10 @@ export default {
       const volumes = [];
       const disks = [];
 
+      if (this.errors.length > 0) {
+        return;
+      }
+
       if (this.type === 'add') {
         this.rows.splice(this.rowIdx, 0, this.currentRow);
       } else if (this.type === 'delete') {
@@ -298,10 +254,25 @@ export default {
       }
 
       this.rows.forEach((o, index) => {
+        if (index === 0) {
+          o.disableDelete = true;
+        }
         o.index = index;
       });
 
       this.$emit('input', this.rows);
+    },
+
+    validateName(name) {
+      const arr = _.filter(this.rows, (o, index) => {
+        return name === o.name;
+      });
+
+      if ((arr?.length > 0 && this.type === 'add') || (arr?.length > 1)) {
+        this.errors.splice(0, 1, 'Disk with this name already exists!.');
+      } else {
+        this.errors.splice(0, 1);
+      }
     },
 
     validateError() {
@@ -326,7 +297,7 @@ export default {
       if (hasError) {
         this.errors.splice(0, 1, 'Please fill in all required fields.');
       } else {
-        this.errors.splice(0, 1);
+        this.validateName(this.currentRow.name);
       }
     }
   }
@@ -336,7 +307,7 @@ export default {
 <template>
   <div>
     <VMModal
-      :can-edit="canEdit"
+      :row-actions="rowActions"
       modal-name="disk"
       title="Add Disk"
       :rows="rows"
@@ -350,26 +321,35 @@ export default {
       <template v-slot:content>
         <LabeledSelect
           v-model="currentRow.source"
-          :disabled="currentRow.disableSource"
           :options="sourceOption"
+          :disabled="currentRow.disableDelete"
           label="Source"
           class="mb-20"
           required
         />
 
         <LabeledSelect
-          v-if="isUrl"
-          v-model="currentRow.url"
-          :disabled="currentRow.name === 'rootdisk'"
+          v-if="isImage"
+          v-model="currentRow.image"
           class="mb-20"
+          :disabled="currentRow.disableDelete"
           label="Select Image"
           :options="imagesOption"
           required
         />
 
+        <LabeledSelect
+          v-if="!isContainerDisk"
+          v-model="currentRow.type"
+          :options="typeOption"
+          label="Type"
+          class="mb-20"
+          required
+        />
+
         <LabeledInput v-if="isContainerDisk" v-model="currentRow.container" label="Docker Image" class="mb-20" required />
 
-        <LabeledInput v-model="currentRow.name" :disabled="currentRow.name === 'rootdisk'" label="Name" class="mb-20" required />
+        <LabeledInput v-model="currentRow.name" label="Name" class="mb-20" required @input="validateName" />
 
         <LabeledSelect
           v-if="isAttachVolume"

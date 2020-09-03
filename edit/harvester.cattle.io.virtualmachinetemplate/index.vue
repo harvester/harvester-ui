@@ -72,13 +72,20 @@ export default {
                 threads: 1
               },
               devices: {
-                interfaces:                 [],
-                disks:                      [],
+                interfaces:                 [{
+                  masquerade: {},
+                  model:      'virtio',
+                  name:       'default'
+                }],
+                disks: [],
               },
               resources: { requests: { memory: '' } }
             },
-            networks: [],
-            volumes:  []
+            networks: [{
+              name: 'default',
+              pod:  {}
+            }],
+            volumes: []
           }
         }
       };
@@ -138,24 +145,33 @@ export default {
       }
 
       this.normalizeSpec();
-      const versionInfo = await this.$store.dispatch('management/request', {
-        method:  'POST',
-        headers: {
-          'content-type': 'application/json',
-          accept:         'application/json',
-        },
-        url:  `v1/harvester.cattle.io.virtualmachinetemplateversions`,
-        data: {
-          apiVersion: 'harvester.cattle.io/v1alpha1',
-          kind:       'harvester.cattle.io.virtualmachinetemplateversion',
-          type:       'harvester.cattle.io.virtualmachinetemplateversion',
-          spec:       {
-            templateId: `harvester-system:${ this.value.metadata.name }`,
-            keyPairIds: this.keyPairIds,
-            vm:         { ...this.spec }
-          }
-        },
-      });
+      const _this = this;
+
+      try {
+        const versionInfo = await this.$store.dispatch('management/request', {
+          method:  'POST',
+          headers: {
+            'content-type': 'application/json',
+            accept:         'application/json',
+          },
+          url:  `v1/harvester.cattle.io.virtualmachinetemplateversions`,
+          data: {
+            apiVersion: 'harvester.cattle.io/v1alpha1',
+            kind:       'harvester.cattle.io.virtualmachinetemplateversion',
+            type:       'harvester.cattle.io.virtualmachinetemplateversion',
+            spec:       {
+              templateId: `harvester-system:${ this.value.metadata.name }`,
+              keyPairIds: this.keyPairIds,
+              vm:         { ...this.spec }
+            }
+          },
+        });
+      } catch (err) {
+        // _this.errors.splice(0, 1, err.message);
+        const message = err.message;
+
+        this.errors = [message];
+      }
     },
   },
 };

@@ -84,10 +84,10 @@ export default {
     <template>
       <el-tabs v-model="activeName">
         <el-tab-pane label="Network Interfaces" name="network">
-          <NetworkModal v-model="networkRows" :can-edit="false" />
+          <NetworkModal v-model="networkRows" :row-actions="false" />
         </el-tab-pane>
         <el-tab-pane label="Disk" name="disk">
-          <DiskModal v-model="diskRows" :can-edit="false" />
+          <DiskModal v-model="diskRows" :row-actions="false" />
         </el-tab-pane>
       </el-tabs>
     </template>
