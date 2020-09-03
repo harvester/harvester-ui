@@ -9,7 +9,9 @@ import ConsoleBar from '@/components/form/ConsoleBar';
 
 export default {
   name:       'ListVM',
-  components: { ResourceTable, LinkDetail, ConsoleBar },
+  components: {
+    ResourceTable, LinkDetail, ConsoleBar
+  },
 
   props: {
     schema: {
