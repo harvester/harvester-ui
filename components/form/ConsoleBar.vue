@@ -1,4 +1,6 @@
 <script>
+import { getPrefix } from '@/utils/url';
+
 export default {
   name: 'ConsoleBar',
 
@@ -34,22 +36,36 @@ export default {
       }
     },
     showVnc() {
+      const prefix = getPrefix();
       let uid = this.resource.metadata?.ownerReferences?.[0]?.uid;
 
       if (uid === undefined) {
         uid = this.resource.metadata.uid;
       }
 
-      window.open(`//${ window.location.host }/#/console/${ uid }/vnc`, '_blank', 'toolbars=0,width=1024,height=400,left=200,top=200');
+      let url = `//${ window.location.host }/#/console/${ uid }/vnc`;
+
+      if (prefix) {
+        url = `//${ window.location.host }/${ prefix }/#/console/${ uid }/vnc`;
+      }
+
+      window.open(url, '_blank', 'toolbars=0,width=1024,height=400,left=200,top=200');
     },
     showSerial() {
+      const prefix = getPrefix();
       let uid = this.resource.metadata?.ownerReferences?.[0]?.uid;
 
       if (uid === undefined) {
         uid = this.resource.metadata.uid;
       }
 
-      window.open(`//${ window.location.host }/#/console/${ uid }/serial`, '_blank', 'toolbars=0,width=1024,height=400,left=200,top=200');
+      let url = `//${ window.location.host }/#/console/${ uid }/serial`;
+
+      if (prefix) {
+        url = `//${ window.location.host }/${ prefix }/#/console/${ uid }/serial`;
+      }
+
+      window.open(url, '_blank', 'toolbars=0,width=1024,height=400,left=200,top=200');
     },
     isEmpty(o) {
       return o !== undefined && Object.keys(o).length === 0;
