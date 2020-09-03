@@ -50,38 +50,51 @@ export default {
 </script>
 
 <template>
-  <div>
-    <h2 :style="{'display':'flex'}">
-      Choose an Image:
+  <div class="vm-choose-image">
+    <h2>
+      Create Source
+      <p class="sub-title">
+        When use existing VM template and revision, the source image is not editable,
+        it will default to the selected OS image of the VM template.
+      </p>
     </h2>
 
-    <div class="row mb-20">
-      <div class="col span-6">
-        <input v-model="searchKey" placeholder="Search" />
-      </div>
-    </div>
     <div class="box">
-      <div class="list">
-        <div
-          v-for="item in readiedImages"
-          :key="item.id"
-          class="image mb-10"
-          :class="{active: activeName == item.spec.displayName}"
-          @click="selected(item.spec.displayName)"
-        >
-          <div class="info">
-            <span>{{ item.spec.displayName }}</span>
-            <span>{{ item.spec.description }}</span>
-          </div>
-
-          <i v-if="activeName == item.spec.displayName" class="icon icon-checkmark checkmark" />
+      <div class="row mb-20">
+        <div class="col span-6">
+          <input v-model="searchKey" placeholder="Search" />
         </div>
       </div>
+      <div>
+        <div class="list">
+          <div
+            v-for="item in readiedImages"
+            :key="item.id"
+            class="image mb-10"
+            :class="{active: activeName == item.spec.displayName}"
+            @click="selected(item.spec.displayName)"
+          >
+            <div class="pic">
+              <span>
+                {{ item.spec.displayName.split('')[0] }}
+              </span>
+            </div>
+            <div class="info">
+              <span>{{ item.spec.displayName }}</span>
+              <span>{{ item.spec.description }}</span>
+            </div>
 
-      <div class="mt-20">
-        <nuxt-link to="/c/local/virtual/harvester.cattle.io.virtualmachineimage">
-          Add Image
-        </nuxt-link>
+            <i v-if="activeName == item.spec.displayName" class="icon icon-checkmark checkmark" />
+          </div>
+        </div>
+
+        <div class="mt-20">
+          <nuxt-link to="/c/local/virtual/harvester.cattle.io.virtualmachineimage">
+            <el-button>
+              Add Image
+            </el-button>
+          </nuxt-link>
+        </div>
       </div>
     </div>
   </div>
@@ -97,6 +110,10 @@ export default {
 
   .active {
     background-color: #fdf6ec;
+
+    .info span {
+      color: var(--input-text) !important;
+    }
   }
 
   .checkmark {
@@ -111,28 +128,54 @@ export default {
     position: relative;
     cursor: pointer;
     height: 90px;
-    border: 1px solid black;
+    border: 1px solid var(--input-border);
+    border-radius: calc(3 * var(--border-radius));
     display: flex;
-    padding: 20px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+
+    .pic {
+      width: 50px;
+      height: 50px;
+      border-radius: 50px;
+      background-color: var(--input-border);
+      color: #fff;
+      margin:0 15px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
 
     .info {
       display: flex;
       flex-direction: column;
       justify-content: space-around;
-      margin-left: 20px;
+      flex: 1;
+      padding-right: 15px;
 
       span:first-child {
-        font-size: 18px;
+        margin-bottom: 10px;
       }
       span {
+        font-size: 12px;
+        color: var(--help-text);
         word-break: break-all;
       }
     }
   }
 }
 
-.box {
-  border: 1px solid var(--tabbed-container-bg);
-  padding: 20px;
+.vm-choose-image {
+  .box {
+    border-radius: calc(3 * var(--border-radius));
+  }
+
+  .sub-title {
+    font-size: 14px;
+    color: var(--help-text);
+  }
 }
 </style>

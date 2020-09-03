@@ -264,7 +264,7 @@ export default {
 
     <div class="spacer"></div>
 
-    <h2>CPU & Memory:</h2>
+    <h2>Choose a Size</h2>
     <div class="row">
       <div class="col span-6">
         <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number label="CPU (core)" required />
@@ -277,17 +277,17 @@ export default {
 
     <div class="spacer"></div>
 
-    <h2>Disks:</h2>
-    <DiskModal v-model="diskRows" />
+    <h2>Add Disk Storage</h2>
+    <DiskModal v-model="diskRows" class="vm__disk-modal" />
 
     <div class="spacer"></div>
 
-    <h2>Networks:</h2>
+    <h2>Networking</h2>
     <NetworkModal v-model="networkRows" :namespace="value.metadata.namespace" />
 
     <div class="spacer"></div>
 
-    <h2>Authentication:</h2>
+    <h2>Authentication</h2>
     <AddSSHKey :key="sshKey.toString()" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
 
     <div class="spacer"></div>
@@ -299,24 +299,27 @@ export default {
 
     <div class="spacer"></div>
 
-    <h2>Finalize and Create:</h2>
-    <LabeledInput v-model="hostname" required>
-      <template v-slot:label>
-        <div>
-          <span class="label">Host Name</span>
-          <el-tooltip v-if="isCreate" placement="top" effect="dark">
-            <div slot="content">
-              Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes, and periods.
+    <h2>Finalize and Create</h2>
+    <div class="row">
+      <div class="col span-6">
+        <LabeledInput v-model="hostname" required>
+          <template v-slot:label>
+            <div>
+              <span class="label">Host Name</span>
+              <el-tooltip v-if="isCreate" placement="top" effect="dark">
+                <div slot="content">
+                  Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes, and periods.
+                </div>
+                <span><i class="el-icon-info"></i></span>
+              </el-tooltip>
             </div>
-            <span><i class="el-icon-info"></i></span>
-          </el-tooltip>
-        </div>
-      </template>
-    </LabeledInput>
-
-    <div class="spacer"></div>
-
-    <LabeledInput v-model="value.metadata.description" label="Description" type="multiline" />
+          </template>
+        </LabeledInput>
+      </div>
+      <div class="col span-6">
+        <LabeledInput v-model="value.metadata.description" label="Description" type="multiline" />
+      </div>
+    </div>
 
     <div class="spacer"></div>
     <Checkbox v-model="isRunning" class="check" type="checkbox" label="Start virtual machine on creation" />
@@ -324,7 +327,7 @@ export default {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 #vm {
   .tip {
     color: #8e8e92;
@@ -332,6 +335,48 @@ export default {
 
   .label {
     color: var(--input-label);
+  }
+
+  .sortable-table {
+    border: 1px solid var(--input-border);
+    border-radius: calc(3 * var(--border-radius));
+
+    thead tr {
+      background-color: rgb(247, 251, 252);
+      height: 60px;
+
+      th {
+        padding-left: 20px;
+
+        &:first-child {
+          border-top-left-radius: calc(3 * var(--border-radius));
+        }
+
+        &:last-child {
+          border-top-right-radius: calc(3 * var(--border-radius));
+        }
+
+        span {
+          color: rgb(134, 196, 211);
+        }
+      }
+    }
+
+    tbody tr {
+      &:nth-child(even) {
+        background-color: var(--input-border)
+      }
+
+      td {
+        height: 60px;
+        padding-left: 20px;
+        color: var(--help-text);
+
+        &:last-child {
+          padding-left: 0;
+        }
+      }
+    }
   }
 }
 </style>
