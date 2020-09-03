@@ -146,7 +146,7 @@ export default {
         </div>
       </el-card>
     </VStack>
-    <VStack v-if="!isDown" class="vm-overview__right">
+    <VStack class="vm-overview__right">
       <el-card class="box-card events-card">
         <div slot="header" class="clearfix">
           <span>Events</span>
