@@ -91,7 +91,8 @@ export default {
       isRunning:       true,
       useTemplate:     false,
       pageType:        'vm',
-      emptyHostname:   false
+      emptyHostname:   false,
+      firstLaunch:     false
     };
   },
 
@@ -157,6 +158,7 @@ export default {
 
   watch: {
     async templateVersion(version) {
+      this.firstLaunch = false;
       const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version });
 
       const id = version.replace(':', '/');
@@ -176,6 +178,9 @@ export default {
       this.$set(this, 'spec', templateSpec.spec.vm);
     },
     async templateName(id) {
+      if (this.firstLaunch) {
+        return;
+      }
       const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template });
       const template = choices.find( O => O.id === id);
 
@@ -203,10 +208,11 @@ export default {
   },
 
   mounted() {
-    if (this.$route.query?.template) {
-      this.$nextTick(() => {
-        this.templateName = this.$route.query?.template;
-      });
+    if (this.$route.query?.templateId) {
+      this.templateName = this.$route.query?.templateId;
+      this.templateVersion = this.$route.query?.version;
+      this.firstLaunch = true;
+      this.useTemplate = true;
     }
   },
 

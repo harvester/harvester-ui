@@ -1,12 +1,14 @@
 <script>
-/* eslint-disable */
+import _ from 'lodash';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import DiskModal from '@/components/form/DiskModal';
 import NetworkModal from '@/components/form/NetworkModal';
 import VM_MIXIN from '@/mixins/vm';
+import Action from './action';
+
 export default {
   components: {
-    LabeledSelect, DiskModal, NetworkModal
+    LabeledSelect, DiskModal, NetworkModal, Action
   },
   mixins: [VM_MIXIN],
 
@@ -25,19 +27,27 @@ export default {
   },
 
   data() {
-
     return {
-      currentVersion: this.defaultVersion, 
-      activeName: 'network',
-      spec: {}
+      currentVersion: this.defaultVersion,
+      activeName:     'network',
+      spec:           {},
+      current:        {}
     };
   },
 
   computed: {
     allVersionOption() {
       return this.allVersion.map( (O) => {
+        let label = '';
+
+        if (O.status.version === this.defaultVersion) {
+          label = `${ O.status.version } (默认)`;
+        } else {
+          label = O.status.version;
+        }
+
         return {
-          label: O.status.version,
+          label,
           value: O.status.version
         };
       });
@@ -45,25 +55,33 @@ export default {
   },
 
   watch: {
-    currentVersion(version) {
-      const current = this.allVersion.find( (V) => {
-        return V.status.version === version;
-      });
+    currentVersion: {
+      handler(version) {
+        const current = this.allVersion.find( (V) => {
+          return V.status.version === version;
+        });
 
-      this.$set(this, 'spec', current.spec.vm);
+        if (!current) {
+          return;
+        }
+        this.$set(this, 'current', current);
+        this.$set(this, 'spec', current.spec.vm);
+      },
+      immediate: true
     },
     allVersion: {
       handler(neu) {
         const current = neu.find( (V) => {
           return V.status.version === this.defaultVersion;
         });
-        console.log('-----a', current, neu, this.defaultVersion)
+
+        this.$set(this, 'current', current);
         if (current) {
           const spec = current.spec.vm;
-          this.$set(this, 'spec', spec)
+
+          this.$set(this, 'spec', spec);
         }
-      },
-      immediate: true
+      }
     }
   }
 };
@@ -79,6 +97,11 @@ export default {
           label="Version"
         />
       </div>
+      <div class="col span-7"></div>
+      <div class="col span-1">
+        <Action :resource="current">
+        </action>
+      </div>
     </div>
 
     <template>
@@ -93,7 +116,3 @@ export default {
     </template>
   </div>
 </template>
-
-<style lang="scss" scoped>
-
-</style>

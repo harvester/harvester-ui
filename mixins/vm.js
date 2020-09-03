@@ -401,11 +401,11 @@ export default {
         template: {
           ...this.spec.template,
           spec: {
-            ...this.spec.template.spec,
+            ...this.spec.template?.spec,
             domain: {
-              ...this.spec.template.spec.domain,
+              ...this.spec.template?.spec?.domain,
               devices: {
-                ...this.spec.template.spec.domain.devices,
+                ...this.spec.template?.spec?.domain?.devices,
                 disks,
               },
             },

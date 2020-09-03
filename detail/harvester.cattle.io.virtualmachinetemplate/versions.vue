@@ -49,7 +49,7 @@ export default {
     <SortableTable
       v-bind="$attrs"
       :search="false"
-      :table-actions="true"
+      :table-actions="false"
       :row-actions="false"
       :headers="headers"
       :rows="[...value]"
