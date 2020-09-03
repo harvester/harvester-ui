@@ -6,6 +6,8 @@ import AnnotationsModal from '../../annotations-modal';
 import DescriptionModal from '../../description-modal';
 
 const UNDEFINED = 'n/a';
+const TEMPLATE_WORKLOAD_LABEL = 'workload.template.kubevirt.io';
+const LABEL_USED_TEMPLATE_NAME = 'vm.kubevirt.io/template';
 
 export default {
   name: 'Configurations',
@@ -34,6 +36,13 @@ export default {
       type:     String,
       required: true,
     },
+    guestAgentInfo: {
+      type:     Object,
+      required: false,
+      default:  () => {
+        return {};
+      }
+    }
   },
 
   fetch() {
@@ -99,6 +108,32 @@ export default {
 
       return `${ domain.cpu.cores } vCPU , ${ domain.resources.requests.memory } Memory`;
     },
+    timeZone() {
+      return this.guestAgentInfo?.timezone;
+    },
+    workloadProfile() {
+      const labels = this.value?.metadata?.labels;
+      let profile = null;
+
+      Object.keys(labels).forEach((key) => {
+        if (key.includes(TEMPLATE_WORKLOAD_LABEL)) {
+          profile = labels[key];
+        }
+      });
+
+      return profile;
+    },
+    operatingSystem() {
+      return this.guestAgentInfo?.os?.prettyName;
+    },
+    template() {
+      const labels = this.value?.metadata?.labels || {};
+
+      return labels[LABEL_USED_TEMPLATE_NAME];
+    },
+    owner() {
+      return this.guestAgentInfo?.userList;
+    },
     isNamespace() {
       return 'Namespace';
     },
@@ -141,7 +176,7 @@ export default {
       } else {
         return 'CD-ROM';
       }
-    }
+    },
   }
 };
 </script>
@@ -154,8 +189,11 @@ export default {
           <label>
             {{ t("vm.detail.details.pod") }}
           </label>
-          <div>
+          <div v-if="!isDown">
             {{ pod }}
+          </div>
+          <div v-else>
+            {{ t("vm.detail.details.down") }}
           </div>
         </div>
       </div>
@@ -241,11 +279,14 @@ export default {
           </label>
           <div>
             <div>
-              <ul>
+              <ul v-if="cdroms.length > 0">
                 <li v-for="(rom) in cdroms" :key="rom.name">
                   {{ rom.name }}
                 </li>
               </ul>
+              <span v-else>
+                {{ t("vm.detail.notAvailable") }}
+              </span>
             </div>
           </div>
         </div>
@@ -258,7 +299,7 @@ export default {
             {{ t("vm.detail.details.operatingSystem") }}
           </label>
           <div>
-            {{ t("vm.detail.notAvailable") }}
+            {{ t("vm.detail.GuestAgentNotInstalled") }}
           </div>
         </div>
       </div>
@@ -278,7 +319,7 @@ export default {
             {{ t("vm.detail.details.template") }}
           </label>
           <div>
-            {{ t("vm.detail.notAvailable") }}
+            {{ template || t("vm.detail.notAvailable") }}
           </div>
         </div>
       </div>
@@ -287,11 +328,8 @@ export default {
           <label>
             {{ t("vm.detail.details.timeZone") }}
           </label>
-          <div v-if="!isDown">
-            {{ t("vm.detail.notAvailable") }}
-          </div>
-          <div v-else>
-            {{ t("vm.detail.details.down") }}
+          <div>
+            {{ timeZone || t("vm.detail.GuestAgentNotInstalled") }}
           </div>
         </div>
       </div>
@@ -303,7 +341,7 @@ export default {
             {{ t("vm.detail.details.owner") }}
           </label>
           <div>
-            {{ t("vm.detail.noOwner") }}
+            {{ owner || t("vm.detail.noOwner") }}
           </div>
         </div>
       </div>
@@ -313,7 +351,7 @@ export default {
             {{ t("vm.detail.details.workloadProfile") }}
           </label>
           <div>
-            {{ t("vm.detail.notAvailable") }}
+            {{ workloadProfile || t("vm.detail.notAvailable") }}
           </div>
         </div>
       </div>

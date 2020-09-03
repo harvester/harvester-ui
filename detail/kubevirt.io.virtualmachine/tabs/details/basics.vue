@@ -28,6 +28,13 @@ export default {
       type:     String,
       required: true,
     },
+    guestAgentInfo: {
+      type:     Object,
+      required: false,
+      default:  () => {
+        return {};
+      }
+    },
   },
 
   data() {
@@ -54,7 +61,7 @@ export default {
       return this.resource?.status?.nodeName || UNDEFINED;
     },
     hostname() {
-      return this.resource?.spec?.hostname || UNDEFINED;
+      return this.guestAgentInfo?.hostname;
     },
     isDown() {
       return this.isEmpty(this.resource);
@@ -99,7 +106,7 @@ export default {
         {{ t("vm.detail.details.hostname") }}
       </label>
       <div v-if="!isDown">
-        {{ hostname }}
+        {{ hostname || t("vm.detail.GuestAgentNotInstalled") }}
       </div>
       <div v-else>
         {{ t("vm.detail.details.down") }}
