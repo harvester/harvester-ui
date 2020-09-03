@@ -51,16 +51,19 @@ export default {
   cloneTemplate() {
     return (moreQuery = {}) => {
       const templateResource = this.currentTemplate;
-      const templateId = templateResource.id;
       const launchVersion = this.id.replace('/', ':');
-
-      const router = this.currentRouter();
+      const id = templateResource.id.replace(/.*\//, '');
+      const schema = this.$getters['schemaFor'](this.type);
+      const router = templateResource.currentRouter();
 
       router.push({
-        name:   `c-cluster-product-resource-create`,
-        params: { resource: VM_TEMPLATE.template },
+        name:   `c-cluster-product-resource${ schema?.attributes?.namespaced ? '-namespace' : '' }-id`,
+        params: {
+          resource:  VM_TEMPLATE.template,
+          namespace: this.metadata?.namespace,
+          id,
+        },
         query:  {
-          templateId,
           version: launchVersion,
           [MODE]:   _EDIT,
           type:     _ADD,

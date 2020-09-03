@@ -1,4 +1,5 @@
 <script>
+import _ from 'lodash';
 import Footer from '@/components/form/Footer';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
@@ -8,6 +9,7 @@ import NetworkModal from '@/components/form/NetworkModal';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import { VM_TEMPLATE } from '@/config/types';
+import { allHash } from '@/utils/promise';
 import VM_MIXIN from '@/mixins/vm';
 import CreateEditView from '@/mixins/create-edit-view';
 import { _EDIT, _CREATE, _ADD } from '@/config/query-params';
@@ -37,20 +39,17 @@ export default {
     },
   },
 
+  async fetch() {
+    const version = await this.$store.getters['cluster/all'](VM_TEMPLATE.version);
+
+    this.versions = version;
+  },
+
   data() {
     let templateSpec = this.value.spec;
     const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
 
     let spec = null;
-    let defaultVersion = null;
-
-    if (this.mode === _EDIT) {
-      defaultVersion = choices.find( (O) => {
-        return this.value.spec.defaultVersionId.replace(':', '/') === O.id;
-      });
-
-      spec = defaultVersion?.spec?.vm;
-    }
 
     if (!templateSpec) {
       templateSpec = {
@@ -99,18 +98,19 @@ export default {
       versionOption:    [],
       description:      '',
       templateVersion:  [],
-      defaultVersion,
+      defaultVersion:   null,
       isRunning:        true,
       useTemplate:      false,
       isDefaultVersion:  false,
-      keyPairIds:       []
+      keyPairIds:       [],
+      versions:         []
     };
   },
 
   computed: {
     isAdd() {
       return this.$route.query.type === _ADD;
-    }
+    },
   },
 
   watch: {
@@ -125,10 +125,25 @@ export default {
         }
       });
       this.keyPairIds = out;
+    },
+    versions(neu) {
+      if (neu.length === 0) {
+        return;
+      }
+      let defaultVersion = null;
+
+      if (this.mode === _EDIT) {
+        const version = this.$route.query?.version || this.value.spec.defaultVersionId;
+
+        defaultVersion = neu.find( O => version.replace(':', '/') === O.id);
+        const spec = defaultVersion?.spec?.vm;
+
+        this.$set(this, 'spec', spec);
+      }
     }
   },
 
-  created() {
+  mounted() {
     const imageName = this.$route.query?.image || '';
 
     this.imageName = imageName;

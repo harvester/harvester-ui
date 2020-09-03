@@ -34,7 +34,6 @@ export default {
 
   data() {
     let cloudInit = `#cloud-config\nname: default`;;
-    // out =  `#cloud-config\nname: default\nhostname: ${ this.hostname }`;
 
     return {
       cloudInit,
