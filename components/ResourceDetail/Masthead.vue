@@ -130,6 +130,9 @@ export default {
       };
 
       return { displayName, location };
+    },
+    isVM() {
+      return this.value?.kind === 'VirtualMachine';
     }
   },
   methods: {
@@ -160,7 +163,7 @@ export default {
           </nuxt-link>
           <span class="title" v-html="h1" />
         </h1>
-        <VmState v-if="mode==='view'" v-model="value.id" :row="value" />
+        <VmState v-if="mode==='view' && isVM" v-model="value.id" :row="value" />
       </div>
       <!-- //TODO use  nuxt-link for an internal project detail page once it exists -->
       <div v-if="mode==='view'" class="subheader">
