@@ -51,7 +51,7 @@ export default {
 </script>
 
 <template>
-  <div>
+  <el-card class="mt-20 keypair-card">
     <LabeledInput
       v-model="value.metadata.name"
       label="Name"
@@ -59,7 +59,6 @@ export default {
       :mode="mode"
       required
     />
-
     <div class="row">
       <div class="col span-12">
         <LabeledInput
@@ -74,11 +73,16 @@ export default {
     </div>
 
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
-  </div>
+  </el-card>
 </template>
 
-<style lang="scss" scoped>
-.resize {
-  resize: auto;
+<style lang="scss">
+.keypair-card {
+  .resize {
+    resize: auto;
+  }
+  .row .labeled-input span {
+    word-break: break-word;
+  }
 }
 </style>
