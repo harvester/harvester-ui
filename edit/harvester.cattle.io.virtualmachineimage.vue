@@ -74,7 +74,7 @@ export default {
 
 <template>
   <form>
-    <div class="row mb-6">
+    <div class="row mb-20">
       <div class="col span-12">
         <LabeledInput
           v-model="url"
