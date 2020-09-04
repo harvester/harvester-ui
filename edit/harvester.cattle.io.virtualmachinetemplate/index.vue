@@ -212,7 +212,7 @@ export default {
 
     <div class="spacer"></div>
 
-    <h2>Choose a Size:</h2>
+    <h2>CPU & Memory::</h2>
     <div class="row">
       <div class="col span-5">
         <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number label="CPU Request(core)" required />
@@ -230,7 +230,7 @@ export default {
 
     <div class="spacer"></div>
 
-    <h2>Networking:</h2>
+    <h2>Networks:</h2>
     <NetworkModal v-model="networkRows" />
 
     <div class="spacer"></div>
