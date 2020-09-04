@@ -40,7 +40,9 @@ export default {
   <div class="mt-20">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <h2>{{ value.spec.displayName }}</h2>
+        <h2 class="mb-0">
+          {{ value.spec.displayName }}
+        </h2>
       </div>
 
       <div class="row">
@@ -80,7 +82,6 @@ export default {
 .row {
   height: 54px;
   margin-bottom: 10px;
-  border-bottom: 1px solid #eaeded;
 
   .col {
     div:first-child {
