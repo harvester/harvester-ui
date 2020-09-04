@@ -194,7 +194,6 @@ export default {
       },
 
       set(neu) {
-        console.log('----c disk', neu)
         this.parseDiskRows(neu);
       }
     },
@@ -240,6 +239,7 @@ export default {
     },
 
     getImageSource(url) {
+      if (!url) return;
       const image = this.images.find( (I) => {
         return url === I?.status?.downloadUrl;
       });
@@ -520,6 +520,11 @@ export default {
   watch: {
     imageName: {
       handler(neu) {
+        if (this.pageType === 'vm') {
+          const randomName = this.getRandomHostname(neu);
+          this.spec.template.spec.hostname = randomName;
+        }
+
         if (this.diskRows.length > 0) {
           const _diskRows = _.cloneDeep(this.diskRows);
           const imageUrl = this.getUrlFromImage(neu);
@@ -533,21 +538,16 @@ export default {
     sshKey(neu) {
       try {
         const oldCloudConfig = safeLoad(this.cloudInit);
-        console.log('---int sshKey', oldCloudConfig)
         if (oldCloudConfig.ssh_authorized_keys) {
           const checkedSSH = oldCloudConfig.ssh_authorized_keys;
-          console.log('--ss out', checkedSSH)
           const out = this.parseSshKeys(checkedSSH);
-          console.log('---o', out)
           const ssh_authorized_keys = this.getSSHListValue(neu);
           ssh_authorized_keys.push(...out);
-          console.log('---sshkey out', out)
           oldCloudConfig.ssh_authorized_keys = ssh_authorized_keys;
         } else {
           const ssh_authorized_keys = this.getSSHListValue(neu)
           oldCloudConfig.ssh_authorized_keys = ssh_authorized_keys
         }
-        console.log('---oldCloudConfig', oldCloudConfig)
 
         const neuCloudConfig = safeDump(oldCloudConfig);
 
@@ -563,10 +563,7 @@ export default {
       let sshString = '';
       if (neu) {
         try {
-          console.log('----watch cl', neu)
           newInitScript = safeLoad(neu);
-          console.log('----newInitScript', newInitScript)
-          console.log('---safeDump', safeDump(neu))
           if (newInitScript.hostname) {
             this.hostname = newInitScript.hostname;
           } else {
@@ -576,7 +573,6 @@ export default {
           if (newInitScript.ssh_authorized_keys) {
             const checkedSSH = newInitScript.ssh_authorized_keys
             const inSshList = this.getInSshList(checkedSSH)
-            console.log('----inSshList', inSshList)
             this.$set(this, 'sshKey', inSshList)
           }
         } catch (error) {

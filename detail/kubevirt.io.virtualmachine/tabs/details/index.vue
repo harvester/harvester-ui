@@ -175,10 +175,6 @@ export default {
     &__left, &__center, &__right {
       .el-card {
         margin-bottom: 15px;
-
-        &__body {
-          overflow: auto;
-        }
       }
       &:last-child, .el-card:last-child {
         margin: 0;
