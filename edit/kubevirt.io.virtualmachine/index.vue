@@ -4,15 +4,15 @@ import moment from 'moment';
 import randomstring from 'randomstring';
 import { safeLoad, safeDump } from 'js-yaml';
 import Footer from '@/components/form/Footer';
+import Collapse from '@/components/Collapse';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
 import DiskModal from '@/components/form/DiskModal';
 import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
-import Collapse from '@/components/Collapse';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
-import { VM_TEMPLATE } from '@/config/types';
+import { VM_TEMPLATE, VM } from '@/config/types';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import CreateEditView from '@/mixins/create-edit-view';
 import VM_MIXIN from '@/mixins/vm';
@@ -62,7 +62,12 @@ export default {
                 threads: 1
               },
               devices: {
-                interfaces:                 [{
+                inputs: [{
+                  bus:  'usb',
+                  name: 'tablet',
+                  type: 'tablet'
+                }],
+                interfaces: [{
                   masquerade: {},
                   model:      'virtio',
                   name:       'default'
@@ -85,14 +90,14 @@ export default {
 
     return {
       spec,
-      templateName:    '',
-      templateVersion: '',
-      namespace:       'default',
-      isRunning:       true,
-      useTemplate:     false,
-      pageType:        'vm',
-      emptyHostname:   false,
-      firstLaunch:     false
+      templateName:         '',
+      templateVersion:      '',
+      namespace:            'default',
+      isRunning:            true,
+      useTemplate:          false,
+      pageType:             'vm',
+      emptyHostname:        false,
+      isLanuchFromTemplate:     false
     };
   },
 
@@ -108,57 +113,47 @@ export default {
       });
     },
 
+    curTemplateResource() {
+      const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.template);
+
+      return choices.find( O => O.id === this.templateName);
+    },
+
+    curVersionResource() {
+      const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
+
+      return choices.find( O => O.id === this.templateVersion);
+    },
+
     versionOption() {
       const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
       const templateId = this.templateName.replace('/', ':');
+      const defaultVersionNumber = this.curTemplateResource?.defaultVersionNumber;
 
       return choices.filter( O => O.spec.templateId === templateId).map( (T) => {
+        const version = T?.status?.version; // versionNumber
+        const label = defaultVersionNumber === version ? `${ version } (default)` : version; // ns:name
+        const value = T.id;
+
         return {
-          label: T.metadata.name,
-          value: T.id
+          label,
+          value
         };
       });
     },
 
     hostname: {
       get() {
-        const prefix = this.imageName?.split(/[a-zA-Z][-|.]+/)[0] || '';
-        const time = this.imageName ? `-${ moment().format('YYYY-MMDD-HHmm') }-${ randomstring.generate(5).toLowerCase() }` : '';
-
-        if (this.emptyHostname) {
-          return this.spec.template.spec.hostname;
-        } else {
-          return this.spec.template.spec.hostname || `${ prefix.toLowerCase() }${ time }`;
-        }
+        return this.spec.template.spec.hostname;
       },
-      set(neu) {
-        this.emptyHostname = !neu;
+      set() {
 
-        const spec = {
-          ...this.spec,
-          template: {
-            ...this.spec.template,
-            metadata: {
-              labels: {
-                'harvester.cattle.io/creator': 'harvester',
-                'harvester.cattle.io/vmname':  neu
-              }
-            },
-            spec: {
-              ...this.spec.template.spec,
-              hostname: neu
-            }
-          }
-        };
-
-        this.$set(this, 'spec', spec);
       }
     },
   },
 
   watch: {
     async templateVersion(version) {
-      this.firstLaunch = false;
       const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version });
 
       const id = version.replace(':', '/');
@@ -177,19 +172,39 @@ export default {
       this.$set(this, 'sshKey', sshKey);
       this.$set(this, 'spec', templateSpec.spec.vm);
     },
+
     async templateName(id) {
-      if (this.firstLaunch) {
-        return;
-      }
       const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template });
       const template = choices.find( O => O.id === id);
 
-      if (template.spec.defaultVersionId) {
+      if (template.spec.defaultVersionId && !this.isLanuchFromTemplate) {
         this.templateVersion = template.spec.defaultVersionId.replace(':', '/');
       }
+
+      this.isLanuchFromTemplate = false;
     },
+
     hostname(neu) {
       try {
+        const spec = {
+          ...this.spec,
+          template: {
+            ...this.spec.template,
+            metadata: {
+              labels: {
+                'harvester.cattle.io/creator': 'harvester',
+                'harvester.cattle.io/vmName':  neu
+              }
+            },
+            spec: {
+              ...this.spec.template.spec,
+              hostname: neu
+            }
+          }
+        };
+
+        this.$set(this, 'spec', spec);
+
         const oldCloudConfig = safeLoad(this.cloudInit);
 
         oldCloudConfig.hostname = neu;
@@ -205,34 +220,55 @@ export default {
 
   created() {
     this.imageName = this.$route.query?.image || '';
+    this.registerAfterHook(() => { // when fetch end, need add type to find correct schema
+      this.$set(this.value, 'type', VM);
+    });
   },
 
   mounted() {
     if (this.$route.query?.templateId) {
       this.templateName = this.$route.query?.templateId;
-      this.templateVersion = this.$route.query?.version;
-      this.firstLaunch = true;
+      this.templateVersion = this.$route.query?.version?.replace(':', '/');
+      this.isLanuchFromTemplate = true;
       this.useTemplate = true;
     }
   },
 
   methods: {
     saveVM(buttonCb) {
-      if (!this.imageName) {
-        this.errors = ['Please select image!'];
-        buttonCb(true);
+      const isPass = this.verifyBefSave(buttonCb);
 
+      if (!isPass) {
         return;
       }
-      this.$set(this.value, 'type', 'kubevirt.io.virtualmachine');
-      const url = 'v1/kubevirt.io.virtualmachines';
+
+      this.$set(this.value, 'type', VM); // if not successed, need pass type prop to find something
+      const url = `v1/${ VM }s`;
 
       this.$set(this.value.metadata, 'name', this.hostname);
 
       this.normalizeSpec();
-      this.$delete(this.value, 'type');
+      this.$delete(this.value, 'type'); // vm api don't type attribuet, the error will be reported
       this.save(buttonCb, url);
     },
+
+    getRandomHostname(name) {
+      const prefix = name?.split(/[.|_]+/)[0] || '';
+      const time = name ? `-${ moment().format('YYYY-MMDD-HHmm') }-${ randomstring.generate(5).toLowerCase() }` : '';
+
+      return `${ prefix.toLowerCase() }${ time }`;
+    },
+
+    verifyBefSave(buttonCb) {
+      if (!this.imageName) {
+        this.errors = ['Please select image!'];
+        buttonCb(false);
+
+        return false;
+      } else {
+        return true;
+      }
+    }
   },
 };
 </script>
@@ -267,7 +303,7 @@ export default {
     <h2>CPU & Memory:</h2>
     <div class="row">
       <div class="col span-6">
-        <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number label="CPU (core)" required />
+        <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number type="number" label="CPU (core)" required />
       </div>
 
       <div class="col span-6">

@@ -171,6 +171,7 @@ export default {
         buttonDone(true);
         this.done();
       } catch (err) {
+        await this.applyHooks(AFTER_SAVE_HOOKS);
         this.errors = exceptionToErrorsArray(err);
         buttonDone(false);
       }

@@ -48,5 +48,13 @@ export default {
 
       this.currentRouter().push(location);
     };
+  },
+
+  defaultVersionId() {
+    return this.spec?.defaultVersionId;
+  },
+
+  defaultVersionNumber() {
+    return this.status?.defaultVersion;
   }
 };

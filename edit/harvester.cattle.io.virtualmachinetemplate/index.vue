@@ -215,7 +215,7 @@ export default {
     <h2>CPU & Memory::</h2>
     <div class="row">
       <div class="col span-5">
-        <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number label="CPU Request(core)" required />
+        <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number type="number" label="CPU Request(core)" required />
       </div>
 
       <div class="col span-7">

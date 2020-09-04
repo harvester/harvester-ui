@@ -195,6 +195,7 @@ export default {
       _.remove(baseOrder, (n) => {
         return this.choosedOrder.includes(n);
       });
+      baseOrder.unshift('----------');
 
       return baseOrder;
     },
@@ -216,6 +217,11 @@ export default {
   },
 
   methods: {
+    updateBootOrder(neu) {
+      if (neu === '----------') {
+        this.currentRow.bootOrder = '';
+      }
+    },
     beforeCancel() {
       this.$set(this, 'errors', []);
     },
@@ -377,7 +383,10 @@ export default {
           v-model="currentRow.bootOrder"
           label="Boot Order"
           class="mb-20"
+          :clearable="true"
+          :searchable="true"
           :options="bootOrderOption"
+          @input="updateBootOrder"
         />
 
         <Collapse v-if="!isAttachVolume && !isContainerDisk" :open.sync="enableAdvanced">
