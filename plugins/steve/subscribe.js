@@ -4,7 +4,8 @@ import Socket, {
   EVENT_DISCONNECTED,
   EVENT_MESSAGE,
   //  EVENT_FRAME_TIMEOUT,
-  EVENT_CONNECT_ERROR
+  EVENT_CONNECT_ERROR,
+  STATE_CONNECTED
 } from '@/utils/socket';
 
 export const actions = {
@@ -195,7 +196,7 @@ export const actions = {
   },
 
   send({ state, commit }, obj) {
-    if ( state.socket ) {
+    if ( state.socket && state.socket.state === STATE_CONNECTED) {
       return state.socket.send(JSON.stringify(obj));
     } else {
       commit('enqueuePending', obj);
