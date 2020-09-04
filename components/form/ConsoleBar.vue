@@ -49,7 +49,7 @@ export default {
         url = `//${ window.location.host }/${ prefix }/#/console/${ uid }/vnc`;
       }
 
-      window.open(url, '_blank', 'toolbars=0,width=1024,height=400,left=200,top=200');
+      window.open(url, '_blank', 'toolbars=0,width=1032,height=769,left=0,top=0');
     },
     showSerial() {
       const prefix = getPrefix();
@@ -65,7 +65,7 @@ export default {
         url = `//${ window.location.host }/${ prefix }/#/console/${ uid }/serial`;
       }
 
-      window.open(url, '_blank', 'toolbars=0,width=1024,height=400,left=200,top=200');
+      window.open(url, '_blank', 'toolbars=0,width=1032,height=768,left=0,top=0');
     },
     isEmpty(o) {
       return o !== undefined && Object.keys(o).length === 0;

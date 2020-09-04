@@ -200,7 +200,7 @@ export default {
         Height: rows
       });
 
-      // this.socket.send(this.str2ab(message));
+      this.socket.send(this.str2ab(message));
     },
 
     close() {
@@ -217,12 +217,21 @@ export default {
 </script>
 
 <template>
-  <div>
-    <div ref="xterm" />
+  <div class="shell-container">
+    <div ref="xterm" class="shell-body" />
     <resize-observer @notify="fit" />
   </div>
 </template>
 
 <style lang="scss">
   @import '@/node_modules/xterm/css/xterm.css';
+
+  .shell-container {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .shell-body, .terminal.xterm {
+    height: 100%;
+  }
 </style>

@@ -33,3 +33,9 @@ export default {
 <template>
   <Console ref="console" v-model="vmi" />
 </template>
+
+<style lang="scss">
+  body, #__nuxt, #__layout, main, #app, .vm-console, .vm-console >div, .vm-console >div >div{
+    height: 100%;
+  }
+</style>
