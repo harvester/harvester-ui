@@ -33,3 +33,9 @@ export default {
 <template>
   <SerialConsole ref="serialConsole" v-model="vmi" />
 </template>
+
+<style lang="scss">
+  body, #__nuxt, #__layout, main {
+    height: 100%;
+  }
+</style>

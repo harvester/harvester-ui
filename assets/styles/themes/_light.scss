@@ -176,9 +176,10 @@ $selected: rgba($primary, .5);
   --simple-box-divider         : #{$medium};
   --simple-box-shadow          : rgba(0, 0, 0, 0.2);
 
-  --terminal-bg                : var(--body-bg);
+  // --terminal-bg                : var(--body-bg);
+  --terminal-bg                : #{darkest};
   --terminal-cursor            : var(--warning);
-  --terminal-text              : var(--body-text);
+  --terminal-text              : #{lightest};
 
   --logs-bg                    : var(--wm-body-bg);
   --logs-highlight             : var(--wm-body-bg);
