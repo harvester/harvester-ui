@@ -697,7 +697,7 @@ export default {
 
   actionLinkFor() {
     return (actionName) => {
-      return (this.actions || {})[actionName];
+      return (this.actions || {})[actionName].replace(`${ window.location.origin }/`, '');
     };
   },
 
