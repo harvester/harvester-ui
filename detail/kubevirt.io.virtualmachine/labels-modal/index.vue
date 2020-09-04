@@ -29,6 +29,7 @@ export default {
     },
     save() {
       this.$emit('update');
+      this.$emit('close');
     },
   }
 };
