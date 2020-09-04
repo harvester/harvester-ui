@@ -52,11 +52,7 @@ export default {
 <template>
   <div class="vm-choose-image">
     <h2>
-      Create Source
-      <p class="sub-title">
-        When use existing VM template and revision, the source image is not editable,
-        it will default to the selected OS image of the VM template.
-      </p>
+      Choose an Image:
     </h2>
 
     <div class="box">
