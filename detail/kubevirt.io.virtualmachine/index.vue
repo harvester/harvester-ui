@@ -25,8 +25,12 @@ export default {
     },
   },
 
+  fetch() {
+    this.getEvents();
+  },
+
   data() {
-    return { allEvents: [] };
+    return {};
   },
 
   computed: {
@@ -38,6 +42,9 @@ export default {
 
       return vmi;
     },
+    allEvents() {
+      return this.$store.getters['cluster/all'](EVENT);
+    },
     events() {
       return this.allEvents.filter((e) => {
         return e?.involvedObject?.name === this.value?.metadata?.name;
@@ -45,15 +52,9 @@ export default {
     },
   },
 
-  created() {
-    this.getEvents();
-  },
-
   methods: {
-    async getEvents() {
-      const choices = await this.$store.dispatch('cluster/findAll', { type: EVENT });
-
-      this.allEvents = choices || [];
+    getEvents() {
+      this.$store.dispatch('cluster/findAll', { type: EVENT });
     }
   }
 };
