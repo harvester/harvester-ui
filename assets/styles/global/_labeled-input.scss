@@ -102,6 +102,17 @@
     }
   }
 
+  &--tooltip {
+    .el-tooltip {
+      position: relative;
+      z-index: 10;
+    }
+
+    input {
+      margin-top: -16px;
+    }
+  }
+
   /*!
   * Bootstrap v3.3.7 (http://getbootstrap.com)
   * Copyright 2011-2016 Twitter, Inc.

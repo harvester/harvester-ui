@@ -79,6 +79,7 @@ export default {
         <LabeledInput
           v-model="url"
           :mode="mode"
+          class="labeled-input--tooltip"
         >
           <template v-slot:label>
             <div>

@@ -334,7 +334,7 @@ export default {
     <h2>Finalize and Create</h2>
     <div class="row">
       <div class="col span-6">
-        <LabeledInput v-model="hostname" required>
+        <LabeledInput v-model="hostname" class="labeled-input--tooltip" required>
           <template v-slot:label>
             <div>
               <span class="label">Host Name</span>
