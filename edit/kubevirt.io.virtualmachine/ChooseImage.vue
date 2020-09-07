@@ -24,7 +24,7 @@ export default {
   computed: {
     readiedImages() {
       return this.images.filter( (I) => {
-        return I.spec.displayName.includes(this.searchKey) && I.isReady;
+        return (I.spec.displayName.toLowerCase()).includes(this.searchKey) && I.isReady;
       });
     }
   },
