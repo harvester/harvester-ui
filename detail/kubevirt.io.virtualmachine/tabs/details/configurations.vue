@@ -115,7 +115,7 @@ export default {
       const labels = this.value?.metadata?.labels;
       let profile = null;
 
-      Object.keys(labels).forEach((key) => {
+      Object.keys(labels || {}).forEach((key) => {
         if (key.includes(TEMPLATE_WORKLOAD_LABEL)) {
           profile = labels[key];
         }

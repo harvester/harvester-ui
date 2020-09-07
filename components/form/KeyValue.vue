@@ -344,6 +344,10 @@ export default {
       const keyName = this.keyName;
       const valueName = this.valueName;
 
+      if (this.rows.length === 0) {
+        return this.$emit('input', out);
+      }
+
       for ( const row of this.rows ) {
         let value = (row[valueName] || '');
         const key = (row[keyName] || '').trim();
