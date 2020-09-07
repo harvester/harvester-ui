@@ -47,7 +47,7 @@ export default {
   data() {
     let spec = this.value.spec;
 
-    this.value.metadata.labels = { 'harvester.cattle.io/imageId': 'harvester' };
+    this.value.metadata.labels = { 'harvester.cattle.io/creator': 'harvester' };
 
     if ( !spec ) {
       spec = {
@@ -146,8 +146,37 @@ export default {
       get() {
         return this.spec.template.spec.hostname;
       },
-      set() {
+      set(neu) {
+        try {
+          const spec = {
+            ...this.spec,
+            template: {
+              ...this.spec.template,
+              metadata: {
+                labels: {
+                  'harvester.cattle.io/creator': 'harvester',
+                  'harvester.cattle.io/vmName':  neu
+                }
+              },
+              spec: {
+                ...this.spec.template.spec,
+                hostname: neu
+              }
+            }
+          };
 
+          this.$set(this, 'spec', spec);
+
+          const oldCloudConfig = safeLoad(this.cloudInit);
+
+          oldCloudConfig.hostname = neu;
+          const neuCloudConfig = safeDump(oldCloudConfig);
+
+          this.$set(this, 'cloudInit', neuCloudConfig);
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log('---watch hostname has error');
+        }
       }
     },
   },
@@ -183,39 +212,6 @@ export default {
 
       this.isLanuchFromTemplate = false;
     },
-
-    hostname(neu) {
-      try {
-        const spec = {
-          ...this.spec,
-          template: {
-            ...this.spec.template,
-            metadata: {
-              labels: {
-                'harvester.cattle.io/creator': 'harvester',
-                'harvester.cattle.io/vmName':  neu
-              }
-            },
-            spec: {
-              ...this.spec.template.spec,
-              hostname: neu
-            }
-          }
-        };
-
-        this.$set(this, 'spec', spec);
-
-        const oldCloudConfig = safeLoad(this.cloudInit);
-
-        oldCloudConfig.hostname = neu;
-        const neuCloudConfig = safeDump(oldCloudConfig);
-
-        this.$set(this, 'cloudInit', neuCloudConfig);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log('---watch hostname has error');
-      }
-    }
   },
 
   created() {
