@@ -89,18 +89,11 @@ export default {
       <div v-if="hasAnnotations" class="annotations">
         <label>{{ t('resourceDetail.detailTop.annotations') }}:</label>
         <a v-if="!annotationsVisible" href="#" @click="showAnnotations">{{ t('resourceDetail.detailTop.showAnnotations', {annotations: annotationCount}) }}</a>
-        <table v-else>
-          <tbody>
-            <tr v-for="(value, key) in annotations" :key="key + value">
-              <td>
-                {{ key }}
-              </td>
-              <td>
-                {{ value }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-else class="tags">
+          <Tag v-for="(value, key) in annotations" :key="key + value">
+            {{ key }}<span v-if="value">: </span>{{ value }}
+          </Tag>
+        </div>
       </div>
     </div>
   </div>

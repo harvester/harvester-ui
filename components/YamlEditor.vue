@@ -221,7 +221,7 @@ export default {
     }
 
   .diff-mode {
-    background-color: var(--diff-header-bg);
+    // background-color: var(--diff-header-bg);
     padding: 5px 5px;
 
     border-bottom-right-radius: 0;

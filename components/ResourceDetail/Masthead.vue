@@ -50,10 +50,14 @@ export default {
     },
 
     h1() {
-      const out = this.$store.getters['i18n/t'](`resourceDetail.header.${ this.realMode }`, {
+      let out = this.$store.getters['i18n/t'](`resourceDetail.header.${ this.realMode }`, {
         type: this.$store.getters['type-map/labelFor'](this.schema),
         name: this.value.nameDisplay,
       });
+
+      if (out && out.length > 63) {
+        out = out.substring(0, 63);
+      }
 
       return out;
     },
