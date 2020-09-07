@@ -1,6 +1,7 @@
 <script>
 import _ from 'lodash';
 import Footer from '@/components/form/Footer';
+import Collapse from '@/components/Collapse';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
 import DiskModal from '@/components/form/DiskModal';
@@ -21,6 +22,7 @@ export default {
   components: {
     Footer,
     Checkbox,
+    Collapse,
     LabeledInput,
     MemoryUnit,
     AddSSHKey,
@@ -256,8 +258,10 @@ export default {
 
     <div class="spacer"></div>
 
-    <h2>Cloud-init:</h2>
-    <TextAreaAutoGrow ref="value" v-model="cloudInit" :min-height="160" />
+    <Collapse :open.sync="showCloudInit" title="Cloud-init">
+      <h2>User Data:</h2>
+      <TextAreaAutoGrow ref="value" v-model="cloudInit" :min-height="160" />
+    </Collapse>
 
     <div class="spacer"></div>
 

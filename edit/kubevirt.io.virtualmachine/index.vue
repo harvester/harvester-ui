@@ -323,13 +323,13 @@ export default {
 
     <div class="spacer"></div>
 
-    <h2>Authentication</h2>
+    <h2>Authentication:</h2>
     <AddSSHKey :key="sshKey.toString()" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
 
     <div class="spacer"></div>
 
     <Collapse :open.sync="showCloudInit" title="Cloud-init">
-      <h2>Cloud-init:</h2>
+      <h2>User Data:</h2>
       <TextAreaAutoGrow ref="value" v-model="cloudInit" :min-height="160" />
     </Collapse>
 
