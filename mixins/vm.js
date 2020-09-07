@@ -33,7 +33,7 @@ export default {
   },
 
   data() {
-    let cloudInit = `#cloud-config\nname: default`;;
+    let cloudInit = `name: default`;;
 
     return {
       cloudInit,
@@ -388,7 +388,7 @@ export default {
         volumes.push({
           name:             'cloudinitdisk',
           cloudInitNoCloud: {
-            userData: this.cloudInit
+            userData: `#cloud-config\n${ this.cloudInit }`
           }
         });
       }
@@ -564,6 +564,7 @@ export default {
       if (neu) {
         try {
           newInitScript = safeLoad(neu);
+          console.log('----newInitScript', newInitScript)
           if (newInitScript.hostname) {
             this.hostname = newInitScript.hostname;
           } else {

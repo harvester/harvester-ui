@@ -221,7 +221,7 @@ export default {
     </div>
     <div class="min-spacer"></div>
 
-    <Checkbox v-model="isDefaultVersion" label="Default Revison" type="checkbox" />
+    <Checkbox v-if="isAdd" v-model="isDefaultVersion" label="Default version" type="checkbox" />
     <div class="spacer"></div>
 
     <ChooseImage v-model="imageName" />
