@@ -39,12 +39,6 @@ export default {
     },
   },
 
-  async fetch() {
-    const version = await this.$store.getters['cluster/all'](VM_TEMPLATE.version);
-
-    this.versions = version;
-  },
-
   data() {
     let templateSpec = this.value.spec;
     const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
@@ -98,18 +92,21 @@ export default {
       versionOption:    [],
       description:      '',
       templateVersion:  [],
+      chooseDefault:    false,
       defaultVersion:   null,
       isRunning:        true,
       useTemplate:      false,
       isDefaultVersion:  false,
       keyPairIds:       [],
-      versions:         []
     };
   },
 
   computed: {
     isAdd() {
       return this.$route.query.type === _ADD;
+    },
+    allTemplate() {
+      return this.$store.getters['cluster/all'](VM_TEMPLATE.template);
     },
   },
 
@@ -126,20 +123,19 @@ export default {
       });
       this.keyPairIds = out;
     },
-    versions(neu) {
-      if (neu.length === 0) {
-        return;
-      }
-      let defaultVersion = null;
-
-      if (this.mode === _EDIT) {
-        const version = this.$route.query?.version || this.value.spec.defaultVersionId;
-
-        defaultVersion = neu.find( O => version.replace(':', '/') === O.id);
-        const spec = defaultVersion?.spec?.vm;
-
-        this.$set(this, 'spec', spec);
-      }
+    allTemplate: {
+      handler(all) {
+        if (this.chooseDefault) {
+          all.map( (O) => {
+            if (O.metadata.name === this.value?.metadata?.name) {
+              this.$set(this.value, 'metadata', O.metadata);
+              this.setVersion(this.defaultVersionId, () => {});
+              this.chooseDefault = false;
+            }
+          });
+        }
+      },
+      deep: true
     }
   },
 
@@ -154,9 +150,6 @@ export default {
       if (!this.isAdd) {
         this.value.metadata.namespace = 'harvester-system';
         await this.save(buttonCb);
-      } else {
-        buttonCb(true);
-        this.done();
       }
 
       this.normalizeSpec();
@@ -181,6 +174,13 @@ export default {
             }
           },
         });
+
+        if (this.isDefaultVersion) {
+          const defaultVersionId = versionInfo.id.replace('/', ':');
+
+          this.defaultVersionId = defaultVersionId;
+          this.chooseDefault = true;
+        }
       } catch (err) {
         // _this.errors.splice(0, 1, err.message);
         const message = err.message;
@@ -188,6 +188,22 @@ export default {
         this.errors = [message];
       }
     },
+
+    async setVersion(id, buttonCb) {
+      delete this.value._type;
+
+      const url = `v1/harvester.cattle.io.virtualmachinetemplates/default/${ this.value.metadata.name }`;
+
+      this.value.spec.defaultVersionId = id.replace('/', ':');
+      try {
+        await this.value.save(buttonCb, url);
+        buttonCb(true);
+        this.done();
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log(err);
+      }
+    }
   },
 };
 </script>

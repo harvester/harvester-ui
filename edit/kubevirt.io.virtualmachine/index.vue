@@ -399,10 +399,6 @@ export default {
     }
 
     tbody tr {
-      &:nth-child(even) {
-        background-color: var(--input-border)
-      }
-
       td {
         height: 60px;
         padding-left: 20px;
