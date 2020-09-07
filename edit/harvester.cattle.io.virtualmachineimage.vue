@@ -63,11 +63,27 @@ export default {
 
   methods: {
     saveImage(buttonCb) {
-      if (this.value.metadata.namespace) {
+      const isPass = this.verifyBefSave(buttonCb);
+
+      if (!isPass) {
+        return;
+      }
+
+      if (this.value.metadata.namespace && this.mode === 'create') {
         this.$delete(this.value.metadata, 'namespace');
       }
       this.save(buttonCb);
     },
+    verifyBefSave(buttonCb) {
+      if (!this.value.spec.url || this.value.spec.url.trim() === '') {
+        this.errors = ['Please input image url!'];
+        buttonCb(false);
+
+        return false;
+      } else {
+        return true;
+      }
+    }
   }
 };
 </script>
