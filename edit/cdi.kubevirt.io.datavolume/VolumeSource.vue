@@ -225,7 +225,7 @@ export default {
       @input="update"
     />
 
-    <MemoryUnit v-model="storage" value-name="Size (Gi)" class="mb-20" />
+    <MemoryUnit v-model="storage" value-name="Size" class="mb-20" />
 
     <LabeledSelect
       v-if="!isContainer"

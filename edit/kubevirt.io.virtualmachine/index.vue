@@ -281,7 +281,7 @@ export default {
       </div>
 
       <div class="col span-6">
-        <MemoryUnit v-model="memory" value-name="Memory (Gi)" :value-col="8" :unit-col="4" />
+        <MemoryUnit v-model="memory" value-name="Memory" :value-col="8" :unit-col="4" />
       </div>
     </div>
 

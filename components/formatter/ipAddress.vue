@@ -18,27 +18,15 @@ export default {
     },
   },
 
-  data() {
-    this.getResource();
-
-    return { resource: null };
-  },
-
   computed: {
     ip() {
-      return this.resource?.status?.interfaces?.[0]?.ipAddress;
-    }
-  },
-
-  methods: {
-    async getResource() {
       const VMI = 'kubevirt.io.virtualmachineinstance';
-      const choices = await this.$store.dispatch('cluster/findAll', { type: VMI });
+      const choices = this.$store.getters['cluster/all'](VMI);
       const resource = choices.find(VMI => VMI.id === this.value) || null;
 
-      this.resource = resource;
-    },
-  }
+      return resource?.status?.interfaces?.[0]?.ipAddress;
+    }
+  },
 };
 </script>
 

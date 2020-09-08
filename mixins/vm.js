@@ -355,7 +355,6 @@ export default {
           newInitScript = safeLoad(this.cloudInit);
           console.log('------newInitScript set', newInitScript, newInitScript.hostname)
           if (!newInitScript.hostname) {
-            console.log('----sss', newInitScript.hostname)
             newInitScript.hostname = this.value?.metadata?.name || '';
             const neuCloudConfig = safeDump(newInitScript);
             console.log('----newInitScript neuCloudConfig', neuCloudConfig, this.value.metadata.name)

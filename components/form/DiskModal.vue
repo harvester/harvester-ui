@@ -365,7 +365,7 @@ export default {
           required
         />
 
-        <MemoryUnit v-if="!isContainerDisk" v-model="currentRow.size" value-name="Size (Gi)" class="mb-20" />
+        <MemoryUnit v-if="!isContainerDisk" v-model="currentRow.size" value-name="Size" class="mb-20" />
 
         <LabeledSelect v-model="currentRow.bus" label="Bus" class="mb-20" :options="InterfaceOption" required />
 
