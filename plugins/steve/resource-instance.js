@@ -985,8 +985,8 @@ export default {
   },
 
   promptRemove() {
-    return (resources = this) => {
-      this.$dispatch('promptRemove', resources);
+    return (resources = this, args) => {
+      this.$dispatch('promptRemove', { resources, args });
     };
   },
 

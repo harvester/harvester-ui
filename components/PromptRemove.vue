@@ -113,7 +113,7 @@ export default {
       return this.t('promptRemove.protip', { alternateLabel });
     },
 
-    ...mapState('action-menu', ['showPromptRemove', 'toRemove']),
+    ...mapState('action-menu', ['showPromptRemove', 'toRemove', 'rushRemove']),
     ...mapGetters({ t: 'i18n/t' })
   },
 
@@ -124,12 +124,19 @@ export default {
       } else {
         this.$modal.hide('promptRemove');
       }
+    },
+
+    rushRemove(rush) {
+      if (rush) {
+        this.remove();
+      }
     }
   },
 
   methods: {
     close() {
       this.confirmName = '';
+      this.$store.commit('action-menu/cleanRushRemove');
       this.$store.commit('action-menu/togglePromptRemove');
     },
 

@@ -253,7 +253,7 @@ function _execute(resources, action, args) {
     const fn = resources[0][action.bulkAction];
 
     if ( fn ) {
-      return fn.call(resources[0], resources, ...args);
+      return fn.call(resources[0], resources, args);
     }
   }
 
