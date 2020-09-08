@@ -53,6 +53,7 @@ export default {
 <template>
   <el-card class="mt-20 keypair-card">
     <LabeledInput
+      v-if="mode !== 'view'"
       v-model="value.metadata.name"
       label="Name"
       class="mb-20"
