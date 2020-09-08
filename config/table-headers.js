@@ -3,7 +3,7 @@
 export const STATE = {
   name:      'state',
   labelKey:  'tableHeaders.state',
-  sort:      ['stateSort', 'nameSort'],
+  sort:      'stateDisplay',
   value:     'stateDisplay',
   width:     100,
   default:   'unknown',

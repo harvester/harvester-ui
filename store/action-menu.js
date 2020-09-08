@@ -9,7 +9,8 @@ export const state = function() {
     elem:             null,
     event:            null,
     showPromptRemove: false,
-    toRemove:         []
+    toRemove:         [],
+    rushRemove:       false,
   };
 };
 
@@ -60,20 +61,37 @@ export const mutations = {
     state.elem = elem;
     state.event = event;
     state.show = true;
+
+    state.rushRemove = false;
+    this.dispatch('listeners/onKeyDown');
   },
 
   hide(state) {
     state.show = false;
     state.resources = null;
     state.elem = null;
+
+    this.dispatch('listeners/offKeyDown');
   },
-  togglePromptRemove(state, resources = []) {
-    state.showPromptRemove = !state.showPromptRemove;
+
+  togglePromptRemove(state, { resources = [], args = {} } = {}) {
+    if (isArray(resources) && resources.length === 0) {
+      state.showPromptRemove = false;
+    } else if (this.getters['listeners/commandDown'] || args.alt) {
+      state.rushRemove = true;
+    } else {
+      state.showPromptRemove = !state.showPromptRemove;
+    }
+
     if (!isArray(resources)) {
       resources = [resources];
     }
     state.toRemove = resources;
-  }
+  },
+
+  cleanRushRemove(state) {
+    state.rushRemove = false;
+  },
 };
 
 export const actions = {
