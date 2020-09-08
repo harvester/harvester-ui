@@ -4,11 +4,12 @@ import { VM } from '@/config/types';
 export default {
   availableActions() {
     const out = this._standardActions;
+    const b = this.stateDisplay !== 'Failed';
 
     return [
       {
         action:     'createFromImage',
-        enabled:    true,
+        enabled:    b,
         icon:       'icon icon-fw icon-spinner',
         label:      'Create a Virtual Machine',
       },
