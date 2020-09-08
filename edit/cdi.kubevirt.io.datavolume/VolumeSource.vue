@@ -21,6 +21,11 @@ export default {
       default: () => {
         return {};
       }
+    },
+
+    mode: {
+      type:    String,
+      default: ''
     }
   },
 
@@ -195,6 +200,7 @@ export default {
       label="Source"
       :options="sourceOption"
       required
+      :mode="mode"
       class="mb-20"
       @input="update"
     />
@@ -204,6 +210,7 @@ export default {
       v-model="container"
       label="Container Image"
       class="mb-20"
+      :mode="mode"
       required
     />
 
@@ -213,6 +220,7 @@ export default {
       label="Select an Image"
       :options="ImageOption"
       required
+      :mode="mode"
       class="mb-20"
       @input="update"
     />
@@ -224,15 +232,16 @@ export default {
       v-model="storageClassName"
       label="Storage Class"
       :options="storageOption"
+      :mode="mode"
       required
       class="mb-20"
       @input="update"
     />
 
     <Collapse :open.sync="isShowAdvanced">
-      <LabeledSelect v-model="volumeMode" label="Volume Mode" :options="volumeModeOption" class="mb-20" />
+      <LabeledSelect v-model="volumeMode" label="Volume Mode" :mode="mode" :options="volumeModeOption" class="mb-20" />
 
-      <LabeledSelect v-model="accessMode" label="Access Model" :options="accessModeOption" />
+      <LabeledSelect v-model="accessMode" label="Access Model" :mode="mode" :options="accessModeOption" />
     </Collapse>
   </div>
 </template>

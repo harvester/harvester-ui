@@ -195,7 +195,7 @@ export default {
       _.remove(baseOrder, (n) => {
         return this.choosedOrder.includes(n);
       });
-      baseOrder.unshift('----------');
+      baseOrder.unshift('-');
 
       return baseOrder;
     },
@@ -218,7 +218,7 @@ export default {
 
   methods: {
     updateBootOrder(neu) {
-      if (neu === '----------') {
+      if (neu === '-') {
         this.currentRow.bootOrder = '';
       }
     },
@@ -345,7 +345,6 @@ export default {
         />
 
         <LabeledSelect
-          v-if="!isContainerDisk"
           v-model="currentRow.type"
           :options="typeOption"
           label="Type"
