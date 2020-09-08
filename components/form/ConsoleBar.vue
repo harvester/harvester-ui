@@ -49,7 +49,7 @@ export default {
         url = `//${ window.location.host }/${ prefix }/#/console/${ uid }/vnc`;
       }
 
-      window.open(url, '_blank', 'toolbars=0,width=1032,height=769,left=0,top=0');
+      window.open(url, '_blank', 'toolbars=0,width=900,height=700,left=0,top=0');
     },
     showSerial() {
       const prefix = getPrefix();
@@ -65,7 +65,7 @@ export default {
         url = `//${ window.location.host }/${ prefix }/#/console/${ uid }/serial`;
       }
 
-      window.open(url, '_blank', 'toolbars=0,width=1032,height=768,left=0,top=0');
+      window.open(url, '_blank', 'toolbars=0,width=900,height=700,left=0,top=0');
     },
     isEmpty(o) {
       return o !== undefined && Object.keys(o).length === 0;
@@ -83,7 +83,7 @@ export default {
       @click="showVnc()"
       @command="handleDropdown"
     >
-      <span class="el-icon-connection">Console</span>
+      <span class="el-icon-connection">&nbsp;Console</span>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item command="vnc">
           Open in Web VNC
