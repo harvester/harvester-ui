@@ -63,6 +63,7 @@ export default {
         <div class="row">
           <div class="col span-4">
             <ResourceState v-model="event.involvedObject.kind" />
+            <ResourceState v-if="event._type !== 'Normal'" v-model="event._type" />
             {{ event.involvedObject.name }}
           </div>
           <div class="col span-4 text-center">
@@ -75,10 +76,14 @@ export default {
           <!-- <div class="col-12"></div> -->
         </div>
         <div class="row mt-10">
-          <div class="col span-6">
+          <div class="col span-12">
+            Reason is {{ event.reason }}
+          </div>
+        </div>
+        <div class="row mt-10">
+          <div class="col span-12">
             {{ t("vm.detail.events.from") }} {{ event.source.component }}
           </div>
-          <div class="col span-6"></div>
         </div>
         <div class="row mt-10">
           <div class="col span-12">

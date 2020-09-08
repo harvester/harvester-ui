@@ -4,12 +4,16 @@ const VMI = 'VirtualMachineInstance';
 const POD = 'Pod';
 const NAMESPACE = 'Namespace';
 const NODE = 'Node';
+const WARNING = 'Warning';
+const ERROR = 'Error';
 const Mapping = {
   [VM]:        'VM',
   [VMI]:       'VMI',
   [POD]:       'P',
   [NAMESPACE]: 'NS',
-  [NODE]:      'N'
+  [NODE]:      'N',
+  [WARNING]:   WARNING,
+  [ERROR]:     ERROR
 };
 
 export default {
@@ -39,13 +43,19 @@ export default {
     },
     isNode() {
       return this.value === NODE;
+    },
+    isWarning() {
+      return this.value === WARNING;
+    },
+    isError() {
+      return this.value === ERROR;
     }
   },
 };
 </script>
 
 <template>
-  <span :class="{'badge-state': true, 'bg-success': isPod, 'bg-vmi': isVMI, 'bg-tip': isVM, 'bg-ns': isNS, 'bg-node': isNode,}">
+  <span :class="{'badge-state': true, 'bg-success': isPod, 'bg-vmi': isVMI, 'bg-tip': isVM, 'bg-ns': isNS, 'bg-node': isNode, 'bg-warning': isWarning, 'bg-error': isError}">
     <template>{{ mapping[value] }}</template>
   </span>
 </template>
@@ -61,7 +71,7 @@ export default {
       border-color: var(--primary);
     }
 
-    &.bg-error {
+    &.bg-error, &.bg-danger {
       border-color: var(--error);
     }
 

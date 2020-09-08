@@ -58,6 +58,7 @@ export default {
         </div>
         <div v-if="!row.collapse" class="overview-events__content">
           <ResourceState v-model="row.involvedObject.kind" />
+          <ResourceState v-if="row._type !== 'Normal'" v-model="row._type" />
           <div class="overview-events__text">
             {{ row.message }}
           </div>
@@ -68,6 +69,7 @@ export default {
       </div>
       <div v-if="row.collapse" class="overview-events__collapse">
         <ResourceState v-model="row.involvedObject.kind" />
+        <ResourceState v-if="row._type !== 'Normal'" v-model="row._type" />
         {{ row.involvedObject.name }}
         <div class="overview-events__text">
           {{ row.message }}
