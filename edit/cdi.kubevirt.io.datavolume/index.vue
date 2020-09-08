@@ -70,12 +70,13 @@ export default {
 <template>
   <div>
     <NameNsDescription
+      v-if="isCreate"
       :value="value"
       :mode="mode"
       name-label="Name"
     />
 
-    <VolumeSource v-model="spec" class="mb-20" @update:annotation="updateAnnotation" />
+    <VolumeSource v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnnotation" />
 
     <ResourceTabs :key="randow" v-model="value" :mode="mode" />
 

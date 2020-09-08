@@ -155,7 +155,6 @@ export default {
       }
 
       this.normalizeSpec();
-      const _this = this;
 
       try {
         const versionInfo = await this.$store.dispatch('management/request', {
@@ -182,9 +181,11 @@ export default {
 
           this.defaultVersionId = defaultVersionId;
           this.chooseDefault = true;
+        } else {
+          buttonCb(true);
+          this.done();
         }
       } catch (err) {
-        // _this.errors.splice(0, 1, err.message);
         const message = err.message;
 
         this.errors = [message];

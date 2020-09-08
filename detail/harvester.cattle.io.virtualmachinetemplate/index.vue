@@ -51,19 +51,7 @@ export default {
 <template>
   <div class="mt-20">
     <el-card class="box-card">
-      <div slot="header" class="clearfix">
-        <div class="row">
-          <div class="col span-11">
-            <h2>Vm template details</h2>
-          </div>
-        </div>
-      </div>
       <div class="row">
-        <div class="col span-3">
-          <div>template name</div>
-          <div>{{ value.metadata.name }}</div>
-        </div>
-
         <div class="col span-3">
           <div>Default template</div>
           <div>{{ defaultVersion }}</div>

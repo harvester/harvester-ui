@@ -4,6 +4,7 @@ import moment from 'moment';
 import randomstring from 'randomstring';
 import { safeLoad, safeDump } from 'js-yaml';
 import Footer from '@/components/form/Footer';
+import NameNsDescription from '@/components/form/NameNsDescription';
 import Collapse from '@/components/Collapse';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
@@ -30,6 +31,7 @@ export default {
     AddSSHKey,
     ChooseImage,
     NetworkModal,
+    NameNsDescription,
     LabeledInput,
     LabeledSelect,
     TextAreaAutoGrow,
@@ -96,7 +98,6 @@ export default {
       isRunning:            true,
       useTemplate:          false,
       pageType:             'vm',
-      emptyHostname:        false,
       isLanuchFromTemplate:     false
     };
   },
@@ -148,30 +149,12 @@ export default {
       },
       set(neu) {
         try {
-          const spec = {
-            ...this.spec,
-            template: {
-              ...this.spec.template,
-              metadata: {
-                labels: {
-                  'harvester.cattle.io/creator': 'harvester',
-                  'harvester.cattle.io/vmName':  neu
-                }
-              },
-              spec: {
-                ...this.spec.template.spec,
-                hostname: neu
-              }
-            }
-          };
-
-          this.$set(this, 'spec', spec);
-
           const oldCloudConfig = safeLoad(this.cloudInit);
 
           oldCloudConfig.hostname = neu;
           const neuCloudConfig = safeDump(oldCloudConfig);
 
+          this.$set(this.spec.template.spec, 'hostname', neu);
           this.$set(this, 'cloudInit', neuCloudConfig);
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -241,18 +224,13 @@ export default {
       this.$set(this.value, 'type', VM); // if not successed, need pass type prop to find something
       const url = `v1/${ VM }s`;
 
-      this.$set(this.value.metadata, 'name', this.hostname);
+      const realHostname = this.value.spec.template.spec.hostname || this.value.metadata.name;
+
+      this.$set(this.value.spec.template.spec, 'hostname', realHostname);
 
       this.normalizeSpec();
       this.$delete(this.value, 'type'); // vm api don't type attribuet, the error will be reported
       this.save(buttonCb, url);
-    },
-
-    getRandomHostname(name) {
-      const prefix = name?.split(/[.|_]+/)[0] || '';
-      const time = name ? `-${ moment().format('YYYY-MMDD-HHmm') }-${ randomstring.generate(5).toLowerCase() }` : '';
-
-      return `${ prefix.toLowerCase() }${ time }`;
     },
 
     verifyBefSave(buttonCb) {
@@ -271,11 +249,11 @@ export default {
 
 <template>
   <div id="vm">
-    <div class="row">
-      <div class="col span-6">
-        <LabeledSelect v-model="value.metadata.namespace" :options="namespaceOptions" label="Namespace" />
-      </div>
-    </div>
+    <NameNsDescription
+      v-model="value"
+      :mode="mode"
+      name-label="Name"
+    />
 
     <div class="min-spacer"></div>
     <Checkbox v-model="useTemplate" class="check" type="checkbox" label="Use an existing VM Template:" />
@@ -334,7 +312,7 @@ export default {
     <h2>Finalize and Create</h2>
     <div class="row">
       <div class="col span-6">
-        <LabeledInput v-model="hostname" class="labeled-input--tooltip" required>
+        <LabeledInput v-model="hostname" class="labeled-input--tooltip" required placeholder="default to the virtual machine name.">
           <template v-slot:label>
             <div>
               <span class="label">Host Name</span>
@@ -347,9 +325,6 @@ export default {
             </div>
           </template>
         </LabeledInput>
-      </div>
-      <div class="col span-6">
-        <LabeledInput v-model="value.metadata.description" label="Description" type="multiline" />
       </div>
     </div>
 

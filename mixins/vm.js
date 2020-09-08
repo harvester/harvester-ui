@@ -346,6 +346,28 @@ export default {
       return out;
     },
 
+    setHostnameToCloud() {
+      if (!this.pageType === 'vm' && !this.value?.metadata?.name) return;
+
+      let newInitScript = {};
+      if (this.cloudInit) {
+        try {
+          newInitScript = safeLoad(this.cloudInit);
+          console.log('------newInitScript set', newInitScript, newInitScript.hostname)
+          if (!newInitScript.hostname) {
+            console.log('----sss', newInitScript.hostname)
+            newInitScript.hostname = this.value?.metadata?.name || '';
+            const neuCloudConfig = safeDump(newInitScript);
+            console.log('----newInitScript neuCloudConfig', neuCloudConfig, this.value.metadata.name)
+            
+            this.$set(this, 'cloudInit', neuCloudConfig);
+          }
+        } catch (error) {
+          console.log('has error set', error)
+        }
+      }
+    },
+
     getInSshList(arr) {
       const out = [];
       arr.map( O => {
@@ -359,12 +381,14 @@ export default {
     },
 
     parseDiskRows(disk) {
+      this.setHostnameToCloud();
       const disks = [];
       const volumes = [];
       const dataVolumeTemplates = [];
 
       disk.forEach( (R) => {
-        const dataVolumeName = `${ this.hostname }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
+        const prefixName = this.value.metadata?.name || ''
+        const dataVolumeName = `${ prefixName }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
 
         const _disk = this.parseDisk(R);
         const _volume = this.parseVolume(R, dataVolumeName);
@@ -377,7 +401,6 @@ export default {
           dataVolumeTemplates.push(_dataVolumeTemplate);
         }
       });
-
 
       if (!disks.find( D => D.name === 'cloudinitdisk')) {
         disks.push({
@@ -399,6 +422,12 @@ export default {
         dataVolumeTemplates,
         template: {
           ...this.spec.template,
+          metadata: {
+            labels: {
+              'harvester.cattle.io/creator': 'harvester',
+              'harvester.cattle.io/vmName':  this.value?.metadata?.name
+            }
+          },
           spec: {
             ...this.spec.template?.spec,
             domain: {
@@ -408,7 +437,7 @@ export default {
                 disks,
               },
             },
-            volumes
+            volumes,
           }
         }
       };
@@ -424,27 +453,6 @@ export default {
       } else {
         this.$set(this, 'spec', spec);
       }
-    },
-
-    getSSHString() {
-      const sshValue = this.ssh.filter( (O) => {
-        if (this.sshKey.includes(O.metadata.name)) {
-          return true;
-        }
-      });
-      if (sshValue.length === 0) {
-        return '';
-      }
-
-      let sshString = '\nssh_authorized_keys:';
-
-      sshValue.map( (S) => {
-        const sshKey = S.spec.publicKey.replace(/s\+/g, '    \n    ');
-
-        sshString += `\n   - >-\n    ${ sshKey }`;
-      });
-
-      return sshString
     },
 
     getSSHValue(name) {
@@ -520,11 +528,6 @@ export default {
   watch: {
     imageName: {
       handler(neu) {
-        if (this.pageType === 'vm') {
-          const randomName = this.getRandomHostname(neu);
-          this.spec.template.spec.hostname = randomName;
-        }
-
         if (this.diskRows.length > 0) {
           const _diskRows = _.cloneDeep(this.diskRows);
           const imageUrl = this.getUrlFromImage(neu);
@@ -564,20 +567,18 @@ export default {
       if (neu) {
         try {
           newInitScript = safeLoad(neu);
-          console.log('----newInitScript', newInitScript)
-          if (newInitScript.hostname) {
-            this.hostname = newInitScript.hostname;
-          } else {
-            this.hostname = '';
+          console.log('----clou', newInitScript)
+          if (newInitScript.ssh_authorized_keys) {
+            const checkedSSH = newInitScript.ssh_authorized_keys;
+            const inSshList = this.getInSshList(checkedSSH);
+            this.$set(this, 'sshKey', inSshList);
           }
 
-          if (newInitScript.ssh_authorized_keys) {
-            const checkedSSH = newInitScript.ssh_authorized_keys
-            const inSshList = this.getInSshList(checkedSSH)
-            this.$set(this, 'sshKey', inSshList)
+          if (newInitScript.hostname) {
+            this.hostname = newInitScript.hostname;
           }
         } catch (error) {
-          console.log('----watch cloudinit err', error)
+          console.log('----watch cloudinit', error)
         }
       }
     }
