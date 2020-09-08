@@ -87,12 +87,12 @@ export default {
 
 <template>
   <div class="row" @input="update">
-    <div class="col span-12">
+    <div class="col span-8">
       <LabeledInput v-model.number="size" v-int-number type="number" :label="valueName" required />
     </div>
 
-    <!-- <div class="col" :class="`span-${ unitCol }`">
+    <div class="col span-4">
       <LabeledSelect v-model="unit" label="Unit" :options="MemoryUnit" required @input="updateUnit" />
-    </div> -->
+    </div>
   </div>
 </template>
