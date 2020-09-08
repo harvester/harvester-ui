@@ -42,6 +42,7 @@ export default {
       sshName:    '',
       publicKey:  '',
       showCloudInit: false,
+      sshAuthorizedKeys:   ''
     };
   },
 
@@ -353,7 +354,6 @@ export default {
       if (this.cloudInit) {
         try {
           newInitScript = safeLoad(this.cloudInit);
-          console.log('------newInitScript set', newInitScript, newInitScript.hostname)
           if (!newInitScript.hostname) {
             newInitScript.hostname = this.value?.metadata?.name || '';
             const neuCloudConfig = safeDump(newInitScript);
@@ -454,13 +454,20 @@ export default {
       }
     },
 
+    async fetchSSH() {
+      const sshList = await this.$store.dispatch('cluster/findAll', {
+        type: SSH,
+        opt:  { force: true }
+      });
+    },
+
     getSSHValue(name) {
       const sshResource = this.ssh.find( O => O.metadata.name === name);
       return sshResource?.spec?.publicKey || undefined
     },
 
     getSSHListValue(arr) {
-      return arr.map( name => this.getSSHValue(name))
+      return arr.map( name => this.getSSHValue(name)).filter( O => O !== undefined)
     },
 
     parseInterface(R) {
@@ -537,26 +544,28 @@ export default {
       immediate: true
     },
 
-    sshKey(neu) {
-      try {
-        const oldCloudConfig = safeLoad(this.cloudInit);
-        if (oldCloudConfig.ssh_authorized_keys) {
-          const checkedSSH = oldCloudConfig.ssh_authorized_keys;
-          const out = this.parseSshKeys(checkedSSH);
-          const ssh_authorized_keys = this.getSSHListValue(neu);
-          ssh_authorized_keys.push(...out);
-          oldCloudConfig.ssh_authorized_keys = ssh_authorized_keys;
-        } else {
-          const ssh_authorized_keys = this.getSSHListValue(neu)
-          oldCloudConfig.ssh_authorized_keys = ssh_authorized_keys
+    sshKey: {
+      async handler(neu) {
+        try {
+          await this.fetchSSH();
+          const oldCloudConfig = safeLoad(this.cloudInit);
+          if (oldCloudConfig.ssh_authorized_keys) {
+            const checkedSSH = oldCloudConfig.ssh_authorized_keys;
+            const out = this.parseSshKeys(checkedSSH);
+            const ssh_authorized_keys = this.getSSHListValue(neu);
+            ssh_authorized_keys.push(...out);
+            oldCloudConfig.ssh_authorized_keys = ssh_authorized_keys;
+          } else {
+            const ssh_authorized_keys = this.getSSHListValue(neu);
+            oldCloudConfig.ssh_authorized_keys = ssh_authorized_keys
+          }
+          const neuCloudConfig = safeDump(oldCloudConfig);
+  
+          this.$set(this, 'cloudInit', neuCloudConfig);
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log('---watch sshKey has error');
         }
-
-        const neuCloudConfig = safeDump(oldCloudConfig);
-
-        this.$set(this, 'cloudInit', neuCloudConfig);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log('---watch sshKey has error');
       }
     },
 
@@ -566,7 +575,6 @@ export default {
       if (neu) {
         try {
           newInitScript = safeLoad(neu);
-          console.log('----clou', newInitScript)
           if (newInitScript.ssh_authorized_keys) {
             const checkedSSH = newInitScript.ssh_authorized_keys;
             const inSshList = this.getInSshList(checkedSSH);
