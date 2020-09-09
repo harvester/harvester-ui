@@ -212,7 +212,6 @@ export default {
 
     <nav v-if="clusterReady">
       <Jump v-if="showJump" class="mt-10 mb-10" />
-      <div v-else class="mb-20" />
       <template v-for="(g, idx) in groups">
         <Group
           :key="idx"
@@ -268,7 +267,6 @@ export default {
       grid-area: nav;
       position: relative;
       background-color: var(--nav-bg);
-      padding: 0 10px;
       overflow-y: auto;
 
       .package.depth-0 {
@@ -293,6 +291,58 @@ export default {
 
         A {
           padding-left: 0;
+        }
+      }
+
+      li {
+        a {
+          grid-template-areas: "icon label count" !important;
+          grid-template-columns: 45px auto auto !important;
+          grid-template-rows: 50px;
+          align-items: center;
+          padding: 0 !important;
+          outline: none;
+
+          &:hover {
+            text-decoration: none;
+          }
+
+          i {
+            display: block;
+            grid-area: icon;
+            text-align: right;
+            font-size: 18px;
+          }
+
+          .el-icon-datavolume {
+            &:before {
+              content: "\e74b";
+            }
+          }
+
+          .el-icon-virtualmachinetemplate {
+            &:before {
+              content: "\e787";
+            }
+          }
+
+          .el-icon-keypair {
+            &:before {
+              content: "\e6e2";
+            }
+          }
+
+          .el-icon-virtualmachineimage {
+            &:before {
+              content: "\e75b";
+            }
+          }
+
+          .el-icon-virtualmachine {
+            &:before {
+              content: "\e775";
+            }
+          }
         }
       }
     }
