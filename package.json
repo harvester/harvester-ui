@@ -74,6 +74,7 @@
     "require-extension-hooks-vue": "^3.0.0",
     "sass-loader": "^8.0.2",
     "set-cookie-parser": "^2.4.0",
+    "shell-parse": "^0.0.2",
     "shell-quote": "^1.7.2",
     "simple-novnc": "^0.0.5",
     "sinon": "^8.0.4",
