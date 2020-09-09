@@ -184,7 +184,6 @@ export default {
         <input v-if="needsConfirm" id="confirm" v-model="confirmName" type="text" />
         <span class="text-warning">{{ preventDeletionMessage }}</span>
         <span class="text-error">{{ error }}</span>
-        <span v-if="!needsConfirm" class="text-info mt-20">{{ protip }}</span>
       </div>
       <template slot="actions">
         <button class="btn role-secondary" @click="close">
