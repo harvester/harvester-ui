@@ -34,6 +34,12 @@ export default {
     showCount() {
       return typeof this.type.count !== 'undefined';
     },
+
+    iconClass() {
+      const arr = this.type.name.split('.');
+
+      return `el-icon-${ arr[arr.length - 1] }`;
+    },
   },
 
   methods: {
@@ -65,6 +71,7 @@ export default {
       @mouseenter="setNear(true)"
       @mouseleave="setNear(false)"
     >
+      <i :class="iconClass"></i>
       <span class="label" v-html="type.labelDisplay || type.label" />
       <span v-if="showFavorite || showCount" class="count">
         <Favorite v-if="showFavorite" :resource="type.name" />
