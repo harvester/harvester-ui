@@ -255,90 +255,92 @@ export default {
 </script>
 
 <template>
-  <div id="vm">
-    <NameNsDescription
-      v-model="value"
-      :mode="mode"
-      name-label="Name"
-    />
+  <el-card class="box-card">
+    <div id="vm">
+      <NameNsDescription
+        v-model="value"
+        :mode="mode"
+        name-label="Name"
+      />
 
-    <div class="min-spacer"></div>
-    <Checkbox v-model="useTemplate" class="check" type="checkbox" label="Use VM Template:" />
+      <div class="min-spacer"></div>
+      <Checkbox v-model="useTemplate" class="check" type="checkbox" label="Use VM Template:" />
 
-    <div v-if="useTemplate" class="row mb-20">
-      <div class="col span-6">
-        <LabeledSelect v-model="templateName" label="template" :options="templateOption" />
+      <div v-if="useTemplate" class="row mb-20">
+        <div class="col span-6">
+          <LabeledSelect v-model="templateName" label="template" :options="templateOption" />
+        </div>
+
+        <div class="col span-6">
+          <LabeledSelect v-model="templateVersion" label="version" :options="versionOption" />
+        </div>
       </div>
 
-      <div class="col span-6">
-        <LabeledSelect v-model="templateVersion" label="version" :options="versionOption" />
+      <div class="spacer"></div>
+
+      <ChooseImage v-model="imageName" />
+
+      <div class="spacer"></div>
+
+      <h2>CPU & Memory:</h2>
+      <div class="row">
+        <div class="col span-6">
+          <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number type="number" label="CPU (core)" required />
+        </div>
+
+        <div class="col span-6">
+          <MemoryUnit v-model="memory" value-name="Memory" :value-col="8" :unit-col="4" />
+        </div>
       </div>
+
+      <div class="spacer"></div>
+
+      <h2>Disks:</h2>
+      <DiskModal v-model="diskRows" class="vm__disk-modal" />
+
+      <div class="spacer"></div>
+
+      <h2>Networks:</h2>
+      <NetworkModal v-model="networkRows" :namespace="value.metadata.namespace" />
+
+      <div class="spacer"></div>
+
+      <h2>Authentication:</h2>
+      <AddSSHKey :key="sshKey.toString()" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
+
+      <div class="spacer"></div>
+
+      <Collapse :open.sync="showCloudInit" title="Cloud-init">
+        <h2>User Data:</h2>
+        <TextAreaAutoGrow ref="value" v-model="cloudInit" :min-height="160" />
+      </Collapse>
+
+      <div class="spacer"></div>
+
+      <h2>Finalize and Create</h2>
+      <div class="row">
+        <div class="col span-6">
+          <LabeledInput v-model="hostname" class="labeled-input--tooltip" required placeholder="default to the virtual machine name.">
+            <template v-slot:label>
+              <div>
+                <span class="label">Host Name</span>
+                <el-tooltip v-if="isCreate" placement="top" effect="dark">
+                  <div slot="content">
+                    Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes, and periods.
+                  </div>
+                  <span><i class="el-icon-info"></i></span>
+                </el-tooltip>
+              </div>
+            </template>
+          </LabeledInput>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+      <Checkbox v-model="isRunning" class="check" type="checkbox" label="Start virtual machine on creation" />
+      <Footer :mode="mode" :errors="errors" @save="saveVM" @done="done" />
     </div>
-
-    <div class="spacer"></div>
-
-    <ChooseImage v-model="imageName" />
-
-    <div class="spacer"></div>
-
-    <h2>CPU & Memory:</h2>
-    <div class="row">
-      <div class="col span-6">
-        <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number type="number" label="CPU (core)" required />
-      </div>
-
-      <div class="col span-6">
-        <MemoryUnit v-model="memory" value-name="Memory" :value-col="8" :unit-col="4" />
-      </div>
-    </div>
-
-    <div class="spacer"></div>
-
-    <h2>Disks:</h2>
-    <DiskModal v-model="diskRows" class="vm__disk-modal" />
-
-    <div class="spacer"></div>
-
-    <h2>Networks:</h2>
-    <NetworkModal v-model="networkRows" :namespace="value.metadata.namespace" />
-
-    <div class="spacer"></div>
-
-    <h2>Authentication:</h2>
-    <AddSSHKey :key="sshKey.toString()" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
-
-    <div class="spacer"></div>
-
-    <Collapse :open.sync="showCloudInit" title="Cloud-init">
-      <h2>User Data:</h2>
-      <TextAreaAutoGrow ref="value" v-model="cloudInit" :min-height="160" />
-    </Collapse>
-
-    <div class="spacer"></div>
-
-    <h2>Finalize and Create</h2>
-    <div class="row">
-      <div class="col span-6">
-        <LabeledInput v-model="hostname" class="labeled-input--tooltip" required placeholder="default to the virtual machine name.">
-          <template v-slot:label>
-            <div>
-              <span class="label">Host Name</span>
-              <el-tooltip v-if="isCreate" placement="top" effect="dark">
-                <div slot="content">
-                  Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes, and periods.
-                </div>
-                <span><i class="el-icon-info"></i></span>
-              </el-tooltip>
-            </div>
-          </template>
-        </LabeledInput>
-      </div>
-    </div>
-
-    <div class="spacer"></div>
-    <Checkbox v-model="isRunning" class="check" type="checkbox" label="Start virtual machine on creation" />
-    <Footer :mode="mode" :errors="errors" @save="saveVM" @done="done" />
-  </div>
+  </el-card>
 </template>
 
 <style lang="scss">

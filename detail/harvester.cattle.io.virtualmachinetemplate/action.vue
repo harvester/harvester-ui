@@ -43,13 +43,7 @@ export default {
       class="btn btn-sm role-multi-action actions"
       @click="showActions"
     >
-      Actions
+      <i class="icon icon-actions" />
     </button>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.actions {
-  padding: 15px;
-}
-</style>

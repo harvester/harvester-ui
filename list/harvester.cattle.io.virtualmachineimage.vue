@@ -53,12 +53,13 @@ export default {
 </script>
 
 <template>
-  <SortableTable
-    v-bind="$attrs"
-    :headers="headers"
-    :rows="[...rows]"
-    key-field="_key"
-    v-on="$listeners"
-  >
-  </SortableTable>
+  <el-card class="box-card">
+    <SortableTable
+      v-bind="$attrs"
+      :headers="headers"
+      :rows="[...rows]"
+      key-field="_key"
+      v-on="$listeners"
+    />
+  </el-card>
 </template>

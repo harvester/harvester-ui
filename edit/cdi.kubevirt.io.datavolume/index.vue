@@ -68,18 +68,20 @@ export default {
 </script>
 
 <template>
-  <div>
-    <NameNsDescription
-      v-if="isCreate"
-      :value="value"
-      :mode="mode"
-      name-label="Name"
-    />
+  <el-card class="box-card mb-20">
+    <div>
+      <NameNsDescription
+        v-if="isCreate"
+        :value="value"
+        :mode="mode"
+        name-label="Name"
+      />
 
-    <VolumeSource v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnnotation" />
+      <VolumeSource v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnnotation" />
 
-    <ResourceTabs :key="randow" v-model="value" :mode="mode" />
+      <ResourceTabs :key="randow" v-model="value" :mode="mode" />
 
-    <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
-  </div>
+      <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
+    </div>
+  </el-card>
 </template>

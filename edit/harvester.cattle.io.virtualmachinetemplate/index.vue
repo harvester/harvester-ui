@@ -150,7 +150,7 @@ export default {
   methods: {
     async saveVMT(buttonCb) {
       if (!this.isAdd) {
-        this.value.metadata.namespace = 'harvester-system';
+        delete this.value.metadata.namespace;
         await this.save(buttonCb);
       }
 
@@ -212,60 +212,62 @@ export default {
 </script>
 
 <template>
-  <div id="vm">
-    <div class="row">
-      <div class="col span-6">
-        <LabeledInput v-model="value.metadata.name" :disabled="isAdd" label="Template Name" required />
+  <el-card class="box-card">
+    <div id="vm">
+      <div class="row">
+        <div class="col span-6">
+          <LabeledInput v-model="value.metadata.name" :disabled="isAdd" label="Template Name" required />
+        </div>
+
+        <div class="col span-6">
+          <LabeledInput v-model="value.spec.description" :disabled="isAdd" label="Description" />
+        </div>
+      </div>
+      <div class="min-spacer"></div>
+
+      <Checkbox v-if="isAdd" v-model="isDefaultVersion" label="Default version" type="checkbox" />
+      <div class="spacer"></div>
+
+      <ChooseImage v-model="imageName" />
+
+      <div class="spacer"></div>
+
+      <h2>CPU & Memory::</h2>
+      <div class="row">
+        <div class="col span-5">
+          <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number type="number" label="CPU Request(core)" required />
+        </div>
+
+        <div class="col span-7">
+          <MemoryUnit v-model="memory" value-name="Memory" :value-col="8" :unit-col="4" />
+        </div>
       </div>
 
-      <div class="col span-6">
-        <LabeledInput v-model="value.spec.description" :disabled="isAdd" label="Description" />
-      </div>
+      <div class="spacer"></div>
+
+      <h2>Add disk storage:</h2>
+      <DiskModal v-model="diskRows" />
+
+      <div class="spacer"></div>
+
+      <h2>Networks:</h2>
+      <NetworkModal v-model="networkRows" />
+
+      <div class="spacer"></div>
+
+      <h2>Authentication:</h2>
+      <AddSSHKey :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
+
+      <div class="spacer"></div>
+
+      <Collapse :open.sync="showCloudInit" title="Cloud-init">
+        <h2>User Data:</h2>
+        <TextAreaAutoGrow ref="value" v-model="cloudInit" :min-height="160" />
+      </Collapse>
+
+      <div class="spacer"></div>
+
+      <Footer :mode="mode" :errors="errors" @save="saveVMT" @done="done" />
     </div>
-    <div class="min-spacer"></div>
-
-    <Checkbox v-if="isAdd" v-model="isDefaultVersion" label="Default version" type="checkbox" />
-    <div class="spacer"></div>
-
-    <ChooseImage v-model="imageName" />
-
-    <div class="spacer"></div>
-
-    <h2>CPU & Memory::</h2>
-    <div class="row">
-      <div class="col span-5">
-        <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number type="number" label="CPU Request(core)" required />
-      </div>
-
-      <div class="col span-7">
-        <MemoryUnit v-model="memory" value-name="Memory" :value-col="8" :unit-col="4" />
-      </div>
-    </div>
-
-    <div class="spacer"></div>
-
-    <h2>Add disk storage:</h2>
-    <DiskModal v-model="diskRows" />
-
-    <div class="spacer"></div>
-
-    <h2>Networks:</h2>
-    <NetworkModal v-model="networkRows" />
-
-    <div class="spacer"></div>
-
-    <h2>Authentication:</h2>
-    <AddSSHKey :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
-
-    <div class="spacer"></div>
-
-    <Collapse :open.sync="showCloudInit" title="Cloud-init">
-      <h2>User Data:</h2>
-      <TextAreaAutoGrow ref="value" v-model="cloudInit" :min-height="160" />
-    </Collapse>
-
-    <div class="spacer"></div>
-
-    <Footer :mode="mode" :errors="errors" @save="saveVMT" @done="done" />
-  </div>
+  </el-card>
 </template>

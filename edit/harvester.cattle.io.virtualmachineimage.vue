@@ -90,53 +90,54 @@ export default {
 
 <template>
   <form>
-    <div class="row mb-20">
-      <div class="col span-12">
-        <LabeledInput
-          v-model="url"
-          :mode="mode"
-          class="labeled-input--tooltip"
-        >
-          <template v-slot:label>
-            <div>
-              <span class="label">Enter Url</span>
-              <el-tooltip v-if="isCreate" placement="top" effect="dark">
-                <div slot="content">
-                  Protip: supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>.
-                  Bootable ISO images can also be used and are treated like <code>raw</code> images.
-                  Images may be compressed with either the <code>gz</code> or <code>xz</code> format.
-                </div>
-                <span><i class="el-icon-info"></i></span>
-              </el-tooltip>
-            </div>
-          </template>
-        </LabeledInput>
+    <el-card class="box-card mb-20">
+      <div class="row mb-20">
+        <div class="col span-12">
+          <LabeledInput
+            v-model="url"
+            :mode="mode"
+            class="labeled-input--tooltip"
+          >
+            <template v-slot:label>
+              <div>
+                <span class="label">Enter Url</span>
+                <el-tooltip v-if="isCreate" placement="top" effect="dark">
+                  <div slot="content">
+                    Protip: supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>.
+                    Bootable ISO images can also be used and are treated like <code>raw</code> images.
+                    Images may be compressed with either the <code>gz</code> or <code>xz</code> format.
+                  </div>
+                  <span><i class="el-icon-info"></i></span>
+                </el-tooltip>
+              </div>
+            </template>
+          </LabeledInput>
+        </div>
       </div>
-    </div>
 
-    <div class="row mb-20">
-      <div class="col span-12">
-        <LabeledInput
-          v-model="displayName"
-          :mode="mode"
-          label="Image Name"
-        />
+      <div class="row mb-20">
+        <div class="col span-12">
+          <LabeledInput
+            v-model="displayName"
+            :mode="mode"
+            label="Image Name"
+          />
+        </div>
       </div>
-    </div>
 
-    <div v-if="isCreate" class="row mb-20">
-      <div class="col span-12">
-        <LabeledInput
-          v-model="value.spec.description"
-          type="multiline"
-          :is-resize="true"
-          label="Description"
-        />
+      <div v-if="isCreate" class="row mb-20">
+        <div class="col span-12">
+          <LabeledInput
+            v-model="value.spec.description"
+            type="multiline"
+            :is-resize="true"
+            label="Description"
+          />
+        </div>
       </div>
-    </div>
 
-    <ResourceTabs v-model="value" :mode="mode" />
-
+      <ResourceTabs v-model="value" :mode="mode" />
+    </el-card>
     <Footer :mode="mode" :errors="errors" @save="saveImage" @done="done" />
   </form>
 </template>

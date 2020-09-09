@@ -106,11 +106,12 @@ export default {
 
     <template>
       <el-tabs v-model="activeName">
-        <el-tab-pane label="Network Interfaces" name="network">
-          <NetworkModal v-model="networkRows" :row-actions="false" />
-        </el-tab-pane>
-        <el-tab-pane label="Disk" name="disk">
+        <el-tab-pane label="Disks" name="disk">
           <DiskModal v-model="diskRows" :row-actions="false" />
+        </el-tab-pane>
+
+        <el-tab-pane label="Networks" name="network">
+          <NetworkModal v-model="networkRows" :row-actions="false" />
         </el-tab-pane>
       </el-tabs>
     </template>

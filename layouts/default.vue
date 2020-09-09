@@ -301,6 +301,7 @@ export default {
   MAIN {
     grid-area: main;
     overflow: auto;
+    background-color: #f6f7fb;
 
     .outlet {
       display: flex;

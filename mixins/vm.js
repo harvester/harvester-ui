@@ -1,7 +1,7 @@
 /* eslint-disable */
 import _ from 'lodash';
-import { safeLoad, safeDump } from 'js-yaml';
 import randomstring from 'randomstring';
+import { safeLoad, safeDump } from 'js-yaml';
 import { sortBy } from '@/utils/sort';
 import { allHash } from '@/utils/promise';
 import { MemoryUnit, SOURCE_TYPE } from '@/config/map';
