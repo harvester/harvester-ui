@@ -213,6 +213,9 @@ export default {
     <nav v-if="clusterReady">
       <Jump v-if="showJump" class="mt-10 mb-10" />
       <div v-else class="mb-20" />
+      <h6 class="__temp_group mb-10">
+        MANAGE
+      </h6>
       <template v-for="(g, idx) in groups">
         <Group
           :key="idx"
@@ -295,6 +298,10 @@ export default {
           padding-left: 0;
         }
       }
+    }
+
+    .__temp_group {
+      color: var(--input-disabled-text);
     }
   }
 
