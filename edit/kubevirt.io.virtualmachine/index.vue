@@ -239,9 +239,16 @@ export default {
         buttonCb(false);
 
         return false;
-      } else {
-        return true;
       }
+
+      if (!this.spec.template.spec.domain.cpu.cores || !this.memory.match(/[0-9]/)) {
+        this.errors = ['Required fields not completed!'];
+        buttonCb(false);
+
+        return false;
+      }
+
+      return true;
     }
   },
 };
@@ -256,7 +263,7 @@ export default {
     />
 
     <div class="min-spacer"></div>
-    <Checkbox v-model="useTemplate" class="check" type="checkbox" label="Use an existing VM Template:" />
+    <Checkbox v-model="useTemplate" class="check" type="checkbox" label="Use VM Template:" />
 
     <div v-if="useTemplate" class="row mb-20">
       <div class="col span-6">

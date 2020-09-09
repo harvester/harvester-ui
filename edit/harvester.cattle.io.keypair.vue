@@ -2,13 +2,15 @@
 import LabeledInput from '@/components/form/LabeledInput';
 import Footer from '@/components/form/Footer';
 import CreateEditView from '@/mixins/create-edit-view';
+import FileSelector, { createOnSelected } from '@/components/form/FileSelector';
 
 export default {
   name: 'EditSSH',
 
   components: {
     Footer,
-    LabeledInput
+    LabeledInput,
+    FileSelector
   },
 
   mixins: [CreateEditView],
@@ -46,12 +48,17 @@ export default {
         }
       }
     }
-  }
+  },
+
+  methods: { onKeySelected: createOnSelected('publicKey') },
 };
 </script>
 
 <template>
   <el-card class="mt-20 keypair-card">
+    <div class="header mb-20">
+      <FileSelector class="btn btn-sm bg-primary mt-10" label="Read From File" @selected="onKeySelected" />
+    </div>
     <LabeledInput
       v-if="mode !== 'view'"
       v-model="value.metadata.name"
@@ -79,6 +86,11 @@ export default {
 
 <style lang="scss">
 .keypair-card {
+  .header {
+    display: flex;
+    justify-content: flex-end;
+  }
+
   .resize {
     resize: auto;
   }
