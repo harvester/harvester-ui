@@ -188,6 +188,7 @@ export default {
     <input
       ref="yamluploader"
       type="file"
+      accept=".yml,.yaml"
       class="hide"
       :multiple="false"
       @change="fileChange"
