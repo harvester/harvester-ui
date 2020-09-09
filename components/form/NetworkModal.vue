@@ -265,13 +265,22 @@ export default {
 
         <LabeledInput
           v-model="currentRow.macAddress"
-          label="Mac Address"
           v-if="!isMasquerade"
+          class="labeled-input--tooltip"
           @input="validateMac"
-        />
-        <h5 class="tip" v-if="!isMasquerade">
-          Protip: MAC address as seen inside the guest system.
-        </h5>
+        >
+          <template v-slot:label>
+            <div>
+              <span class="label">Mac Address</span>
+              <el-tooltip placement="top" effect="dark">
+                <div slot="content">
+                  Protip: MAC address as seen inside the guest system.
+                </div>
+                <span><i class="el-icon-info"></i></span>
+              </el-tooltip>
+            </div>
+          </template>
+        </LabeledInput>
       </template>
     </VMModal>
   </div>

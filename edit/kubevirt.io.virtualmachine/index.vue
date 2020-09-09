@@ -1,4 +1,5 @@
 <script>
+/* eslint-disable */
 import _ from 'lodash';
 import moment from 'moment';
 import randomstring from 'randomstring';
@@ -310,31 +311,25 @@ export default {
 
       <div class="spacer"></div>
 
-      <Collapse :open.sync="showCloudInit" title="Cloud-init">
-        <h2>User Data:</h2>
-        <TextAreaAutoGrow ref="value" v-model="cloudInit" :min-height="160" />
+      <Collapse :open.sync="showCloudInit" title="Advanced Options">
+        <LabeledInput v-model="hostname" class="labeled-input--tooltip mb-20" required placeholder="default to the virtual machine name.">
+          <template v-slot:label>
+            <div>
+              <span class="label">Host Name</span>
+              <el-tooltip v-if="isCreate" placement="top" effect="dark">
+                <div slot="content">
+                  Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes.
+                </div>
+                <span><i class="el-icon-info"></i></span>
+              </el-tooltip>
+            </div>
+          </template>
+        </LabeledInput>
+
+        <TextAreaAutoGrow ref="value" v-model="startScript" :min-height="160" />
       </Collapse>
 
       <div class="spacer"></div>
-
-      <h2>Finalize and Create</h2>
-      <div class="row">
-        <div class="col span-6">
-          <LabeledInput v-model="hostname" class="labeled-input--tooltip" required placeholder="default to the virtual machine name.">
-            <template v-slot:label>
-              <div>
-                <span class="label">Host Name</span>
-                <el-tooltip v-if="isCreate" placement="top" effect="dark">
-                  <div slot="content">
-                    Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes, and periods.
-                  </div>
-                  <span><i class="el-icon-info"></i></span>
-                </el-tooltip>
-              </div>
-            </template>
-          </LabeledInput>
-        </div>
-      </div>
 
       <div class="spacer"></div>
       <Checkbox v-model="isRunning" class="check" type="checkbox" label="Start virtual machine on creation" />

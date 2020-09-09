@@ -3301,6 +3301,11 @@ array-includes@^3.0.3, array-includes@^3.1.1:
     es-abstract "^1.17.0"
     is-string "^1.0.5"
 
+array-map@0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/array-map/-/array-map-0.0.0.tgz#88a2bab73d1cf7bcd5c1b118a003f66f665fa662"
+  integrity sha1-iKK6tz0c97zVwbEYoAP2b2ZfpmI=
+
 array-union@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/array-union/-/array-union-1.0.2.tgz#9a34410e4f4e3da23dea375be5be70f24778ec39"
@@ -14376,6 +14381,14 @@ shebang-regex@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-3.0.0.tgz#ae16f1644d873ecad843b0307b143362d4c42172"
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
+
+shell-parse@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/shell-parse/-/shell-parse-0.0.2.tgz#ec37670f7f32c6ddea463ff66b8ce0f98355bfd6"
+  integrity sha1-7DdnD38yxt3qRj/2a4zg+YNVv9Y=
+  dependencies:
+    array-map "0.0.0"
+    isarray "0.0.1"
 
 shell-quote@1.7.2, shell-quote@^1.6.1, shell-quote@^1.7.2:
   version "1.7.2"
