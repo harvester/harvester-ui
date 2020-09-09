@@ -64,6 +64,7 @@ export default {
           <div class="col span-4">
             <ResourceState v-model="event.involvedObject.kind" />
             <ResourceState v-if="event._type !== 'Normal'" v-model="event._type" />
+            <span class="vm-events__reason">{{ event.reason }}</span>
             {{ event.involvedObject.name }}
           </div>
           <div class="col span-4 text-center">
@@ -74,11 +75,6 @@ export default {
             {{ getEventTime(event.lastTimestamp) }}
           </div>
           <!-- <div class="col-12"></div> -->
-        </div>
-        <div class="row mt-10">
-          <div class="col span-12">
-            Reason is {{ event.reason }}
-          </div>
         </div>
         <div class="row mt-10">
           <div class="col span-12">
@@ -111,6 +107,14 @@ export default {
     .badge-state {
       padding: 2px 5px;
       margin-right: 3px;
+    }
+
+    &__reason {
+      margin-right: 5px;
+      border: 1px solid var(--input-label);
+      border-radius: 3px;
+      padding: 0 3px;
+      color: var(--input-label);
     }
   }
 </style>
