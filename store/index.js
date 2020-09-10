@@ -1,6 +1,6 @@
 import Steve from '@/plugins/steve';
 import {
-  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE
+  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE
 } from '@/config/types';
 import { CLUSTER as CLUSTER_PREF, NAMESPACE_FILTERS, LAST_NAMESPACE } from '@/store/prefs';
 import { allHash } from '@/utils/promise';
@@ -365,9 +365,12 @@ export const actions = {
     const VMI = 'kubevirt.io.virtualmachineinstance';
     const res = await allHash({
       // projects:   isMultiCluster && dispatch('clusterExternal/findAll', { type: EXTERNAL.PROJECT, opt: { url: 'projects' } }),
-      counts:     dispatch('cluster/findAll', { type: COUNT, opt: { url: 'counts' } }),
-      namespaces: dispatch('cluster/findAll', { type: NAMESPACE, opt: { url: 'namespaces' } }),
-      vmi:        dispatch('cluster/findAll', { type: VMI, opt: { url: `${ VMI }s` } })
+      counts:          dispatch('cluster/findAll', { type: COUNT, opt: { url: 'counts' } }),
+      namespaces:      dispatch('cluster/findAll', { type: NAMESPACE, opt: { url: 'namespaces' } }),
+      vmi:             dispatch('cluster/findAll', { type: VMI, opt: { url: `${ VMI }s` } }),
+      image:           dispatch('cluster/findAll', { type: IMAGE, opt: { url: `${ IMAGE }s` } }),
+      template:         dispatch('cluster/findAll', { type: VM_TEMPLATE.template, opt: { url: `${ VM_TEMPLATE.template }s` } }),
+      templateVersion:   dispatch('cluster/findAll', { type: VM_TEMPLATE.version, opt: { url: `${ VM_TEMPLATE.version }s` } }),
     });
 
     commit('updateNamespaces', {
