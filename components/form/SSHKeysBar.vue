@@ -25,6 +25,7 @@ export default {
   watch: {
     allssh() {
       let userData = '';
+      const r = /(\r\n\t|\n|\r\t)|(\s*)/gm;
 
       this.sshKeys = [];
 
@@ -38,8 +39,10 @@ export default {
         }
       });
 
+      userData = userData.replace(r, '');
+
       this.sshkeys = this.allssh.filter((ssh) => {
-        return userData.includes(ssh.spec.publicKey);
+        return userData.includes(ssh.spec.publicKey.replace(r, ''));
       }).map((ssh) => {
         return {
           ...ssh,

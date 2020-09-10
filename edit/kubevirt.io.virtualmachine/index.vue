@@ -307,7 +307,7 @@ export default {
       <div class="spacer"></div>
 
       <h2>Authentication:</h2>
-      <AddSSHKey :key="sshKey.toString()" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
+      <AddSSHKey :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
 
       <div class="spacer"></div>
 

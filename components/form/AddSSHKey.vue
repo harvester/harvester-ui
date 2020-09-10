@@ -27,8 +27,7 @@ export default {
       searchKey:        '',
       errors:           [],
       isAll:            false,
-      checkAll:         false,
-      isIndeterminate:  true
+      checkAll:         false
     };
   },
 
@@ -74,14 +73,12 @@ export default {
 
     handleCheckAllChange(val) {
       this.checkedSsh = val ? this.sshList : [];
-      this.isIndeterminate = false;
     },
 
     handleCheckedChange(value) {
       const checkedCount = value.length;
 
       this.checkAll = checkedCount === this.sshList.length;
-      this.isIndeterminate = checkedCount > 0 && checkedCount < this.sshList.length;
     },
 
     async saveKey() {
@@ -140,7 +137,7 @@ export default {
       <div class="min-spacer"></div>
 
       <div class="keyLisk">
-        <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAllChange">
+        <el-checkbox v-model="checkAll" @change="handleCheckAllChange">
           Select All
         </el-checkbox>
         <div style="margin: 15px 0;"></div>
