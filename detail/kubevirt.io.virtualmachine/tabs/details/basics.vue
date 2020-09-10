@@ -1,6 +1,7 @@
 <script>
 import IPAddress from '@/components/formatter/ipAddress';
 import ConsoleBar from '@/components/form/ConsoleBar';
+import { IMAGE } from '@/config/types';
 
 const UNDEFINED = 'n/a';
 
@@ -66,6 +67,13 @@ export default {
     isDown() {
       return this.isEmpty(this.resource);
     },
+    imageName() {
+      const imageList = this.$store.getters['cluster/all'](IMAGE) || [];
+      const imageId = this.value?.spec?.dataVolumeTemplates?.[0]?.metadata?.annotations?.['harvester.cattle.io/imageId']?.replace(':', '/') || '';
+      const image = imageList.find( I => imageId === I.id);
+
+      return image?.spec?.displayName || '-';
+    }
   },
 
   methods: {
@@ -78,71 +86,114 @@ export default {
 
 <template>
   <div class="overview-basics">
-    <div class="labeled-input view">
-      <label>
-        {{ t("vm.detail.details.name") }}
-      </label>
-      <div>
-        <div class="smart-row">
-          <div class="overview-basics__name">
-            {{ name }}
+    <div class="row">
+      <div class="col span-6">
+        <div class="labeled-input view">
+          <label>
+            {{ t("vm.detail.details.name") }}
+          </label>
+          <div>
+            <div class="smart-row">
+              <div class="console">
+                {{ name }} <ConsoleBar :resource="resource" class="cosoleBut" />
+              </div>
+            </div>
           </div>
-          <div class="overview-basics__ssh-bar">
-            <ConsoleBar :resource="resource" />
+        </div>
+      </div>
+
+      <div class="col span-6">
+        <div class="labeled-input view">
+          <label>
+            {{ t("vm.detail.details.namespace") }}
+          </label>
+          <div>
+            {{ namespace }}
           </div>
         </div>
       </div>
     </div>
-    <div class="labeled-input view">
-      <label>
-        {{ t("vm.detail.details.namespace") }}
-      </label>
-      <div>
-        {{ namespace }}
+
+    <div class="row">
+      <div class="col span-6">
+        <div class="labeled-input view">
+          <label>
+            {{ t("vm.detail.details.hostname") }}
+          </label>
+          <div v-if="!isDown">
+            {{ hostname || t("vm.detail.GuestAgentNotInstalled") }}
+          </div>
+          <div v-else>
+            {{ t("vm.detail.details.down") }}
+          </div>
+        </div>
+      </div>
+
+      <div class="col span-6">
+        <div class="labeled-input view">
+          <label>
+            {{ t("vm.detail.details.node") }}
+          </label>
+          <div v-if="!isDown">
+            <span>{{ node }}</span>
+          </div>
+          <div v-else>
+            {{ t("vm.detail.details.down") }}
+          </div>
+        </div>
       </div>
     </div>
-    <div class="labeled-input view">
-      <label>
-        {{ t("vm.detail.details.hostname") }}
-      </label>
-      <div v-if="!isDown">
-        {{ hostname || t("vm.detail.GuestAgentNotInstalled") }}
+
+    <div class="row">
+      <div class="col span-6">
+        <div class="labeled-input view">
+          <label>
+            {{ t("vm.detail.details.ipAddress") }}
+          </label>
+          <div>
+            <IPAddress v-model="value.id" :row="value" />
+          </div>
+        </div>
       </div>
-      <div v-else>
-        {{ t("vm.detail.details.down") }}
-      </div>
-    </div>
-    <div class="labeled-input view">
-      <label>
-        {{ t("vm.detail.details.node") }}
-      </label>
-      <div v-if="!isDown">
-        <span>{{ node }}</span>
-      </div>
-      <div v-else>
-        {{ t("vm.detail.details.down") }}
-      </div>
-    </div>
-    <div class="labeled-input view">
-      <label>
-        {{ t("vm.detail.details.ipAddress") }}
-      </label>
-      <div>
-        <IPAddress v-model="value.id" :row="value" />
+
+      <div class="col span-6">
+        <div class="labeled-input view">
+          <label>
+            {{ t("vm.detail.details.created") }}
+          </label>
+          <div>
+            {{ creationTimestamp }}
+          </div>
+        </div>
       </div>
     </div>
-    <div class="labeled-input view">
-      <label>
-        {{ t("vm.detail.details.created") }}
-      </label>
-      <div>
-        {{ creationTimestamp }}
+
+    <div class="row">
+      <div class="col span-6">
+        <div class="labeled-input view">
+          <label>
+            Image
+          </label>
+          <div>
+            {{ imageName }}
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style lang="scss">
+  .console {
+    display: flex;
+  }
+
+  .cosoleBut {
+    position: relative;
+    top: -10px;
+    left: 20px;
+  }
+
   .overview-basics {
     display: grid;
     grid-template-columns: 100%;

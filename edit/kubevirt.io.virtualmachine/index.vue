@@ -325,7 +325,8 @@ export default {
             </div>
           </template>
         </LabeledInput>
-
+        
+        <h3>Startup Script:</h3>
         <TextAreaAutoGrow ref="value" v-model="startScript" :min-height="160" />
       </Collapse>
 
