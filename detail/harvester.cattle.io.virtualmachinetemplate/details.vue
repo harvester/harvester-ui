@@ -4,6 +4,7 @@ import LabeledSelect from '@/components/form/LabeledSelect';
 import DiskModal from '@/components/form/DiskModal';
 import NetworkModal from '@/components/form/NetworkModal';
 import VM_MIXIN from '@/mixins/vm';
+import { IMAGE } from '@/config/types';
 import Action from './action';
 
 export default {
@@ -52,6 +53,21 @@ export default {
         };
       });
     },
+    cpu() {
+      return this.current?.spec?.vm?.template?.spec?.domain?.cpu?.cores || '-';
+    },
+
+    memory() {
+      return this.current?.spec?.vm?.template?.spec?.domain?.resources?.requests?.memory || '-';
+    },
+
+    imageName() {
+      const imageList = this.$store.getters['cluster/all'](IMAGE) || [];
+      const imageId = this.current?.spec?.vm?.dataVolumeTemplates?.[0]?.metadata?.annotations?.['harvester.cattle.io/imageId']?.replace(':', '/') || '';
+      const image = imageList.find( I => imageId === I.id);
+
+      return image?.spec?.displayName || '-';
+    }
   },
 
   watch: {
@@ -97,8 +113,37 @@ export default {
           label="Version"
         />
       </div>
-      <div class="col span-7"></div>
-      <div class="col span-1">
+      <div class="col span-1 center">
+        <div class="labeled-input view">
+          <label>
+            Cpu
+          </label>
+          <div>
+            {{ cpu }}
+          </div>
+        </div>
+      </div>
+      <div class="col span-1 center">
+        <div class="labeled-input view">
+          <label>
+            Memory
+          </label>
+          <div>
+            {{ memory }}
+          </div>
+        </div>
+      </div>
+      <div class="col span-5 center">
+        <div class="labeled-input view">
+          <label>
+            Image
+          </label>
+          <div>
+            {{ imageName }}
+          </div>
+        </div>
+      </div>
+      <div class="col span-1 action">
         <Action :resource="current">
         </action>
       </div>
@@ -117,3 +162,13 @@ export default {
     </template>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.action {
+  display: flex;
+  justify-content: flex-end;
+}
+.center {
+  margin-top: 10px;
+}
+</style>
