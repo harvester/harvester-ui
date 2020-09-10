@@ -64,12 +64,9 @@ export default {
           <div class="col span-4">
             <ResourceState v-model="event.involvedObject.kind" />
             <ResourceState v-if="event._type !== 'Normal'" v-model="event._type" />
-            <span class="vm-events__reason">{{ event.reason }}</span>
-            {{ event.involvedObject.name }}
           </div>
           <div class="col span-4 text-center">
-            <ResourceState v-model="isNS" />
-            {{ event.involvedObject.namespace }}
+            <span class="vm-events__reason">{{ event.reason }}</span>
           </div>
           <div class="col span-4 text-right">
             {{ getEventTime(event.lastTimestamp) }}
@@ -110,7 +107,6 @@ export default {
     }
 
     &__reason {
-      margin-right: 5px;
       border: 1px solid var(--input-label);
       border-radius: 3px;
       padding: 0 3px;
