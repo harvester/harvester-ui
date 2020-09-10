@@ -176,7 +176,7 @@ export default {
         <div class="mb-10">
           {{ t('promptRemove.attemptingToRemove', {type}) }} <template v-for="(resource, i) in names">
             <template v-if="i<5">
-              <a :key="resource" :href="selfLinks[i]">{{ resource }}</a><span v-if="i===names.length-1" :key="resource+2">{{ plusMore }}</span><span v-else :key="resource+1">{{ i === toRemove.length-2 ? ', and ' : ', ' }}</span>
+              <a :key="resource" :href="selfLinks[i]" target="_blank">{{ resource }}</a><span v-if="i===names.length-1" :key="resource+2">{{ plusMore }}</span><span v-else :key="resource+1">{{ i === toRemove.length-2 ? ', and ' : ', ' }}</span>
             </template>
           </template>
           <span v-if="needsConfirm" :key="resource">Re-enter its name below to confirm:</span>
