@@ -51,13 +51,14 @@ export default {
       const script = {
         name: 'default'
       };
-      const startScript = ShellQuote.parse(this.startScript);
+      
+      const startScript = this.startScript.split(/[\r\n]/);
 
       script.ssh_authorized_keys = this.getSSHListValue(this.sshKey);
-
+      
       script.hostname = this.hostname || this.value?.metadata?.name;
       script.runcmd = startScript;
-      
+
       try {
         out = safeDump(script);
       } catch (error) {

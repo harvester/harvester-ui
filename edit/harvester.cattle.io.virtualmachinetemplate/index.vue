@@ -260,9 +260,9 @@ export default {
 
       <div class="spacer"></div>
 
-      <Collapse :open.sync="showCloudInit" title="Cloud-init">
-        <h2>User Data:</h2>
-        <TextAreaAutoGrow ref="value" v-model="cloudInit" :min-height="160" />
+      <Collapse :open.sync="showCloudInit" title="Advanced Options">
+        <h3>Startup Script:</h3>
+        <TextAreaAutoGrow ref="value" v-model="startScript" :min-height="160" />
       </Collapse>
 
       <div class="spacer"></div>
