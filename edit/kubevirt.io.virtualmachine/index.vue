@@ -71,7 +71,7 @@ export default {
                   type: 'tablet'
                 }],
                 interfaces: [{
-                  masquerade: {},
+                  bridge: {},
                   model:      'virtio',
                   name:       'default'
                 }],
