@@ -126,11 +126,6 @@ export default {
     operatingSystem() {
       return this.guestAgentInfo?.os?.prettyName;
     },
-    template() {
-      const labels = this.value?.metadata?.labels || {};
-
-      return labels[LABEL_USED_TEMPLATE_NAME];
-    },
     owner() {
       return this.guestAgentInfo?.userList;
     },
@@ -316,20 +311,20 @@ export default {
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.detail.details.template") }}
+            {{ t("vm.detail.details.timeZone") }}
           </label>
           <div>
-            {{ template || t("vm.detail.notAvailable") }}
+            {{ timeZone || t("vm.detail.GuestAgentNotInstalled") }}
           </div>
         </div>
       </div>
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.detail.details.timeZone") }}
+            {{ t("vm.detail.details.workloadProfile") }}
           </label>
           <div>
-            {{ timeZone || t("vm.detail.GuestAgentNotInstalled") }}
+            {{ workloadProfile || t("vm.detail.notAvailable") }}
           </div>
         </div>
       </div>
@@ -342,16 +337,6 @@ export default {
           </label>
           <div>
             {{ owner || t("vm.detail.noOwner") }}
-          </div>
-        </div>
-      </div>
-      <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("vm.detail.details.workloadProfile") }}
-          </label>
-          <div>
-            {{ workloadProfile || t("vm.detail.notAvailable") }}
           </div>
         </div>
       </div>
