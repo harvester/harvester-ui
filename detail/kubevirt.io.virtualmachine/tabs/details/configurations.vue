@@ -111,23 +111,8 @@ export default {
     timeZone() {
       return this.guestAgentInfo?.timezone;
     },
-    workloadProfile() {
-      const labels = this.value?.metadata?.labels;
-      let profile = null;
-
-      Object.keys(labels || {}).forEach((key) => {
-        if (key.includes(TEMPLATE_WORKLOAD_LABEL)) {
-          profile = labels[key];
-        }
-      });
-
-      return profile;
-    },
     operatingSystem() {
       return this.guestAgentInfo?.os?.prettyName;
-    },
-    owner() {
-      return this.guestAgentInfo?.userList;
     },
     isNamespace() {
       return 'Namespace';
@@ -315,28 +300,6 @@ export default {
           </label>
           <div>
             {{ timeZone || t("vm.detail.GuestAgentNotInstalled") }}
-          </div>
-        </div>
-      </div>
-      <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("vm.detail.details.workloadProfile") }}
-          </label>
-          <div>
-            {{ workloadProfile || t("vm.detail.notAvailable") }}
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("vm.detail.details.owner") }}
-          </label>
-          <div>
-            {{ owner || t("vm.detail.noOwner") }}
           </div>
         </div>
       </div>
