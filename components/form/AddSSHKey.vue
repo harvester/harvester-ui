@@ -28,7 +28,7 @@ export default {
       errors:           [],
       isAll:            false,
       checkAll:         false,
-      isIndeterminate:  true
+      isIndeterminate:  false
     };
   },
 
