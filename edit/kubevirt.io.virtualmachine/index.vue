@@ -14,7 +14,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
-import { VM_TEMPLATE, VM } from '@/config/types';
+import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import CreateEditView from '@/mixins/create-edit-view';
 import VM_MIXIN from '@/mixins/vm';
@@ -206,6 +206,7 @@ export default {
   },
 
   mounted() {
+    this.getImages();
     if (this.$route.query?.templateId) {
       this.templateName = this.$route.query?.templateId;
       this.templateVersion = this.$route.query?.version?.replace(':', '/');
@@ -250,6 +251,10 @@ export default {
       }
 
       return true;
+    },
+
+    getImages() {
+      this.$store.dispatch('cluster/findAll', { type: IMAGE });
     }
   },
 };
