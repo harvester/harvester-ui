@@ -312,6 +312,7 @@ export default {
             grid-area: icon;
             text-align: right;
             font-size: 18px;
+            color: #fff !important;
           }
 
           .el-icon-datavolume {

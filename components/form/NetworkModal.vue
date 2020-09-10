@@ -157,7 +157,7 @@ export default {
     },
     'currentRow.networkName'(neu) {
       if (neu === 'Pod Network') {
-        this.currentRow.type = 'masquerade'
+        this.currentRow.type = 'bridge'
       } else {
         this.currentRow.type = 'bridge'
       }
