@@ -35,13 +35,6 @@ export default {
     mode: {
       type:     String,
       required: true,
-    },
-    guestAgentInfo: {
-      type:     Object,
-      required: false,
-      default:  () => {
-        return {};
-      }
     }
   },
 
@@ -109,10 +102,10 @@ export default {
       return `${ domain.cpu.cores } vCPU , ${ domain.resources.requests.memory } Memory`;
     },
     timeZone() {
-      return this.guestAgentInfo?.timezone;
+      return this.resource?.status?.guestOSInfo?.timezone;
     },
     operatingSystem() {
-      return this.guestAgentInfo?.os?.prettyName;
+      return this.resource?.status?.guestOSInfo?.prettyName;
     },
     isNamespace() {
       return 'Namespace';
