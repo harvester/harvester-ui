@@ -29,13 +29,6 @@ export default {
       type:     String,
       required: true,
     },
-    guestAgentInfo: {
-      type:     Object,
-      required: false,
-      default:  () => {
-        return {};
-      }
-    },
   },
 
   data() {
@@ -62,7 +55,7 @@ export default {
       return this.resource?.status?.nodeName || UNDEFINED;
     },
     hostname() {
-      return this.guestAgentInfo?.hostname;
+      return this.resource?.spec?.hostname || this.resource?.status?.guestOSInfo?.hostname;
     },
     isDown() {
       return this.isEmpty(this.resource);
