@@ -143,25 +143,7 @@ export const getters = {
   },
 
   theme: (state, getters) => {
-    let theme = getters['get'](THEME);
-    const pcs = getters['get'](PREFERS_SCHEME);
-
-    // console.log('Get Theme', theme, pcs);
-
-    // Ember UI uses this prefix
-    if ( theme.startsWith('ui-') ) {
-      theme = theme.substr(3);
-    }
-
-    if ( theme === 'auto' ) {
-      if ( pcs === 'light' || pcs === 'dark' ) {
-        return pcs;
-      }
-
-      return 'light';
-    }
-
-    return theme;
+    return 'light';
   }
 };
 
