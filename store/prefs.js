@@ -47,8 +47,8 @@ export const EXPANDED_GROUPS = create('open-groups', ['cluster', 'rbac', 'servic
 export const FAVORITE_TYPES = create('fav-type', [], { parseJSON });
 export const GROUP_RESOURCES = create('group-by', 'namespace');
 export const DIFF = create('diff', 'unified', { options: ['unified', 'split'] });
-export const THEME = create('theme', 'auto', {
-  options:     ['light', 'auto', 'dark'],
+export const THEME = create('theme', 'light', {
+  options:     ['light'],
   asCookie,
   parseJSON,
   mangleRead:  x => x.replace(/^ui-/, ''),
@@ -158,7 +158,7 @@ export const getters = {
         return pcs;
       }
 
-      return 'dark';
+      return 'light';
     }
 
     return theme;

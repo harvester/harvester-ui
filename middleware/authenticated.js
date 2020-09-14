@@ -4,7 +4,7 @@ import { SETUP } from '@/config/query-params';
 import { get } from '@/utils/object';
 import { ClusterNotFoundError } from '@/utils/error';
 import { applyProducts } from '@/store/type-map';
-import { NAME as EXPLORER } from '@/config/product/explorer';
+import { NAME as VIRTUAL } from '@/config/product/virtual';
 
 let beforeEachSetup = false;
 
@@ -20,7 +20,7 @@ function setProduct(store, to) {
   }
 
   if ( !product ) {
-    product = EXPLORER;
+    product = VIRTUAL;
   }
 
   store.commit('setProduct', product);
