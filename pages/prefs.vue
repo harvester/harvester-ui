@@ -73,59 +73,65 @@ export default {
 <template>
   <div>
     <h1>Preferences</h1>
+    <el-card class="mt-20">
+      <h4 class="mb-10">
+        Theme
+      </h4>
 
-    <h4 class="mb-10">
-      Theme
-    </h4>
-    <ButtonGroup v-model="theme" :options="themeOptions" />
+      <ButtonGroup v-model="theme" :options="themeOptions" />
 
-    <h4 class="mb-10">
-      Formatting
-    </h4>
-    <div class="row">
-      <div class="col span-3">
-        <LabeledSelect
-          v-model="dateFormat"
-          label="Date Format"
-          :options="dateOptions"
-          placeholder="Select a date format"
-        />
+      <el-divider></el-divider>
+
+      <h4 class="mb-10">
+        Formatting
+      </h4>
+
+      <div class="row">
+        <div class="col span-4">
+          <LabeledSelect
+            v-model="dateFormat"
+            label="Date Format"
+            :options="dateOptions"
+            placeholder="Select a date format"
+          />
+        </div>
+        <div class="col span-4">
+          <LabeledSelect
+            v-model="timeFormat"
+            label="Time Format"
+            :options="timeOptions"
+            placeholder="Select a time format"
+          />
+        </div>
+        <div class="col span-4">
+          <LabeledSelect
+            v-model.number="perPage"
+            label="Table Rows per Page"
+            :options="perPageOptions"
+            placeholder="Select a row count"
+          />
+        </div>
       </div>
-      <div class="col span-3">
-        <LabeledSelect
-          v-model="timeFormat"
-          label="Time Format"
-          :options="timeOptions"
-          placeholder="Select a time format"
-        />
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="col span-3">
-        <LabeledSelect
-          v-model.number="perPage"
-          label="Table Rows per Page"
-          :options="perPageOptions"
-          placeholder="Select a row count"
-        />
-      </div>
-    </div>
+      <el-divider></el-divider>
 
-    <h4 class="mb-10">
-      YAML Editor Mode
-    </h4>
-    <ButtonGroup v-model="keymap" :options="keymapOptions" />
+      <h4 class="mb-10">
+        YAML Editor Mode
+      </h4>
+      <ButtonGroup v-model="keymap" :options="keymapOptions" />
 
-    <h4 class="mb-10">
-      Advanced
-    </h4>
-    <label class="checkbox-container" mode="create" type="checkbox">
-      <label class="checkbox-box">
-        <input v-model="dev" type="checkbox" tabindex="-1"> <span tabindex="0" aria-label="Interactive" role="checkbox" class="checkbox-custom"></span>
+      <el-divider></el-divider>
+
+      <h4 class="mb-10">
+        Advanced
+      </h4>
+      <label class="checkbox-container" mode="create" type="checkbox">
+        <label class="checkbox-box">
+          <input v-model="dev" type="checkbox" tabindex="-1"> <span tabindex="0" aria-label="Interactive" role="checkbox" class="checkbox-custom"></span>
+        </label>
+        <span class="checkbox-label">Enable Developer Tools</span>
       </label>
-      <span class="checkbox-label">Enable Developer Tools</span>
-    </label>
+    </el-card>
   </div>
 </template>
 

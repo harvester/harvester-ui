@@ -1,6 +1,9 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 import { NORMAN, VM } from '@/config/types';
+import { NAME as VIRTUAL } from '@/config/product/virtual';
+import Md5 from '@/utils/crypto/browserMd5';
+import Identicon from 'identicon.js';
 
 export default {
 
@@ -18,7 +21,14 @@ export default {
 
     showShell() {
       return !!this.currentCluster?.links?.shell;
-    }
+    },
+
+    imgUrl() {
+      const hash = new Md5();
+      const imgData = new Identicon(hash.digest('hex'), 40).toString();
+
+      return `data:image/png;base64,${ imgData }`;
+    },
   },
 
   methods: {
@@ -64,35 +74,29 @@ export default {
     </div>
 
     <div class="user">
-      <v-popover
-        placement="bottom"
-        offset="-10"
-        trigger="hover"
-        :delay="{show: 0, hide: 200}"
-        :popper-options="{modifiers: { flip: { enabled: false } } }"
-      >
-        <div class="text-right">
-          <img v-if="principal && principal.avatarSrc" :src="principal.avatarSrc" :class="{'avatar-round': principal.provider === 'github'}" width="40" height="40" />
-          <i v-else class="icon icon-user icon-3x avatar" />
-        </div>
+      <el-dropdown>
+        <img v-if="principal && principal.avatarSrc" :src="principal.avatarSrc" :class="{'avatar-round': principal.provider === 'github'}" width="40" height="40" />
+        <img v-else :src="imgUrl" width="40" height="40" />
 
-        <template slot="popover">
-          <ul class="list-unstyled dropdown" style="margin: -1px;">
-            <li v-if="authEnabled">
-              <div>{{ principal.loginName }}</div>
-              <div class="text-small pb-10">
-                {{ principal.name }}
-              </div>
-            </li>
-            <nuxt-link tag="li" :to="{name: 'prefs'}" class="pt-5 pb-5 hand">
-              <a>Preferences <i class="icon icon-fw icon-gear" /></a>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item v-if="authEnabled">
+            <div>{{ principal.loginName }}</div>
+            <div class="text-small">
+              {{ principal.name }}
+            </div>
+          </el-dropdown-item>
+          <el-dropdown-item style="padding: 0;">
+            <nuxt-link tag="li" :to="{name: 'prefs'}" style="padding:0 15px;">
+              Preferences
             </nuxt-link>
-            <nuxt-link v-if="authEnabled" tag="li" :to="{name: 'auth-logout'}" class="pt-5 pb-5 hand">
-              <a>Log Out <i class="icon icon-fw icon-close" /></a>
+          </el-dropdown-item>
+          <el-dropdown-item style="padding: 0;">
+            <nuxt-link v-if="authEnabled" tag="li" :to="{name: 'auth-logout'}" style="padding:0 15px;">
+              Log Out
             </nuxt-link>
-          </ul>
-        </template>
-      </v-popover>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
     </div>
   </header>
 </template>
