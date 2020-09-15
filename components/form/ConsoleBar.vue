@@ -26,16 +26,9 @@ export default {
 
   methods: {
     handleDropdown(c) {
-      switch (c) {
-      case 'vnc':
-        this.showVnc();
-        break;
-      case 'serial':
-        this.showSerial();
-        break;
-      }
+      this.show(c);
     },
-    showVnc() {
+    show(type) {
       const prefix = getPrefix();
       let uid = this.resource.metadata?.ownerReferences?.[0]?.uid;
 
@@ -43,26 +36,10 @@ export default {
         uid = this.resource.metadata.uid;
       }
 
-      let url = `//${ window.location.host }/#/console/${ uid }/vnc`;
+      let url = `//${ window.location.host }/#/console/${ uid }/${ type }`;
 
       if (prefix) {
-        url = `//${ window.location.host }/${ prefix }/#/console/${ uid }/vnc`;
-      }
-
-      window.open(url, '_blank', 'toolbars=0,width=900,height=700,left=0,top=0');
-    },
-    showSerial() {
-      const prefix = getPrefix();
-      let uid = this.resource.metadata?.ownerReferences?.[0]?.uid;
-
-      if (uid === undefined) {
-        uid = this.resource.metadata.uid;
-      }
-
-      let url = `//${ window.location.host }/#/console/${ uid }/serial`;
-
-      if (prefix) {
-        url = `//${ window.location.host }/${ prefix }/#/console/${ uid }/serial`;
+        url = `//${ window.location.host }/${ prefix }/#/console/${ uid }/${ type }`;
       }
 
       window.open(url, '_blank', 'toolbars=0,width=900,height=700,left=0,top=0');
@@ -80,7 +57,7 @@ export default {
       v-if="!isDown"
       size="mini"
       split-button
-      @click="showVnc()"
+      @click="show('vnc')"
       @command="handleDropdown"
     >
       <span class="el-icon-connection">&nbsp;Console</span>
