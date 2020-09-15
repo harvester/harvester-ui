@@ -48,19 +48,38 @@ export default {
 
   computed: {
     cloudInit() {
-      const out = this.userScript;
-      console.log('----userScript', this.userScript)
+      let out = this.userScript;
+
+      try {
+        const newInitScript = safeLoad(out);
+
+        if (!newInitScript?.hostname) {
+          this.realHostname = '';
+        } else {
+          this.realHostname = newInitScript.hostname;
+        }
+
+        if (newInitScript.ssh_authorized_keys) {
+          newInitScript.ssh_authorized_keys = [...this.getSSHListValue(this.sshKey), ...newInitScript.ssh_authorized_keys]
+        } else {
+          newInitScript.ssh_authorized_keys = this.getSSHListValue(this.sshKey)
+        }
+
+        out = safeDump(newInitScript);
+      } catch (error) {
+        console.log('has error set', error)
+        return '';
+      }
+
       const hasCloundConfig = out.startsWith('#cloud-config');
+
       if (hasCloundConfig) {
         return this.userScript ? `${ out }` : `#cloud-config`
       } else {
         return this.userScript ? `#cloud-config\n${ out }` : `#cloud-config`
       }
-
       // script.ssh_authorized_keys = this.getSSHListValue(this.sshKey);
       // script.hostname = this.hostname || this.value?.metadata?.name;
-     
-      return this.userScript ? `#cloud-config\n${ out }` : `#cloud-config`
     },
 
     ssh() {

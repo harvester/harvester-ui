@@ -94,6 +94,7 @@ export default {
     }
 
     return {
+      realHostname: '',
       spec,
       templateName:         '',
       templateVersion:      '',
@@ -229,11 +230,11 @@ export default {
       this.$set(this.value, 'type', VM); // if not successed, need pass type prop to find something
       const url = `v1/${ VM }s`;
 
-      const realHostname = this.value.spec.template.spec.hostname || this.value.metadata.name;
+      this.normalizeSpec();
+      const realHostname = this.realHostname || this.value.spec.template.spec.hostname || this.value.metadata.name;
 
       this.$set(this.value.spec.template.spec, 'hostname', realHostname);
 
-      this.normalizeSpec();
       this.$delete(this.value, 'type'); // vm api don't type attribuet, the error will be reported
       this.save(buttonCb, url);
     },
@@ -337,7 +338,12 @@ export default {
         <h3>Cloud Config</h3>
         
         <div class="mb-20">
-          <h4>User Data:</h4>
+          <h4>
+            User Data:
+            <h5>
+              You can specify user data to configure an instance or run a configuration script during launch. If you launch more than one instance at a time, the user data is available to all the instances in that reservation. <a href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html">Learn more</a>
+            </h5>
+          </h4>
           <div class="resource-yaml">
             <YamlEditor
               ref="yamlUser"
@@ -349,7 +355,13 @@ export default {
         </div>
 
         <div>
-          <h4>Network Data:</h4>
+          <h4>
+            Network Data:
+            <h5>
+              The network-data configuration allows you to customize the instance’s networking interfaces by assigning subnet configuration, virtual device creation (bonds, bridges, vlans) routes and DNS configuration.
+              <a href="https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html">Learn more</a>
+            </h5>
+          </h4>
           <div class="resource-yaml">
             <YamlEditor
               ref="yamlNetwork"
