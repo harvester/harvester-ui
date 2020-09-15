@@ -116,11 +116,14 @@ export function stringify(uri) {
 
 export function getPrefix({ suffixSlash = true } = {}) {
   const pathname = window.location.pathname;
-  const pathnamePattern = /\/k8s\/clusters\/.+?\/proxy\/?/g;
-  const match = pathname.match(pathnamePattern);
+  const customPathnamePattern = /\/k8s\/clusters\/.+?\/proxy\/?/g;
+  const localPathnamePattern = /\/api\/v1\/.+?\/proxy\/?/g;
+  const customMatch = pathname.match(customPathnamePattern);
+  const localMatch = pathname.match(localPathnamePattern);
+  const result = customMatch || localMatch;
 
-  if (match && match[0]) {
-    let path = match[0];
+  if (result && result[0]) {
+    let path = result[0];
 
     if (path.endsWith('/')) {
       path += '/';
