@@ -18,14 +18,27 @@ export default {
       tip:        TIP,
       searchKey:  '',
       activeName: this.value,
+
+      pageSize:      12,
+      currentPage:   1,
     };
   },
 
   computed: {
     readiedImages() {
       return this.images.filter( (I) => {
-        return (I.spec.displayName.toLowerCase()).includes(this.searchKey) && I.isReady;
+        return (I.spec.displayName.toLowerCase()).includes(this.searchKey.toLowerCase()) && I.isReady;
       });
+    },
+    displayImages() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      let end = this.currentPage * this.pageSize;
+
+      if (end > this.readiedImages.length) {
+        end = this.readiedImages.length;
+      }
+
+      return this.readiedImages.slice(start, end);
     }
   },
 
@@ -38,7 +51,10 @@ export default {
     },
     value(neu) {
       this.activeName = neu;
-    }
+    },
+    readiedImages() {
+      this.currentPage = 1;
+    },
   },
 
   methods: {
@@ -64,7 +80,7 @@ export default {
       <div>
         <div class="list">
           <div
-            v-for="item in readiedImages"
+            v-for="item in displayImages"
             :key="item.id"
             class="image mb-10"
             :class="{active: activeName == item.spec.displayName}"
@@ -82,6 +98,18 @@ export default {
 
             <i v-if="activeName == item.spec.displayName" class="icon icon-checkmark checkmark" />
           </div>
+        </div>
+
+        <div class="mt-20">
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :page-size="pageSize"
+            :current-page.sync="currentPage"
+            :total="readiedImages.length"
+            class="text-center"
+          >
+          </el-pagination>
         </div>
 
         <div class="mt-20">
