@@ -35,7 +35,8 @@ export default {
 
   data() {
     return {
-      startScript: '',
+      networkScript: '',
+      userScript: '',
       sshKey:     [],
       imageName:  '',
       sshName:    '',
@@ -47,25 +48,19 @@ export default {
 
   computed: {
     cloudInit() {
-      let out = '';
-      const script = {
-        name: 'default'
-      };
-      
-      const startScript = this.startScript.split(/[\r\n]/);
-
-      script.ssh_authorized_keys = this.getSSHListValue(this.sshKey);
-      
-      script.hostname = this.hostname || this.value?.metadata?.name;
-      script.runcmd = startScript;
-
-      try {
-        out = safeDump(script);
-      } catch (error) {
-        console.error('cloudInit (safeDump) error');
+      const out = this.userScript;
+      console.log('----userScript', this.userScript)
+      const hasCloundConfig = out.startsWith('#cloud-config');
+      if (hasCloundConfig) {
+        return this.userScript ? `${ out }` : `#cloud-config`
+      } else {
+        return this.userScript ? `#cloud-config\n${ out }` : `#cloud-config`
       }
 
-      return `#cloud-config\n${ out }`
+      // script.ssh_authorized_keys = this.getSSHListValue(this.sshKey);
+      // script.hostname = this.hostname || this.value?.metadata?.name;
+     
+      return this.userScript ? `#cloud-config\n${ out }` : `#cloud-config`
     },
 
     ssh() {
@@ -337,12 +332,14 @@ export default {
           }
         }
       };
+
       switch (R.source) {
         case SOURCE_TYPE.BLANK:
           _dataVolumeTemplate.spec.pvc.storageClassName = R.storageClassName;
           _dataVolumeTemplate.spec.source = { blank: {} };
           break;
         case SOURCE_TYPE.IMAGE:
+          _dataVolumeTemplate.spec.pvc.storageClassName = R.storageClassName;
           _dataVolumeTemplate.spec.source = { http: { url: this.getUrlFromImage(R.image) } };
           const imageId = this.getImageResource(R.image)?.id?.replace('/', ':')
 
@@ -431,7 +428,8 @@ export default {
         volumes.push({
           name:             'cloudinitdisk',
           cloudInitNoCloud: {
-            userData: this.cloudInit
+            userData: this.cloudInit,
+            networkData: this.networkScript
           }
         });
       }

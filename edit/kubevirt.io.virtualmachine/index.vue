@@ -6,6 +6,7 @@ import randomstring from 'randomstring';
 import { safeLoad, safeDump } from 'js-yaml';
 import Footer from '@/components/form/Footer';
 import NameNsDescription from '@/components/form/NameNsDescription';
+import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
 import Collapse from '@/components/Collapse';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
@@ -34,6 +35,7 @@ export default {
     NetworkModal,
     NameNsDescription,
     LabeledInput,
+    YamlEditor,
     LabeledSelect,
     TextAreaAutoGrow,
   },
@@ -99,7 +101,8 @@ export default {
       isRunning:            true,
       useTemplate:          false,
       pageType:             'vm',
-      isLanuchFromTemplate:     false
+      isLanuchFromTemplate:     false,
+      editorMode:           EDITOR_MODES.EDIT_CODE
     };
   },
 
@@ -316,7 +319,7 @@ export default {
 
       <div class="spacer"></div>
 
-      <Collapse :open.sync="showCloudInit" title="Advanced Options">
+      <Collapse :open.sync="showCloudInit" title="Advanced Details">
         <LabeledInput v-model="hostname" class="labeled-input--tooltip mb-20" required placeholder="default to the virtual machine name.">
           <template v-slot:label>
             <div>
@@ -330,9 +333,32 @@ export default {
             </div>
           </template>
         </LabeledInput>
+
+        <h3>Cloud Config</h3>
         
-        <h3>Startup Script:</h3>
-        <TextAreaAutoGrow ref="value" v-model="startScript" :min-height="160" />
+        <div class="mb-20">
+          <h4>User Data:</h4>
+          <div class="resource-yaml">
+            <YamlEditor
+              ref="yamlUser"
+              v-model="userScript"
+              class="yaml-editor"
+              :editor-mode="editorMode"
+            />
+          </div>
+        </div>
+
+        <div>
+          <h4>Network Data:</h4>
+          <div class="resource-yaml">
+            <YamlEditor
+              ref="yamlNetwork"
+              v-model="networkScript"
+              class="yaml-editor"
+              :editor-mode="editorMode"
+            />
+          </div>
+        </div>
       </Collapse>
 
       <div class="spacer"></div>
@@ -345,7 +371,22 @@ export default {
 </template>
 
 <style lang="scss">
+.resource-yaml {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  .yaml-editor {
+    flex: 1;
+    min-height: 200px;
+  }
+
+  footer .actions {
+    text-align: center;
+  }
+}
 #vm {
+  
   .tip {
     color: #8e8e92;
   }
