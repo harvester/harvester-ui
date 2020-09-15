@@ -59,10 +59,12 @@ export default {
           this.realHostname = newInitScript.hostname;
         }
 
-        if (newInitScript.ssh_authorized_keys) {
+        if (newInitScript?.ssh_authorized_keys) {
           newInitScript.ssh_authorized_keys = [...this.getSSHListValue(this.sshKey), ...newInitScript.ssh_authorized_keys]
         } else {
-          newInitScript.ssh_authorized_keys = this.getSSHListValue(this.sshKey)
+          if (newInitScript) {
+            newInitScript.ssh_authorized_keys = this.getSSHListValue(this.sshKey)
+          }
         }
 
         out = safeDump(newInitScript);
@@ -384,26 +386,6 @@ export default {
       return out;
     },
 
-    // setHostnameToCloud() {
-    //   if (!this.pageType === 'vm' && !this.value?.metadata?.name) return;
-
-    //   let newInitScript = {};
-    //   if (this.cloudInit) {
-    //     try {
-    //       newInitScript = safeLoad(this.cloudInit);
-    //       if (!newInitScript.hostname) {
-    //         newInitScript.hostname = this.value?.metadata?.name || '';
-    //         const neuCloudConfig = safeDump(newInitScript);
-    //         console.log('----newInitScript neuCloudConfig', neuCloudConfig, this.value.metadata.name)
-            
-    //         this.$set(this, 'cloudInit', neuCloudConfig);
-    //       }
-    //     } catch (error) {
-    //       console.log('has error set', error)
-    //     }
-    //   }
-    // },
-
     getInSshList(arr) {
       const out = [];
       arr.map( O => {
@@ -579,53 +561,7 @@ export default {
           this.$set(this, 'diskRows', _diskRows);
         }
       },
-      immediate: true
+      // immediate: true
     },
-
-    // sshKey: {
-    //   async handler(neu) {
-    //     try {
-    //       await this.fetchSSH();
-    //       const oldCloudConfig = safeLoad(this.cloudInit);
-    //       if (oldCloudConfig.ssh_authorized_keys) {
-    //         const checkedSSH = oldCloudConfig.ssh_authorized_keys;
-    //         const out = this.parseSshKeys(checkedSSH);
-    //         const ssh_authorized_keys = this.getSSHListValue(neu);
-    //         ssh_authorized_keys.push(...out);
-    //         oldCloudConfig.ssh_authorized_keys = ssh_authorized_keys;
-    //       } else {
-    //         const ssh_authorized_keys = this.getSSHListValue(neu);
-    //         oldCloudConfig.ssh_authorized_keys = ssh_authorized_keys
-    //       }
-    //       const neuCloudConfig = safeDump(oldCloudConfig);
-  
-    //       this.$set(this, 'cloudInit', neuCloudConfig);
-    //     } catch (error) {
-    //       // eslint-disable-next-line no-console
-    //       console.log('---watch sshKey has error');
-    //     }
-    //   }
-    // },
-
-    // cloudInit(neu) {
-    //   let sshString = '';
-    //   let newInitScript = {};
-    //   if (neu) {
-    //     try {
-    //       newInitScript = safeLoad(neu);
-    //       if (newInitScript.ssh_authorized_keys) {
-    //         const checkedSSH = newInitScript.ssh_authorized_keys;
-    //         const inSshList = this.getInSshList(checkedSSH);
-    //         this.$set(this, 'sshKey', inSshList);
-    //       }
-
-    //       if (newInitScript.hostname) {
-    //         this.hostname = newInitScript.hostname;
-    //       }
-    //     } catch (error) {
-    //       console.log('----watch cloudinit', error)
-    //     }
-    //   }
-    // }
   }
 };
