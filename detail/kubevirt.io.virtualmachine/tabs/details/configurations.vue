@@ -272,7 +272,7 @@ export default {
             {{ t("vm.detail.details.operatingSystem") }}
           </label>
           <div>
-            {{ t("vm.detail.GuestAgentNotInstalled") }}
+            {{ operatingSystem || t("vm.detail.GuestAgentNotInstalled") }}
           </div>
         </div>
       </div>
