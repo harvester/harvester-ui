@@ -81,7 +81,7 @@ export default {
           </div>
         </div>
 
-        <div class="col span-4">
+        <div v-if="source !== 'blank'" class="col span-4">
           <div class="labeled-input view">
             <label>
               Image
