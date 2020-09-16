@@ -84,7 +84,7 @@ export default {
 
 <template>
   <div class="sshkeys-modal">
-    <el-button type="text" icon="el-icon-view" @click="toggleModal(true)">
+    <el-button class="color-light-text-primary" type="text" icon="el-icon-view" @click="toggleModal(true)">
       SSH-keys
     </el-button>
     <el-dialog
@@ -114,13 +114,19 @@ export default {
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleClose">Close</el-button>
+        <button class="btn btn-sm role-secondary" @click="handleClose">Close</button>
       </span>
     </el-dialog>
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
+  .sshkeys-modal {
+    .el-button--text {
+      color: var(--link-text) !important
+    }
+  }
+
   .overview-sshkeys {
     text-align: left;
     max-height: 700px;
