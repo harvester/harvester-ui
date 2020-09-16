@@ -124,75 +124,75 @@ export default {
   </div>
 </template>
 
-<style lang="scss" scoped>
-.list {
-  display: grid;
-  grid-template-columns: 22% 22% 22% 22%;
-  grid-column-gap: 3%;
-  max-height: 300px;
-  overflow-y: auto;
+<style lang="scss">
+.vm-choose-image {
+  .list {
+    display: grid;
+    grid-template-columns: 22% 22% 22% 22%;
+    grid-column-gap: 3%;
+    max-height: 300px;
+    overflow-y: auto;
 
-  .active {
-    background-color: #fdf6ec;
+    .active {
+      background-color: #fdf6ec;
 
-    .info span {
-      color: var(--input-text) !important;
+      .info span {
+        color: var(--input-text) !important;
+      }
     }
-  }
 
-  .checkmark {
-    position: absolute;
-    position: absolute;
-    bottom: 0;
-    right: 7px;
-    font-size: 22px;
-  }
+    .checkmark {
+      position: absolute;
+      position: absolute;
+      bottom: 0;
+      right: 7px;
+      font-size: 22px;
+    }
 
-  .image {
-    position: relative;
-    cursor: pointer;
-    height: 90px;
-    border: 1px solid var(--input-border);
-    border-radius: calc(3 * var(--border-radius));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-
-    .pic {
-      width: 50px;
-      height: 50px;
-      border-radius: 50px;
-      background-color: var(--input-border);
-      color: #fff;
-      margin:0 15px;
-      text-transform: uppercase;
+    .image {
+      position: relative;
+      cursor: pointer;
+      height: 90px;
+      border: 1px solid var(--input-border);
+      border-radius: calc(3 * var(--border-radius));
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-    }
+      flex-direction: row;
 
-    .info {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      flex: 1;
-      padding-right: 15px;
-
-      span:first-child {
-        margin-bottom: 10px;
+      .pic {
+        width: 50px;
+        height: 50px;
+        border-radius: 50px;
+        background-color: var(--input-border);
+        color: #fff;
+        margin:0 15px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
       }
-      span {
-        font-size: 12px;
-        color: var(--help-text);
-        word-break: break-all;
+
+      .info {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        flex: 1;
+        padding-right: 15px;
+
+        span:first-child {
+          margin-bottom: 10px;
+        }
+        span {
+          font-size: 12px;
+          color: var(--help-text);
+          word-break: break-all;
+        }
       }
     }
   }
-}
 
-.vm-choose-image {
   .box {
     border-radius: calc(3 * var(--border-radius));
   }
@@ -200,6 +200,10 @@ export default {
   .sub-title {
     font-size: 14px;
     color: var(--help-text);
+  }
+
+  .el-pagination.is-background .el-pager li:not(.disabled).active {
+    background: var(--primary);
   }
 }
 </style>
