@@ -118,7 +118,7 @@ export default {
 
       this.ssh.map( (I) => {
         if (neu.includes(I.metadata.name)) {
-          const name = `${ I.metadata.namespace }:${ I.metadata.name }`;
+          const name = `${ I.metadata.namespace }/${ I.metadata.name }`;
 
           out.push(name);
         }
@@ -169,7 +169,7 @@ export default {
             kind:       'harvester.cattle.io.virtualmachinetemplateversion',
             type:       'harvester.cattle.io.virtualmachinetemplateversion',
             spec:       {
-              templateId: `harvester-system:${ this.value.metadata.name }`,
+              templateId: `harvester-system/${ this.value.metadata.name }`,
               keyPairIds: this.keyPairIds,
               vm:         { ...this.spec }
             }
@@ -177,9 +177,7 @@ export default {
         });
 
         if (this.isDefaultVersion) {
-          const defaultVersionId = versionInfo.id.replace('/', ':');
-
-          this.defaultVersionId = defaultVersionId;
+          this.defaultVersionId = versionInfo.id;
           this.chooseDefault = true;
         } else {
           buttonCb(true);
@@ -197,7 +195,7 @@ export default {
 
       const url = `v1/harvester.cattle.io.virtualmachinetemplates/default/${ this.value.metadata.name }`;
 
-      this.value.spec.defaultVersionId = id.replace('/', ':');
+      this.value.spec.defaultVersionId = id;
       try {
         await this.value.save(buttonCb, url);
         buttonCb(true);

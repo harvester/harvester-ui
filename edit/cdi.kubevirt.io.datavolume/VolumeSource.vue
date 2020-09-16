@@ -169,7 +169,7 @@ export default {
       let imageAnnotations = '';
 
       if (this.isVmImage && this.image) {
-        imageAnnotations = { 'harvester.cattle.io/imageId': this.image.replace('/', ':') };
+        imageAnnotations = { 'harvester.cattle.io/imageId': this.image };
       } else {
         imageAnnotations = {};
       }
