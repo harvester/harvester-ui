@@ -818,6 +818,7 @@ rioConfig:
 validation:
   custom:
     missing: "No validtor exists for { validatorName }! Does the validtor exist in custom-validtors? Is the name spelled correctly?"
+    tooLongName: "Name cannnot longer than {max} characters"
   noType: No type to validate
   noSchema: No schema found to validate
   required: '"{key}" is required'
