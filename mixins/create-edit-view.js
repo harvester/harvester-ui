@@ -146,6 +146,14 @@ export default {
 
     async save(buttonDone, url) {
       this.errors = null;
+
+      if (this.checkLength() === false) {
+        this.errors = [this.$store.getters['i18n/t']('validation.custom.tooLongName', { max: 63 })];
+        buttonDone(false);
+
+        return;
+      }
+
       try {
         await this.applyHooks(BEFORE_SAVE_HOOKS);
 
@@ -188,6 +196,10 @@ export default {
       } else {
         await this.value.save();
       }
-    }
+    },
+
+    checkLength() {
+      return this.value.nameDisplay.length <= 63;
+    },
   },
 };
