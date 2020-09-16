@@ -15,6 +15,7 @@ import VM_MIXIN from '@/mixins/vm';
 import CreateEditView from '@/mixins/create-edit-view';
 import { _EDIT, _CREATE, _ADD } from '@/config/query-params';
 import ChooseImage from '../kubevirt.io.virtualmachine/ChooseImage';
+import CloudConfig from '../kubevirt.io.virtualmachine/CloudConfig';
 
 export default {
   name: 'EditVMTEMPLATE',
@@ -26,8 +27,8 @@ export default {
     LabeledInput,
     MemoryUnit,
     AddSSHKey,
-    TextAreaAutoGrow,
     DiskModal,
+    CloudConfig,
     NetworkModal,
     ChooseImage
   },
@@ -149,6 +150,12 @@ export default {
 
   methods: {
     async saveVMT(buttonCb) {
+      const isPass = this.verifyBefSave(buttonCb);
+
+      if (!isPass) {
+        return;
+      }
+
       if (!this.isAdd) {
         delete this.value.metadata.namespace;
         await this.save(buttonCb);
@@ -188,6 +195,17 @@ export default {
 
         this.errors = [message];
       }
+    },
+
+    verifyBefSave(buttonCb) {
+      if (!this.spec.template.spec.domain.cpu.cores || !this.memory.match(/[0-9]/)) {
+        this.errors = ['Required fields not completed!'];
+        buttonCb(false);
+
+        return false;
+      }
+
+      return true;
     },
 
     async setVersion(id, buttonCb) {
@@ -259,8 +277,7 @@ export default {
       <div class="spacer"></div>
 
       <Collapse :open.sync="showCloudInit" title="Advanced Options">
-        <h3>Startup Script:</h3>
-        <TextAreaAutoGrow ref="value" v-model="startScript" :min-height="160" />
+        <CloudConfig @updateCloudConfig="updateCloudConfig" />
       </Collapse>
 
       <div class="spacer"></div>

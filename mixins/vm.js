@@ -70,7 +70,7 @@ export default {
         out = safeDump(newInitScript);
       } catch (error) {
         console.log('has error set', error)
-        return '';
+        return '#cloud-config';
       }
 
       const hasCloundConfig = out.startsWith('#cloud-config');
@@ -198,6 +198,21 @@ export default {
                 size = DVT?.spec?.pvc?.resources?.requests?.storage || '10Gi';
                 volumeMode = DVT?.spec?.pvc?.volumeMode;
                 storageClassName = DVT?.spec?.pvc?.storageClassName  || this.defaultStorageClass;
+              } else { // mayby is SOURCE_TYPE.ATTACH_VOLUME
+                const choices = this.$store.getters['cluster/all'](PVC);
+
+                const pvcResource = choices.find( O => O.metadata.name === volume?.dataVolume?.name);
+
+                if (pvcResource) {
+                  
+                  source = SOURCE_TYPE.ATTACH_VOLUME;
+                  accessMode = pvcResource?.spec?.accessModes;
+                  size = pvcResource?.spec?.resources?.requests?.storage;
+                  storageClassName = pvcResource?.spec?.storageClassName;
+                  volumeMode = pvcResource?.spec?.volumeMode;
+                  pvcName = volume?.dataVolume?.name;
+ 
+                }
               }
 
             }
@@ -319,6 +334,11 @@ export default {
     },
 
     parseVolume(R, dataVolumeName, isCloudInitDisk = false) {
+
+      if (R.source === SOURCE_TYPE.ATTACH_VOLUME) {
+        dataVolumeName = R.pvcName;
+      }
+
       const _volume = {
         name:       R.name,
       };
@@ -327,7 +347,7 @@ export default {
         _volume.containerDisk = {
           image: R.container
         }
-      } else if (R.source === SOURCE_TYPE.IMAGE || R.source === SOURCE_TYPE.BLANK) {
+      } else if (R.source === SOURCE_TYPE.IMAGE || R.source === SOURCE_TYPE.BLANK || R.source === SOURCE_TYPE.ATTACH_VOLUME) {
         _volume.dataVolume = {
           name: dataVolumeName
         }
@@ -415,7 +435,7 @@ export default {
         disks.push(_disk);
         volumes.push(_volume);
 
-        if (R.source !== SOURCE_TYPE.CONTAINER_DISK) {
+        if (R.source !== SOURCE_TYPE.CONTAINER_DISK && R.source !== SOURCE_TYPE.ATTACH_VOLUME) {
           dataVolumeTemplates.push(_dataVolumeTemplate);
         }
       });
@@ -549,6 +569,11 @@ export default {
         this.$set(this.spec.template, 'spec', spec);
       }
     },
+
+    updateCloudConfig(userData, networkData) {
+      this.userScript = userData;
+      this.networkScript = networkData;
+    }
   },
 
   watch: {
