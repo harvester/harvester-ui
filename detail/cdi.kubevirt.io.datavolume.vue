@@ -40,7 +40,7 @@ export default {
       const source = this.value.spec?.source?.blank ? 'blank' : this.value.spec?.source?.registry?.url ? 'container' : 'VM Image';
       const image = source === 'VM Image' ? this.value.spec?.source?.http?.url : '-';
 
-      const imageId = this.value?.metadata?.annotations?.['harvester.cattle.io/imageId']?.replace(':', '/') || '';
+      const imageId = this.value?.metadata?.annotations?.['harvester.cattle.io/imageId'] || '';
       const imageResource = imageList.find( I => imageId === I.id);
 
       return imageResource?.spec?.displayName || '-';

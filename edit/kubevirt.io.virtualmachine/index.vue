@@ -133,7 +133,7 @@ export default {
 
     versionOption() {
       const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
-      const templateId = this.templateName.replace('/', ':');
+      const templateId = this.templateName;
       const defaultVersionNumber = this.curTemplateResource?.defaultVersionNumber;
 
       return choices.filter( O => O.spec.templateId === templateId).map( (T) => {
@@ -173,7 +173,7 @@ export default {
     async templateVersion(version) {
       const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version });
 
-      const id = version.replace(':', '/');
+      const id = version;
       const templateSpec = choices.find( (V) => {
         return V.id === id;
       });
@@ -195,7 +195,7 @@ export default {
       const template = choices.find( O => O.id === id);
 
       if (template.spec.defaultVersionId && !this.isLanuchFromTemplate) {
-        this.templateVersion = template.spec.defaultVersionId.replace(':', '/');
+        this.templateVersion = template.spec.defaultVersionId;
       }
 
       this.isLanuchFromTemplate = false;
@@ -213,7 +213,7 @@ export default {
     this.getImages();
     if (this.$route.query?.templateId) {
       this.templateName = this.$route.query?.templateId;
-      this.templateVersion = this.$route.query?.version?.replace(':', '/');
+      this.templateVersion = this.$route.query?.version;
       this.isLanuchFromTemplate = true;
       this.useTemplate = true;
     }

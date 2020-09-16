@@ -37,7 +37,7 @@ export default {
     return () => {
       const templateResource = this.currentTemplate;
       const templateId = templateResource.id;
-      const launchVersion = this.id.replace('/', ':');
+      const launchVersion = this.id;
       const router = this.currentRouter();
 
       router.push({
@@ -51,7 +51,7 @@ export default {
   cloneTemplate() {
     return (moreQuery = {}) => {
       const templateResource = this.currentTemplate;
-      const launchVersion = this.id.replace('/', ':');
+      const launchVersion = this.id;
       const id = templateResource.id.replace(/.*\//, '');
       const schema = this.$getters['schemaFor'](this.type);
       const router = templateResource.currentRouter();
@@ -73,14 +73,14 @@ export default {
   },
 
   currentTemplate() {
-    return _.find(this.templates, T => T.id === this.spec.templateId.replace(':', '/'));
+    return _.find(this.templates, T => T.id === this.spec.templateId);
   },
 
   setDefaultVersion() {
     return async(moreQuery = {}) => {
       const templateResource = this.currentTemplate;
 
-      templateResource.spec.defaultVersionId = this.id.replace('/', ':');
+      templateResource.spec.defaultVersionId = this.id;
       await templateResource.save();
     };
   }
