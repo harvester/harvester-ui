@@ -40,6 +40,11 @@ export default {
     defaultVersion() {
       return this.value?.status?.defaultVersion || '-';
     },
+
+    description() {
+      return this.value?.spec?.description || '-';
+    },
+
     versions() {
       const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version)
       return choices.filter( O => O.spec.templateId === this.value.id.replace('/', ':'))
@@ -60,6 +65,11 @@ export default {
         <div class="col span-3">
           <div>Latest version</div>
           <div>{{ latestVersion }}</div>
+        </div>
+
+        <div class="col span-6">
+          <div>Description</div>
+          <div>{{ description }}</div>
         </div>
       </div>
 

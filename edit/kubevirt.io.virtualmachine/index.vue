@@ -15,6 +15,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
+import CloudConfig from './CloudConfig';
 import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import CreateEditView from '@/mixins/create-edit-view';
@@ -32,6 +33,7 @@ export default {
     MemoryUnit,
     AddSSHKey,
     ChooseImage,
+    CloudConfig,
     NetworkModal,
     NameNsDescription,
     LabeledInput,
@@ -259,7 +261,7 @@ export default {
 
     getImages() {
       this.$store.dispatch('cluster/findAll', { type: IMAGE });
-    }
+    },
   },
 };
 </script>
@@ -306,7 +308,7 @@ export default {
       <div class="spacer"></div>
 
       <h2>Disks:</h2>
-      <DiskModal v-model="diskRows" class="vm__disk-modal" />
+      <DiskModal v-model="diskRows" class="vm__disk-modal" :namespace="value.metadata.namespace" />
 
       <div class="spacer"></div>
 
@@ -335,42 +337,7 @@ export default {
           </template>
         </LabeledInput>
 
-        <h3>Cloud Config</h3>
-        
-        <div class="mb-20">
-          <h4>
-            User Data:
-            <h5>
-              You can specify user data to configure an instance or run a configuration script during launch. If you launch more than one instance at a time, the user data is available to all the instances in that reservation. <a href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html">Learn more</a>
-            </h5>
-          </h4>
-          <div class="resource-yaml">
-            <YamlEditor
-              ref="yamlUser"
-              v-model="userScript"
-              class="yaml-editor"
-              :editor-mode="editorMode"
-            />
-          </div>
-        </div>
-
-        <div>
-          <h4>
-            Network Data:
-            <h5>
-              The network-data configuration allows you to customize the instance’s networking interfaces by assigning subnet configuration, virtual device creation (bonds, bridges, vlans) routes and DNS configuration.
-              <a href="https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html">Learn more</a>
-            </h5>
-          </h4>
-          <div class="resource-yaml">
-            <YamlEditor
-              ref="yamlNetwork"
-              v-model="networkScript"
-              class="yaml-editor"
-              :editor-mode="editorMode"
-            />
-          </div>
-        </div>
+        <CloudConfig @updateCloudConfig="updateCloudConfig" />
       </Collapse>
 
       <div class="spacer"></div>
@@ -383,22 +350,7 @@ export default {
 </template>
 
 <style lang="scss">
-.resource-yaml {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-
-  .yaml-editor {
-    flex: 1;
-    min-height: 200px;
-  }
-
-  footer .actions {
-    text-align: center;
-  }
-}
 #vm {
-  
   .tip {
     color: #8e8e92;
   }

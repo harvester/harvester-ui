@@ -31,6 +31,11 @@ export default {
     rowActions: {
       type:    Boolean,
       default: true
+    },
+
+    namespace: {
+      type:     String,
+      default: 'default'
     }
   },
 
@@ -69,7 +74,7 @@ export default {
       return sortBy(
         choices
           .filter( (obj) => {
-            return obj.metadata.namespace === this.currentRow.pvcNS;
+            return obj.metadata.namespace === this.namespace;
           })
           .map((obj) => {
             return {
@@ -148,6 +153,9 @@ export default {
       }, {
         label: SOURCE_TYPE.CONTAINER_DISK,
         value: SOURCE_TYPE.CONTAINER_DISK
+      }, {
+        label: SOURCE_TYPE.ATTACH_VOLUME,
+        value: SOURCE_TYPE.ATTACH_VOLUME
       }];
     },
 
@@ -213,6 +221,20 @@ export default {
       if (neu === 'cd-rom') {
         this.$set(this.currentRow, 'bus', 'sata');
       }
+    },
+    'currentRow.pvcName'(neu) {
+      const choices = this.$store.getters['cluster/all'](PVC);
+
+      const pvcResource = choices.find( O => O.metadata.name === neu);
+
+      if (!pvcResource) {
+        return;
+      }
+
+      this.currentRow.accessModes = pvcResource?.spec?.accessModes;
+      this.currentRow.size = pvcResource?.spec?.resources?.requests?.storage;
+      this.currentRow.storageClassName = pvcResource?.spec?.storageClassName;
+      this.currentRow.volumeMode = pvcResource?.spec?.volumeMode;
     }
   },
 
@@ -237,6 +259,7 @@ export default {
         type:             'disk',
         accessMode:       'ReadWriteOnce',
         volumeMode:       'Filesystem',
+        pvcName:           '',
         bus:              'virtio',
         storageClassName: this.storageOption?.[0]?.value || ''
       });
@@ -388,7 +411,7 @@ export default {
           @input="updateBootOrder"
         />
 
-        <Collapse v-if="!isAttachVolume && !isContainerDisk" :open.sync="enableAdvanced">
+        <Collapse v-if="!isContainerDisk" :open.sync="enableAdvanced">
           <div v-if="enableAdvanced">
             <LabeledSelect v-model="currentRow.volumeMode" label="Volume Mode" class="mb-20" :options="volumeModeOption" />
             <LabeledSelect v-model="currentRow.accessMode" label="Access Mode" class="mb-20" :options="accessModeOption" />
