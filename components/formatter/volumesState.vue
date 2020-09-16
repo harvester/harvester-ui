@@ -1,6 +1,7 @@
 <script>
 import { VM, DATA_VOLUME } from '@/config/types';
 import { get } from '@/utils/object';
+import { DATA_VOLUME_OWNEDBY } from '@/config/labels-annotations';
 
 export default {
   props: {
@@ -45,8 +46,16 @@ export default {
     },
 
     vm() {
+      const ownerAnnotation = this.row?.metadata?.annotations?.[DATA_VOLUME_OWNEDBY];
+
+      if (!ownerAnnotation) {
+        return;
+      }
+
+      const owner = JSON.parse(ownerAnnotation)[0]?.refs?.[0];
+
       return this.vmList.find( (D) => {
-        return D.metadata?.uid === this.row?.metadata?.ownerReferences?.[0]?.uid;
+        return D.id === owner;
       });
     },
 
