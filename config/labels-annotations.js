@@ -55,3 +55,5 @@ export const LABEL_IMAGE = {
   'harvester.cattle.io/format': 'raw',
   'harvester.cattle.io/os':     'linux'
 };
+
+export const DATA_VOLUME_OWNEDBY = 'harvester.cattle.io/owned-by';
