@@ -382,7 +382,7 @@ export default {
         case SOURCE_TYPE.IMAGE:
           _dataVolumeTemplate.spec.pvc.storageClassName = R.storageClassName;
           _dataVolumeTemplate.spec.source = { http: { url: this.getUrlFromImage(R.image) } };
-          const imageId = this.getImageResource(R.image)?.id?.replace('/', ':')
+          const imageId = this.getImageResource(R.image)?.id
 
           _dataVolumeTemplate.metadata.annotations = {
             'harvester.cattle.io/imageId': imageId

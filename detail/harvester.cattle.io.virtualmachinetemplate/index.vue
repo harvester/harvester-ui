@@ -47,7 +47,8 @@ export default {
 
     versions() {
       const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version)
-      return choices.filter( O => O.spec.templateId === this.value.id.replace('/', ':'))
+
+      return choices.filter( O => O.spec.templateId === this.value.id );
     }
   },
 };
