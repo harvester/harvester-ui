@@ -95,7 +95,6 @@ export default {
       versionOption:    [],
       description:      '',
       templateVersion:  [],
-      chooseDefault:    false,
       defaultVersion:   null,
       isRunning:        true,
       useTemplate:      false,
@@ -125,21 +124,13 @@ export default {
         }
       });
       this.keyPairIds = out;
-    },
-    allTemplate: {
-      handler(all) {
-        if (this.chooseDefault) {
-          all.map( (O) => {
-            if (O.metadata.name === this.value?.metadata?.name) {
-              this.$set(this.value, 'metadata', O.metadata);
-              this.setVersion(this.defaultVersionId, () => {});
-              this.chooseDefault = false;
-            }
-          });
-        }
-      },
-      deep: true
     }
+  },
+
+  created() {
+    this.registerAfterHook(() => {
+      this.saveVersion();
+    });
   },
 
   mounted() {
@@ -156,39 +147,38 @@ export default {
         return;
       }
 
-      if (!this.isAdd) {
+      if (this.isCreate) {
         delete this.value.metadata.namespace;
-        await this.save(buttonCb);
       }
+      await this.save(buttonCb);
 
       this.normalizeSpec();
+    },
+
+    async saveVersion() {
+      const versionInfo = await this.$store.dispatch('management/request', {
+        method:  'POST',
+        headers: {
+          'content-type': 'application/json',
+          accept:         'application/json',
+        },
+        url:  `v1/harvester.cattle.io.virtualmachinetemplateversions`,
+        data: {
+          apiVersion: 'harvester.cattle.io/v1alpha1',
+          kind:       'harvester.cattle.io.virtualmachinetemplateversion',
+          type:       'harvester.cattle.io.virtualmachinetemplateversion',
+          spec:       {
+            templateId: `harvester-system/${ this.value.metadata.name }`,
+            keyPairIds: this.keyPairIds,
+            vm:         { ...this.spec }
+          }
+        },
+      });
 
       try {
-        const versionInfo = await this.$store.dispatch('management/request', {
-          method:  'POST',
-          headers: {
-            'content-type': 'application/json',
-            accept:         'application/json',
-          },
-          url:  `v1/harvester.cattle.io.virtualmachinetemplateversions`,
-          data: {
-            apiVersion: 'harvester.cattle.io/v1alpha1',
-            kind:       'harvester.cattle.io.virtualmachinetemplateversion',
-            type:       'harvester.cattle.io.virtualmachinetemplateversion',
-            spec:       {
-              templateId: `harvester-system/${ this.value.metadata.name }`,
-              keyPairIds: this.keyPairIds,
-              vm:         { ...this.spec }
-            }
-          },
-        });
-
         if (this.isDefaultVersion) {
           this.defaultVersionId = versionInfo.id;
-          this.chooseDefault = true;
-        } else {
-          buttonCb(true);
-          this.done();
+          this.setVersion(this.defaultVersionId, () => {});
         }
       } catch (err) {
         const message = err.message;
@@ -209,15 +199,13 @@ export default {
     },
 
     async setVersion(id, buttonCb) {
-      delete this.value._type;
-
-      const url = `v1/harvester.cattle.io.virtualmachinetemplates/default/${ this.value.metadata.name }`;
-
       this.value.spec.defaultVersionId = id;
       try {
-        await this.value.save(buttonCb, url);
-        buttonCb(true);
-        this.done();
+        const data = [{
+          op: 'replace', path: '/spec/defaultVersionId', value: id
+        }];
+
+        await this.value.patch( data, { url: this.value.linkFor('view') });
       } catch (err) {
         // eslint-disable-next-line no-console
         console.log(err);
@@ -236,7 +224,7 @@ export default {
         </div>
 
         <div class="col span-6">
-          <LabeledInput v-model="value.spec.description" :disabled="isAdd" label="Description" />
+          <LabeledInput v-model="value.spec.description" label="Description" />
         </div>
       </div>
       <div class="min-spacer"></div>

@@ -1,12 +1,10 @@
 <script>
-/* eslint-disable */
 import _ from 'lodash';
 import moment from 'moment';
 import randomstring from 'randomstring';
 import { safeLoad, safeDump } from 'js-yaml';
 import Footer from '@/components/form/Footer';
 import NameNsDescription from '@/components/form/NameNsDescription';
-import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
 import Collapse from '@/components/Collapse';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
@@ -15,11 +13,11 @@ import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
-import CloudConfig from './CloudConfig';
 import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import CreateEditView from '@/mixins/create-edit-view';
 import VM_MIXIN from '@/mixins/vm';
+import CloudConfig from './CloudConfig';
 import ChooseImage from './ChooseImage';
 
 export default {
@@ -37,9 +35,7 @@ export default {
     NetworkModal,
     NameNsDescription,
     LabeledInput,
-    YamlEditor,
     LabeledSelect,
-    TextAreaAutoGrow,
   },
 
   mixins: [CreateEditView, VM_MIXIN],
@@ -96,7 +92,7 @@ export default {
     }
 
     return {
-      realHostname: '',
+      realHostname:         '',
       spec,
       templateName:         '',
       templateVersion:      '',
@@ -105,7 +101,6 @@ export default {
       useTemplate:          false,
       pageType:             'vm',
       isLanuchFromTemplate:     false,
-      editorMode:           EDITOR_MODES.EDIT_CODE
     };
   },
 
