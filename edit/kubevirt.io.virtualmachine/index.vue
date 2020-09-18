@@ -9,7 +9,6 @@ import NameNsDescription from '@/components/form/NameNsDescription';
 import Collapse from '@/components/Collapse';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
-import RadioGroup from '@/components/form/RadioGroup';
 import DiskModal from '@/components/form/DiskModal';
 import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
@@ -29,7 +28,6 @@ export default {
     Footer,
     Checkbox,
     Collapse,
-    RadioGroup,
     DiskModal,
     MemoryUnit,
     AddSSHKey,
@@ -298,7 +296,7 @@ export default {
 <template>
   <el-card class="box-card">
     <div id="vm">
-      <div class="row mb-20">
+      <!-- <div class="row mb-20">
         <div class="col span-12">
           <RadioGroup
             v-model="isSingle"
@@ -307,14 +305,7 @@ export default {
             :mode="mode"
           />
         </div>
-      </div>
 
-      <NameNsDescription
-        v-model="value"
-        :mode="mode"
-        :name-label="nameLabel"
-        :extra-columns="['type']"
-      >
         <template v-slot:type>
           <LabeledInput
             v-if="!isSingle"
@@ -325,7 +316,13 @@ export default {
             required
           />
         </template>
-      </NameNsDescription>
+      </div> -->
+
+      <NameNsDescription
+        v-model="value"
+        :mode="mode"
+        :name-label="nameLabel"
+      />
 
       <div class="min-spacer"></div>
       <Checkbox v-model="useTemplate" class="check" type="checkbox" label="Use VM Template:" />

@@ -61,27 +61,20 @@ export default {
     }
   },
 
+  created() {
+    this.registerBeforeHook(this.validateBefore, 'validate');
+  },
+
   methods: {
-    saveImage(buttonCb) {
-      const isPass = this.verifyBefSave(buttonCb);
-
-      if (!isPass) {
-        return;
-      }
-
+    validateBefore() {
       if (this.value.metadata.namespace && this.mode === 'create') {
         this.$delete(this.value.metadata, 'namespace');
       }
-      this.save(buttonCb);
-    },
-    verifyBefSave(buttonCb) {
+
       if (!this.value.spec.url || this.value.spec.url.trim() === '') {
         this.errors = ['Please input image url!'];
-        buttonCb(false);
 
         return false;
-      } else {
-        return true;
       }
     }
   }
@@ -138,7 +131,7 @@ export default {
 
       <ResourceTabs v-model="value" :mode="mode" />
     </el-card>
-    <Footer :mode="mode" :errors="errors" @save="saveImage" @done="done" />
+    <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
   </form>
 </template>
 

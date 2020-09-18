@@ -155,7 +155,13 @@ export default {
       }
 
       try {
-        await this.applyHooks(BEFORE_SAVE_HOOKS);
+        const beforeHooksValue = await this.applyHooks(BEFORE_SAVE_HOOKS);
+
+        if (beforeHooksValue.validate === false) {
+          buttonDone(false);
+
+          return;
+        }
 
         // Remove the labels map if it's empty
         if ( this.value?.metadata?.labels && Object.keys(this.value.metadata.labels || {}).length === 0 ) {
@@ -199,7 +205,7 @@ export default {
     },
 
     checkLength() {
-      return this.value.nameDisplay.length <= 63;
+      return this.value?.nameDisplay?.length <= 63;
     },
   },
 };
