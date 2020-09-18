@@ -28,19 +28,31 @@ export default {
     return [
       {
         action:     'stopVM',
-        enabled:    !!this.actions?.stopVM,
+        enabled:    !!this.actions?.stop,
         icon:       'icon icon-fw icon-pause',
         label:      'stop',
       },
       {
+        action:     'pauseVM',
+        enabled:    !!this.actions?.pause,
+        icon:       'icon icon-fw icon-spinner',
+        label:      'pause',
+      },
+      {
+        action:     'unpauseVM',
+        enabled:    !!this.actions?.unpause,
+        icon:       'icon icon-fw icon-spinner',
+        label:      'unpause',
+      },
+      {
         action:     'restartVM',
-        enabled:    !!this.actions?.restartVM,
+        enabled:    !!this.actions?.restart,
         icon:       'icon icon-fw icon-spinner',
         label:      'restart',
       },
       {
         action:     'startVM',
-        enabled:    !!this.actions?.startVM,
+        enabled:    !!this.actions?.start,
         icon:       'icon icon-fw icon-play',
         label:      'start',
       },
@@ -56,19 +68,31 @@ export default {
 
   restartVM() {
     return () => {
-      this.doAction('restartVM', {});
+      this.doAction('restart', {});
+    };
+  },
+
+  pauseVM() {
+    return () => {
+      this.doAction('pause', {});
+    };
+  },
+
+  unpauseVM() {
+    return () => {
+      this.doAction('unpause', {});
     };
   },
 
   stopVM() {
     return () => {
-      this.doAction('stopVM', {});
+      this.doAction('stop', {});
     };
   },
 
   startVM() {
     return () => {
-      this.doAction('startVM', {});
+      this.doAction('start', {});
     };
   },
 

@@ -57,6 +57,10 @@ export default {
       ];
     },
   },
+
+  customCreateFormName() {
+    return 'Virtual Machine';
+  },
 };
 </script>
 

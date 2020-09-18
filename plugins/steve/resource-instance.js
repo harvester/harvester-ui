@@ -1061,6 +1061,7 @@ export default {
         type: originalType,
         schema
       } = data;
+
       const type = normalizeType(originalType);
 
       if ( !originalType ) {

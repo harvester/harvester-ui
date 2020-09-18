@@ -445,7 +445,7 @@ export default {
           name:             'cloudinitdisk',
           cloudInitNoCloud: {
             userData: userData,
-            networkData: this.networkScript
+            networkData: this.networkData
           }
         });
       }

@@ -1,8 +1,8 @@
 <script>
-import LabeledInput from '@/components/form/LabeledInput';
 import Footer from '@/components/form/Footer';
-import CreateEditView from '@/mixins/create-edit-view';
+import LabeledInput from '@/components/form/LabeledInput';
 import ResourceTabs from '@/components/form/ResourceTabs';
+import CreateEditView from '@/mixins/create-edit-view';
 import { _CREATE } from '@/config/query-params';
 
 const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
@@ -34,21 +34,24 @@ export default {
     }
 
     if ( this.value.metadata ) {
-      this.value.metadata.generateName = 'image-';
+      this.value.metadata.generateName = 'image-'; // back end needs
     }
 
+    const displayName = this.value?.spec?.displayName || '';
+
     return {
-      url:         this.value.spec.url,
-      displayName: this.value?.spec?.displayName || ''
+      displayName,
+      url: this.value.spec.url
     };
   },
 
   watch: {
     url(neu) {
-      const suffixName = neu.split('/').pop();
+      const url = neu.trim();
+      const suffixName = url.split('/').pop();
       const fileSuffiic = suffixName.split('.').pop();
 
-      this.value.spec.url = neu;
+      this.value.spec.url = url;
       if (filesFormat.includes(fileSuffiic)) {
         this.displayName = suffixName;
         this.errors = [];
@@ -67,10 +70,6 @@ export default {
 
   methods: {
     validateBefore() {
-      if (this.value.metadata.namespace && this.mode === 'create') {
-        this.$delete(this.value.metadata, 'namespace');
-      }
-
       if (!this.value.spec.url || this.value.spec.url.trim() === '') {
         this.errors = ['Please input image url!'];
 

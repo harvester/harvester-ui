@@ -26,6 +26,10 @@ export default {
     unitCol: {
       type:    Number,
       default: 6
+    },
+    isDisabled: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -88,11 +92,11 @@ export default {
 <template>
   <div class="row" @input="update">
     <div class="col span-8">
-      <LabeledInput v-model.number="size" v-int-number type="number" :label="valueName" required />
+      <LabeledInput v-model.number="size" :disabled="isDisabled" v-int-number type="number" :label="valueName" required />
     </div>
 
     <div class="col span-4">
-      <LabeledSelect v-model="unit" label="Unit" :options="MemoryUnit" required @input="updateUnit" />
+      <LabeledSelect v-model="unit" label="Unit" :disabled="isDisabled" :options="MemoryUnit" required @input="updateUnit" />
     </div>
   </div>
 </template>

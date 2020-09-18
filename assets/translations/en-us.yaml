@@ -519,6 +519,10 @@ vm:
     console:
       down: This Virtual Machine is down. Please start it to access its console.
 
+vmimage:
+  ruleTip: 'The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats).'
+
+
 node:
   detail:
     detailTop:
@@ -818,10 +822,10 @@ rioConfig:
 validation:
   custom:
     missing: "No validtor exists for { validatorName }! Does the validtor exist in custom-validtors? Is the name spelled correctly?"
-    tooLongName: "Name cannnot longer than {max} characters"
+    tooLongName: '"Name" cannot be more than {max} characters.'
   noType: No type to validate
   noSchema: No schema found to validate
-  required: '"{key}" is required'
+  required: '"{key}" is required.'
   requiredOrOverride: '"{key}" is required or must allow override'
   arrayLength:
     exactly: '"{key}" should contain {count, plural, =1 {# item} other {# items}}'
