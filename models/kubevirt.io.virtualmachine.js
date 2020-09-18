@@ -28,19 +28,19 @@ export default {
     return [
       {
         action:     'stopVM',
-        enabled:    !!this.actions.stopVM,
+        enabled:    !!this.actions?.stopVM,
         icon:       'icon icon-fw icon-pause',
         label:      'stop',
       },
       {
         action:     'restartVM',
-        enabled:    !!this.actions.restartVM,
+        enabled:    !!this.actions?.restartVM,
         icon:       'icon icon-fw icon-spinner',
         label:      'restart',
       },
       {
         action:     'startVM',
-        enabled:    !!this.actions.startVM,
+        enabled:    !!this.actions?.startVM,
         icon:       'icon icon-fw icon-play',
         label:      'start',
       },

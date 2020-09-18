@@ -121,6 +121,10 @@ export default {
     cancelKey() {
       this.hide();
     },
+
+    updateSSH(sshKey) {
+      this.checkedSsh = sshKey;
+    }
   }
 };
 </script>

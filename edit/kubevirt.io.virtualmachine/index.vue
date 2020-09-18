@@ -2,12 +2,14 @@
 import _ from 'lodash';
 import moment from 'moment';
 import randomstring from 'randomstring';
+import { cleanForNew } from '@/plugins/steve/normalize';
 import { safeLoad, safeDump } from 'js-yaml';
 import Footer from '@/components/form/Footer';
 import NameNsDescription from '@/components/form/NameNsDescription';
 import Collapse from '@/components/Collapse';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
+import RadioGroup from '@/components/form/RadioGroup';
 import DiskModal from '@/components/form/DiskModal';
 import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
@@ -27,6 +29,7 @@ export default {
     Footer,
     Checkbox,
     Collapse,
+    RadioGroup,
     DiskModal,
     MemoryUnit,
     AddSSHKey,
@@ -92,6 +95,8 @@ export default {
     }
 
     return {
+      isSingle:             true,
+      count:                1,
       realHostname:         '',
       spec,
       templateName:         '',
@@ -151,19 +156,25 @@ export default {
       },
       set(neu) {
         try {
-          const oldCloudConfig = safeLoad(this.cloudInit);
+          const oldCloudConfig = safeLoad(this.getCloudInit());
 
           oldCloudConfig.hostname = neu;
-          const neuCloudConfig = safeDump(oldCloudConfig);
 
           this.$set(this.spec.template.spec, 'hostname', neu);
-          this.$set(this, 'cloudInit', neuCloudConfig);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log('---watch hostname has error');
         }
       }
     },
+
+    nameLabel() {
+      return this.isSingle ? 'Name' : 'Prefix Name (i.e. %s-01, ...)';
+    },
+
+    hostnameLabel() {
+      return this.isSingle ? 'Host Name' : 'Host Prefix Name (i.e. %s-01)';
+    }
   },
 
   watch: {
@@ -178,12 +189,13 @@ export default {
 
       if (templateSpec.spec?.keyPairIds?.length > 0) {
         templateSpec.spec.keyPairIds.map( (O) => {
-          const ssh = O.split(':')[1];
+          const ssh = O.split('/')[1];
 
           sshKey.push(ssh);
         });
       }
       this.$set(this, 'sshKey', sshKey);
+      this.$refs.ssh.updateSSH(sshKey);
       this.$set(this, 'spec', templateSpec.spec.vm);
     },
 
@@ -203,6 +215,10 @@ export default {
     this.imageName = this.$route.query?.image || '';
     this.registerAfterHook(() => { // when fetch end, need add type to find correct schema
       this.$set(this.value, 'type', VM);
+
+      if (!this.isSingle) {
+        this.getClone();
+      }
     });
   },
 
@@ -257,6 +273,24 @@ export default {
     getImages() {
       this.$store.dispatch('cluster/findAll', { type: IMAGE });
     },
+
+    async getClone() {
+      const baseName = this.value.metadata.name;
+      const baseHostname = this.realHostname || this.value.spec.template.spec.hostname || this.value.metadata.name;
+
+      for (let i = 1; i <= this.count; i++) {
+        cleanForNew(this.value);
+
+        this.value.metadata.name = `${ baseName }-${ i }`;
+        const hostname = `${ baseHostname }-${ i }`;
+
+        this.normalizeSpec();
+        this.$set(this.value.spec.template.spec, 'hostname', hostname);
+        this.$delete(this.value, 'type');
+        await this.value.save({ url: `v1/${ VM }s` });
+      }
+      this.value.id = '';
+    }
   },
 };
 </script>
@@ -264,11 +298,34 @@ export default {
 <template>
   <el-card class="box-card">
     <div id="vm">
+      <div class="row mb-20">
+        <div class="col span-12">
+          <RadioGroup
+            v-model="isSingle"
+            :options="[true,false]"
+            :labels="['Single Instance', 'Multiple Instance']"
+            :mode="mode"
+          />
+        </div>
+      </div>
+
       <NameNsDescription
         v-model="value"
         :mode="mode"
-        name-label="Name"
-      />
+        :name-label="nameLabel"
+        :extra-columns="['type']"
+      >
+        <template v-slot:type>
+          <LabeledInput
+            v-if="!isSingle"
+            v-model.number="count"
+            v-int-number
+            type="number"
+            label="count"
+            required
+          />
+        </template>
+      </NameNsDescription>
 
       <div class="min-spacer"></div>
       <Checkbox v-model="useTemplate" class="check" type="checkbox" label="Use VM Template:" />
@@ -313,7 +370,7 @@ export default {
       <div class="spacer"></div>
 
       <h2>Authentication:</h2>
-      <AddSSHKey :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
+      <AddSSHKey ref="ssh" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
 
       <div class="spacer"></div>
 
@@ -321,7 +378,7 @@ export default {
         <LabeledInput v-model="hostname" class="labeled-input--tooltip mb-20" required placeholder="default to the virtual machine name.">
           <template v-slot:label>
             <div>
-              <span class="label">Host Name</span>
+              <span class="label">{{ hostnameLabel }}</span>
               <el-tooltip v-if="isCreate" placement="top" effect="dark">
                 <div slot="content">
                   Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes.
@@ -346,6 +403,14 @@ export default {
 
 <style lang="scss">
 #vm {
+  .radio-group {
+    display: flex;
+
+    .radio-container {
+      margin-right: 30px;
+    }
+  }
+
   .tip {
     color: #8e8e92;
   }

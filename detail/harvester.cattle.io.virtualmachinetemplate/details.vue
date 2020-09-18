@@ -61,7 +61,7 @@ export default {
       return this.current?.spec?.vm?.template?.spec?.domain?.resources?.requests?.memory || '-';
     },
 
-    imageName() {
+    templateImageName() {
       const imageList = this.$store.getters['cluster/all'](IMAGE) || [];
       const imageId = this.current?.spec?.vm?.dataVolumeTemplates?.[0]?.metadata?.annotations?.['harvester.cattle.io/imageId'] || '';
       const image = imageList.find( I => imageId === I.id);
@@ -139,7 +139,7 @@ export default {
             Image
           </label>
           <div>
-            {{ imageName }}
+            {{ templateImageName }}
           </div>
         </div>
       </div>
