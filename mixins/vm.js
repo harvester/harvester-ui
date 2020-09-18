@@ -42,48 +42,11 @@ export default {
       sshName:    '',
       publicKey:  '',
       showCloudInit: false,
-      sshAuthorizedKeys:   ''
+      sshAuthorizedKeys:   '',
     };
   },
 
   computed: {
-    cloudInit() {
-      let out = this.userScript;
-
-      try {
-        const newInitScript = safeLoad(out);
-
-        if (!newInitScript?.hostname) {
-          this.realHostname = '';
-        } else {
-          this.realHostname = newInitScript.hostname;
-        }
-
-        if (newInitScript?.ssh_authorized_keys) {
-          newInitScript.ssh_authorized_keys = [...this.getSSHListValue(this.sshKey), ...newInitScript.ssh_authorized_keys]
-        } else {
-          if (newInitScript) {
-            newInitScript.ssh_authorized_keys = this.getSSHListValue(this.sshKey)
-          }
-        }
-
-        out = safeDump(newInitScript);
-      } catch (error) {
-        console.log('has error set', error)
-        return '#cloud-config';
-      }
-
-      const hasCloundConfig = out.startsWith('#cloud-config');
-
-      if (hasCloundConfig) {
-        return this.userScript ? `${ out }` : `#cloud-config`
-      } else {
-        return this.userScript ? `#cloud-config\n${ out }` : `#cloud-config`
-      }
-      // script.ssh_authorized_keys = this.getSSHListValue(this.sshKey);
-      // script.hostname = this.hostname || this.value?.metadata?.name;
-    },
-
     ssh() {
       const ssh = this.$store.getters['cluster/all'](SSH);
 
@@ -282,6 +245,37 @@ export default {
   },
 
   methods: {
+    getCloudInit() {
+      let out = this.userScript;
+
+      try {
+        let newInitScript = {};
+        if (out) {
+          newInitScript = safeLoad(out)
+        }
+
+        if (!newInitScript?.hostname) {
+          this.realHostname = '';
+        } else {
+          this.realHostname = newInitScript.hostname;
+        }
+
+        if (newInitScript?.ssh_authorized_keys) {
+          newInitScript.ssh_authorized_keys = [...this.getSSHListValue(this.sshKey), ...newInitScript.ssh_authorized_keys]
+        } else {
+          newInitScript.ssh_authorized_keys = this.getSSHListValue(this.sshKey)
+        }
+        out = safeDump(newInitScript);
+        
+      } catch (error) {
+        console.log('has error set', error)
+        return '#cloud-config';
+      }
+
+      const hasCloundConfig = out.startsWith('#cloud-config');
+
+      return hasCloundConfig ? out : `#cloud-config\n${ out }`
+    },
     updateSSHKey(neu) {
       this.$set(this, 'sshKey', neu);
     },
@@ -419,7 +413,6 @@ export default {
     },
 
     parseDiskRows(disk) {
-      // this.setHostnameToCloud();
       const disks = [];
       const volumes = [];
       const dataVolumeTemplates = [];
@@ -445,11 +438,13 @@ export default {
           name: 'cloudinitdisk',
           disk: { bus: 'virtio' }
         });
+        
+        const userData = this.getCloudInit();
 
         volumes.push({
           name:             'cloudinitdisk',
           cloudInitNoCloud: {
-            userData: this.cloudInit,
+            userData: userData,
             networkData: this.networkScript
           }
         });
@@ -492,13 +487,6 @@ export default {
       } else {
         this.$set(this, 'spec', spec);
       }
-    },
-
-    async fetchSSH() {
-      const sshList = await this.$store.dispatch('cluster/findAll', {
-        type: SSH,
-        opt:  { force: true }
-      });
     },
 
     getSSHValue(name) {

@@ -156,6 +156,8 @@ export default {
     },
 
     async saveVersion() {
+      this.normalizeSpec();
+
       const versionInfo = await this.$store.dispatch('management/request', {
         method:  'POST',
         headers: {
