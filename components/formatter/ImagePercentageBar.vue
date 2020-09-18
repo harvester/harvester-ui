@@ -41,7 +41,9 @@ export default {
 
 <template>
   <div class="parent">
-    <el-progress :stroke-width="10" :percentage="percentage" :color="customColorMethod"></el-progress>
+    <div>
+      <el-progress :stroke-width="10" :percentage="percentage" :color="customColorMethod"></el-progress>
+    </div>
     <span v-if="state === 'Failed'" class="error">{{ errorMessage }}</span>
   </div>
 </template>
@@ -50,6 +52,7 @@ export default {
 .parent {
   width: 80%;
 }
+
 .error {
   color: var(--error);
 }

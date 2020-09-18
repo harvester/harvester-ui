@@ -18,6 +18,10 @@ export default {
       type:    String,
       default: ''
     },
+    customCreateFormName: {
+      type:    String,
+      default: ''
+    },
     isCreatable: {
       type:    Boolean,
       default: false
@@ -40,6 +44,10 @@ export default {
     ...mapGetters(['isExplorer']),
 
     resourceName() {
+      if (this.customCreateFormName) {
+        return this.customCreateFormName;
+      }
+
       return this.resource.includes('.') ? this.resource : capitalize(this.resource);
     },
   },

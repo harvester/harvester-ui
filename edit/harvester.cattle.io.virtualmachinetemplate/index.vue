@@ -190,8 +190,15 @@ export default {
     },
 
     verifyBefSave(buttonCb) {
-      if (!this.spec.template.spec.domain.cpu.cores || !this.memory.match(/[0-9]/)) {
-        this.errors = ['Required fields not completed!'];
+      if (!this.spec.template.spec.domain.cpu.cores) {
+        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Cpu' })];
+        buttonCb(false);
+
+        return false;
+      }
+
+      if (!this.memory.match(/[0-9]/)) {
+        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Memory' })];
         buttonCb(false);
 
         return false;

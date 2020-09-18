@@ -1,12 +1,13 @@
 <script>
 import _ from 'lodash';
+import { mapState, mapGetters } from 'vuex';
 import moment from 'moment';
 import randomstring from 'randomstring';
 import { cleanForNew } from '@/plugins/steve/normalize';
 import { safeLoad, safeDump } from 'js-yaml';
 import Footer from '@/components/form/Footer';
-import NameNsDescription from '@/components/form/NameNsDescription';
 import Collapse from '@/components/Collapse';
+import RadioGroup from '@/components/form/RadioGroup';
 import Checkbox from '@/components/form/Checkbox';
 import AddSSHKey from '@/components/form/AddSSHKey';
 import DiskModal from '@/components/form/DiskModal';
@@ -18,6 +19,7 @@ import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import CreateEditView from '@/mixins/create-edit-view';
 import VM_MIXIN from '@/mixins/vm';
+import NameDescriptionCount from './NameDescriptionCount';
 import CloudConfig from './CloudConfig';
 import ChooseImage from './ChooseImage';
 
@@ -30,11 +32,12 @@ export default {
     Collapse,
     DiskModal,
     MemoryUnit,
+    RadioGroup,
     AddSSHKey,
     ChooseImage,
     CloudConfig,
     NetworkModal,
-    NameNsDescription,
+    NameDescriptionCount,
     LabeledInput,
     LabeledSelect,
   },
@@ -172,7 +175,9 @@ export default {
 
     hostnameLabel() {
       return this.isSingle ? 'Host Name' : 'Host Prefix Name (i.e. %s-01)';
-    }
+    },
+
+    ...mapGetters({ t: 'i18n/t' })
   },
 
   watch: {
@@ -252,14 +257,21 @@ export default {
 
     verifyBefSave(buttonCb) {
       if (!this.imageName) {
-        this.errors = ['Please select image!'];
+        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Image' })];
         buttonCb(false);
 
         return false;
       }
 
-      if (!this.spec.template.spec.domain.cpu.cores || !this.memory.match(/[0-9]/)) {
-        this.errors = ['Required fields not completed!'];
+      if (!this.spec.template.spec.domain.cpu.cores) {
+        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Cpu' })];
+        buttonCb(false);
+
+        return false;
+      }
+
+      if (!this.memory.match(/[0-9]/)) {
+        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Memory' })];
         buttonCb(false);
 
         return false;
@@ -296,16 +308,24 @@ export default {
 <template>
   <el-card class="box-card">
     <div id="vm">
-      <!-- <div class="row mb-20">
+      <div class="row mb-20">
         <div class="col span-12">
           <RadioGroup
             v-model="isSingle"
             :options="[true,false]"
-            :labels="['Single Instance', 'Multiple Instance']"
+            :labels="['Single Instance', 'Multiple Instances']"
             :mode="mode"
           />
         </div>
+      </div>
 
+      <NameDescriptionCount
+        v-model="value"
+        :mode="mode"
+        :has-extra="!isSingle"
+        :name-label="nameLabel"
+        :extra-columns="['type']"
+      >
         <template v-slot:type>
           <LabeledInput
             v-if="!isSingle"
@@ -316,13 +336,7 @@ export default {
             required
           />
         </template>
-      </div> -->
-
-      <NameNsDescription
-        v-model="value"
-        :mode="mode"
-        :name-label="nameLabel"
-      />
+      </NameDescriptionCount>
 
       <div class="min-spacer"></div>
       <Checkbox v-model="useTemplate" class="check" type="checkbox" label="Use VM Template:" />

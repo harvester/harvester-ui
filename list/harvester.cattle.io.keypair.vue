@@ -38,6 +38,10 @@ export default {
   typeDisplay() {
     return 'SSH Keys';
   },
+
+  customCreateFormName() {
+    return 'SSH Key';
+  }
 };
 </script>
 

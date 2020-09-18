@@ -388,14 +388,28 @@ export default {
           required
         />
 
-        <MemoryUnit v-if="!isContainerDisk" v-model="currentRow.size" value-name="Size" class="mb-20" />
+        <MemoryUnit
+          v-if="!isContainerDisk"
+          v-model="currentRow.size"
+          :is-disabled="isAttachVolume"
+          value-name="Size"
+          class="mb-20"
+        />
 
-        <LabeledSelect v-model="currentRow.bus" label="Bus" class="mb-20" :options="InterfaceOption" required />
+        <LabeledSelect
+          v-model="currentRow.bus"
+          label="Bus"
+          class="mb-20"
+          :disabled="isAttachVolume"
+          :options="InterfaceOption"
+          required
+        />
 
         <LabeledSelect
           v-if="!isContainerDisk"
           v-model="currentRow.storageClassName"
           label="Storage Class"
+          :disabled="isAttachVolume"
           class="mb-20"
           :options="storageOption"
           required
@@ -413,8 +427,8 @@ export default {
 
         <Collapse v-if="!isContainerDisk" :open.sync="enableAdvanced">
           <div v-if="enableAdvanced">
-            <LabeledSelect v-model="currentRow.volumeMode" label="Volume Mode" class="mb-20" :options="volumeModeOption" />
-            <LabeledSelect v-model="currentRow.accessMode" label="Access Mode" class="mb-20" :options="accessModeOption" />
+            <LabeledSelect v-model="currentRow.volumeMode" :disabled="isAttachVolume" label="Volume Mode" class="mb-20" :options="volumeModeOption" />
+            <LabeledSelect v-model="currentRow.accessMode" :disabled="isAttachVolume" label="Access Mode" class="mb-20" :options="accessModeOption" />
           </div>
         </Collapse>
       </template>

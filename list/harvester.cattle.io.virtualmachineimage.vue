@@ -46,8 +46,12 @@ export default {
     };
   },
 
-  typeDisplay() {
+  customCreateFormName() {
     return 'Image';
+  },
+
+  typeDisplay() {
+    return 'Images';
   },
 };
 </script>

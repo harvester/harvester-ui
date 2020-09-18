@@ -77,7 +77,7 @@ export async function defaultAsyncData(ctx, resource) {
 
   if ( realMode === _CREATE ) {
     if ( !namespace ) {
-      namespace = store.getters['defaultNamespace'];
+      // namespace = store.getters['defaultNamespace']; delete namespace
     }
 
     const data = { type: resource };

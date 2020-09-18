@@ -26,6 +26,10 @@ export default {
         this.customTypeDisplay = component.typeDisplay.apply(this);
       }
 
+      if (component?.customCreateFormName) {
+        this.customCreateFormName = component.customCreateFormName.apply(this);
+      }
+
       // If your list page has a fetch then it's responsible for populating rows itself
       if ( component?.fetch ) {
         hasFetch = true;
@@ -131,6 +135,7 @@ export default {
       :is-creatable="hasEditComponent && isCreatable"
       :yaml-create-location="yamlRoute"
       :create-location="formRoute"
+      :custom-create-form-name="customCreateFormName"
     />
 
     <div v-if="hasListComponent">
