@@ -69,7 +69,7 @@ export default {
               },
               devices: {
                 interfaces:                 [{
-                  bridge: {},
+                  masquerade: {},
                   model:      'virtio',
                   name:       'default'
                 }],

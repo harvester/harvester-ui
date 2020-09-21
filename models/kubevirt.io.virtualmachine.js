@@ -56,12 +56,6 @@ export default {
         icon:       'icon icon-fw icon-play',
         label:      'start',
       },
-      {
-        action:     'openConsole',
-        enabled:    true,
-        icon:       'icon icon-fw icon-play',
-        label:      'Open Console',
-      },
       ...out
     ];
   },
