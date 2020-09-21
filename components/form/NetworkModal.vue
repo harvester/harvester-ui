@@ -4,6 +4,7 @@ import { clone } from '@/utils/object';
 import VMModal from '@/components/form/VMModal';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
+import PortInputGroup from '@/components/form/PortInputGroup';
 import { sortBy } from '@/utils/sort';
 import { NETWORK_ATTACHMENT } from '@/config/types';
 
@@ -11,7 +12,8 @@ export default {
   components: {
     VMModal,
     LabeledInput,
-    LabeledSelect
+    LabeledSelect,
+    PortInputGroup
   },
 
   props: {
@@ -156,8 +158,8 @@ export default {
       this.rows = neu;
     },
     'currentRow.networkName'(neu) {
-      if (neu === 'Pod Network') {
-        this.currentRow.type = 'bridge'
+      if (neu === 'Pod Network' && this.currentRow.masquerade) {
+        this.currentRow.type = 'masquerade'
       } else {
         this.currentRow.type = 'bridge'
       }
@@ -194,16 +196,27 @@ export default {
     },
 
     validateError() {
-      if (
-        this.currentRow.model &&
-        this.currentRow.name &&
-        this.currentRow.networkName &&
-        this.currentRow.type
-      ) {
-        this.$set(this, 'errors', []);
-      } else {
-        this.errors.splice(0, 1, 'Please fill in all required fields.');
+      if (!this.currentRow.name) {
+        return this.getInvalidMsg('Name');
       }
+
+      if (!this.currentRow.model) {
+        return this.getInvalidMsg('Model');
+      }
+
+      if (!this.currentRow.networkName) {
+        return this.getInvalidMsg('Network Name');
+      }
+
+      if (!this.currentRow.type) {
+        return this.getInvalidMsg('Type');
+      }
+      
+      if (!this.validatePorts()) {
+        return this.getInvalidMsg('Port Number');
+      }
+
+      this.$set(this, 'errors', []);
     },
 
     validateMac(value) {
@@ -212,6 +225,24 @@ export default {
       } else {
         this.$set(this, 'errors', []);
       }
+    },
+
+    validatePorts() {
+      if (!this.currentRow.ports || this.currentRow.length === 0 || !this.isMasquerade) {
+        return true;
+      }
+
+      for (const p of this.currentRow.ports) {
+        if (!p.port) {
+          return false;
+        }
+      }
+
+      return true;
+    },
+
+    getInvalidMsg(key) {
+      this.errors.splice(0, 1, this.$store.getters['i18n/t']('validation.required', { key }));
     }
   }
 };
@@ -281,6 +312,9 @@ export default {
             </div>
           </template>
         </LabeledInput>
+
+        <PortInputGroup v-if="currentRow.type === 'masquerade'" v-model="currentRow" />
+
       </template>
     </VMModal>
   </div>

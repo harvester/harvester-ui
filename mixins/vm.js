@@ -506,6 +506,19 @@ export default {
       if (R.macAddress) {
         _interface.macAddress = R.macAddress;
       }
+
+      if (R.ports && R.type === 'masquerade') {
+        const ports = [];
+
+        for(const item of R.ports) {
+          ports.push({
+            ...item,
+            port: parseInt(item.port)
+          })
+        }
+
+        _interface.ports = ports;
+      }
       
       _interface.model = R.model;
       _interface.name = R.name;
