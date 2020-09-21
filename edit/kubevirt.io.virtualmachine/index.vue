@@ -75,7 +75,7 @@ export default {
                   type: 'tablet'
                 }],
                 interfaces: [{
-                  bridge: {},
+                  masquerade: {},
                   model:      'virtio',
                   name:       'default'
                 }],
@@ -170,11 +170,11 @@ export default {
     },
 
     nameLabel() {
-      return this.isSingle ? 'Name' : 'Prefix Name (i.e. %s-01, ...)';
+      return this.isSingle ? 'Name' : 'Prefix Name';
     },
 
     hostnameLabel() {
-      return this.isSingle ? 'Host Name' : 'Host Prefix Name (i.e. %s-01)';
+      return this.isSingle ? 'Host Name' : 'Host Prefix Name';
     },
 
     ...mapGetters({ t: 'i18n/t' })
@@ -304,7 +304,7 @@ export default {
           <RadioGroup
             v-model="isSingle"
             :options="[true,false]"
-            :labels="['Single Instance', 'Multiple Instances']"
+            :labels="['Single Instance', 'Multiple Instance']"
             :mode="mode"
           />
         </div>

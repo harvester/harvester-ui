@@ -24,6 +24,6 @@ export const InterfaceOption = [{
 export const SOURCE_TYPE = {
   IMAGE:          'VM Image',
   BLANK:          'blank',
-  ATTACH_VOLUME:  'Attach Volume',
+  ATTACH_VOLUME:  'Existing Volume',
   CONTAINER_DISK: 'Container'
 };

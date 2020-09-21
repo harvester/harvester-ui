@@ -229,6 +229,7 @@ export default {
           return {
             ...O,
             type,
+            model: O.model || 'virtio',
             networkName: network?.multus?.networkName || 'Pod Network',
             index,
             isPod
