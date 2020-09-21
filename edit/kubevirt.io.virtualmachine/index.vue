@@ -223,6 +223,7 @@ export default {
         this.getClone();
       }
     });
+    this.registerBeforeHook(this.validateBefore, 'validate');
   },
 
   mounted() {
@@ -237,13 +238,6 @@ export default {
 
   methods: {
     saveVM(buttonCb) {
-      const isPass = this.verifyBefSave(buttonCb);
-
-      if (!isPass) {
-        return;
-      }
-
-      this.$set(this.value, 'type', VM); // if not successed, need pass type prop to find something
       const url = `v1/${ VM }s`;
 
       this.normalizeSpec();
@@ -251,31 +245,28 @@ export default {
 
       this.$set(this.value.spec.template.spec, 'hostname', realHostname);
 
-      this.$delete(this.value, 'type'); // vm api don't type attribuet, the error will be reported
       this.save(buttonCb, url);
     },
 
-    verifyBefSave(buttonCb) {
+    validateBefore(buttonCb) {
       if (!this.imageName) {
         this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Image' })];
-        buttonCb(false);
 
         return false;
       }
 
       if (!this.spec.template.spec.domain.cpu.cores) {
         this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Cpu' })];
-        buttonCb(false);
 
         return false;
       }
 
       if (!this.memory.match(/[0-9]/)) {
         this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Memory' })];
-        buttonCb(false);
 
         return false;
       }
+      this.$delete(this.value, 'type'); // vm api don't type attribuet, the error will be reported
 
       return true;
     },

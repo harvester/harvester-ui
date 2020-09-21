@@ -147,8 +147,13 @@ export default {
     async save(buttonDone, url) {
       this.errors = null;
 
-      if (this.checkLength() === false) {
+      if (this.value?.nameDisplay && this.checkLength() === false) {
         this.errors = [this.$store.getters['i18n/t']('validation.custom.tooLongName', { max: 63 })];
+        buttonDone(false);
+
+        return;
+      } else if (this.value?.nameDisplay === undefined) {
+        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Name' })];
         buttonDone(false);
 
         return;

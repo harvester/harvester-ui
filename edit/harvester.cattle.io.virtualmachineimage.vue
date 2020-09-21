@@ -53,7 +53,9 @@ export default {
 
       this.value.spec.url = url;
       if (filesFormat.includes(fileSuffiic)) {
-        this.displayName = suffixName;
+        if (!this.displayName) {
+          this.displayName = suffixName;
+        }
         this.errors = [];
       } else {
         this.errors = ['The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats).'];
