@@ -16,9 +16,23 @@ export default {
     }
   },
 
+  data() {
+    return { phase: this.row[this.state] };
+  },
+
   computed: {
     state() {
       return this.col?.state;
+    }
+  },
+
+  watch: {
+    row: {
+      handler() {
+        this.phase = this.row[this.state];
+      },
+      deep:      true,
+      immediate: true
     }
   }
 };
@@ -26,7 +40,7 @@ export default {
 
 <template>
   <span :class="{'badge-state': true, [row.stateBackground]: true}">
-    {{ row[state] }}
+    {{ phase }}
   </span>
 </template>
 

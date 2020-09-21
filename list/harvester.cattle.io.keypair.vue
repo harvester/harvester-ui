@@ -1,6 +1,6 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { STATE, NAME } from '@/config/table-headers';
+import { STATE, NAME, AGE } from '@/config/table-headers';
 
 export default {
   name:       'ListSSH',
@@ -30,7 +30,8 @@ export default {
           name:      'Fingerprint',
           label:     'Fingerprint',
           value:     'status.fingerPrint',
-        }
+        },
+        AGE
       ],
     };
   },

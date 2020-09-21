@@ -1,6 +1,6 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { STATE, NAME } from '@/config/table-headers';
+import { STATE, NAME, AGE } from '@/config/table-headers';
 
 export default {
   name:       'ListImage',
@@ -42,6 +42,7 @@ export default {
           formatter: 'ByteFormat',
           width:     120
         },
+        AGE
       ],
     };
   },
