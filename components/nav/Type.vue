@@ -40,6 +40,10 @@ export default {
 
       return `el-icon-${ arr[arr.length - 1] }`;
     },
+
+    isActive() {
+      return this.$route.path.includes(this.type.name);
+    },
   },
 
   methods: {
@@ -64,7 +68,7 @@ export default {
     :to="type.route"
     tag="li"
     class="child"
-    :class="{'root': isRoot}"
+    :class="{'root': isRoot, 'nuxt-link-active': isActive}"
     :exact="type.exact"
   >
     <a
