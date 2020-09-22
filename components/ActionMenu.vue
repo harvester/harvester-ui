@@ -45,6 +45,9 @@ export default {
           this.phase = HIDDEN;
         }
       },
+    },
+    '$route.path'(val, old) {
+      this.hide();
     }
   },
 
