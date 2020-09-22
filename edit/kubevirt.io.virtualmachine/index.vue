@@ -244,8 +244,9 @@ export default {
       const realHostname = this.realHostname || this.value.spec.template.spec.hostname || this.value.metadata.name;
 
       this.$set(this.value.spec.template.spec, 'hostname', realHostname);
+      const noFetch = !this.isSingle;
 
-      this.save(buttonCb, url);
+      this.save(buttonCb, url, noFetch);
     },
 
     validateBefore(buttonCb) {
@@ -278,12 +279,16 @@ export default {
     async getClone() {
       const baseName = this.value.metadata.name;
       const baseHostname = this.realHostname || this.value.spec.template.spec.hostname || this.value.metadata.name;
+      const join = baseName.endsWith('-') ? '' : '-';
+      const countLength = this.count.toString().length;
 
       for (let i = 1; i <= this.count; i++) {
+        const suffix = i?.toString()?.padStart(countLength, '0');
+
         cleanForNew(this.value);
 
-        this.value.metadata.name = `${ baseName }-${ i }`;
-        const hostname = `${ baseHostname }-${ i }`;
+        this.value.metadata.name = `${ baseName }${ join }${ suffix }`;
+        const hostname = `${ baseHostname }${ join }${ suffix }`;
 
         this.normalizeSpec();
         this.$set(this.value.spec.template.spec, 'hostname', hostname);
