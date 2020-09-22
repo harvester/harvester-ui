@@ -88,7 +88,9 @@ export default {
     defaultStorageClass() {
       let defaultValue = '';
       this.storageClasss.map( (O) => {
-        if (O.metadata?.annotations?.[STORAGE_CLASS_LABEL.DEFAULT_CALSS]) {
+        console.log(O)
+        if (O.metadata?.annotations?.[STORAGE_CLASS_LABEL.DEFAULT_CALSS] === "true") {
+          console.log('-----', O.metadata.name)
           defaultValue = O.metadata.name;
         }
       });
