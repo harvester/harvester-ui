@@ -15,13 +15,13 @@ const VMIPhase = {
 
 export default {
   migrationState() {
-    const migrationState = this.status?.migrationState?.abortStatus;
-
-    if (!this.status?.migrationState) {
-      return 'fff';
+    if (this.status?.migrationState?.abortStatus) {
+      return this.status?.migrationState?.abortStatus;
+    } else if (this.status?.migrationState?.completed) {
+      return this.status?.migrationState?.completed;
+    } else {
+      return '';
     }
-
-    return migrationState;
   },
 
   migrationStateBackground() {

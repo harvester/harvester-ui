@@ -32,7 +32,7 @@ export default {
           ...STATE,
           value:     'id',
           formatter: 'vmState',
-          width:      200
+          width:      250
         },
         {
           ...NAME,
