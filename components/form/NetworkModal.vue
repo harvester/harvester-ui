@@ -69,6 +69,12 @@ export default {
         name:     'macAddress',
         label:    'MAC Address',
         value:    'macAddress',
+      },
+      {
+        name:     'ports',
+        label:    'Ports',
+        value:    'ports',
+        formatter: 'Ports'
       }];
     },
 
@@ -212,9 +218,15 @@ export default {
         return this.getInvalidMsg('Type');
       }
       
-      if (!this.validatePorts()) {
+      const portsValidater = this.validatePorts()
+      if (!portsValidater.status) {
+        if (portsValidater.message === 'exist') {
+          return this.errors.splice(0, 1, this.$store.getters['i18n/t']('validation.ports.exist'));
+        }
+
         return this.getInvalidMsg('Port Number');
       }
+      
 
       this.$set(this, 'errors', []);
     },
@@ -229,16 +241,24 @@ export default {
 
     validatePorts() {
       if (!this.currentRow.ports || this.currentRow.length === 0 || !this.isMasquerade) {
-        return true;
+        return { status: true };
       }
+
+      const officer = new Set();
 
       for (const p of this.currentRow.ports) {
         if (!p.port) {
-          return false;
+          return { status: false };
         }
+
+        officer.add(parseInt(p.port));
       }
 
-      return true;
+      if (officer.size !== this.currentRow.ports.length) {
+        return { status: false, message: 'exist' };
+      }
+
+      return { status: true };
     },
 
     getInvalidMsg(key) {

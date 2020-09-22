@@ -885,6 +885,8 @@ validation:
         iana: "Port Rule [{position}] - Target Port must be an IANA Service Name or Integer"
         ianaAt: "Port Rule [{position}] - Target Port "
         required: "Port Rule [{position}] - Target Port is required"
+  ports:
+    exist: Port number already exist.
 
 ##############################
 # Model Properties
