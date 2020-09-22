@@ -144,7 +144,7 @@ export default {
       });
     },
 
-    async save(buttonDone, url) {
+    async save(buttonDone, url, noFetch = false) {
       this.errors = null;
 
       if (this.value?.nameDisplay && this.checkLength() === false) {
@@ -184,13 +184,15 @@ export default {
           }
         }
 
-        await this.actuallySave(url);
+        if (noFetch === false) {
+          await this.actuallySave(url);
+        }
 
         await this.applyHooks(AFTER_SAVE_HOOKS);
         buttonDone(true);
         this.done();
       } catch (err) {
-        await this.applyHooks(AFTER_SAVE_HOOKS);
+        // await this.applyHooks(AFTER_SAVE_HOOKS);
         this.errors = exceptionToErrorsArray(err);
         buttonDone(false);
       }

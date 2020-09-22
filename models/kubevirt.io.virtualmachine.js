@@ -56,6 +56,18 @@ export default {
         icon:       'icon icon-fw icon-play',
         label:      'start',
       },
+      {
+        action:     'migrateVM',
+        enabled:    !!this.actions?.migrate,
+        icon:       'icon icon-fw el-icon-position',
+        label:      'migrate',
+      },
+      {
+        action:     'abortMigrationVM',
+        enabled:    !!this.actions?.abortMigration,
+        icon:       'icon icon-fw el-icon-circle-close',
+        label:      'abortMigration',
+      },
       ...out
     ];
   },
@@ -90,30 +102,15 @@ export default {
     };
   },
 
-  openConsole() {
+  migrateVM() {
     return () => {
-      const location = this.consoleLocation;
-
-      const prefix = getPrefix();
-
-      if (!prefix) {
-        window.open(this.currentRouter().resolve(location).href, '_blank');
-      } else {
-        window.open(`dashboard/${ this.currentRouter().resolve(location).href }`, '_blank');
-      }
+      this.doAction('migrate', {});
     };
   },
 
-  consoleLocation() {
-    return {
-      name:   `c-cluster-virtual-realresource-namespace-id-console`,
-      params: {
-        product:      'virtual',
-        cluster:      this.$rootGetters['clusterId'],
-        realresource: 'kubevirt.io.virtualmachineinstance',
-        namespace:    this.metadata?.namespace,
-        id:           this.metadata.name,
-      }
+  abortMigrationVM() {
+    return () => {
+      this.doAction('abortMigration', {});
     };
   },
 
