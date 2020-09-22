@@ -44,7 +44,8 @@ export default {
     return {
       spec,
       randow: Math.random(),
-      index:  0
+      index:  0,
+      errors: []
     };
   },
 
@@ -62,6 +63,27 @@ export default {
         ...this.value.metadata.annotations,
         ...neu
       });
+    },
+    beforeSave(buttonCb) {
+      const storage = this.value.spec?.pvc?.resources?.requests?.storage;
+      const image = this.value.metadata?.annotations?.['harvester.cattle.io/imageId'];
+
+      if (!image) {
+        buttonCb(false);
+
+        return this.getInvalidMsg('Image');
+      }
+
+      if (!storage) {
+        buttonCb(false);
+
+        return this.getInvalidMsg('Size');
+      }
+
+      this.save(buttonCb);
+    },
+    getInvalidMsg(key) {
+      this.errors.splice(0, 1, this.$store.getters['i18n/t']('validation.required', { key }));
     }
   },
 };
@@ -81,7 +103,7 @@ export default {
 
       <ResourceTabs :key="randow" v-model="value" :mode="mode" />
 
-      <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
+      <Footer :mode="mode" :errors="errors" @save="beforeSave" @done="done" />
     </div>
   </el-card>
 </template>

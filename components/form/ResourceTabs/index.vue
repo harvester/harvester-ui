@@ -67,7 +67,7 @@ export default {
     >
       <KeyValue
         key="annotations"
-        v-model="annotations"
+        v-model="value.metadata.annotations"
         :mode="mode"
         :initial-empty-row="true"
         :pad-left="false"
