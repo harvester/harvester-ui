@@ -296,6 +296,11 @@ export default {
         await this.value.save({ url: `v1/${ VM }s` });
       }
       this.value.id = '';
+    },
+    validateMax(value) {
+      if (value > 100) {
+        this.$set(this.spec.template.spec.domain.cpu, 'cores', 100);
+      }
     }
   },
 };
@@ -356,7 +361,15 @@ export default {
       <h2>CPU & Memory:</h2>
       <div class="row">
         <div class="col span-6">
-          <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number type="number" label="CPU (core)" required />
+          <LabeledInput
+            v-model.number="spec.template.spec.domain.cpu.cores"
+            v-int-number
+            min="1"
+            type="number"
+            label="CPU (core)"
+            required
+            @input="validateMax"
+          />
         </div>
 
         <div class="col span-6">

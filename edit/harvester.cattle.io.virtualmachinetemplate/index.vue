@@ -219,6 +219,11 @@ export default {
         // eslint-disable-next-line no-console
         console.log(err);
       }
+    },
+    validateMax(value) {
+      if (value > 100) {
+        this.$set(this.spec.template.spec.domain.cpu, 'cores', 100);
+      }
     }
   },
 };
@@ -248,7 +253,15 @@ export default {
       <h2>CPU & Memory::</h2>
       <div class="row">
         <div class="col span-5">
-          <LabeledInput v-model.number="spec.template.spec.domain.cpu.cores" v-int-number type="number" label="CPU Request(core)" required />
+          <LabeledInput
+            v-model.number="spec.template.spec.domain.cpu.cores"
+            v-int-number
+            min="1"
+            type="number"
+            label="CPU Request(core)"
+            required
+            @input="validateMax"
+          />
         </div>
 
         <div class="col span-7">
