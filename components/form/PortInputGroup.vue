@@ -10,6 +10,11 @@ export default {
     value: {
       type:     Object,
       required: true
+    },
+    mode: {
+      type:     String,
+      required: false,
+      default:  'edit'
     }
   },
 
@@ -26,6 +31,15 @@ export default {
         }
       ]
     };
+  },
+
+  computed: {
+    isView() {
+      return this.mode === 'view';
+    },
+    namePlaceholder() {
+      return this.isView ? '' : 'e.g. myport';
+    }
   },
 
   methods: {
@@ -52,7 +66,7 @@ export default {
 
 <template>
   <div class="multiple-rows-input">
-    <span class="title">Add Ports</span>
+    <span v-if="!isView" class="title">Add Ports</span>
     <div class="label-group">
       <label>
         Port Name
@@ -66,20 +80,21 @@ export default {
     </div>
     <div v-for="(row, index) in value.ports" :key="index" class="display-rows">
       <div class="input-group">
-        <input v-model="row.name" type="text" placeholder="e.g. myport" />
-        <PortInput :row="row" />
+        <input v-model="row.name" type="text" :placeholder="namePlaceholder" :disabled="isView" />
+        <PortInput :row="row" :mode="mode" />
         <div>
           <LabeledSelect
             v-model="row.protocol"
             :options="protocolOption"
+            :disabled="isView"
           />
         </div>
       </div>
-      <button class="btn bg-primary btn-sm" @click="removeRows(index)">
+      <button v-if="!isView" class="btn bg-primary btn-sm" @click="removeRows(index)">
         <i class="el-icon-delete"></i>
       </button>
     </div>
-    <button class="btn bg-primary btn-sm" @click="addRows()">
+    <button v-if="!isView" class="btn bg-primary btn-sm" @click="addRows()">
       Add Port
     </button>
   </div>
