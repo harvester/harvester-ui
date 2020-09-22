@@ -5,6 +5,7 @@ import ResourceTabs from '@/components/form/ResourceTabs';
 import Tab from '@/components/Tabbed/Tab';
 import Details from './tabs/details/';
 import Events from './tabs/events/';
+import Migration from './tabs/migration';
 
 export default {
   name: 'VMIDetailsPage',
@@ -14,6 +15,7 @@ export default {
     Details,
     ResourceTabs,
     Tab,
+    Migration,
   },
 
   mixins: [CreateEditView],
@@ -69,6 +71,9 @@ export default {
         </Tab>
         <Tab name="events" :label="t('vm.detail.tabs.events')" :weight="4">
           <Events :resource="vmi" :events="events" />
+        </Tab>
+        <Tab name="Migration" :label="t('vm.detail.tabs.migration')" :weight="5">
+          <Migration :vmi-resource="vmi" />
         </Tab>
       </template>
     </ResourceTabs>

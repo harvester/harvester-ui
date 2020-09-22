@@ -476,6 +476,7 @@ vm:
       details: Details
       environment: Environment
       events: Events
+      migration: Migration
       console: Console
       networkInterfaces: Network Interfaces
       disks: Disks

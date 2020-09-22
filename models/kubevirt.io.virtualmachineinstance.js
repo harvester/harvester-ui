@@ -14,6 +14,20 @@ const VMIPhase = {
 };
 
 export default {
+  migrationState() {
+    const migrationState = this.status?.migrationState?.abortStatus;
+
+    if (!this.status?.migrationState) {
+      return 'fff';
+    }
+
+    return migrationState;
+  },
+
+  migrationStateBackground() {
+    return this.stateColor(this.stateDisplay).replace('text-', 'bg-');
+  },
+
   isPaused() {
     const conditions = this?.status?.conditions || [];
     const isPause = conditions.filter(cond => cond.type === PAUSED).length > 0;
