@@ -2,16 +2,22 @@
 /* eslint-disable */
 import VmState from '@/components/formatter/vmState';
 import LabelValue from '@/components/LabelValue';
+import MigrationState from '@/components/formatter/MigrationState';
 
 export default {
   name: 'Migration',
 
   components: {
     VmState,
-    LabelValue
+    LabelValue,
+    MigrationState
   },
 
   props: {
+    value: {
+      type:     Object,
+      required: true,
+    },
     vmiResource: {
       type:     Object,
       required: true,
@@ -44,7 +50,7 @@ export default {
       return this.migrationState?.endTimestamp || 'N/A';
     },
     message() {
-      return '------'
+      return 'N/A';
     }
   },
 
@@ -64,7 +70,7 @@ export default {
     <el-card class="box-card mb-20">
       <div slot="header" class="clearfix">
         <span>Migration</span>
-        <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
+        <MigrationState style="float: right; padding: 3px 0" :vm-resource="value" />
       </div>
 
       <div class="row mb-20">
