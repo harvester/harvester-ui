@@ -23,6 +23,42 @@ import NameDescriptionCount from './NameDescriptionCount';
 import CloudConfig from './CloudConfig';
 import ChooseImage from './ChooseImage';
 
+const baseSpec = {
+  dataVolumeTemplates: [],
+  running:             true,
+  template:            {
+    spec:     {
+      domain: {
+        cpu: {
+          cores:   null,
+          sockets: 1,
+          threads: 1
+        },
+        devices: {
+          inputs: [{
+            bus:  'usb',
+            name: 'tablet',
+            type: 'tablet'
+          }],
+          interfaces: [{
+            masquerade: {},
+            model:      'virtio',
+            name:       'default'
+          }],
+          disks: [],
+        },
+        resources: { requests: { memory: '' } }
+      },
+      hostname: '',
+      networks: [{
+        name: 'default',
+        pod:  {}
+      }],
+      volumes: []
+    }
+  }
+};
+
 export default {
   name: 'EditVM',
 
@@ -57,45 +93,12 @@ export default {
     this.value.metadata.labels = { 'harvester.cattle.io/creator': 'harvester' };
 
     if ( !spec ) {
-      spec = {
-        dataVolumeTemplates: [],
-        running:             true,
-        template:            {
-          spec:     {
-            domain: {
-              cpu: {
-                cores:   null,
-                sockets: 1,
-                threads: 1
-              },
-              devices: {
-                inputs: [{
-                  bus:  'usb',
-                  name: 'tablet',
-                  type: 'tablet'
-                }],
-                interfaces: [{
-                  masquerade: {},
-                  model:      'virtio',
-                  name:       'default'
-                }],
-                disks: [],
-              },
-              resources: { requests: { memory: '' } }
-            },
-            hostname: '',
-            networks: [{
-              name: 'default',
-              pod:  {}
-            }],
-            volumes: []
-          }
-        }
-      };
+      spec = _.cloneDeep(baseSpec);
       this.value.spec = spec;
     }
 
     return {
+      baseSpec,
       isSingle:             true,
       count:                1,
       realHostname:         '',
@@ -212,6 +215,16 @@ export default {
 
       this.isLanuchFromTemplate = false;
     },
+    useTemplate(neu) {
+      if (neu === false) {
+        const spec = _.cloneDeep(this.baseSpec);
+
+        this.$set(this, 'spec', spec);
+        this.$set(this.value, 'spec', spec);
+        this.templateName = '';
+        this.templateVersion = '';
+      }
+    }
   },
 
   created() {
@@ -301,6 +314,11 @@ export default {
       if (value > 100) {
         this.$set(this.spec.template.spec.domain.cpu, 'cores', 100);
       }
+    },
+    validataCount(count) {
+      if (count > 10) {
+        this.$set(this, 'count', 10);
+      }
     }
   },
 };
@@ -333,8 +351,10 @@ export default {
             v-model.number="count"
             v-int-number
             type="number"
+            min="1"
             label="count"
             required
+            @input="validataCount"
           />
         </template>
       </NameDescriptionCount>
