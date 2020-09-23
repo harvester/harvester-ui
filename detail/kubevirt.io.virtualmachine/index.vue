@@ -73,7 +73,7 @@ export default {
           <Events :resource="vmi" :events="events" />
         </Tab>
         <Tab name="Migration" :label="t('vm.detail.tabs.migration')" :weight="5">
-          <Migration :vmi-resource="vmi" />
+          <Migration v-model="value" :vmi-resource="vmi" />
         </Tab>
       </template>
     </ResourceTabs>

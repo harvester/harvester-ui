@@ -15,17 +15,46 @@ const VMIPhase = {
 
 export default {
   migrationState() {
-    if (this.status?.migrationState?.abortStatus) {
-      return this.status?.migrationState?.abortStatus;
-    } else if (this.status?.migrationState?.completed) {
-      return this.status?.migrationState?.completed;
-    } else {
-      return '';
+    if (this.status?.migrationState?.abortStatus === 'Succeeded') {
+      return {
+        type:   'abortMigration',
+        status: 'aborted'
+      };
+    }
+
+    if (this.status?.migrationState?.failed) {
+      return {
+        type:   'migration',
+        status: 'failed'
+      };
+    }
+
+    if (this.status?.migrationState?.completed === true) {
+      return {
+        type:   'migration',
+        status: 'success'
+      };
+    }
+
+    if (this.status?.migrationState && this.status?.migrationState?.abortStatus === undefined) {
+      return {
+        type:   'migration',
+        status: 'proceeding'
+      };
+    }
+
+    if (this.status?.migrationState && this.status?.migrationState?.abortStatus) {
+      return {
+        type:   'abortMigration',
+        status: this.status?.migrationState?.abortStatus
+      };
     }
   },
 
   migrationStateBackground() {
-    return this.stateColor(this.stateDisplay).replace('text-', 'bg-');
+    const state = this.migrationState.status;
+
+    return this.stateColor(state).replace('text-', 'bg-');
   },
 
   isPaused() {

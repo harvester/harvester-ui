@@ -74,7 +74,7 @@ export default {
     <template slot="cell:state" slot-scope="scope" class="state-col">
       <div class="state">
         <VmState v-model="scope.row.id" class="vmstate" :row="scope.row" />
-        <MigrationState :vm-resource="scope.row" />
+        <MigrationState :vm-resource="scope.row" :show-success="false" />
       </div>
     </template>
   </ResourceTable>

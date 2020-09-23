@@ -1,11 +1,16 @@
 <script>
 import { VMI } from '@/config/types';
+import { boolean } from '@storybook/addon-knobs';
 
 export default {
   props: {
     vmResource: {
       type:     Object,
       required: true
+    },
+    showSuccess: {
+      type:     Boolean,
+      default: true
     }
   },
 
@@ -19,15 +24,21 @@ export default {
       return vmi;
     },
     state() {
-      return this.vmiResource?.migrationState;
+      const isComplete = this.vmiResource?.migrationState?.status === 'success' || this.vmiResource?.migrationState?.status === 'aborted';
+
+      if (isComplete && this.showSuccess === false) {
+        return '';
+      } else {
+        return this.vmiResource?.migrationState?.status;
+      }
     }
-  },
+  }
 };
 </script>
 
 <template>
   <div v-if="state">
-    /
+    <span v-if="!showSuccess">/</span>
     <span :class="{'badge-state': true, [vmiResource.migrationStateBackground]: true}">
       {{ state }}
     </span>
