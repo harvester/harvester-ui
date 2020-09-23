@@ -82,11 +82,21 @@ export default {
     },
 
     async saveKey() {
+      this.errors.splice(0, 1);
       if (!this.sshName || !this.publicKey) {
         this.errors.push('Please fill in all required fields.');
 
         return;
       }
+
+      if (this.sshName.length > 63) {
+        const message = this.$store.getters['i18n/t']('validation.custom.tooLongName', { max: 63 });
+
+        this.errors.push(message);
+
+        return;
+      }
+
       const SSH = 'harvester.cattle.io.keypair';
 
       try {

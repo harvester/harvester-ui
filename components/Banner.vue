@@ -34,6 +34,7 @@ export default {
     width: 100%;
     border-radius: var(--border-radius);
     transition: all 0.2s ease;
+    word-break: break-word;
 
     &.primary {
       background: var(--primary);
