@@ -299,6 +299,11 @@ export default {
 
       if ((arr?.length > 0 && this.type === 'add') || (arr?.length > 1)) {
         this.errors.splice(0, 1, 'Disk with this name already exists!.');
+      } else if (name.length > 20) {
+        const message = this.$store.getters['i18n/t']('validation.custom.tooLongName', { max: 20 });
+
+        this.$set(this.currentRow, 'name', name.substr(0, 20));
+        this.errors.splice(0, 1, message);
       } else {
         this.errors.splice(0, 1);
       }
@@ -338,7 +343,7 @@ export default {
     <VMModal
       :row-actions="rowActions"
       modal-name="disk"
-      title="Add Disk"
+      :title="type === 'add' ? 'Add Disk' : 'Edit Disk'"
       :rows="rows"
       :headers="headers"
       :errors="errors"

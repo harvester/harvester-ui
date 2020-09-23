@@ -1,5 +1,5 @@
 <script>
-/* eslint-disable */
+import _ from 'lodash';
 import { clone } from '@/utils/object';
 import VMModal from '@/components/form/VMModal';
 import LabeledInput from '@/components/form/LabeledInput';
@@ -24,7 +24,7 @@ export default {
       }
     },
     namespace: {
-      type: String,
+      type:    String,
       default: ''
     },
     rowActions: {
@@ -71,9 +71,9 @@ export default {
         value:    'macAddress',
       },
       {
-        name:     'ports',
-        label:    'Ports',
-        value:    'ports',
+        name:      'ports',
+        label:     'Ports',
+        value:     'ports',
         formatter: 'Ports'
       }];
     },
@@ -110,7 +110,7 @@ export default {
 
       const out = sortBy(
         choices
-          .filter((C) => C.metadata.namespace === this.namespace)
+          .filter(C => C.metadata.namespace === this.namespace)
           .map((obj) => {
             return {
               label: obj.metadata.name,
@@ -121,20 +121,21 @@ export default {
       );
 
       const findPodIndex = _.findIndex(this.rows, (o) => {
-        return o.networkName === 'Pod Network'
-      })
-      if (findPodIndex === -1 || (findPodIndex !== -1 && this.rows.length ===1 && this.type !== 'add' )) {
+        return o.networkName === 'Pod Network';
+      });
+
+      if (findPodIndex === -1 || (findPodIndex !== -1 && this.rows.length === 1 && this.type !== 'add' )) {
         out.push({
           label: 'Pod Network',
           value: 'Pod Network'
-        })
+        });
       }
 
       return out;
     },
 
     isMasquerade() {
-      return this.currentRow.networkName === 'Pod Network'
+      return this.currentRow.networkName === 'Pod Network';
     },
 
     typeOpton() {
@@ -145,7 +146,7 @@ export default {
         }, {
           label: 'bridge',
           value: 'bridge'
-        }]
+        }];
       }
 
       return [{
@@ -165,9 +166,9 @@ export default {
     },
     'currentRow.networkName'(neu) {
       if (neu === 'Pod Network' && this.currentRow.masquerade) {
-        this.currentRow.type = 'masquerade'
+        this.currentRow.type = 'masquerade';
       } else {
-        this.currentRow.type = 'bridge'
+        this.currentRow.type = 'bridge';
       }
     }
   },
@@ -217,8 +218,9 @@ export default {
       if (!this.currentRow.type) {
         return this.getInvalidMsg('Type');
       }
-      
-      const portsValidater = this.validatePorts()
+
+      const portsValidater = this.validatePorts();
+
       if (!portsValidater.status) {
         if (portsValidater.message === 'exist') {
           return this.errors.splice(0, 1, this.$store.getters['i18n/t']('validation.ports.exist'));
@@ -226,9 +228,13 @@ export default {
 
         return this.getInvalidMsg('Port Number');
       }
-      
 
-      this.$set(this, 'errors', []);
+      this.validateName(this.currentRow.name);
+      this.validateMac(this.currentRow.macAddress);
+
+      if (!this.errors.length > 0) {
+        this.$set(this, 'errors', []);
+      }
     },
 
     validateMac(value) {
@@ -263,7 +269,24 @@ export default {
 
     getInvalidMsg(key) {
       this.errors.splice(0, 1, this.$store.getters['i18n/t']('validation.required', { key }));
-    }
+    },
+
+    validateName(name) {
+      const arr = _.filter(this.rows, (o, index) => {
+        return name === o.name;
+      });
+
+      if ((arr?.length > 0 && this.type === 'add') || (arr?.length > 1)) {
+        this.errors.splice(0, 1, 'network with this name already exists!.');
+      } else if (name.length > 20) {
+        const message = this.$store.getters['i18n/t']('validation.custom.tooLongName', { max: 20 });
+
+        this.$set(this.currentRow, 'name', name.substr(0, 20));
+        this.errors.splice(0, 1, message);
+      } else {
+        this.errors.splice(0, 1);
+      }
+    },
   }
 };
 </script>
@@ -273,7 +296,7 @@ export default {
     <VMModal
       :row-actions="rowActions"
       modal-name="network"
-      title="Add Network Interface"
+      :title="type === 'add' ? 'Add Network Interface' : 'Edit Network Interface'"
       :rows="rows"
       :headers="headers"
       :errors="errors"
@@ -288,6 +311,7 @@ export default {
           label="Name"
           class="mb-20"
           required
+          @input="validateName"
         />
 
         <LabeledSelect
@@ -315,8 +339,8 @@ export default {
         />
 
         <LabeledInput
-          v-model="currentRow.macAddress"
           v-if="!isMasquerade"
+          v-model="currentRow.macAddress"
           class="labeled-input--tooltip"
           @input="validateMac"
         >
@@ -334,7 +358,6 @@ export default {
         </LabeledInput>
 
         <PortInputGroup v-if="currentRow.type === 'masquerade'" v-model="currentRow" />
-
       </template>
     </VMModal>
   </div>

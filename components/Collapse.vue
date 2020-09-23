@@ -7,7 +7,7 @@ export default {
     },
     title: {
       type:     String,
-      default: 'Show Advanced'
+      default: 'Advanced Configuration'
     }
   },
   methods: {
