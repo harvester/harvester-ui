@@ -238,3 +238,7 @@ $spacing-property-map: (
 .link[disabled] {
   pointer-events: none;
 }
+
+.tipMessage {
+  text-align: left;
+}

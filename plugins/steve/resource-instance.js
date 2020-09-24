@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import jsyaml from 'js-yaml';
+import { Notification } from 'element-ui';
 import _ from 'lodash';
 import compact from 'lodash/compact';
 import uniq from 'lodash/uniq';
@@ -17,6 +18,7 @@ import {
 import CustomValidators from '@/utils/custom-validators';
 import { sortableNumericSuffix } from '@/utils/sort';
 import { generateZip, downloadFile } from '@/utils/download';
+import { exceptionToErrorsArray } from '@/utils/error';
 import {
   escapeHtml, ucFirst, coerceStringTypeToScalarType, matchesSomePrefix, containsSomeString, matchesSomeRegex
 } from '@/utils/string';
@@ -702,7 +704,7 @@ export default {
   },
 
   doAction() {
-    return (actionName, body, opt = {}) => {
+    return async(actionName, body, opt = {}) => {
       if ( !opt.url ) {
         opt.url = this.actionLinkFor(actionName);
       }
@@ -710,7 +712,19 @@ export default {
       opt.method = 'post';
       opt.data = body;
 
-      return this.$dispatch('request', opt);
+      try {
+        await this.$dispatch('request', opt);
+      } catch (err) {
+        const message = `<div class="tipMessage">${ err.data }</div>`;
+
+        Notification({
+          type:                     'error',
+          dangerouslyUseHTMLString: true,
+          title:                    'Error',
+          message,
+          duration:                 3000
+        });
+      }
     };
   },
 

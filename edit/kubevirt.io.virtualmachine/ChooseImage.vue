@@ -7,6 +7,10 @@ export default {
     value: {
       type:    String,
       default: ''
+    },
+    title: {
+      type:     String,
+      default: 'Choose an Image:'
     }
   },
 
@@ -68,7 +72,7 @@ export default {
 <template>
   <div class="vm-choose-image">
     <h2>
-      Choose an Image:
+      {{ title }}
     </h2>
 
     <div class="box">

@@ -36,6 +36,11 @@ export default {
     namespace: {
       type:     String,
       default: 'default'
+    },
+
+    owner: {
+      type:     String,
+      default:  ''
     }
   },
 
@@ -211,6 +216,14 @@ export default {
     choosedOrder() {
       return this.rows.map( R => R.bootOrder );
     },
+
+    imageRequired() {
+      return !(this.currentRow.disableDelete === true && this.owner === 'template');
+    },
+
+    imageLabel() {
+      return (this.currentRow.disableDelete === true && this.owner === 'template') ? 'Image(optional)' : 'Image';
+    }
   },
 
   watch: {
@@ -367,9 +380,9 @@ export default {
           v-model="currentRow.image"
           class="mb-20"
           :disabled="currentRow.disableDelete"
-          label="Select Image"
+          :label="imageLabel"
           :options="imagesOption"
-          required
+          :required="imageRequired"
         />
 
         <LabeledSelect
