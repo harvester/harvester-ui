@@ -238,6 +238,9 @@ export default {
     },
 
     validateMac(value) {
+      if (this.currentRow.networkName === 'Pod Network' || !value) {
+        return;
+      }
       if (!/^[A-F0-9]{2}(-[A-F0-9]{2}){5}$|^[A-F0-9]{2}(:[A-F0-9]{2}){5}$/.test(value)) {
         this.errors.splice(0, 1, 'Invalid MAC address format.');
       } else {
