@@ -178,10 +178,12 @@ export const actions = {
 
     // Try resending any frames that were attempted to be sent while the socket was down, once.
     if ( !process.server ) {
-      for ( const obj of state.pendingSends.slice() ) {
-        commit('dequeuePending', obj);
-        dispatch('sendImmediate', obj);
-      }
+      setInterval(() => {
+        for ( const obj of state.pendingSends.slice() ) {
+          commit('dequeuePending', obj);
+          dispatch('sendImmediate', obj);
+        }
+      }, 3000);
     }
   },
 
@@ -197,14 +199,12 @@ export const actions = {
 
   send({ state, commit }, obj) {
     // eslint-disable-next-line no-console
-    console.log('---state.socket', state?.socket?.state, state.socket, process.dev);
     const isSend = process.dev ? state.socket : (state.socket && state?.socket?.state === STATE_CONNECTED);
 
     if (isSend) {
       return state.socket.send(JSON.stringify(obj));
     } else {
       // eslint-disable-next-line no-console
-      console.log('-----enqueuePending', obj);
       commit('enqueuePending', obj);
     }
   },
