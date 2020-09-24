@@ -20,14 +20,18 @@ export default {
   },
 
   data() {
-    return { dialogVisible: false };
+    return { dialogVisible: false, labels: {} };
   },
 
   methods: {
+    open() {
+      this.labels = Object.assign({}, this.spec?.metadata?.labels);
+    },
     handleClose() {
       this.$emit('close');
     },
     save() {
+      this.$set(this.spec.metadata, 'labels', this.labels);
       this.$emit('update');
       this.$emit('close');
     },
@@ -41,10 +45,12 @@ export default {
     :visible="visible"
     width="50%"
     :before-close="handleClose"
+    @open="open"
   >
     <KeyValue
+      v-if="visible"
       key="labels"
-      v-model="spec.metadata.labels"
+      v-model="labels"
       :mode="mode"
       :initial-empty-row="true"
       :pad-left="false"

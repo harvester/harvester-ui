@@ -20,14 +20,18 @@ export default {
   },
 
   data() {
-    return { dialogVisible: false };
+    return { dialogVisible: false, annotations: {} };
   },
 
   methods: {
+    open() {
+      this.annotations = Object.assign({}, this.spec?.metadata?.annotations);
+    },
     handleClose() {
       this.$emit('close');
     },
     save() {
+      this.$set(this.spec.metadata, 'annotations', this.annotations);
       this.$emit('update');
       this.$emit('close');
     },
@@ -41,10 +45,12 @@ export default {
     :visible="visible"
     width="50%"
     :before-close="handleClose"
+    @open="open"
   >
     <KeyValue
+      v-if="visible"
       key="annotations"
-      v-model="spec.metadata.annotations"
+      v-model="annotations"
       :mode="mode"
       :initial-empty-row="true"
       :pad-left="false"

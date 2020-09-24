@@ -20,14 +20,18 @@ export default {
   },
 
   data() {
-    return { dialogVisible: false };
+    return { dialogVisible: false, description: null };
   },
 
   methods: {
+    open() {
+      this.description = this.spec?.metadata?.annotations?.description;
+    },
     handleClose() {
       this.$emit('close');
     },
     save() {
+      this.$set(this.spec.metadata.annotations, 'description', this.description);
       this.$emit('update');
       this.$emit('close');
     },
@@ -41,10 +45,11 @@ export default {
     :visible="visible"
     width="50%"
     :before-close="handleClose"
+    @open="open"
   >
     <LabeledInput
       key="description"
-      v-model="spec.metadata.annotations.description"
+      v-model="description"
       label="Description"
       :mode="mode"
       :min-height="30"

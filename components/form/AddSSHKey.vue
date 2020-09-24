@@ -82,7 +82,7 @@ export default {
     },
 
     async saveKey() {
-      this.errors.splice(0, 1);
+      this.errors = [];
       if (!this.sshName || !this.publicKey) {
         this.errors.push('Please fill in all required fields.');
 
