@@ -48,9 +48,13 @@ export default {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .parent {
   width: 80%;
+
+  .el-progress-bar__outer {
+    background-color: darken(#EBEEF5, 15%)
+  }
 }
 
 .error {
