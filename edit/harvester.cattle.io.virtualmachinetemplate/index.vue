@@ -246,7 +246,7 @@ export default {
       <Checkbox v-if="isAdd" v-model="isDefaultVersion" label="Default version" type="checkbox" />
       <div class="spacer"></div>
 
-      <ChooseImage v-model="imageName" />
+      <ChooseImage v-model="imageName" title="Choose an image(optional):" />
 
       <div class="spacer"></div>
 
@@ -272,7 +272,7 @@ export default {
       <div class="spacer"></div>
 
       <h2>Add disk storage:</h2>
-      <DiskModal v-model="diskRows" />
+      <DiskModal v-model="diskRows" owner="template" />
 
       <div class="spacer"></div>
 
