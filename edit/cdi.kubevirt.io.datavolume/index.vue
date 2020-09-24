@@ -65,16 +65,19 @@ export default {
       });
     },
     beforeSave(buttonCb) {
-      const storage = this.value.spec?.pvc?.resources?.requests?.storage;
-      const image = this.value.metadata?.annotations?.['harvester.cattle.io/imageId'];
+      if (!this.$refs.vs.source) {
+        buttonCb(false);
 
-      if (!image) {
+        return this.getInvalidMsg('Source');
+      }
+
+      if (!this.$refs.vs.image && this.$refs.vs.isVmImage) {
         buttonCb(false);
 
         return this.getInvalidMsg('Image');
       }
 
-      if (!storage) {
+      if (isNaN(parseInt(this.$refs.vs.storage))) {
         buttonCb(false);
 
         return this.getInvalidMsg('Size');
@@ -99,7 +102,7 @@ export default {
         name-label="Name"
       />
 
-      <VolumeSource v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnnotation" />
+      <VolumeSource ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnnotation" />
 
       <ResourceTabs :key="randow" v-model="value" :mode="mode" />
 
