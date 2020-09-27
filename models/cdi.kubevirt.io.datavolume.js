@@ -3,15 +3,12 @@ import { VM } from '@/config/types';
 
 export default {
   stateDisplay() {
-    const boundCondition = this.getStatusConditionOfType('Bound');
-    const readyCondition = this.getStatusConditionOfType('Ready');
+    const ownedBy = this?.metadata?.annotations?.['harvester.cattle.io/owned-by'];
 
-    if (boundCondition?.status === 'True') {
+    if (ownedBy) {
       return 'In-use';
-    } else if (readyCondition?.status === 'True' && boundCondition?.status === 'False') {
-      return 'Available';
     } else {
-      return 'N/A';
+      return 'Ready';
     }
   },
 

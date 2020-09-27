@@ -9,7 +9,7 @@ import { clone } from '@/utils/object';
 import { sortBy } from '@/utils/sort';
 import { SOURCE_TYPE, InterfaceOption } from '@/config/map';
 import MemoryUnit from '@/components/form/MemoryUnit';
-import { NAMESPACE, PVC, STORAGE_CLASS, IMAGE } from '@/config/types';
+import { NAMESPACE, DATA_VOLUME, STORAGE_CLASS, IMAGE } from '@/config/types';
 
 export default {
   components: {
@@ -74,12 +74,12 @@ export default {
     },
 
     pvcOption() {
-      const choices = this.$store.getters['cluster/all'](PVC);
+      const choices = this.$store.getters['cluster/all'](DATA_VOLUME);
 
       return sortBy(
         choices
           .filter( (obj) => {
-            return obj.metadata.namespace === this.namespace;
+            return obj.metadata.namespace === this.namespace && obj.phaseStatus === 'Succeeded';
           })
           .map((obj) => {
             return {
@@ -236,7 +236,7 @@ export default {
       }
     },
     'currentRow.pvcName'(neu) {
-      const choices = this.$store.getters['cluster/all'](PVC);
+      const choices = this.$store.getters['cluster/all'](DATA_VOLUME);
 
       const pvcResource = choices.find( O => O.metadata.name === neu);
 
@@ -244,10 +244,10 @@ export default {
         return;
       }
 
-      this.currentRow.accessModes = pvcResource?.spec?.accessModes;
-      this.currentRow.size = pvcResource?.spec?.resources?.requests?.storage;
-      this.currentRow.storageClassName = pvcResource?.spec?.storageClassName;
-      this.currentRow.volumeMode = pvcResource?.spec?.volumeMode;
+      this.currentRow.accessModes = pvcResource?.spec?.pvc?.accessModes[0];
+      this.currentRow.size = pvcResource?.spec?.pvc?.resources?.requests?.storage;
+      this.currentRow.storageClassName = pvcResource?.spec?.pvc?.storageClassName;
+      this.currentRow.volumeMode = pvcResource?.spec?.pvc?.volumeMode;
     }
   },
 
@@ -400,7 +400,7 @@ export default {
         <LabeledSelect
           v-if="isAttachVolume"
           v-model="currentRow.pvcName"
-          label="Persistent Volume Claim"
+          label="Volume"
           class="mb-20"
           :options="pvcOption"
           required

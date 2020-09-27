@@ -4,7 +4,13 @@ import { MODE, _ADD, _EDIT } from '@/config/query-params';
 
 export default {
   availableActions() {
-    const out = this._standardActions;
+    const toFilter = ['goToEdit', 'cloneYaml', 'goToClone', 'goToEditYaml', 'download'];
+
+    const out = this._standardActions.filter((action) => {
+      if (!toFilter.includes(action.action)) {
+        return action;
+      }
+    });
 
     return [
       {
