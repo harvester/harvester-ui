@@ -3,13 +3,10 @@ import { PROJECT } from '@/config/labels-annotations';
 import { NAMESPACE, EXTERNAL } from '@/config/types';
 import ButtonGroup from '@/components/ButtonGroup';
 import VmState from '@/components/formatter/vmState';
-import Banner from '@/components/Banner';
 import { get } from '@/utils/object';
 
 export default {
-  components: {
-    Banner, ButtonGroup, VmState
-  },
+  components: { ButtonGroup, VmState },
   props:      {
     value: {
       type:    Object,
@@ -182,9 +179,9 @@ export default {
         </button>
       </div>
     </slot>
-    <div v-if="banner" class="state-banner">
+    <!-- <div v-if="banner" class="state-banner">
       <Banner class="state-banner" :color="banner.color" :label="banner.message" />
-    </div>
+    </div> -->
   </header>
 </template>
 
