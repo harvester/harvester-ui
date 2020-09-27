@@ -54,6 +54,8 @@ export default {
         defaultVersionId: ''
       };
       this.$set(this.value, 'spec', templateSpec);
+    } else {
+      spec = choices.find( O => templateSpec.defaultVersionId === O.id )?.spec?.vm || null;
     }
 
     if ( !spec ) {
