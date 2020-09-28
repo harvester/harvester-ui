@@ -1,69 +1,62 @@
 <script>
 import { findBy } from '@/utils/array';
 import { USERNAME } from '@/config/cookies';
-import LabeledInput from '@/components/form/LabeledInput';
-import AsyncButton from '@/components/AsyncButton';
 import { LOCAL, LOGGED_OUT, TIMED_OUT, _FLAGGED } from '@/config/query-params';
-import Checkbox from '@/components/form/Checkbox';
+import AsyncButton from '@/components/AsyncButton';
+import Loading from '@/components/Loading';
 import { getVendor, getProduct } from '../../config/private-label';
 
 export default {
   name:       'Login',
   layout:     'unauthenticated',
-  components: {
-    LabeledInput, AsyncButton, Checkbox
-  },
-
-  asyncData({ route, store }) {
-    // const providers = await store.dispatch('auth/getAuthProviders');
-
-    // const hasGithub = !!findBy(providers, 'id', 'github');
-    // const hasLocal = !!findBy(providers, 'id', 'local');
-    const hasGithub = false;
-    const hasLocal = true;
-
-    return {
-      hasGithub,
-      hasLocal,
-      showLocal: !hasGithub || (route.query[LOCAL] === _FLAGGED),
-    };
-  },
+  components: { AsyncButton, Loading },
 
   data({ $cookies }) {
-    const username = $cookies.get(USERNAME, { parseJSON: false }) || '';
-
     return {
-      vendor:  getVendor(),
-      product: getProduct(),
-
-      username,
-      remember:  !!username,
-      password:  '',
-
-      timedOut:  this.$route.query[TIMED_OUT] === _FLAGGED,
-      loggedOut: this.$route.query[LOGGED_OUT] === _FLAGGED,
-      err:       this.$route.query.err,
+      loginMethod: 'kubeconfig',
+      file:        {},
+      toUpload:    null,
+      token:       '',
+      err:         '',
+      loading:     false
     };
+  },
+
+  computed: {
+    fileMode() {
+      return this.loginMethod === 'kubeconfig';
+    },
+    fileName() {
+      return this.file?.name;
+    },
+    unauthorized() {
+      return this.$route.query.unauthorized === _FLAGGED;
+    },
+    loggedOut() {
+      return this.$route.query[LOGGED_OUT] === _FLAGGED;
+    }
+  },
+
+  watch: {
+    err(neu) {
+      if (neu) {
+        this.$message.error(neu);
+        this.err = null;
+      }
+    },
   },
 
   mounted() {
     this.focusSomething();
+
+    if (this.$cookies.get('loggedIn')) {
+      this.loading = true;
+      this.$store.commit('auth/loggedIn');
+      this.$router.replace('/');
+    }
   },
 
   methods: {
-    loginGithub() {
-      this.$store.dispatch('auth/redirectToGithub');
-    },
-
-    toggleLocal() {
-      this.showLocal = true;
-      this.$router.applyQuery({ [LOCAL]: _FLAGGED });
-
-      this.$nextTick(() => {
-        this.focusSomething();
-      });
-    },
-
     focusSomething() {
       let elem;
 
@@ -84,33 +77,58 @@ export default {
       }
     },
 
-    async loginLocal(buttonCb) {
-      try {
-        this.err = null;
-        await this.$store.dispatch('auth/login', {
-          provider: 'local',
-          body:     {
-            username: this.username,
-            password: this.password
-          }
-        });
+    fileChange() {
+      const reader = new FileReader();
 
-        if ( this.remember ) {
-          this.$cookies.set(USERNAME, this.username, {
-            encode: x => x,
-            maxAge: 86400 * 365,
-            secure: true,
-          });
-        } else {
-          this.$cookies.remove(USERNAME);
+      this.file = this.$refs.uploader.files[0];
+
+      if (!this.file) {
+        return;
+      }
+
+      reader.onload = (loaded) => {
+        const value = loaded.target.result;
+
+        this.toUpload = value;
+      };
+
+      reader.onerror = (err) => {
+        this.$dispatch('growl/fromError', { title: 'Error reading file', err }, { root: true });
+      };
+
+      reader.readAsText(this.file);
+    },
+
+    async login(buttonCb) {
+      const data = {};
+
+      if (this.fileMode) {
+        if (!this.toUpload) {
+          this.err = this.getInvalidMsg('Kubeconfig');
+
+          return buttonCb(false);
         }
+        data.kubeconfig = this.toUpload;
+      } else {
+        if (!this.token || this.token === '') {
+          this.err = this.getInvalidMsg('Token');
 
-        buttonCb(true);
+          return buttonCb(false);
+        }
+        data.token = this.token;
+      }
+      try {
+        await this.$store.dispatch('auth/login', { data });
         this.$router.replace('/');
+        buttonCb(true);
       } catch (err) {
-        this.err = err;
+        this.err = 'An error occurred logging in.  Please try again.';
         buttonCb(false);
       }
+    },
+
+    getInvalidMsg(key) {
+      return this.$store.getters['i18n/t']('validation.required', { key });
     },
   }
 };
@@ -118,84 +136,144 @@ export default {
 
 <template>
   <main class="login">
-    <div class="row mb-20">
-      <div class="col span-6">
-        <h1 class="text-center">
-          {{ vendor }} {{ product }}
-        </h1>
-        <h4 v-if="err" class="text-error text-center">
-          An error occurred logging in.  Please try again.
-        </h4>
-        <h4 v-else-if="loggedOut" class="text-success text-center">
-          You have been logged out.
-        </h4>
-        <h4 v-else-if="timedOut" class="text-error text-center">
-          Log in again to continue.
-        </h4>
-
-        <div v-if="hasGithub" class="text-center mt-50 mb-50">
-          <button ref="github" class="btn bg-primary" style="font-size: 18px;" @click="loginGithub">
-            Log In with GitHub
-          </button>
-          <div v-if="!showLocal" class="mt-20">
-            <button type="button" class="btn bg-link" @click="toggleLocal">
-              Use a Local User
-            </button>
+    <el-alert
+      v-if="loggedOut"
+      title="Log in again to continue."
+      type="warning"
+      effect="dark"
+      class="login__alert mb-20"
+    >
+    </el-alert>
+    <el-card>
+      <div slot="header" class="clearfix">
+        <span>Harvester Dashboard</span>
+      </div>
+      <p>Authentication methods:</p>
+      <div class="mt-20">
+        <el-radio v-model="loginMethod" label="kubeconfig">
+          Kuebeconfig
+        </el-radio>
+      </div>
+      <div>
+        <el-radio v-model="loginMethod" label="token">
+          Token
+        </el-radio>
+      </div>
+      <div class="mt-20">
+        <div v-if="fileMode" class="file">
+          <div class="file__url">
+            {{ fileName }}
           </div>
+          <el-button icon="el-icon-more" size="small">
+            <input
+              ref="uploader"
+              type="file"
+              accept=".yml,.yaml"
+              @change="fileChange"
+            />
+          </el-button>
         </div>
-
-        <form v-if="hasLocal && showLocal" class="mt-50">
-          <div class="row mb-20">
-            <div class="col span-4 offset-4">
-              <LabeledInput
-                ref="username"
-                v-model="username"
-                label="Username"
-                autocomplete="username"
-              />
-            </div>
-          </div>
-          <div class="row mb-20">
-            <div class="col span-4 offset-4">
-              <LabeledInput
-                ref="password"
-                v-model="password"
-                type="password"
-                label="Password"
-                autocomplete="password"
-              />
-            </div>
-          </div>
-          <div class="row mb-20">
-            <div class="col span-4 offset-4 text-center">
-              <AsyncButton
-                type="submit"
-                action-label="Log In with Local User"
-                waiting-label="Logging In..."
-                success-label="Logged In"
-                error-label="Error"
-                @click="loginLocal"
-              />
-              <div>
-                <Checkbox v-model="remember" label="Remember Username" type="checkbox" />
-              </div>
-            </div>
-          </div>
-        </form>
+        <div v-else>
+          <el-input v-model="token" show-password></el-input>
+        </div>
       </div>
-      <div class="col span-6 landscape">
-        <!-- <img src="~/assets/images/login-landscape.svg" alt="landscape" /> -->
+      <div class="mt-20">
+        <AsyncButton
+          class="login__go"
+          action-label="SIGH IN"
+          waiting-label="Logging In..."
+          success-label="Logged In!"
+          error-label="Error"
+          v-bind="$attrs"
+          @click="login"
+        />
       </div>
-    </div>
+    </el-card>
+    <Loading v-if="loading" />
   </main>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
 
-    .row {
-      align-items: center;
+    &__alert {
+      width: 450px;
+    }
+
+    .el-card {
+      width: 450px;
+      margin: 0 auto;
+      font-size: 14px;
+
+      &__header {
+        background-color: var(--header-bg);
+        font-size: 16px;
+        color: #fff;
+      }
+
+      .el-radio {
+        margin-bottom: 10px;
+      }
+
+      .el-radio__input.is-checked+.el-radio__label {
+        color: var(--primary);
+      }
+
+      .el-radio__input.is-checked .el-radio__inner {
+        background-color: var(--primary);
+        color: var(--primary);
+      }
+    }
+
+    .file {
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+
+      .el-button {
+        position: relative;
+        width: 45px;
+        margin-left: 10px;
+        overflow: hidden;
+
+        &:hover {
+          background-color: var(--primary);
+          border-color: var(--primary);
+          color: #fff;
+        }
+      }
+
+      Input {
+        position: absolute;
+        right: 0;
+        top: 0;
+        font-size: 100px;
+        filter: alpha(opacity=0);
+        cursor: pointer;
+        outline: none;
+
+        &:focus {
+          box-shadow: none;
+        }
+      }
+
+      .file__url {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid darken(#EBEEF5, 5%);
+      }
+    }
+
+    &__go {
+      width: 100%;
+      padding: 8px 0;
+      justify-content: center;
     }
 
     .landscape {
