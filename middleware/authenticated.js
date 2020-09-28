@@ -54,8 +54,6 @@ export default async function({
   if ($cookies.get('loggedIn')) {
     store.commit('auth/loggedIn');
   } else {
-    await store.dispatch('auth/logout');
-
     return redirect(401, '/auth/login');
   }
 
@@ -84,10 +82,6 @@ export default async function({
     if ( e instanceof ClusterNotFoundError ) {
       // redirect(302, '/clusters');
     } else {
-      if (e._status === 401) {
-        return;
-      }
-
       store.commit('setError', e);
       redirect(302, '/fail-whale');
     }

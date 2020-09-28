@@ -34,7 +34,7 @@ export default {
       } else {
         return responseObject(res);
       }
-    }).catch(async(err) => {
+    }).catch((err) => {
       if ( !err || !err.response ) {
         return Promise.reject(err);
       }
@@ -43,8 +43,8 @@ export default {
 
       // Go to the logout page for 401s, unless redirectUnauthorized specifically disables (for the login page)
       if ( opt.redirectUnauthorized !== false && process.client && res.status === 401 ) {
-        await dispatch('auth/logout', opt.logoutOnError, { root: true });
-        this.$router.push('/auth/login?logged-out');
+        // await dispatch('auth/logout', opt.logoutOnError, { root: true });
+        // this.$router.push('/auth/login?logged-out');
       }
 
       if ( typeof res.data !== 'undefined' ) {
