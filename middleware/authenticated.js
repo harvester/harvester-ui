@@ -1,6 +1,3 @@
-import { NORMAN } from '@/config/types';
-import { findBy } from '@/utils/array';
-import { SETUP } from '@/config/query-params';
 import { get } from '@/utils/object';
 import { ClusterNotFoundError } from '@/utils/error';
 import { applyProducts } from '@/store/type-map';
@@ -27,7 +24,7 @@ function setProduct(store, to) {
 }
 
 export default async function({
-  route, app, store, redirect, req, isDev
+  route, store, redirect, $cookies
 }) {
   // Setup a beforeEach hook once to keep track of the current product
   if ( !beforeEachSetup ) {
@@ -54,49 +51,12 @@ export default async function({
     }
   }
 
-  // Initial ?setup=admin-password can technically be on any route
-  // const initialPass = route.query[SETUP];
+  if ($cookies.get('loggedIn')) {
+    store.commit('auth/loggedIn');
+  } else {
+    await store.dispatch('auth/logout');
 
-  // if ( initialPass ) {
-  //   const ok = await tryInitialSetup(store, initialPass, isDev);
-
-  //   if ( ok ) {
-  //     redirect(302, `/auth/setup?${ SETUP }=${ escape(initialPass) }`);
-  //   } else {
-  //     redirect(302, '/auth/login');
-  //   }
-  // }
-
-  // Make sure you're actually logged in
-  if ( store.getters['auth/enabled'] !== false && !store.getters['auth/loggedIn'] ) {
-    try {
-      // const principals = await store.dispatch('rancher/findAll', {
-      //   type: NORMAN.PRINCIPAL,
-      //   opt:  { url: '/v3/principals' }
-      // });
-
-      // const me = findBy(principals, 'me', true);
-
-      // store.commit('auth/hasAuth', true);
-      // store.commit('auth/loggedInAs', me.id);
-    } catch (e) {
-      const status = e?._status;
-
-      if ( status === 404 ) {
-        store.commit('auth/hasAuth', false);
-      } else {
-        store.commit('auth/hasAuth', true);
-
-        if ( status === 401 ) {
-          redirect(302, '/auth/login');
-        } else {
-          store.commit('setError', e);
-          console.log(JSON.stringify(e)); // eslint-disable-line no-console
-        }
-      }
-
-      return;
-    }
+    return redirect(401, '/auth/login');
   }
 
   // Load stuff
@@ -124,39 +84,12 @@ export default async function({
     if ( e instanceof ClusterNotFoundError ) {
       // redirect(302, '/clusters');
     } else {
+      if (e._status === 401) {
+        return;
+      }
+
       store.commit('setError', e);
       redirect(302, '/fail-whale');
     }
-  }
-}
-
-async function tryInitialSetup(store, password, isDev) {
-  try {
-    const firstLogin = await store.dispatch('rancher/find', {
-      type: NORMAN.SETTING,
-      id:   'first-login',
-      opt:  { url: '/v3/settings/first-login' }
-    });
-
-    if ( isDev ) {
-      // Ignore first-login for dev
-    } else if ( !firstLogin || firstLogin.value !== 'true' ) {
-      // Require first-login to be set for prod
-      return false;
-    }
-
-    const res = await store.dispatch('auth/login', {
-      provider: 'local',
-      body:     {
-        username: 'admin',
-        password
-      },
-    });
-
-    return res === true;
-  } catch (e) {
-    console.error('Error trying initial setup', e); // eslint-disable-line no-console
-
-    return false;
   }
 }
