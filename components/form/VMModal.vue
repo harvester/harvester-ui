@@ -38,6 +38,10 @@ export default {
     rowActions: {
       type:    Boolean,
       default: true
+    },
+    buttonText: {
+      type:     String,
+      default: ''
     }
   },
 
@@ -130,7 +134,7 @@ export default {
     </el-dialog>
 
     <el-button v-if="rowActions" class="btn btn-sm mb-20 mt-20" @click="openModal">
-      {{ title }}
+      {{ buttonText }}
     </el-button>
   </div>
 </template>

@@ -375,6 +375,7 @@ export default {
       modal-name="disk"
       :title="type === 'add' ? 'Add Disk' : 'Edit Disk'"
       :rows="rows"
+      button-text="Add Disk"
       :headers="headers"
       :errors="errors"
       @update:add="updateAdd"

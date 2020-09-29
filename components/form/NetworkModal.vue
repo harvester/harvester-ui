@@ -302,6 +302,7 @@ export default {
       :title="type === 'add' ? 'Add Network Interface' : 'Edit Network Interface'"
       :rows="rows"
       :headers="headers"
+      button-text="Add Network Interface"
       :errors="errors"
       @update:cancel="beforeCancel"
       @update:add="updateAdd"
