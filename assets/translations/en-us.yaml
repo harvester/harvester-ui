@@ -127,7 +127,7 @@ cluster:
       shortLabel: Imported
 
 promptRemove:
-  attemptingToRemove: You are attemping to remove the {type}
+  attemptingToRemove: You are attempting to remove the {type}
   andOthers: |
     {count, plural,
     =0 {.}
