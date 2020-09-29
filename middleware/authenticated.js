@@ -51,11 +51,11 @@ export default async function({
     }
   }
 
-  if ($cookies.get('loggedIn')) {
-    store.commit('auth/loggedIn');
-  } else {
-    return redirect(401, '/auth/login');
-  }
+  // if ($cookies.get('loggedIn')) {
+  //   store.commit('auth/loggedIn');
+  // } else {
+  //   return redirect(401, '/auth/login');
+  // }
 
   // Load stuff
   await applyProducts(store);
