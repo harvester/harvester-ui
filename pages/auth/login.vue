@@ -122,7 +122,7 @@ export default {
         this.$router.replace('/');
         buttonCb(true);
       } catch (err) {
-        this.err = 'An error occurred logging in.  Please try again.';
+        this.err = err.data.errors[0];
         buttonCb(false);
       }
     },
@@ -130,6 +130,10 @@ export default {
     getInvalidMsg(key) {
       return this.$store.getters['i18n/t']('validation.required', { key });
     },
+
+    mockBtnClicked() {
+      this.$refs.uploader.click();
+    }
   }
 };
 </script>
@@ -161,7 +165,7 @@ export default {
       </div>
       <div class="mt-20">
         <div v-if="fileMode" class="file">
-          <div class="file__url">
+          <div class="file__url" @click="mockBtnClicked">
             {{ fileName }}
           </div>
           <el-button icon="el-icon-more" size="small">
@@ -179,7 +183,7 @@ export default {
       <div class="mt-20">
         <AsyncButton
           class="login__go"
-          action-label="SIGH IN"
+          action-label="SIGN IN"
           waiting-label="Logging In..."
           success-label="Logged In!"
           error-label="Error"
@@ -251,7 +255,7 @@ export default {
         position: absolute;
         right: 0;
         top: 0;
-        font-size: 100px;
+        font-size: 200px;
         filter: alpha(opacity=0);
         cursor: pointer;
         outline: none;
@@ -266,6 +270,7 @@ export default {
         display: flex;
         align-items: center;
         border-bottom: 1px solid darken(#EBEEF5, 5%);
+        cursor: pointer;
       }
     }
 

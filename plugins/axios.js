@@ -38,6 +38,10 @@ export default function({
     response => response,
     (error) => {
       if (error.response && error.response.status === 401) {
+        if (error.response.config.url.includes('auth?action=login')) {
+          return Promise.reject(error.response);
+        }
+
         redirect(401, '/auth/logout');
 
         return new Promise(() => {});
