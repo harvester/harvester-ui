@@ -168,7 +168,6 @@ export default {
             <input
               ref="uploader"
               type="file"
-              accept=".yml,.yaml"
               @change="fileChange"
             />
           </el-button>
