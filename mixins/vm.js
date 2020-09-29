@@ -478,6 +478,10 @@ export default {
         }
       };
 
+      if (!this.imageName) {
+        delete spec.dataVolumeTemplates;
+      }
+
       if (volumes.length === 0) {
         delete spec.template.spec.volumes;
         delete spec.dataVolumeTemplates;
