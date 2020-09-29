@@ -1,3 +1,4 @@
+import { addPrefix } from '@/utils/url';
 const ERR_CLIENT = 'client';
 const ERR_SERVER = 'server';
 
@@ -46,7 +47,7 @@ export const actions = {
     try {
       const res = await this.$axios({
         method: 'post',
-        url:    '/v1-public/auth?action=login',
+        url:    addPrefix('/v1-public/auth?action=login'),
         data
       });
 
@@ -68,7 +69,7 @@ export const actions = {
       try {
         await this.$axios({
           method: 'post',
-          url:    '/v1-public/auth?action=logout'
+          url:    addPrefix('/v1-public/auth?action=logout')
         });
       } catch (err) {
         if (err._status >= 400 && err._status <= 499) {
