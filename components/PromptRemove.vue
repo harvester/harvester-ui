@@ -27,10 +27,14 @@ export default {
         return this.t('generic.resource', { count: this.toRemove.length });
       }
 
-      const schema = this.toRemove[0]?.schema;
+      const schema = Object.assign({}, this.toRemove[0]?.schema);
 
-      if ( !schema ) {
+      if ( !schema || Object.keys(schema).length === 0 ) {
         return `resource${ this.toRemove.length === 1 ? '' : 's' }`;
+      }
+
+      if (schema?.attributes?.kind === 'VirtualMachineImage') {
+        schema.attributes.kind = 'Image';
       }
 
       return this.$store.getters['type-map/labelFor'](schema, this.toRemove.length);
