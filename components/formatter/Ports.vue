@@ -16,6 +16,9 @@ export default {
   },
 
   computed: {
+    hasPorts() {
+      return this.value.length > 0;
+    },
     ports() {
       return this.value.reduce((a, p, index) => `${ a }${ p.port }${ index < this.value.length - 1 ? ',' : '' }`, '', 0);
     },
@@ -38,7 +41,7 @@ export default {
 <template>
   <div>
     {{ ports }}
-    <el-button size="mini" type="text" icon="el-icon-view" @click="open"></el-button>
+    <el-button v-if="hasPorts" size="mini" type="text" icon="el-icon-view" @click="open"></el-button>
     <PortsModal :visible="dialogVisible" :rows="formattedPorts" @close="close" />
   </div>
 </template>
