@@ -41,6 +41,11 @@ export default {
     owner: {
       type:     String,
       default:  ''
+    },
+
+    isEjectCdrow: {
+      type:    Boolean,
+      default: false
     }
   },
 
@@ -107,7 +112,7 @@ export default {
     },
 
     headers() {
-      return [{
+      const out = [{
         name:  'name',
         label: 'Name',
         value: 'name',
@@ -136,6 +141,18 @@ export default {
         label: 'Boot Order',
         value: 'bootOrder',
       }];
+
+      if (this.isEjectCdrow) {
+        out.unshift({
+          name:      '',
+          label:     '',
+          value:     '',
+          width:      30,
+          formatter: 'EjectCdRow',
+        });
+      }
+
+      return out;
     },
 
     typeOption() {

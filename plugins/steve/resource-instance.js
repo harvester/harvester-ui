@@ -699,7 +699,7 @@ export default {
 
   actionLinkFor() {
     return (actionName) => {
-      return (this.actions || {})[actionName].replace(`${ window.location.origin }/`, '');
+      return (this.actions || {})[actionName]?.replace(`${ window.location.origin }/`, '');
     };
   },
 
@@ -722,7 +722,7 @@ export default {
           dangerouslyUseHTMLString: true,
           title:                    'Error',
           message,
-          duration:                 3000
+          duration:                 0
         });
       }
     };

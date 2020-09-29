@@ -39,7 +39,7 @@ export default {
     if (this.status?.migrationState && this.status?.migrationState?.abortStatus === undefined) {
       return {
         type:   'migration',
-        status: 'proceeding'
+        status: 'migrating'
       };
     }
 

@@ -90,7 +90,6 @@ export default {
       this.storageClasss.map( (O) => {
         console.log(O)
         if (O.metadata?.annotations?.[STORAGE_CLASS_LABEL.DEFAULT_CALSS] === "true") {
-          console.log('-----', O.metadata.name)
           defaultValue = O.metadata.name;
         }
       });
