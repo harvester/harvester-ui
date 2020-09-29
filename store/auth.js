@@ -57,11 +57,7 @@ export const actions = {
         return true;
       }
     } catch (err) {
-      if (err._status >= 400 && err._status <= 499) {
-        return Promise.reject(ERR_CLIENT);
-      }
-
-      return Promise.reject(ERR_SERVER);
+      return Promise.reject(err);
     }
   },
 
