@@ -88,7 +88,6 @@ export default {
     defaultStorageClass() {
       let defaultValue = '';
       this.storageClasss.map( (O) => {
-        console.log(O)
         if (O.metadata?.annotations?.[STORAGE_CLASS_LABEL.DEFAULT_CALSS] === "true") {
           defaultValue = O.metadata.name;
         }
@@ -442,7 +441,7 @@ export default {
         });
         
         const userData = this.getCloudInit();
-        console.log('-----')
+
         volumes.push({
           name:             'cloudinitdisk',
           cloudInitNoCloud: {
@@ -477,8 +476,6 @@ export default {
           }
         }
       };
-
-      console.log('---spec', _.cloneDeep(spec))
 
       if (!this.imageName) {
         delete spec.dataVolumeTemplates;
