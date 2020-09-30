@@ -157,6 +157,12 @@ export default {
         <el-radio v-model="loginMethod" label="kubeconfig">
           Kuebeconfig
         </el-radio>
+        <el-tooltip placement="top" effect="dark">
+          <div slot="content">
+            {{ t('loginPage.tips.kubeconfigLimitations') }}
+          </div>
+          <span><i class="el-icon-info"></i></span>
+        </el-tooltip>
       </div>
       <div>
         <el-radio v-model="loginMethod" label="token">
@@ -192,14 +198,6 @@ export default {
         />
       </div>
     </el-card>
-    <el-alert
-      v-if="fileMode"
-      class="login__alert mt-20"
-      :title="t('loginPage.tips.kubeconfigLimitations')"
-      effect="dark"
-      type="info"
-    >
-    </el-alert>
     <Loading v-if="loading" />
   </main>
 </template>
@@ -229,6 +227,7 @@ export default {
 
       .el-radio {
         margin-bottom: 10px;
+        margin-right: 0;
       }
 
       .el-radio__input.is-checked+.el-radio__label {
