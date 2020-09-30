@@ -192,6 +192,14 @@ export default {
         />
       </div>
     </el-card>
+    <el-alert
+      v-if="fileMode"
+      class="login__alert mt-20"
+      :title="t('loginPage.tips.kubeconfigLimitations')"
+      effect="dark"
+      type="info"
+    >
+    </el-alert>
     <Loading v-if="loading" />
   </main>
 </template>

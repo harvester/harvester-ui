@@ -966,3 +966,6 @@ typeLabel:
       one { Endpoint }
       other { Endpoints }
     }
+loginPage:
+  tips:
+    kubeconfigLimitations: Kubeconfig Authentication method does not support external identity providers or basic authentication.
