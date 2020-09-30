@@ -442,12 +442,12 @@ export default {
         });
         
         const userData = this.getCloudInit();
-
+        console.log('-----')
         volumes.push({
           name:             'cloudinitdisk',
           cloudInitNoCloud: {
             userData: userData,
-            networkData: this.networkData
+            networkData: this.networkScript
           }
         });
       }
@@ -477,6 +477,8 @@ export default {
           }
         }
       };
+
+      console.log('---spec', _.cloneDeep(spec))
 
       if (!this.imageName) {
         delete spec.dataVolumeTemplates;
