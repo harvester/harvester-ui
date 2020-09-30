@@ -140,14 +140,6 @@ export default {
 
 <template>
   <main class="login">
-    <el-alert
-      v-if="loggedOut"
-      title="Log in again to continue."
-      type="warning"
-      effect="dark"
-      class="login__alert mb-20"
-    >
-    </el-alert>
     <el-card>
       <div slot="header" class="clearfix">
         <span>Harvester Dashboard</span>
@@ -155,7 +147,7 @@ export default {
       <p>Authentication methods:</p>
       <div class="mt-20">
         <el-radio v-model="loginMethod" label="kubeconfig">
-          Kuebeconfig
+          Kubeconfig
         </el-radio>
         <el-tooltip placement="top" effect="dark">
           <div slot="content">
