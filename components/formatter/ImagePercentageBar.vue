@@ -1,4 +1,6 @@
 <script>
+import cloneDeep from 'lodash/cloneDeep';
+
 export default {
   props:      {
     value: {
@@ -19,6 +21,8 @@ export default {
       return Number.parseFloat(this.value);
     },
     state() {
+      cloneDeep(this.row);
+
       return this.row.stateDisplay;
     },
     errorMessage() {
