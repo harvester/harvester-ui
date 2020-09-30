@@ -200,6 +200,13 @@ export default {
           sshKey.push(ssh);
         });
       }
+
+      const cloudScript = templateSpec?.spec?.vm?.template?.spec?.volumes?.find( (V) => {
+        return V.cloudInitNoCloud !== undefined;
+      })?.cloudInitNoCloud;
+
+      this.$set(this, 'userScript', cloudScript?.userData);
+      this.$set(this, 'networkScript', cloudScript?.networkData);
       this.$set(this, 'sshKey', sshKey);
       this.$refs.ssh.updateSSH(sshKey);
       this.$set(this, 'spec', templateSpec.spec.vm);
@@ -429,7 +436,7 @@ export default {
           </template>
         </LabeledInput>
 
-        <CloudConfig @updateCloudConfig="updateCloudConfig" />
+        <CloudConfig :user-script="userScript" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
       </Collapse>
 
       <div class="spacer"></div>
