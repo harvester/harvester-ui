@@ -1266,6 +1266,7 @@ export default {
             type: fieldType,
           } = rule;
           let pathValue = get(data, path) || null;
+
           const parsedRules = compact((validators || []));
           let displayKey = path;
 
