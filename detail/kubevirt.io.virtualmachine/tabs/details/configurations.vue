@@ -71,7 +71,14 @@ export default {
       return `${ count } ${ unit }`;
     },
     annotationsCount() {
-      const count = Object.keys(this.value?.metadata?.annotations || {}).length || 0;
+      let count = 0;
+
+      Object.keys(this.value?.metadata?.annotations || {}).forEach((key) => {
+        if (key !== 'description') {
+          count++;
+        }
+      });
+
       const unit = count > 1 ? 'Annotations' : 'Annotation';
 
       return `${ count } ${ unit }`;
