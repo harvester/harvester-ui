@@ -25,7 +25,17 @@ export default {
 
   methods: {
     open() {
-      this.annotations = Object.assign({}, this.spec?.metadata?.annotations);
+      const filterd = {};
+      const annotations = this.spec?.metadata?.annotations || {};
+
+      Object.keys(annotations).forEach((key) => {
+        if (key === 'description') {
+          return;
+        }
+        filterd[key] = annotations[key];
+      });
+
+      this.annotations = filterd;
     },
     handleClose() {
       this.$emit('close');
