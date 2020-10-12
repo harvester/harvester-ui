@@ -15,6 +15,12 @@ export default {
       required: true
     },
 
+    accept: {
+      type:     String,
+      required: false,
+      default:  ''
+    },
+
     mode: {
       type:    String,
       default: _EDIT
@@ -100,6 +106,7 @@ export default {
       ref="uploader"
       type="file"
       class="hide"
+      :accept="accept"
       :multiple="multiple"
       @change="fileChange"
     />
