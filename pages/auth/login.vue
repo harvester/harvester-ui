@@ -122,7 +122,7 @@ export default {
         this.$router.replace('/');
         buttonCb(true);
       } catch (err) {
-        this.err = err.data.errors[0];
+        this.err = err.data?.errors?.[0] || 'An error occurred logging in.  Please try again.';
         buttonCb(false);
       }
     },
