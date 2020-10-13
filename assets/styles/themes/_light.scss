@@ -20,13 +20,17 @@ $lighter   : #293a4b;
 //light body bg
 $lightest  : #FFFFFF;
 
-$primary         : #3D98D3;
+// $primary         : #3D98D3;
+$primary         : #1890ff;
 $secondary       : $darker;
 $link            : $primary;
 $disabled        : $dark;
-$success         : #5D995D;
-$warning         : #DAC342;
-$error           : #F64747;
+// $success         : #5D995D;
+$success         : #52c41a;
+// $warning         : #DAC342;
+$warning         : #faad14;
+// $error           : #F64747;
+$error           : #f5222d;
 $info            : #213444;
 
 $contrasted-dark: $darkest !default;

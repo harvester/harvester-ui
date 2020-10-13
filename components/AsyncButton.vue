@@ -145,13 +145,17 @@ export default {
   },
 
   computed: {
-    classes() {
+    optionObjects() {
       const key = `${ this.phase }Color`;
       const color = this[key];
+      const type = color.replace('bg-', '');
 
       const out = {
-        btn:     true,
-        [color]: true,
+        classes: {
+          btn:     true,
+          [color]: true,
+        },
+        type
       };
 
       return out;
@@ -211,10 +215,10 @@ export default {
 </script>
 
 <template>
-  <button
-    :class="classes"
+  <a-button
+    :class="optionObjects.classes"
     :name="name"
-    :type="type"
+    :type="optionObjects.type"
     :disabled="isDisabled"
     :tab-index="tabIndex"
     @click="clicked"
@@ -222,5 +226,5 @@ export default {
     <i v-if="isSpinning" class="icon icon-spinner icon-spin mr-5" />
     <i v-else-if="icon" :class="{icon: true, [icon]: true}" />
     <span v-show="showLabel" v-html="label" />
-  </button>
+  </a-button>
 </template>

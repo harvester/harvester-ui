@@ -1,5 +1,4 @@
 <script>
-import LabeledInput from '@/components/form/LabeledInput';
 import Footer from '@/components/form/Footer';
 import CreateEditView from '@/mixins/create-edit-view';
 import FileSelector, { createOnSelected } from '@/components/form/FileSelector';
@@ -9,7 +8,6 @@ export default {
 
   components: {
     Footer,
-    LabeledInput,
     FileSelector
   },
 
@@ -55,33 +53,28 @@ export default {
 </script>
 
 <template>
-  <el-card class="mt-20 keypair-card">
-    <div class="header mb-20">
-      <FileSelector v-if="isCreate" class="btn btn-sm bg-primary mt-10" label="Read From File" accept=".pub" @selected="onKeySelected" />
-    </div>
-    <LabeledInput
-      v-if="mode !== 'view'"
-      v-model="value.metadata.name"
-      label="Name"
-      class="mb-20"
-      :mode="mode"
-      required
-    />
-    <div class="row">
-      <div class="col span-12">
-        <LabeledInput
-          v-model="publicKey"
-          type="multiline"
-          :mode="mode"
-          :min-height="160"
-          label="SSH-Key"
-          required
-        />
+  <div>
+    <a-card class="mt-20 keypair-card">
+      <div class="header mb-20">
+        <FileSelector v-if="isCreate" class="btn btn-sm bg-primary mt-10" label="Read From File" accept=".pub" @selected="onKeySelected" />
       </div>
-    </div>
-
-    <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
-  </el-card>
+      <a-form layout="vertical">
+        <a-form-item v-if="mode!=='view'" label="Name" required>
+          <a-input
+            v-model="value.metadata.name"
+          />
+        </a-form-item>
+        <a-form-item label="SSH-Key" :required="mode !== 'view'">
+          <a-textarea
+            v-model="publicKey"
+            :auto-size="{ minRows: 5 }"
+            :readonly="mode === 'view'"
+          />
+        </a-form-item>
+      </a-form>
+      <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
+    </a-card>
+  </div>
 </template>
 
 <style lang="scss">

@@ -253,6 +253,7 @@ module.exports = {
     '~/plugins/vue-clipboard2',
     '~/plugins/v-select',
     '~/plugins/element-ui',
+    '@/plugins/ant-design-vue',
     '~/plugins/transitions',
     { src: '~plugins/vue-js-modal' },
     { src: '~/plugins/js-yaml', ssr: false },

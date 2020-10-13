@@ -52,9 +52,9 @@ export default {
     <div class="cancel-create">
       <slot name="left" />
       <slot name="cancel">
-        <button type="button" class="btn role-secondary" @click="done">
+        <a-button @click="done">
           <t k="generic.cancel" />
-        </button>
+        </a-button>
       </slot>
       <slot name="middle" />
       <slot name="save">
