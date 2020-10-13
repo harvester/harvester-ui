@@ -100,7 +100,7 @@ export default {
 </script>
 
 <template>
-  <button type="button" class="file-selector btn" @click="selectFile">
+  <a-button type="primary" class="file-selector btn" @click="selectFile">
     {{ label }}
     <input
       ref="uploader"
@@ -110,5 +110,5 @@ export default {
       :multiple="multiple"
       @change="fileChange"
     />
-  </button>
+  </a-button>
 </template>

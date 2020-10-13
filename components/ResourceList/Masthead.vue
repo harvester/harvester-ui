@@ -2,13 +2,9 @@
 import { mapGetters } from 'vuex';
 import capitalize from 'lodash/capitalize';
 import Favorite from '@/components/nav/Favorite';
-import ButtonDropdown from '@/components/ButtonDropdown';
 
 export default {
-  components: {
-    ButtonDropdown,
-    Favorite,
-  },
+  components: { Favorite },
   props:      {
     resource: {
       type:     String,
@@ -60,64 +56,58 @@ export default {
       {{ typeDisplay }} <Favorite v-if="isExplorer" :resource="resource" />
     </h1>
     <div class="actions">
-      <ButtonDropdown
-        v-if="isCreatable || isYamlCreatable"
-      >
-        <template #button-content="slotProps">
-          <nuxt-link
-            v-if="isCreatable"
-            :to="createLocation"
-            class="btn bg-transparent"
-            :class="slotProps.buttonSize"
-          >
-            {{ t("resourceList.head.create") }}
-          </nuxt-link>
-          <nuxt-link
-            v-else-if="!isCreatable && isYamlCreatable"
-            :to="yamlCreateLocation"
-            class="btn bg-transparent"
-            :class="slotProps.buttonSize"
-          >
-            {{ t("resourceList.head.createFromYaml") }}
-          </nuxt-link>
-          <a
-            v-else
-            href="#"
-            class="btn bg-transparent"
-            :class="slotProps.buttonSize"
-            disabled="true"
-            @click.prevent.self
-          >
-            {{ t("resourceList.head.create") }}
-          </a>
-        </template>
-        <template
-          v-if="isCreatable && isYamlCreatable"
-          slot="popover-content"
+      <a-dropdown-button v-if="isCreatable || isYamlCreatable" :trigger="['click']" type="primary" size="large">
+        <nuxt-link
+          v-if="isCreatable"
+          :to="createLocation"
+          class="btn bg-transparent"
         >
-          <ul class="list-unstyled menu" style="margin: -1px;">
-            <li class="hand">
-              <nuxt-link
-                v-if="isCreatable"
-                :to="createLocation"
-              >
-                {{ t("resourceList.head.createResource", { resourceName }) }}
-              </nuxt-link>
-            </li>
-            <li class="divider">
-              <div class="divider-inner"></div>
-            </li>
-            <li class="hand">
-              <nuxt-link
-                v-if="isYamlCreatable"
-                :to="yamlCreateLocation"
-              >
-                {{ t("resourceList.head.createFromYaml") }}
-              </nuxt-link>
-            </li>
-          </ul>
-        </template>
-      </ButtonDropdown>
+          {{ t("resourceList.head.create") }}
+        </nuxt-link>
+        <nuxt-link
+          v-else-if="!isCreatable && isYamlCreatable"
+          :to="yamlCreateLocation"
+          class="btn bg-transparent"
+        >
+          {{ t("resourceList.head.createFromYaml") }}
+        </nuxt-link>
+        <a
+          v-else
+          href="#"
+          class="btn bg-transparent"
+          disabled="true"
+          @click.prevent.self
+        >
+          {{ t("resourceList.head.create") }}
+        </a>
+        <a-menu slot="overlay">
+          <a-menu-item>
+            <nuxt-link
+              v-if="isCreatable"
+              :to="createLocation"
+            >
+              {{ t("resourceList.head.createResource", { resourceName }) }}
+            </nuxt-link>
+          </a-menu-item>
+          <a-menu-divider />
+          <a-menu-item>
+            <nuxt-link
+              v-if="isYamlCreatable"
+              :to="yamlCreateLocation"
+            >
+              {{ t("resourceList.head.createFromYaml") }}
+            </nuxt-link>
+          </a-menu-item>
+        </a-menu>
+        <a-icon slot="icon" type="down" />
+      </a-dropdown-button>
     </div>
   </header>
 </template>
+
+<style lang="scss" scoped>
+  button a {
+    padding:0 28px;
+    vertical-align: baseline;
+  }
+</style>

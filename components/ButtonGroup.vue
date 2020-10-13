@@ -45,8 +45,10 @@ export default {
         out.class = {
           btn:                  true,
           [this.inactiveClass]: !active,
-          [this.activeClass]:   active,
+          [this.activeClass]:   active
         };
+
+        out.type = active ? this.activeClass.replace('bg-', '') : this.inactiveClass.replace('bg-', '');
 
         return out;
       });
@@ -62,12 +64,12 @@ export default {
 </script>
 
 <template>
-  <div v-trim-whitespace class="btn-group">
-    <button
+  <a-button-group>
+    <a-button
       v-for="(opt,idx) in optionObjects"
       :key="idx"
-      type="button"
       :class="opt.class"
+      :type="opt.type"
       class="btn-sm"
       @click="change(opt.value)"
     >
@@ -76,6 +78,6 @@ export default {
         <t v-if="opt.label && labelsAreTranslations" :k="opt.label" />
         <span v-else-if="opt.label">{{ opt.label }}</span>
       </slot>
-    </button>
-  </div>
+    </a-button>
+  </a-button-group>
 </template>

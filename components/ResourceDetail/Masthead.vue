@@ -171,12 +171,14 @@ export default {
     </div>
     <slot name="right">
       <div v-if="mode==='view'" class="actions">
-        <div v-if="hasDetailOrEdit">
-          <ButtonGroup :labels-are-translations="true" :value="asYaml" :options="[{label: 'resourceDetail.masthead.overview', value: false},{label:'resourceDetail.masthead.yaml', value: true }]" @input="toggleYaml" />
-        </div>
-        <button ref="actions" aria-haspopup="true" type="button" class="btn btn-sm role-multi-action actions" @click="showActions">
-          <i class="icon icon-actions" />
-        </button>
+        <a-space>
+          <div v-if="hasDetailOrEdit">
+            <ButtonGroup :labels-are-translations="true" :value="asYaml" :options="[{label: 'resourceDetail.masthead.overview', value: false},{label:'resourceDetail.masthead.yaml', value: true }]" @input="toggleYaml" />
+          </div>
+          <button ref="actions" aria-haspopup="true" type="button" class="btn btn-sm role-multi-action actions" @click="showActions">
+            <i class="icon icon-actions" />
+          </button>
+        </a-space>
       </div>
     </slot>
     <!-- <div v-if="banner" class="state-banner">
@@ -222,6 +224,9 @@ export default {
       align-items:center;
       & .btn-group {
         margin-right: 5px;
+      }
+      .action-button {
+        padding:0 5px;
       }
     }
 
