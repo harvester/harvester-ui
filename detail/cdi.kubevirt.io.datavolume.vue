@@ -68,7 +68,7 @@ export default {
 
 <template>
   <div>
-    <el-card class="box-card mt-20">
+    <a-card class="mt-15">
       <div class="row mb-15">
         <div class="col span-4">
           <div class="labeled-input view">
@@ -138,7 +138,7 @@ export default {
           </div>
         </div>
       </div>
-    </el-card>
+    </a-card>
   </div>
 </template>
 

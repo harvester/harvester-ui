@@ -1,19 +1,10 @@
 <script>
-import LabeledSelect from '@/components/form/LabeledSelect';
-import LabeledInput from '@/components/form/LabeledInput';
-import Collapse from '@/components/Collapse';
-import MemoryUnit from '@/components/form/MemoryUnit';
 import { sortBy } from '@/utils/sort';
 import { STORAGE_CLASS, PVC, IMAGE } from '@/config/types';
-import { InterfaceOption } from '@/config/map';
+import { InterfaceOption, MemoryUnit as MemoryUnitOption } from '@/config/map';
 
 export default {
-  components: {
-    LabeledSelect,
-    Collapse,
-    MemoryUnit,
-    LabeledInput
-  },
+  components: {},
 
   props: {
     value: {
@@ -52,6 +43,7 @@ export default {
       volumeMode,
       storageClassName,
       isShowAdvanced: false,
+      MemoryUnitOption
     };
   },
 
@@ -160,6 +152,33 @@ export default {
         return I.id === this.image;
       })
       ?.status?.downloadUrl;
+    },
+
+    size: {
+      get() {
+        const arr = this.storage.split(/(?=[A-Z])+/);
+
+        if (arr.length === 2) {
+          return arr[0];
+        } else {
+          return '';
+        }
+      },
+      set(neu) {
+        this.storage = `${ neu }${ this.unit }`;
+      }
+    },
+
+    unit: {
+      get() {
+        const arr = this.storage.split(/(?=[A-Z])+/);
+
+        return arr[1] || arr[0] || 'Gi';
+      },
+
+      set(neu) {
+        this.storage = `${ this.size }${ neu }`;
+      }
     }
   },
 
@@ -195,53 +214,78 @@ export default {
 
 <template>
   <div @input="update">
-    <LabeledSelect
-      v-model="source"
-      label="Source"
-      :options="sourceOption"
-      required
-      :mode="mode"
-      class="mb-20"
-      @input="update"
-    />
+    <a-form layout="vertical">
+      <a-form-item label="Source" required>
+        <a-select
+          v-model="source"
+          :options="sourceOption"
+          show-search
+          @change="update"
+        />
+      </a-form-item>
 
-    <LabeledInput
-      v-if="isContainer"
-      v-model="container"
-      label="Container Image"
-      class="mb-20"
-      :mode="mode"
-      required
-    />
+      <a-form-item v-if="isContainer" label="Container Image" required>
+        <a-input
+          v-model="container"
+        />
+      </a-form-item>
 
-    <LabeledSelect
-      v-if="isVmImage"
-      v-model="image"
-      label="Select an Image"
-      :options="ImageOption"
-      required
-      :mode="mode"
-      class="mb-20"
-      @input="update"
-    />
+      <a-form-item v-if="isVmImage" label="Select an Image" required>
+        <a-select
+          v-model="image"
+          :options="ImageOption"
+          show-search
+          @change="update"
+        />
+      </a-form-item>
 
-    <MemoryUnit v-model="storage" value-name="Size" class="mb-20" />
+      <a-row :gutter="16">
+        <a-col :span="18">
+          <a-form-item label="Size" required>
+            <a-input
+              v-model="size"
+            />
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item label="Unit" required>
+            <a-select
+              v-model="unit"
+              :options="MemoryUnitOption"
+              show-search
+            />
+          </a-form-item>
+        </a-col>
+      </a-row>
 
-    <LabeledSelect
-      v-if="!isContainer"
-      v-model="storageClassName"
-      label="Storage Class"
-      :options="storageOption"
-      :mode="mode"
-      required
-      class="mb-20"
-      @input="update"
-    />
+      <a-form-item label="Storage Class" required>
+        <a-select
+          v-model="storageClassName"
+          :options="storageOption"
+          show-search
+          @change="update"
+        />
+      </a-form-item>
 
-    <Collapse :open.sync="isShowAdvanced">
-      <LabeledSelect v-model="volumeMode" label="Volume Mode" :mode="mode" :options="volumeModeOption" class="mb-20" />
+      <a-collapse>
+        <a-collapse-panel key="1" header="Advanced Configuration">
+          <a-form-item label="Volume Mode">
+            <a-select
+              v-model="volumeMode"
+              :options="volumeModeOption"
+              show-search
+            />
+          </a-form-item>
 
-      <LabeledSelect v-model="accessMode" label="Access Model" :mode="mode" :options="accessModeOption" />
-    </Collapse>
+          <a-form-item label="Access Model">
+            <a-select
+              v-model="accessMode"
+              :options="accessModeOption"
+              show-search
+            />
+          </a-form-item>
+        </a-collapse-panel>
+      </a-collapse>
+    </a-form>
   </div>
 </template>
