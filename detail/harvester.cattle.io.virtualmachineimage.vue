@@ -38,7 +38,7 @@ export default {
 
 <template>
   <div class="mt-20">
-    <el-card class="box-card">
+    <a-card>
       <div class="row">
         <div class="col span-12">
           <div>Url</div>
@@ -68,7 +68,7 @@ export default {
           </div>
         </div>
       </div>
-    </el-card>
+    </a-card>
   </div>
 </template>
 
