@@ -1,10 +1,12 @@
 <script>
-import NameNsDescription from '@/components/form/NameNsDescription';
 import Footer from '@/components/form/Footer';
 import ResourceTabs from '@/components/form/ResourceTabs';
 import CreateEditView from '@/mixins/create-edit-view';
+import { DESCRIPTION } from '@/config/labels-annotations';
 import { allHash } from '@/utils/promise';
-import { STORAGE_CLASS, IMAGE } from '@/config/types';
+import { sortBy } from '@/utils/sort';
+import { get, set } from '@/utils/object';
+import { STORAGE_CLASS, IMAGE, NAMESPACE } from '@/config/types';
 import VolumeSource from './VolumeSource';
 
 export default {
@@ -14,7 +16,6 @@ export default {
     Footer,
     VolumeSource,
     ResourceTabs,
-    NameNsDescription
   },
 
   mixins: [CreateEditView],
@@ -35,6 +36,18 @@ export default {
 
   data() {
     let spec = this.value.spec;
+    const v = this.value;
+    const metadata = v.metadata;
+    let namespace;
+
+    namespace = metadata?.namespace;
+
+    if ( !namespace ) {
+      namespace = this.$store.getters['defaultNamespace'];
+      if ( metadata ) {
+        metadata.namespace = namespace;
+      }
+    }
 
     if (!spec) {
       spec = { pvc: { resources: { requests: { storage: '' } } } };
@@ -43,15 +56,44 @@ export default {
 
     return {
       spec,
+      namespace,
       randow: Math.random(),
       index:  0,
       errors: []
     };
   },
 
+  computed: {
+    namespaces() {
+      const choices = this.$store.getters['cluster/all'](NAMESPACE);
+
+      const out = sortBy(choices.map((obj) => {
+        return {
+          label: obj.nameDisplay,
+          value: obj.id,
+        };
+      }), 'label');
+
+      if ( this.forceNamespace ) {
+        out.unshift({
+          label: this.forceNamespace,
+          value: this.forceNamespace
+        });
+      }
+
+      return out;
+    },
+    description() {
+      return this.value.metadata?.annotations?.[DESCRIPTION];
+    }
+  },
+
   watch: {
     spec(neu) {
       Object.assign(this.value.spec, neu);
+    },
+    description(val) {
+      this.value.setAnnotation(DESCRIPTION, val);
     }
   },
 
@@ -93,14 +135,31 @@ export default {
 </script>
 
 <template>
-  <el-card class="box-card mb-20">
+  <a-card>
     <div>
-      <NameNsDescription
-        v-if="isCreate"
-        :value="value"
-        :mode="mode"
-        name-label="Name"
-      />
+      <a-form layout="vertical">
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <a-form-item label="Namespace">
+              <a-select
+                v-model="value.metadata.namespace"
+                :options="namespaces"
+                show-search
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item label="Name" required>
+              <a-input v-model="value.metadata.name" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item label="Description">
+              <a-input v-model="description" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
 
       <VolumeSource ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnnotation" />
 
@@ -108,5 +167,5 @@ export default {
 
       <Footer :mode="mode" :errors="errors" @save="beforeSave" @done="done" />
     </div>
-  </el-card>
+  </a-card>
 </template>
