@@ -182,6 +182,14 @@ export default {
     }
   },
 
+  watch: {
+    size(neu) {
+      if (neu === 'null') {
+        this.size = 1;
+      }
+    }
+  },
+
   methods: {
     update() {
       const source = this.isBlank ? { blank: {} } : this.container ? { registry: { url: this.container } } : { http: { url: this.imgUrl } };
@@ -242,8 +250,12 @@ export default {
       <a-row :gutter="16">
         <a-col :span="18">
           <a-form-item label="Size" required>
-            <a-input
+            <a-input-number
               v-model="size"
+              :min="1"
+              :max="999999"
+              :step="1"
+              style="width: 100%;"
             />
           </a-form-item>
         </a-col>
