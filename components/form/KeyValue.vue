@@ -6,8 +6,6 @@ import { removeAt } from '@/utils/array';
 import { asciiLike, escapeHtml } from '@/utils/string';
 import { base64Encode, base64Decode } from '@/utils/crypto';
 import { downloadFile } from '@/utils/download';
-import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
-import SortableTable from '@/components/SortableTable';
 import ClickExpand from '@/components/formatter/ClickExpand';
 import { get } from '@/utils/object';
 import CodeMirror from '@/components/CodeMirror';
@@ -24,8 +22,6 @@ const LARGE_LIMIT = 2 * 1024;
 
 export default {
   components: {
-    SortableTable,
-    TextAreaAutoGrow,
     ClickExpand,
     CodeMirror
   },
@@ -274,7 +270,9 @@ export default {
       });
       this.queueUpdate();
       this.$nextTick(() => {
-        this.$refs.key.focus();
+        const keys = this.$refs.key;
+
+        keys[keys.length - 1].focus();
       });
     },
 
@@ -409,109 +407,82 @@ export default {
       </div>
     </template>
 
-    <SortableTable
-      :headers="headers"
-      :rows="rows"
-      :search="false"
-      :table-actions="false"
-      :row-actions="false"
-      :show-no-rows="isView"
-      key-field="id"
-    >
-      <template #col:key="{row}">
-        <td class="key">
-          <slot
-            name="key"
-            :row="row"
-            :mode="mode"
-            :keyName="keyName"
-            :valueName="valueName"
-            :isView="isView"
-          >
-            <div v-if="isView" class="view force-wrap">
-              {{ row[keyName] }}
-            </div>
-            <input
-              v-else
-              ref="key"
-              v-model="row[keyName]"
-              :placeholder="keyPlaceholder"
-              @input="queueUpdate"
-            />
-          </slot>
-        </td>
-      </template>
-      <template #col:value="{row}">
-        <td class="value">
-          <slot
-            name="value"
-            :row="row"
-            :mode="mode"
-            :keyName="keyName"
-            :valueName="valueName"
-            :isView="isView"
-            :queueUpdate="queueUpdate"
-          >
-            <div v-if="isView" class="view force-wrap">
-              <span v-if="valueBinary || get(row, '_display.binary')">
-                {{ row[valueName].length }} byte<span v-if="row[valueName].length !== 1">s</span>
-              </span>
-              <template v-else-if="get(row, '_display.parsed')">
-                <CodeMirror
-                  :options="{mode:{name:'javascript', json:true}, lineNumbers:false, foldGutter:false, readOnly:true}"
-                  :value="row[valueName]"
-                />
-              </template>
-              <ClickExpand v-else-if="get(row, '_display.isLarge')" :value="row[valueName]" :size="get(row, '_display.byteSize')" />
-              <span v-else-if="get(row, '_display.withBreaks')" v-html="get(row, '_display.withBreaks')" />
-              <span v-else class="text-muted">&mdash;</span>
-            </div>
-            <TextAreaAutoGrow
-              v-else-if="valueMultiline"
-              v-model="row[valueName]"
-              :placeholder="valuePlaceholder"
-              :min-height="50"
-              :spellcheck="false"
-              @input="queueUpdate"
-            />
-            <input
-              v-else
-              v-model="row[valueName]"
-              :placeholder="valuePlaceholder"
-              autocorrect="off"
-              autocapitalize="off"
-              spellcheck="false"
-              @input="queueUpdate"
-            />
-          </slot>
-        </td>
-      </template>
-      <template v-if="valueBinary" #col:download="{row}">
-        <td class="download" :data-title="valueLabel">
-          <a href="#" @click="download(row)">Download</a>
-        </td>
-      </template>
-      <template #col:remove="{row}">
-        <td class="remove">
-          <slot name="removeButton" :remove="remove" :row="row">
-            <button type="button" class="btn bg-transparent role-link" @click="remove(row)">
-              {{ removeLabel }}
-            </button>
-          </slot>
-        </td>
-      </template>
-    </SortableTable>
+    <a-row :gutter="16" type="flex" align="middle">
+      <a-col flex="1">
+        Key
+      </a-col>
+      <a-col flex="1">
+        Value
+      </a-col>
+      <a-col v-if="valueBinary" flex="100px"></a-col>
+      <a-col flex="100px"></a-col>
+    </a-row>
 
-    <div v-if="showAdd || showRead" class="footer mt-10">
+    <a-row
+      v-for="(row, index) in rows"
+      :key="index"
+      :gutter="16"
+      type="flex"
+      class="mt-15"
+      align="middle"
+    >
+      <a-col flex="1">
+        <a-input
+          ref="key"
+          v-model="row[keyName]"
+          :placeholder="keyPlaceholder"
+          :readonly="isView"
+          @input="queueUpdate"
+        />
+      </a-col>
+      <a-col flex="1">
+        <div v-if="isView" class="view force-wrap">
+          <span v-if="valueBinary || get(row, '_display.binary')">
+            {{ row[valueName].length }} byte<span v-if="row[valueName].length !== 1">s</span>
+          </span>
+          <template v-else-if="get(row, '_display.parsed')">
+            <CodeMirror
+              :options="{mode:{name:'javascript', json:true}, lineNumbers:false, foldGutter:false, readOnly:true}"
+              :value="row[valueName]"
+            />
+          </template>
+          <ClickExpand v-else-if="get(row, '_display.isLarge')" :value="row[valueName]" :size="get(row, '_display.byteSize')" />
+          <span v-else-if="get(row, '_display.withBreaks')" v-html="get(row, '_display.withBreaks')" />
+          <span v-else class="text-muted">&mdash;</span>
+        </div>
+        <a-input
+          v-else
+          v-model="row[valueName]"
+          :placeholder="valuePlaceholder"
+          :readonly="isView"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          @input="queueUpdate"
+        />
+      </a-col>
+      <a-col v-if="valueBinary" flex="100px">
+        <a-button @click="download(row)">
+          Download
+        </a-button>
+      </a-col>
+      <a-col flex="100px">
+        <a-button @click="remove(row)">
+          {{ removeLabel }}
+        </a-button>
+      </a-col>
+    </a-row>
+
+    <div v-if="showAdd || showRead" class="mt-15">
       <slot v-if="showAdd" name="add">
-        <button type="button" class="btn role-tertiary add" @click="add()">
+        <a-button type="primary" @click="add()">
           {{ addLabel }}
-        </button>
+        </a-button>
         <slot name="moreAdd" :rows="rows" />
       </slot>
-      <button v-if="showRead" type="button" class="btn role-tertiary read-from-file" @click="readFromFile">
+      <a-button v-if="showRead" type="primary" @click="readFromFile">
         {{ readLabel }}
-      </button>
+      </a-button>
     </div>
 
     <input

@@ -4,17 +4,11 @@
     Labels and Annotation tabs with content filtered by create-edit-view mixin
     Slots for more tabs, 'before' and 'after' labels and annotations
 */
-import Tabbed from '@/components/Tabbed';
-import Tab from '@/components/Tabbed/Tab';
 import CreateEditView from '@/mixins/create-edit-view';
 import KeyValue from '@/components/form/KeyValue';
 
 export default {
-  components: {
-    Tabbed,
-    Tab,
-    KeyValue
-  },
+  components: { KeyValue },
 
   mixins: [CreateEditView],
 
@@ -41,14 +35,9 @@ export default {
 </script>
 
 <template>
-  <Tabbed v-if="!isView || hasCustomTabs" v-bind="$attrs">
+  <a-tabs v-if="!isView || hasCustomTabs" v-bind="$attrs" type="card">
     <slot name="before" />
-    <Tab
-      v-if="!isView"
-      name="labels"
-      :weight="4"
-      :label="t('resourceTabs.tabs.labels')"
-    >
+    <a-tab-pane v-if="!isView" key="labels" :tab="t('resourceTabs.tabs.labels')">
       <KeyValue
         key="labels"
         v-model="value.metadata.labels"
@@ -58,13 +47,8 @@ export default {
         :read-allowed="false"
         :protip="false"
       />
-    </Tab>
-    <Tab
-      v-if="!isView"
-      name="annotations"
-      :weight="5"
-      :label="t('resourceTabs.tabs.annotations')"
-    >
+    </a-tab-pane>
+    <a-tab-pane v-if="!isView" key="annotations" :tab="t('resourceTabs.tabs.annotations')">
       <KeyValue
         key="annotations"
         v-model="value.metadata.annotations"
@@ -74,6 +58,6 @@ export default {
         :read-allowed="false"
         :protip="false"
       />
-    </Tab>
-  </Tabbed>
+    </a-tab-pane>
+  </a-tabs>
 </template>
