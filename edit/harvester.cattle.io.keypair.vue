@@ -68,7 +68,7 @@ export default {
           <a-textarea
             v-model="publicKey"
             :auto-size="{ minRows: 5 }"
-            :readonly="mode === 'view'"
+            :read-only="mode === 'view'"
           />
         </a-form-item>
       </a-form>
