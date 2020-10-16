@@ -57,9 +57,10 @@ export default {
     return {
       spec,
       namespace,
-      randow: Math.random(),
-      index:  0,
-      errors: []
+      description: this.value.metadata?.annotations?.[DESCRIPTION],
+      randow:      Math.random(),
+      index:       0,
+      errors:      []
     };
   },
 
@@ -83,9 +84,6 @@ export default {
 
       return out;
     },
-    description() {
-      return this.value.metadata?.annotations?.[DESCRIPTION];
-    }
   },
 
   watch: {
