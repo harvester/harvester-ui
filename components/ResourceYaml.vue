@@ -301,23 +301,20 @@ export default {
       @done="done"
     >
       <template v-if="!isView" #middle>
-        <button
+        <a-button
           v-if="showPreview"
-          type="button"
-          class="btn role-secondary"
           @click="unpreview"
         >
-          <t k="resourceYaml.buttons.continue" />
-        </button>
-        <button
-          v-else-if="offerPreview"
+          {{ t("resourceYaml.buttons.continue") }}
+        </a-button>
+        <a-button
+          v-if="offerPreview"
+          type="primary"
           :disabled="yaml === currentYaml"
-          type="button"
-          class="btn role-secondary"
           @click="preview"
         >
-          <t k="resourceYaml.buttons.diff" />
-        </button>
+          {{ t("resourceYaml.buttons.diff") }}
+        </a-button>
       </template>
     </Footer>
   </div>
