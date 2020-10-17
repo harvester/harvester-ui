@@ -1,8 +1,6 @@
 <script>
 import { EVENT, VMI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
-import ResourceTabs from '@/components/form/ResourceTabs';
-import Tab from '@/components/Tabbed/Tab';
 import Details from './tabs/details/';
 import Events from './tabs/events/';
 import Migration from './tabs/migration';
@@ -13,8 +11,6 @@ export default {
   components: {
     Events,
     Details,
-    ResourceTabs,
-    Tab,
     Migration,
   },
 
@@ -64,18 +60,16 @@ export default {
 
 <template>
   <div>
-    <ResourceTabs v-model="value" :mode="mode">
-      <template #before>
-        <Tab name="details" :label="t('vm.detail.tabs.details')" :weight="1">
-          <Details v-model="value" :resource="vmi" :events="events" mode="edit" />
-        </Tab>
-        <Tab name="events" :label="t('vm.detail.tabs.events')" :weight="4">
-          <Events :resource="vmi" :events="events" />
-        </Tab>
-        <Tab name="Migration" :label="t('vm.detail.tabs.migration')" :weight="5">
-          <Migration v-model="value" :vmi-resource="vmi" />
-        </Tab>
-      </template>
-    </ResourceTabs>
+    <a-tabs type="card" class="mt-15">
+      <a-tab-pane key="details" :tab="t('vm.detail.tabs.details')">
+        <Details v-model="value" :resource="vmi" :events="events" mode="edit" />
+      </a-tab-pane>
+      <a-tab-pane key="events" :tab="t('vm.detail.tabs.events')">
+        <Events :resource="vmi" :events="events" />
+      </a-tab-pane>
+      <a-tab-pane key="Migration" :tab="t('vm.detail.tabs.migration')">
+        <Migration v-model="value" :vmi-resource="vmi" />
+      </a-tab-pane>
+    </a-tabs>
   </div>
 </template>
