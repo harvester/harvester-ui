@@ -11,6 +11,8 @@ import {
 } from '@/config/types';
 import { STORAGE_CLASS_LABEL } from '@/config/labels-annotations';
 
+const TEMPORARY_VALUE = '$occupancy_url';
+
 export default {
   inheritAttrs: false,
 
@@ -195,7 +197,7 @@ export default {
               container,
               accessMode,
               size,
-              volumeMode,
+              volumeMode: volumeMode || 'Filesystem',
               image,
               type,
               disableDelete: index === 0 ? true : false,
@@ -477,8 +479,13 @@ export default {
         }
       };
 
-      if (!this.imageName) {
-        delete spec.dataVolumeTemplates;
+      // if (!this.imageName) {
+      //   delete spec.dataVolumeTemplates;
+      // }
+      if (this.pageType !== 'vm') {
+        if (!this.imageName) {
+          spec.dataVolumeTemplates[0].spec.source.http.url = TEMPORARY_VALUE
+        }
       }
 
       if (volumes.length === 0) {
