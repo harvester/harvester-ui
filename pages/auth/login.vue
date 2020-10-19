@@ -11,20 +11,40 @@ export default {
   layout:     'unauthenticated',
   components: { AsyncButton, Loading },
 
+  async asyncData(ctx) {
+    const data = await ctx.store.dispatch('auth/getAuthModes');
+
+    return { authModes: data.modes };
+  },
+
   data({ $cookies }) {
     return {
-      loginMethod: 'kubeconfig',
+      loginMethod: '',
       file:        {},
       toUpload:    null,
       token:       '',
       err:         '',
-      loading:     false
+      loading:     false,
+      form:        {
+        username: '',
+        password: ''
+      },
+      rules:       {
+        username: [{ required: true, message: this.$store.getters['i18n/t']('validation.required', { key: 'Username' }) }],
+        password: [{ required: true, message: this.$store.getters['i18n/t']('validation.required', { key: 'Password' }) }]
+      }
     };
   },
 
   computed: {
     fileMode() {
       return this.loginMethod === 'kubeconfig';
+    },
+    tokenMode() {
+      return this.loginMethod === 'token';
+    },
+    localMode() {
+      return this.loginMethod === 'local';
     },
     fileName() {
       return this.file?.name;
@@ -34,10 +54,36 @@ export default {
     },
     loggedOut() {
       return this.$route.query[LOGGED_OUT] === _FLAGGED;
-    }
+    },
+    allowKubeCredentials() {
+      return (this.authModes || []).includes('kubernetesCredentials');
+    },
+    allowLocalUser() {
+      return (this.authModes || []).includes('localUser');
+    },
+    onlyLocalUser() {
+      const modes = (this.authModes || []);
+
+      return modes.length === 1 && modes.includes('localUser');
+    },
   },
 
   watch: {
+    authModes: {
+      handler(neu) {
+        let method = '';
+
+        if (neu.includes('kubernetesCredentials')) {
+          method = 'kubeconfig';
+        } else if (neu.includes('localUser')) {
+          method = 'local';
+        }
+
+        this.loginMethod = method;
+      },
+      deep:      true,
+      immediate: true
+    },
     err(neu) {
       if (neu) {
         this.$message.error(neu);
@@ -99,7 +145,7 @@ export default {
       reader.readAsText(this.file);
     },
 
-    async login(buttonCb) {
+    login(buttonCb) {
       const data = {};
 
       if (this.fileMode) {
@@ -108,15 +154,39 @@ export default {
 
           return buttonCb(false);
         }
+
         data.kubeconfig = this.toUpload;
-      } else {
+      } else if (this.tokenMode) {
         if (!this.token || this.token === '') {
           this.err = this.getInvalidMsg('Token');
 
           return buttonCb(false);
         }
+
         data.token = this.token;
       }
+
+      if (this.localMode) {
+        if (!this.form.username || this.form.username === '') {
+          this.err = this.getInvalidMsg('Username');
+
+          return buttonCb(false);
+        }
+
+        if (!this.form.password || this.form.password === '') {
+          this.err = this.getInvalidMsg('Password');
+
+          return buttonCb(false);
+        }
+
+        data.username = this.form.username;
+        data.password = this.form.password;
+      }
+
+      this.realLogin(buttonCb, data);
+    },
+
+    async realLogin(buttonCb, data) {
       try {
         await this.$store.dispatch('auth/login', { data });
         this.$router.replace('/');
@@ -146,24 +216,33 @@ export default {
       <div slot="header" class="clearfix">
         <span>Harvester Dashboard</span>
       </div>
-      <p>Authentication methods:</p>
-      <div class="mt-20">
-        <el-radio v-model="loginMethod" label="kubeconfig">
-          Kubeconfig
-        </el-radio>
-        <el-tooltip placement="top" effect="dark">
-          <div slot="content">
-            {{ t('loginPage.tips.kubeconfigLimitations') }}
+      <div v-if="!onlyLocalUser">
+        <p>Authentication methods:</p>
+        <div v-if="allowKubeCredentials" class="mt-20">
+          <div>
+            <el-radio v-model="loginMethod" label="kubeconfig">
+              Kubeconfig
+            </el-radio>
+            <el-tooltip placement="top" effect="dark">
+              <div slot="content">
+                {{ t('loginPage.tips.kubeconfigLimitations') }}
+              </div>
+              <span><i class="el-icon-info"></i></span>
+            </el-tooltip>
           </div>
-          <span><i class="el-icon-info"></i></span>
-        </el-tooltip>
+          <div>
+            <el-radio v-model="loginMethod" label="token">
+              Token
+            </el-radio>
+          </div>
+        </div>
+        <div v-if="allowLocalUser">
+          <el-radio v-model="loginMethod" label="local">
+            Local User
+          </el-radio>
+        </div>
       </div>
-      <div>
-        <el-radio v-model="loginMethod" label="token">
-          Token
-        </el-radio>
-      </div>
-      <div class="mt-20">
+      <div v-if="allowKubeCredentials && !localMode" class="mt-20">
         <div v-if="fileMode" class="file">
           <div class="file__url" @click="mockBtnClicked">
             {{ fileName }}
@@ -177,8 +256,18 @@ export default {
           </el-button>
         </div>
         <div v-else>
-          <el-input v-model="token" show-password></el-input>
+          <a-input-password v-model="token" />
         </div>
+      </div>
+      <div v-if="allowLocalUser && localMode">
+        <a-form>
+          <a-form-item label="Username" required>
+            <a-input v-model="form.username" />
+          </a-form-item>
+          <a-form-item label="Password" required>
+            <a-input-password v-model="form.password" />
+          </a-form-item>
+        </a-form>
       </div>
       <div class="mt-20">
         <AsyncButton
@@ -277,7 +366,6 @@ export default {
 
     &__go {
       width: 100%;
-      padding: 8px 0;
       justify-content: center;
     }
 
@@ -287,6 +375,10 @@ export default {
       background-size: cover;
       background-position: center center;
       height: 100vh;
+    }
+
+    LABEL {
+      margin: 0;
     }
   }
 </style>
