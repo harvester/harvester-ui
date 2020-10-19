@@ -43,6 +43,21 @@ export const mutations = {
 };
 
 export const actions = {
+  async getAuthModes() {
+    try {
+      const res = await this.$axios({
+        method: 'get',
+        url:    addPrefix('/v1-public/auth-modes')
+      });
+
+      if (res.data) {
+        return Promise.resolve(res.data);
+      }
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
   async login({ commit }, { data }) {
     try {
       const res = await this.$axios({
