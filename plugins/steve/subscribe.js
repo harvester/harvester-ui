@@ -162,15 +162,13 @@ export const actions = {
 
     this.$socket = socket;
 
-    if ( !state.queue ) {
-      state.queue = [];
+    state.queue = [];
 
-      state.queueTimer = setInterval(() => {
-        if ( state.queue.length ) {
-          dispatch('flush');
-        }
-      }, 1000);
-    }
+    state.queueTimer = setInterval(() => {
+      if ( state.queue.length ) {
+        dispatch('flush');
+      }
+    }, 1000);
 
     if ( socket.hasReconnected ) {
       await dispatch('reconnectWatches');
