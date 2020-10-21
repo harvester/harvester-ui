@@ -9,7 +9,7 @@ import { sortBy } from '@/utils/sort';
 import { filterBy, findBy } from '@/utils/array';
 import { BOTH, CLUSTER_LEVEL, NAMESPACED } from '@/store/type-map';
 import { NAME as EXPLORER } from '@/config/product/explorer';
-
+import { fakeCurrentCluster, fakeCurrentClusterLocal } from './fakeData';
 // Disables strict mode for all store instances to prevent warning about changing state outside of mutations
 // becaues it's more efficient to do that sometimes.
 export const strict = false;
@@ -58,23 +58,34 @@ export const getters = {
   },
 
   currentCluster(state, getters) {
-    return getters['management/byId'](MANAGEMENT.CLUSTER, state.clusterId);
+    // return getters['management/byId'](MANAGEMENT.CLUSTER, state.clusterId);
+    return fakeCurrentCluster; // fake data
   },
 
   currentProduct(state, getters) {
-    const active = getters['type-map/activeProducts'];
+    // const active = getters['type-map/activeProducts'];
 
-    let out = findBy(active, 'name', state.productId);
+    // let out = findBy(active, 'name', state.productId);
 
-    if ( !out ) {
-      out = findBy(active, 'name', EXPLORER);
-    }
+    // if ( !out ) {
+    //   out = findBy(active, 'name', EXPLORER);
+    // }
 
-    if ( !out ) {
-      out = active[0];
-    }
+    // if ( !out ) {
+    //   out = active[0];
+    // }
 
-    return out;
+    // return out;
+    return {
+      filterMode:          'namespaces',
+      icon:                'compass',
+      inStore:             'cluster',
+      name:                'explorer',
+      removable:           false,
+      showClusterSwitcher: true,
+      showNamespaceFilter: true,
+      weight:              3
+    };
   },
 
   isExplorer(state, getters) {
@@ -82,17 +93,18 @@ export const getters = {
   },
 
   defaultClusterId(state, getters) {
-    const all = getters['management/all'](MANAGEMENT.CLUSTER);
-    const clusters = sortBy(filterBy(all, 'isReady'), 'nameDisplay');
-    const desired = getters['prefs/get'](CLUSTER_PREF);
+    // const all = getters['management/all'](MANAGEMENT.CLUSTER);
+    // const clusters = sortBy(filterBy(all, 'isReady'), 'nameDisplay');
+    // const desired = getters['prefs/get'](CLUSTER_PREF);
 
-    if ( clusters.find(x => x.id === desired) ) {
-      return desired;
-    } else if ( clusters.length ) {
-      return clusters[0].id;
-    }
+    // if ( clusters.find(x => x.id === desired) ) {
+    //   return desired;
+    // } else if ( clusters.length ) {
+    //   return clusters[0].id;
+    // }
 
-    return null;
+    // return null;
+    return 'local';
   },
 
   isAllNamespaces(state, getters) {
@@ -369,7 +381,7 @@ export const actions = {
     console.log('Loading management...'); // eslint-disable-line no-console
 
     try {
-      await dispatch('rancher/findAll', { type: NORMAN.PRINCIPAL, opt: { url: 'principals' } });
+      // await dispatch('rancher/findAll', { type: NORMAN.PRINCIPAL, opt: { url: 'principals' } });
     } catch (e) {
       // Maybe not Rancher
     }
@@ -385,10 +397,10 @@ export const actions = {
     const isMultiCluster = !!getters['management/schemaFor'](MANAGEMENT.PROJECT);
     const promises = {
       // Clusters guaranteed always available or your money back
-      clusters: dispatch('management/findAll', {
-        type: MANAGEMENT.CLUSTER,
-        opt:  { url: MANAGEMENT.CLUSTER }
-      }),
+      // clusters: dispatch('management/findAll', {
+      //   type: MANAGEMENT.CLUSTER,
+      //   opt:  { url: MANAGEMENT.CLUSTER }
+      // }),
     };
 
     if ( getters['management/schemaFor'](COUNT) ) {
@@ -465,11 +477,12 @@ export const actions = {
     console.log(`Loading ${ isMultiCluster ? 'ECM ' : '' }cluster...`); // eslint-disable-line no-console
 
     // See if it really exists
-    const cluster = await dispatch('management/find', {
-      type: MANAGEMENT.CLUSTER,
-      id,
-      opt:  { url: `${ MANAGEMENT.CLUSTER }s/${ escape(id) }` }
-    });
+    // const cluster = await dispatch('management/find', {
+    //   type: MANAGEMENT.CLUSTER,
+    //   id,
+    //   opt:  { url: `${ MANAGEMENT.CLUSTER }s/${ escape(id) }` }
+    // });
+    const cluster = fakeCurrentClusterLocal; // fake data
 
     const clusterBase = `/k8s/clusters/${ escape(id) }/v1`;
 

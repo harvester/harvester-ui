@@ -57,15 +57,16 @@ export default async function({
   // Make sure you're actually logged in
   if ( store.getters['auth/enabled'] !== false && !store.getters['auth/loggedIn'] ) {
     try {
-      const principals = await store.dispatch('rancher/findAll', {
-        type: NORMAN.PRINCIPAL,
-        opt:  {
-          url:                  '/v3/principals',
-          redirectUnauthorized: false,
-        }
-      });
+      // const principals = await store.dispatch('rancher/findAll', {
+      //   type: NORMAN.PRINCIPAL,
+      //   opt:  {
+      //     url:                  '/v3/principals',
+      //     redirectUnauthorized: false,
+      //   }
+      // });
 
-      const me = findBy(principals, 'me', true);
+      // const me = findBy(principals, 'me', true);
+      const me = { id: 'local://user-pq9v5' }; // fake data
 
       store.commit('auth/hasAuth', true);
       store.commit('auth/loggedInAs', me.id);

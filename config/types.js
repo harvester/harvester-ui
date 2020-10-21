@@ -168,3 +168,16 @@ export const CIS = {
   REPORT:               'cis.cattle.io.clusterscanreport'
 
 };
+
+// vm
+export const VM_TEMPLATE = {
+  template: 'harvester.cattle.io.virtualmachinetemplate',
+  version:  'harvester.cattle.io.virtualmachinetemplateversion'
+};
+
+export const VMI = 'kubevirt.io.virtualmachineinstance';
+export const VM = 'kubevirt.io.virtualmachine';
+export const IMAGE = 'harvester.cattle.io.virtualmachineimage';
+export const SSH = 'harvester.cattle.io.keypair';
+export const NETWORK_ATTACHMENT = 'k8s.cni.cncf.io.networkattachmentdefinition';
+export const DATA_VOLUME = 'cdi.kubevirt.io.datavolume';

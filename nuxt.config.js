@@ -86,7 +86,7 @@ module.exports = {
     ],
   },
 
-  // mode:    'spa', --- Use --spa CLI flag, or ?spa query param.
+  mode: 'spa', // --- Use --spa CLI flag, or ?spa query param.
 
   loading: '~/components/nav/GlobalLoading.vue',
 
@@ -99,6 +99,7 @@ module.exports = {
   },
 
   router: {
+    mode:       'hash', // Compatible with rancher proxy
     base:       routerBasePath,
     middleware: ['i18n'],
   },
