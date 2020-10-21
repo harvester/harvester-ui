@@ -1087,7 +1087,7 @@ secret:
     privateKey: Private Key
   data: Data
   registry:
-    address: Type Registry
+    address: Registry
     domainName: Registry Domain Name
     password: Password
     username: Username
@@ -1098,6 +1098,8 @@ secret:
     public: Public Key
     private: Private Key
   type: Type
+  relatedWorkloads: Related Workloads
+
 
 servicePorts:
   header:
