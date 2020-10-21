@@ -95,11 +95,17 @@ export default {
   mounted() {
     this.focusSomething();
 
+    document.body.addEventListener('keyup', this.pressEnter);
+
     if (this.$cookies.get('loggedIn')) {
       this.loading = true;
       this.$store.commit('auth/loggedIn');
       this.$router.replace('/');
     }
+  },
+
+  destroyed() {
+    document.body.removeEventListener('keyup', this.pressEnter);
   },
 
   methods: {
@@ -205,7 +211,13 @@ export default {
 
     mockBtnClicked() {
       this.$refs.uploader.click();
-    }
+    },
+
+    pressEnter(e) {
+      if (e.keyCode === 13) {
+        this.$refs.loginButton.$el.click();
+      }
+    },
   }
 };
 </script>
@@ -271,6 +283,7 @@ export default {
       </div>
       <div class="mt-20">
         <AsyncButton
+          ref="loginButton"
           class="login__go"
           action-label="SIGN IN"
           waiting-label="Logging In..."
