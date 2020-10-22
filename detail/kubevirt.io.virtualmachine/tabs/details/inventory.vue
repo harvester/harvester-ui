@@ -91,7 +91,7 @@ export default {
   <div class="vm-inventory">
     <h2>Disks</h2>
     <button type="button" class="btn btn-sm bg-primary mb-10" :disabled="!showEjectAction" @click="ejectCdrow">
-      Eject CD-ROW
+      Eject CDROM
     </button>
     <DiskModal v-model="diskRows" :row-actions="false" :is-eject-cdrow="true" />
     <el-divider></el-divider>
