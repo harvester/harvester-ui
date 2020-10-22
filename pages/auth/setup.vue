@@ -10,7 +10,6 @@ import { open, popupWindowOptions } from '@/utils/window';
 import { findBy, filterBy, addObject, removeObject } from '@/utils/array';
 import Checkbox from '@/components/form/Checkbox';
 import { getVendor, getProduct } from '@/config/private-label';
-import { fakePrincipals } from '@/store/fakeData';
 
 export default {
   layout: 'blank',
@@ -43,11 +42,11 @@ export default {
 
     githubConfig = await store.dispatch('rancher/clone', { resource: githubConfig });
 
-    // const principals = await store.dispatch('rancher/findAll', {
-    //   type: NORMAN.PRINCIPAL,
-    //   opt:  { url: '/v3/principals' }
-    // });
-    const principals = fakePrincipals; // fake data
+    const principals = await store.dispatch('rancher/findAll', {
+      type: NORMAN.PRINCIPAL,
+      opt:  { url: '/v3/principals' }
+    });
+    // const principals = fakePrincipals; // fake data
 
     let serverUrl;
 
@@ -252,11 +251,11 @@ export default {
           opt:  { url: '/v3/authConfigs/github', force: true }
         });
 
-        // this.principals = await this.$store.dispatch('rancher/findAll', {
-        //   type: NORMAN.PRINCIPAL,
-        //   opt:  { url: '/v3/principals', force: true }
-        // });
-        this.principals = fakePrincipals; // fake data
+        this.principals = await this.$store.dispatch('rancher/findAll', {
+          type: NORMAN.PRINCIPAL,
+          opt:  { url: '/v3/principals', force: true }
+        });
+        // this.principals = fakePrincipals; // fake data
 
         this.githubConfig = await this.$store.dispatch('rancher/clone', { resource: githubConfig });
 

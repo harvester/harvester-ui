@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Steve from '@/plugins/steve';
 import {
-  COUNT, NAMESPACE, NORMAN, MANAGEMENT, FLEET
+  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, FLEET
 } from '@/config/types';
 import { CLUSTER as CLUSTER_PREF, NAMESPACE_FILTERS, LAST_NAMESPACE, WORKSPACE } from '@/store/prefs';
 import { allHash } from '@/utils/promise';
@@ -10,12 +10,12 @@ import { sortBy } from '@/utils/sort';
 import { filterBy, findBy } from '@/utils/array';
 import { BOTH, CLUSTER_LEVEL, NAMESPACED } from '@/store/type-map';
 import { NAME as EXPLORER } from '@/config/product/explorer';
-import { fakeCurrentCluster, fakeCurrentClusterLocal } from './fakeData';
 // Disables strict mode for all store instances to prevent warning about changing state outside of mutations
 // becaues it's more efficient to do that sometimes.
 export const strict = false;
 
 export const plugins = [
+  Steve({ namespace: 'clusterExternal', baseUrl: '' }), // project scoped cluster stuff, url set later
   Steve({ namespace: 'management', baseUrl: '/v1' }),
   Steve({ namespace: 'cluster', baseUrl: '' }), // url set later
   Steve({ namespace: 'rancher', baseUrl: '/v3' }),
@@ -59,8 +59,7 @@ export const getters = {
   },
 
   currentCluster(state, getters) {
-    // return getters['management/byId'](MANAGEMENT.CLUSTER, state.clusterId);
-    return fakeCurrentCluster; // fake data
+    return getters['management/byId'](MANAGEMENT.CLUSTER, state.clusterId);
   },
 
   currentProduct(state, getters) {
@@ -432,7 +431,7 @@ export const actions = {
   }, id) {
     const isMultiCluster = getters['isMultiCluster'];
 
-    if ( state.clusterId && state.clusterId === id ) {
+    if ( state.clusterReady && state.clusterId && state.clusterId === id ) {
       // Do nothing, we're already connected/connecting to this cluster
       return;
     }
@@ -444,16 +443,20 @@ export const actions = {
       commit('clusterChanged', false);
 
       await dispatch('cluster/unsubscribe');
-      commit('cluster/reset');
+      await dispatch('clusterExternal/unsubscribe');
+      commit('cluster/forgetAll');
+      // commit('cluster/reset');
 
-      await dispatch('management/watch', {
-        type:      MANAGEMENT.PROJECT,
-        namespace: state.clusterId,
-        stop:      true
-      });
-      commit('management/forgetType', MANAGEMENT.PROJECT);
+      // await dispatch('management/watch', {
+      //   type:      MANAGEMENT.PROJECT,
+      //   namespace: state.clusterId,
+      //   stop:      true
+      // });
+      // commit('management/forgetType', MANAGEMENT.PROJECT);
 
-      commit('catalog/reset');
+      // commit('catalog/reset');
+      commit('clusterExternal/forgetAll');
+      commit('clusterChanged', false);
     }
 
     if ( id ) {
@@ -473,15 +476,16 @@ export const actions = {
     //   id,
     //   opt:  { url: `${ MANAGEMENT.CLUSTER }s/${ escape(id) }` }
     // });
-    const cluster = fakeCurrentClusterLocal; // fake data
 
-    const clusterBase = `/k8s/clusters/${ escape(id) }/v1`;
+    // const clusterBase = `/k8s/clusters/${ escape(id) }/v1`;
+    const clusterBase = `/v1`;
+    const externalBase = `/v1/management.cattle.io.clusters`;
 
-    if ( !cluster ) {
-      commit('setCluster', null);
-      commit('cluster/applyConfig', { baseUrl: null });
-      throw new ClusterNotFoundError(id);
-    }
+    // if ( !cluster ) {
+    //   commit('setCluster', null);
+    //   commit('cluster/applyConfig', { baseUrl: null });
+    //   throw new ClusterNotFoundError(id);
+    // }
 
     // Update the Steve client URLs
     commit('cluster/applyConfig', { baseUrl: clusterBase });
@@ -492,18 +496,27 @@ export const actions = {
 
     dispatch('cluster/subscribe');
 
-    const projectArgs = {
-      type: MANAGEMENT.PROJECT,
-      opt:  {
-        url:            `${ MANAGEMENT.PROJECT }/${ escape(id) }`,
-        watchNamespace: id
-      }
-    };
+    // const projectArgs = {
+    //   type: MANAGEMENT.PROJECT,
+    //   opt:  {
+    //     url:            `${ MANAGEMENT.PROJECT }/${ escape(id) }`,
+    //     watchNamespace: id
+    //   }
+    // };
+
+    const VMI = 'kubevirt.io.virtualmachineinstance';
 
     const res = await allHash({
-      projects:   isMultiCluster && dispatch('management/findAll', projectArgs),
-      counts:     dispatch('cluster/findAll', { type: COUNT, opt: { url: 'counts' } }),
-      namespaces: dispatch('cluster/findAll', { type: NAMESPACE, opt: { url: 'namespaces' } })
+      // projects:   isMultiCluster && dispatch('management/findAll', projectArgs),
+      counts:          dispatch('cluster/findAll', { type: COUNT, opt: { url: 'counts' } }),
+      namespaces:      dispatch('cluster/findAll', { type: NAMESPACE, opt: { url: 'namespaces' } }),
+      vmi:             dispatch('cluster/findAll', { type: VMI, opt: { url: `${ VMI }s` } }),
+      vm:               dispatch('cluster/findAll', { type: VM, opt: { url: `${ VM }s` } }),
+      image:           dispatch('cluster/findAll', { type: IMAGE, opt: { url: `${ IMAGE }s` } }),
+      template:         dispatch('cluster/findAll', { type: VM_TEMPLATE.template, opt: { url: `${ VM_TEMPLATE.template }s` } }),
+      templateVersion:   dispatch('cluster/findAll', { type: VM_TEMPLATE.version, opt: { url: `${ VM_TEMPLATE.version }s` } }),
+      ssh:                dispatch('cluster/findAll', { type: SSH, opt: { url: `${ SSH }s` } }),
+      DATA_VOLUME:        dispatch('cluster/findAll', { type: DATA_VOLUME, opt: { url: `${ DATA_VOLUME }s` } }),
     });
 
     commit('updateNamespaces', {
@@ -524,14 +537,19 @@ export const actions = {
   async onLogout({ dispatch, commit }) {
     await dispatch('management/unsubscribe');
     commit('managementChanged', { ready: false });
-    commit('management/reset');
+    // commit('management/reset');
+    commit('management/forgetAll');
 
     await dispatch('cluster/unsubscribe');
     commit('clusterChanged', false);
-    commit('cluster/reset');
+    // commit('cluster/reset');
+    commit('cluster/forgetAll');
 
-    commit('rancher/reset');
-    commit('catalog/reset');
+    await dispatch('clusterExternal/unsubscribe');
+    // commit('rancher/reset');
+    // commit('catalog/reset');
+    commit('clusterExternal/forgetAll');
+    commit('rancher/forgetAll');
   },
 
   nuxtServerInit({ dispatch, rootState }, nuxt) {
