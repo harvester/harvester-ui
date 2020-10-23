@@ -1,18 +1,11 @@
 <script>
 import { mapGetters } from 'vuex';
 import { NORMAN } from '@/config/types';
-import ProductSwitcher from './ProductSwitcher';
-import ClusterSwitcher from './ClusterSwitcher';
-import NamespaceFilter from './NamespaceFilter';
-import WorkspaceSwitcher from './WorkspaceSwitcher';
+import Md5 from '@/utils/crypto/browserMd5';
+import Identicon from 'identicon.js';
 
 export default {
-  components: {
-    ProductSwitcher,
-    ClusterSwitcher,
-    NamespaceFilter,
-    WorkspaceSwitcher,
-  },
+  components: {},
 
   computed: {
     ...mapGetters(['clusterReady', 'isMultiCluster', 'currentCluster',
@@ -29,45 +22,26 @@ export default {
     showShell() {
       return !!this.currentCluster?.links?.shell;
     },
+
+    imgUrl() {
+      const hash = new Md5();
+      const imgData = new Identicon(hash.digest('hex'), 40).toString();
+
+      return `data:image/png;base64,${ imgData }`;
+    },
   },
 };
 </script>
 
 <template>
-  <header :class="{explorer: isExplorer}">
+  <header>
     <div class="product">
-      <ProductSwitcher v-if="currentCluster" />
       <div alt="Logo" class="logo">
         <img src="~/assets/images/half-logo.svg" />
       </div>
     </div>
 
-    <div class="apps">
-      <nuxt-link v-if="currentCluster" :to="{name: 'c-cluster-apps', params: { cluster: currentCluster.id }}" class="btn role-tertiary">
-        <i class="icon icon-lg icon-marketplace pr-5" /> Apps
-      </nuxt-link>
-    </div>
-
-    <div class="top">
-      <NamespaceFilter v-if="clusterReady && currentProduct && currentProduct.showNamespaceFilter" />
-      <WorkspaceSwitcher v-else-if="clusterReady && currentProduct && currentProduct.showWorkspaceSwitcher" />
-    </div>
-
-    <div class="back">
-      <a v-if="currentProduct" class="btn role-tertiary" :href="(currentProduct.inStore === 'management' ? backToRancherGlobalLink : backToRancherLink)">
-        {{ t('nav.backToRancher') }}
-      </a>
-    </div>
-
-    <div class="kubectl">
-      <button v-if="currentProduct && currentProduct.showClusterSwitcher" :disabled="!showShell" type="button" class="btn role-tertiary" @click="currentCluster.openShell()">
-        <i class="icon icon-terminal icon-lg" /> {{ t('nav.shell') }}
-      </button>
-    </div>
-
-    <div class="cluster">
-      <ClusterSwitcher v-if="isMultiCluster && currentProduct && currentProduct.showClusterSwitcher" />
-    </div>
+    <div class="top"></div>
 
     <div class="user">
       <v-popover
@@ -78,20 +52,11 @@ export default {
         :popper-options="{modifiers: { flip: { enabled: false } } }"
       >
         <div class="text-right">
-          <img v-if="principal && principal.avatarSrc" :src="principal.avatarSrc" :class="{'avatar-round': principal.provider === 'github'}" width="40" height="40" />
-          <i v-else class="icon icon-user icon-3x avatar" />
+          <img :src="imgUrl" width="40" height="40" />
         </div>
 
         <template slot="popover">
           <ul class="list-unstyled dropdown">
-            <li v-if="authEnabled" class="user-info">
-              <div class="user-name">
-                <i class="icon icon-lg icon-user" /> {{ principal.loginName }}
-              </div>
-              <div class="text-small pb-5">
-                {{ principal.name }}
-              </div>
-            </li>
             <nuxt-link tag="li" :to="{name: 'prefs'}" class="hand">
               <a>Preferences <i class="icon icon-fw icon-gear" /></a>
             </nuxt-link>
