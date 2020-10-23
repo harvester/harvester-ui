@@ -1,0 +1,40 @@
+@font-face {font-family: "iconfont";
+	src: url('#{$iconfont-font-path}/iconfont.eot?t=1603439917638'); /* IE9 */
+	src: url('#{$iconfont-font-path}/iconfont.eot?t=1603439917638#iefix') format('embedded-opentype'), /* IE6-IE8 */
+	url('data:application/x-font-woff2;charset=utf-8;base64,d09GMgABAAAAAAQgAAsAAAAACQwAAAPTAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEIGVgCDKAqFJIQZATYCJAMYCw4ABCAFhG0HVBurB1GUDkqZ7KNw3CtDWUwmC06mKOUP/y+URJAN2+y1/w7dgSpVEmyXVaFwTRGMQaFA4hQoge9G/FCbeinUSApVuc4kOlEhVBQ5EidIxenM9Cma1+Yvt9/2MuGH+xmvxPPZt7lElkWlReoogWaziosssTtxPA3x6k1MO0Avnk6gb1k/ppNJM2iQoMCyQDz4PCxIqCiUgejQFVrHrkW8gljd9BxzF/CS/H38c0YCSc1wpsv7iQIY82X75MJ0Q1eZFwJ9Ox20vcjYARTiutNwBctcOzB9x4XbAs5rWvDlMgy+bBHjbP/lEZKsqEQDwZBwp+7Kly1ACL7sCIkvB0Lmy4lQ+HIpVJK0DUfPAt6BGB3iosp33z/3cje3LSSOjuNx6YTFUoQnN2AWGk+KoeKbAVGKmecF06kCEIgs1rU8eEODh2/dj9+XmB69qxRixqW2lpbSD8bjabGVybEpXgs9h5rXUr6FsKxIL90E0vYr3VOOXsvDOmcQNMEQpoqkMsay4kTnSXPSyuP6MTepoaldWxjmxPVutYf25bgzBNps4o+0OcN9+EZexc4DjaM8I/kRm1Zkils6s0ZvXZmBNusdHSB67doYHbC4XXBEFHOMKHhj6kngA4niR0N5HICY/tQEy/DxuqDGLU9NJWxBSbSTSVUVEx8cJRs9OtQWdYwRawyG0eu+GqN3UlFqZ7zea4aEa5++z0VA8+83HR1Rwr/J+NLnQMrrE1EyJT+FjAyOjjElBl0DjDrg7yRBuHrVKYTSz9XcPz9xVasgFL2OjtHxRpM3q6smrhz57Vz6J2YQl3hvb9Dd6/V3t+Vso8jn3OUvluVuI6m33L9GxEQvWH76Wcxz+/j+Uw014luCeaDj8/yZ/glrWjjQlZjM/BHkFMDkX8F0NpSt2MWDDIFm74V0JPS5lQmAZdarrUQLkyMJXQsFJB1LkHWtoApuB6qBXWi69qFv2+S9B+YoMFF62LKYQZh2FpKxD8im3UMV3EuoFn2GZjow6LuKtEMOrIWPGK8gVkMC5Jqgj5fColBrRBo9D3nqgqxSZid4BimqzwodVnvdOxmFkbLFBrXe49Q0EYqKFIKT2NlQMCjBiCL5Ea9ZvZoWGWaziV0vZOWlECAcUyAsDSKAOE0gH54kTIzaa4jG78+DeNQJYikDRR1KBqJQ+YaHHKzsE1CTBeFJRc/lLqp6Hk4ajQgSKSQh0CSmQ4LcJYEi3bP8EJ7GyrvAETGMTSonThVYjxeFXuUB6MN3tEiRo0SNFh31Roo0ORIEVmM5VkXxgk+NBNmmOEFhG5CCB1CTEwAA') format('woff2'),
+	url('#{$iconfont-font-path}/iconfont.woff?t=1603439917638') format('woff'),
+	url('#{$iconfont-font-path}/iconfont.ttf?t=1603439917638') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+	url('#{$iconfont-font-path}/iconfont.svg?t=1603439917638#iconfont') format('svg'); /* iOS 4.1- */
+}
+@import "variables";
+@import "iconfont";
+
+.icon-virtualmachine {
+	&:before {
+	  content: $icon-display; 
+	}
+}
+
+.icon-virtualmachinetemplate {
+	&:before {
+	  content: $icon-copy1; 
+	}
+}
+
+.icon-datavolume {
+	&:before {
+	  content: $icon-database; 
+	}
+}
+
+.icon-keypair {
+	&:before {
+	  content: $icon-key2; 
+	}
+}
+
+.icon-virtualmachineimage {
+	&:before {
+	  content: $icon-drawer; 
+	}
+}

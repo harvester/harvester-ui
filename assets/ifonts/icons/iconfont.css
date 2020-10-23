@@ -1,0 +1,28 @@
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.iconcopy1:before {
+  content: "\e62f";
+}
+
+.icondatabase:before {
+  content: "\e630";
+}
+
+.icondisplay:before {
+  content: "\e631";
+}
+
+.icondrawer:before {
+  content: "\e632";
+}
+
+.iconkey2:before {
+  content: "\e633";
+}
+
