@@ -4,7 +4,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import Collapse from '@/components/Collapse';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import { sortBy } from '@/utils/sort';
-import { STORAGE_CLASS, PVC, IMAGE } from '@/config/types';
+import { STORAGE_CLASS, IMAGE } from '@/config/types';
 import { InterfaceOption } from '@/config/map';
 
 export default {

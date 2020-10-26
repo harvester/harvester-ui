@@ -37,8 +37,8 @@ export default {
 
     image() {
       const imageList = this.$store.getters['cluster/all'](IMAGE) || [];
-      const source = this.value.spec?.source?.blank ? 'blank' : this.value.spec?.source?.registry?.url ? 'container' : 'VM Image';
-      const image = source === 'VM Image' ? this.value.spec?.source?.http?.url : '-';
+      // const source = this.value.spec?.source?.blank ? 'blank' : this.value.spec?.source?.registry?.url ? 'container' : 'VM Image'; // eslint-disable-line
+      // const image = source === 'VM Image' ? this.value.spec?.source?.http?.url : '-'; // eslint-disable-line
 
       const imageId = this.value?.metadata?.annotations?.['harvester.cattle.io/imageId'] || '';
       const imageResource = imageList.find( I => imageId === I.id);

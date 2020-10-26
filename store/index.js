@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Steve from '@/plugins/steve';
 import {
   COUNT, NAMESPACE, NORMAN, MANAGEMENT, FLEET
@@ -63,29 +64,19 @@ export const getters = {
   },
 
   currentProduct(state, getters) {
-    // const active = getters['type-map/activeProducts'];
+    const active = getters['type-map/activeProducts'];
 
-    // let out = findBy(active, 'name', state.productId);
+    let out = findBy(active, 'name', state.productId);
 
-    // if ( !out ) {
-    //   out = findBy(active, 'name', EXPLORER);
-    // }
+    if ( !out ) {
+      out = findBy(active, 'name', EXPLORER);
+    }
 
-    // if ( !out ) {
-    //   out = active[0];
-    // }
+    if ( !out ) {
+      out = active[0];
+    }
 
-    // return out;
-    return {
-      filterMode:          'namespaces',
-      icon:                'compass',
-      inStore:             'cluster',
-      name:                'explorer',
-      removable:           false,
-      showClusterSwitcher: true,
-      showNamespaceFilter: true,
-      weight:              3
-    };
+    return out;
   },
 
   isExplorer(state, getters) {

@@ -1,4 +1,5 @@
 import { colorForState } from '@/plugins/steve/resource-instance';
+import { VM } from '@/config/types';
 
 export default {
   availableActions() {

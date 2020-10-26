@@ -1,5 +1,4 @@
 <script>
-import _ from 'lodash';
 import Footer from '@/components/form/Footer';
 import Collapse from '@/components/Collapse';
 import Checkbox from '@/components/form/Checkbox';
@@ -7,13 +6,11 @@ import AddSSHKey from '@/components/form/AddSSHKey';
 import DiskModal from '@/components/form/DiskModal';
 import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
-import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import { VM_TEMPLATE } from '@/config/types';
-import { allHash } from '@/utils/promise';
 import VM_MIXIN from '@/mixins/vm';
 import CreateEditView from '@/mixins/create-edit-view';
-import { _EDIT, _CREATE, _ADD } from '@/config/query-params';
+import { _ADD } from '@/config/query-params';
 import ChooseImage from '../kubevirt.io.virtualmachine/ChooseImage';
 import CloudConfig from '../kubevirt.io.virtualmachine/CloudConfig';
 

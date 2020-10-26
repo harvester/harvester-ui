@@ -1,5 +1,4 @@
 <script>
-import _ from 'lodash';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import DiskModal from '@/components/form/DiskModal';
 import NetworkModal from '@/components/form/NetworkModal';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { NORMAN, MANAGEMENT } from '@/config/types';
 import { findBy } from '@/utils/array';
 import { SETUP } from '@/config/query-params';

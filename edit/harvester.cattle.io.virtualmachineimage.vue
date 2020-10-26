@@ -3,7 +3,6 @@ import Footer from '@/components/form/Footer';
 import LabeledInput from '@/components/form/LabeledInput';
 import ResourceTabs from '@/components/form/ResourceTabs';
 import CreateEditView from '@/mixins/create-edit-view';
-import { _CREATE } from '@/config/query-params';
 
 const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
 

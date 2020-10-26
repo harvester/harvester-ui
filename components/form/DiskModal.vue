@@ -1,6 +1,5 @@
 <script>
 import _ from 'lodash';
-import randomstring from 'randomstring';
 import VMModal from '@/components/form/VMModal';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
@@ -9,7 +8,7 @@ import { clone } from '@/utils/object';
 import { sortBy } from '@/utils/sort';
 import { SOURCE_TYPE, InterfaceOption } from '@/config/map';
 import MemoryUnit from '@/components/form/MemoryUnit';
-import { NAMESPACE, DATA_VOLUME, STORAGE_CLASS, IMAGE } from '@/config/types';
+import { DATA_VOLUME, STORAGE_CLASS, IMAGE } from '@/config/types';
 
 export default {
   components: {
@@ -296,10 +295,6 @@ export default {
     },
 
     updateAdd() {
-      const dataVolumeTemplates = [];
-      const volumes = [];
-      const disks = [];
-
       if (this.errors.length > 0) {
         return;
       }

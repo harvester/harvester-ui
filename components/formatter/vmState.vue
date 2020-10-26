@@ -1,5 +1,4 @@
 <script>
-import _ from 'lodash';
 import { VMI, POD } from '@/config/types';
 
 const VMIPhase = {
@@ -14,7 +13,7 @@ const VMIPhase = {
 
 const POD_STATUS_NOT_SCHEDULABLE = 'POD_NOT_SCHEDULABLE';
 const POD_STATUS_CONTAINER_FAILING = 'POD_CONTAINER_FAILING';
-const POD_STATUS_NOT_READY = 'POD_NOT_READY';
+const POD_STATUS_NOT_READY = 'POD_NOT_READY'; // eslint-disable-line
 
 const POD_STATUS_FAILED = 'POD_FAILED';
 const POD_STATUS_CRASHLOOP_BACKOFF = 'POD_CRASHLOOP_BACKOFF';
@@ -40,18 +39,6 @@ const POD_STATUS_ALL_READY = [
 
 const CDI_KUBEVIRT_IO = 'cdi.kubevirt.io';
 const STORAGE_IMPORT_PVC_NAME = 'storage.import.importPvcName';
-
-const RunStrategy = {
-  Always:         'Always',
-  RerunOnFailure: 'RerunOnFailure',
-  Halted:         'Halted',
-  Manual:         'Manual',
-};
-
-const StateChangeRequest = {
-  Start: 'Start',
-  Stop:  'Stop',
-};
 
 const STARTING_MESSAGE =
   'This virtual machine will start shortly. Preparing storage, networking, and compute resources.';

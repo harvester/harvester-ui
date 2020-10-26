@@ -1,7 +1,7 @@
 <script>
 import { STATE, AGE, NAME } from '@/config/table-headers';
 import ResourceTable from '@/components/ResourceTable';
-import { SCHEMA, DATA_VOLUME, VM, PV } from '@/config/types';
+import { DATA_VOLUME, VM, PV } from '@/config/types';
 import { allHash } from '@/utils/promise';
 import Loading from '@/components/Loading';
 

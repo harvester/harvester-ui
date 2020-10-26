@@ -1,10 +1,8 @@
 <script>
 import _ from 'lodash';
-import { mapState, mapGetters } from 'vuex';
-import moment from 'moment';
-import randomstring from 'randomstring';
+import { mapGetters } from 'vuex';
 import { cleanForNew } from '@/plugins/steve/normalize';
-import { safeLoad, safeDump } from 'js-yaml';
+import { safeLoad } from 'js-yaml';
 import Footer from '@/components/form/Footer';
 import Collapse from '@/components/Collapse';
 import RadioGroup from '@/components/form/RadioGroup';
@@ -14,7 +12,6 @@ import DiskModal from '@/components/form/DiskModal';
 import LabeledInput from '@/components/form/LabeledInput';
 import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
-import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
 import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
 import MemoryUnit from '@/components/form/MemoryUnit';
 import CreateEditView from '@/mixins/create-edit-view';

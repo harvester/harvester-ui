@@ -1,5 +1,4 @@
 <script>
-import { NAME, STATE } from '@/config/table-headers';
 import SortableTable from '@/components/SortableTable';
 
 export default {

@@ -1,7 +1,6 @@
 <script>
 import VmState from '@/components/formatter/vmState';
 import SSHKeysBar from '@/components/form/SSHKeysBar';
-import { getPrefix } from '@/utils/url';
 import OverviewBasics from './basics';
 import OverviewConfigurations from './configurations';
 import OverviewEvents from './events';

@@ -1,6 +1,5 @@
 <script>
 import { VMI } from '@/config/types';
-import { boolean } from '@storybook/addon-knobs';
 
 export default {
   props: {

@@ -3,9 +3,6 @@ import { STATE, AGE, NAME, NAMESPACE as NAMESPACE_COL } from '@/config/table-hea
 import ResourceTable from '@/components/ResourceTable';
 import VmState from '@/components/formatter/vmState';
 import MigrationState from '@/components/formatter/MigrationState';
-import { SCHEMA } from '@/config/types';
-import { allHash } from '@/utils/promise';
-import Loading from '@/components/Loading';
 
 export default {
   name:       'ListVM',

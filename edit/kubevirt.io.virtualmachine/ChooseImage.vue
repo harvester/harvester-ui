@@ -1,5 +1,6 @@
 <script>
-import Pagination from '@/components/pagination';
+/* eslint-disable */
+import Pagination from '@/components/Pagination';
 import { IMAGE } from '@/config/types';
 const TIP = 'An external URL to the .iso, .img, .qcow2 or .raw that the virtual machine should be created from.';
 
