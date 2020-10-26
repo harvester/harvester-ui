@@ -108,9 +108,9 @@ export default {
       <t k="prefs.theme.autoDetail" :pm="pm" :am="am" />
     </div>
     <hr />
-    <h4 v-t="'prefs.landing.label'" />
+    <!-- <h4 v-t="'prefs.landing.label'" />
     <ButtonGroup v-model="landing" :options="landingOptions" />
-    <hr />
+    <hr /> -->
     <h4 v-t="'prefs.formatting'" />
     <div class="row">
       <div class="col span-4">

@@ -98,7 +98,6 @@ export default {
     <span
       v-if="label"
       :class="[ disabled ? 'text-muted' : '', 'radio-label']"
-      v-html="label"
     >
       <slot name="label">{{ label }}</slot>
     </span>
