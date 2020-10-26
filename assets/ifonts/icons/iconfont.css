@@ -6,23 +6,27 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.iconcopy1:before {
+.icons-eye:before {
+  content: "\e609";
+}
+
+.icons-copy1:before {
   content: "\e62f";
 }
 
-.icondatabase:before {
+.icons-database:before {
   content: "\e630";
 }
 
-.icondisplay:before {
+.icons-display:before {
   content: "\e631";
 }
 
-.icondrawer:before {
+.icons-drawer:before {
   content: "\e632";
 }
 
-.iconkey2:before {
+.icons-key2:before {
   content: "\e633";
 }
 
