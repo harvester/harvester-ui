@@ -254,6 +254,7 @@ module.exports = {
     '~/plugins/i18n',
     '~/plugins/global-formatters',
     '~/plugins/trim-whitespace',
+    { src: '~/plugins/int-number', ssr: false },
     { src: '~/plugins/extend-router' },
     { src: '~/plugins/lookup', ssr: false },
     { src: '~/plugins/nuxt-client-init', ssr: false },

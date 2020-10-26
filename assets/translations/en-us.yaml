@@ -1641,6 +1641,60 @@ workload:
       tip: The duration the pod needs to terminate successfully.
     title: upgrading
 
+vm:
+  detail:
+    tabs:
+      overview: Overview
+      details: Details
+      environment: Environment
+      events: Events
+      migration: Migration
+      console: Console
+      networkInterfaces: Network Interfaces
+      disks: Disks
+      basics: Basics
+    details:
+      title:
+        vmDetails: Virtual Machine Details
+        requirements: Scheduling and resources requirements
+        services: Services
+        users: Logged in users
+      name: Name
+      namespace: Namespace
+      created: Created
+      hostname: Hostname
+      node: Node
+      ipAddress: IP Address
+      status: Status
+      pod: Pod
+      labels: Labels
+      bootOrder: Boot Order
+      annotations: Annotations
+      CDROMs: CD-ROMs
+      description: Description
+      operatingSystem: Operating System
+      template: Template
+      timeZone: Time Zone
+      owner: Owner
+      workloadProfile: Workload Profile
+      nodeSelector: Node Selector
+      flavor: Flavor
+      tolerations: Tolerations
+      dedicatedResources: Dedicated Resources
+      down: VM not running
+      affinityRules: Affinity Rules
+    notAvailable: Not available
+    GuestAgentNotInstalled: Guest agent required
+    noOwner: No Owner
+    events:
+      from: Generated from
+      down: No events in the past hour
+    console:
+      down: This Virtual Machine is down. Please start it to access its console.
+
+vmimage:
+  ruleTip: 'The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats).'
+
 
 ##############################
 # Model Properties

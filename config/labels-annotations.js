@@ -71,3 +71,6 @@ export const ANNOTATIONS_TO_FOLD = [
   /^kubectl\.kubernetes\.io\/.*$/,
   /^objectset\.rio\.cattle\.io\/.*$/,
 ];
+
+// VM
+export const STORAGE_CLASS_LABEL = { DEFAULT_CALSS: 'storageclass.kubernetes.io/is-default-class' };

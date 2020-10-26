@@ -38,6 +38,17 @@ export function init(store) {
     icon:                'compass'
   });
 
+  basicType(['virtual-dashboard']);
+  virtualType({
+    label:       'Home',
+    group:      'Root',
+    namespaced:  false,
+    name:        'virtual-dashboard',
+    weight:      500,
+    route:       { name: 'c-cluster-virtual' },
+    exact:       true,
+  });
+
   basicType([VM]);
   virtualType({
     label:      'Virtual Machine',

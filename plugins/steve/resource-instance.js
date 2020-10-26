@@ -6,6 +6,7 @@ import jsyaml from 'js-yaml';
 import omitBy from 'lodash/omitBy';
 import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
+import _ from 'lodash';
 import Vue from 'vue';
 
 import { addObject, addObjects, findBy, removeAt } from '@/utils/array';
@@ -454,6 +455,14 @@ export default {
     const message = this.metadata?.state?.message;
 
     return (trans || error) && message && message.toLowerCase() !== this.stateDisplay.toLowerCase();
+  },
+
+  getStatusConditionOfType() {
+    return (type, defaultValue = []) => {
+      const conditions = Array.isArray(_.get(this, 'status.conditions')) ? this.status.conditions : defaultValue;
+
+      return conditions.find( cond => cond.type === type);
+    };
   },
 
   // ------------------------------------------------------------------

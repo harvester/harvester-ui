@@ -113,3 +113,44 @@ export function stringify(uri) {
 
   return out;
 }
+
+export function getPrefix({ suffixSlash = true } = {}) {
+  const pathname = window.location.pathname;
+  const customPathnamePattern = /\/k8s\/clusters\/.+?\/proxy\/?/g;
+  const localPathnamePattern = /\/api\/v1\/.+?\/proxy\/?/g;
+  const customMatch = pathname.match(customPathnamePattern);
+  const localMatch = pathname.match(localPathnamePattern);
+  const result = customMatch || localMatch;
+
+  if (result && result[0]) {
+    let path = result[0];
+
+    if (path.endsWith('/')) {
+      path += '/';
+    }
+    window.__pathname_prefix__ = path;
+  } else {
+    window.__pathname_prefix__ = '';
+  }
+
+  let p = window.__pathname_prefix__ // eslint-disable-line
+
+  if (!suffixSlash && p && p.endsWith('/')) {
+    p = p.substr(0, p.length - 1);
+  }
+
+  return p.replace(/\/{2,}/g, '/');
+}
+
+export function addPrefix(path) {
+  const prefix = getPrefix();
+
+  if (!prefix) {
+    return path;
+  }
+
+  const p = `${ prefix }${ path }`;
+
+  // remove duplicated slashs
+  return p.replace(/\/{2,}/g, '/');
+}
