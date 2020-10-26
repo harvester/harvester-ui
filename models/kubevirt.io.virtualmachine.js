@@ -1,6 +1,4 @@
 import _ from 'lodash';
-import { VMI } from '@/config/types';
-import { getPrefix } from '@/utils/url';
 
 const VMI_WAITING_MESSAGE =
   'The virtual machine is waiting for resources to become available.';

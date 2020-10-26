@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { VM } from '@/config/types';
 import { MODE, _ADD, _EDIT } from '@/config/query-params';
 

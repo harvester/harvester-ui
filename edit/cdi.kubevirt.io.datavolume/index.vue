@@ -27,7 +27,7 @@ export default {
   },
 
   async fetch() {
-    const hash = await allHash({
+    await allHash({
       image:         this.$store.dispatch('cluster/findAll', { type: IMAGE }),
       storageClass:  this.$store.dispatch('cluster/findAll', { type: STORAGE_CLASS }),
     });

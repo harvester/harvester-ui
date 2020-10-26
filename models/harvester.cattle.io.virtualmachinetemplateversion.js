@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { VM_TEMPLATE, VM } from '@/config/types';
-import { MODE, _ADD, _CLONE, _EDIT } from '@/config/query-params';
+import { MODE, _ADD, _EDIT } from '@/config/query-params';
 
 export default {
   availableActions() {

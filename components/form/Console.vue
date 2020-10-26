@@ -1,6 +1,5 @@
 <script>
 import NovncConsole from '@/components/NovncConsole';
-import { VMI } from '@/config/types';
 
 export default {
   components: { NovncConsole },

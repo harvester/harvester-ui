@@ -10,8 +10,6 @@ import Socket, {
   EVENT_CONNECT_ERROR,
 } from '@/utils/socket';
 
-const DEFAULT_COMMAND = ['/bin/sh', '-c', 'TERM=xterm-256color; export TERM; [ -x /bin/bash ] && ([ -x /usr/bin/script ] && /usr/bin/script -q -c "/bin/bash" /dev/null || exec /bin/bash) || exec /bin/sh'];
-
 export default {
   props:      {
     value: {

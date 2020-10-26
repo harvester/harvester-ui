@@ -43,12 +43,28 @@ export default {
     }
   },
 
+  async fetch() {
+    const store = this.$store;
+    const resource = this.resource;
+
+    const importer = store.getters['type-map/importList'](resource);
+    const component = (await importer())?.default;
+
+    if (component?.customCreateFormName) {
+      this.customCreateFormName = component.customCreateFormName.apply(this);
+    }
+  },
+
   computed: {
     ...mapGetters(['isExplorer']),
 
     hideDescriptions: mapPref(HIDE_DESC),
 
     resourceName() {
+      if (this.customCreateFormName) { // get from custom list component
+        return this.customCreateFormName;
+      }
+
       if ( this.schema ) {
         return this.$store.getters['type-map/labelFor'](this.schema);
       }

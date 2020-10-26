@@ -1,16 +1,6 @@
-/* eslint-disable */
 import {
-  CONFIG_MAP, HELM_RELEASE,
-  NAMESPACE, NODE, SECRET, INGRESS,
-  WORKLOAD, WORKLOAD_TYPES, SERVICE, HPA, NETWORK_POLICY, PV, PVC, STORAGE_CLASS, POD,
-  RBAC, IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME
+  IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME
 } from '@/config/types';
-
-import {
-  STATE, NAME as NAME_COL, NAMESPACE_NAME, NAMESPACE as NAMESPACE_COL, AGE, KEYS,
-  INGRESS_TARGET, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM,
-  SPEC_TYPE, TARGET_PORT, SELECTOR
-} from '@/config/table-headers';
 
 import { DSL } from '@/store/type-map';
 
@@ -22,19 +12,13 @@ export function init(store) {
   const {
     product,
     basicType,
-    ignoreType,
-    mapGroup,
-    weightGroup,
-    headers,
     virtualType,
-    componentForType,
-    uncreatableType,
-    immutableType
   } = DSL(store, NAME);
 
   product({
     removable:           false,
-    showNamespaceFilter: true,
+    showNamespaceFilter: false,
+    showClusterSwitcher: false,
     icon:                'compass'
   });
 
@@ -60,7 +44,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: VM }
     },
-    exact: true,
+    exact: false,
   });
 
   basicType([IMAGE]);
@@ -74,7 +58,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: IMAGE }
     },
-    exact: true,
+    exact: false,
   });
 
   basicType([SSH]);
@@ -88,7 +72,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: SSH }
     },
-    exact: true,
+    exact: false,
   });
 
   basicType([TEMPLATE]);
@@ -102,7 +86,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: TEMPLATE }
     },
-    exact: true,
+    exact: false,
   });
 
   basicType([DATA_VOLUME]);
@@ -116,14 +100,6 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: DATA_VOLUME }
     },
-    exact: true,
+    exact: false,
   });
-
-  weightGroup('storage', 96, true);
-  weightGroup('rbac', 95, true);
-
-  mapGroup('rbac.authorization.k8s.io', 'RBAC');
-
-  uncreatableType(NODE);
-  immutableType(NODE);
 }

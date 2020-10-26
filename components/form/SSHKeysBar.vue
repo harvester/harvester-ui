@@ -11,7 +11,7 @@ export default {
   },
 
   async fetch() {
-    const hash = await allHash({ ssh: this.$store.dispatch('cluster/findAll', { type: SSH }) });
+    await allHash({ ssh: this.$store.dispatch('cluster/findAll', { type: SSH }) });
   },
 
   data() {

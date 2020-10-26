@@ -110,7 +110,7 @@ export default {
       const SSH = 'harvester.cattle.io.keypair';
 
       try {
-        const data = await this.$store.dispatch('cluster/request', {
+        await this.$store.dispatch('cluster/request', {
           method:  'POST',
           headers: {
             'content-type': 'application/json',

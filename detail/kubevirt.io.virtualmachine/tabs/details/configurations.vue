@@ -6,8 +6,9 @@ import AnnotationsModal from '../../annotations-modal';
 import DescriptionModal from '../../description-modal';
 
 const UNDEFINED = 'n/a';
-const TEMPLATE_WORKLOAD_LABEL = 'workload.template.kubevirt.io';
-const LABEL_USED_TEMPLATE_NAME = 'vm.kubevirt.io/template';
+
+// const TEMPLATE_WORKLOAD_LABEL = 'workload.template.kubevirt.io'; // eslint-disbale-line
+// const LABEL_USED_TEMPLATE_NAME = 'vm.kubevirt.io/template'; // eslint-disbale-line
 
 export default {
   name: 'Configurations',
