@@ -303,9 +303,8 @@ export default {
 
         A { padding-left: 0; }
       }
-    }
 
-    li {
+      li {
         a {
           grid-template-areas: "icon label count" !important;
           grid-template-columns: 45px auto auto !important;
@@ -324,6 +323,7 @@ export default {
           }
         }
       }
+    }
   }
 
   MAIN {
