@@ -38,37 +38,35 @@ export default {
 
 <template>
   <div class="mt-20">
-    <el-card class="box-card">
-      <div class="row">
-        <div class="col span-12">
-          <div>Url</div>
-          <div><CopyToClipboardText v-model="value.spec.url" /></div>
-        </div>
+    <div class="row">
+      <div class="col span-12">
+        <div>Url</div>
+        <div><CopyToClipboardText v-model="value.spec.url" /></div>
       </div>
+    </div>
 
-      <div class="row">
-        <div class="col span-12">
-          <div>Size</div>
-          <div>{{ formattedValue }}</div>
-        </div>
+    <div class="row">
+      <div class="col span-12">
+        <div>Size</div>
+        <div>{{ formattedValue }}</div>
       </div>
+    </div>
 
-      <div class="row">
-        <div class="col span-12">
-          <div>Description</div>
-          <div>{{ description }}</div>
-        </div>
+    <div class="row">
+      <div class="col span-12">
+        <div>Description</div>
+        <div>{{ description }}</div>
       </div>
+    </div>
 
-      <div v-if="errorMessage !== '-'" class="row">
-        <div class="col span-12">
-          <div>Message</div>
-          <div :class="{ 'error': errorMessage !== '-' }">
-            {{ errorMessage }}
-          </div>
+    <div v-if="errorMessage !== '-'" class="row">
+      <div class="col span-12">
+        <div>Message</div>
+        <div :class="{ 'error': errorMessage !== '-' }">
+          {{ errorMessage }}
         </div>
       </div>
-    </el-card>
+    </div>
   </div>
 </template>
 
