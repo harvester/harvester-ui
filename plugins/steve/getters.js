@@ -199,7 +199,7 @@ export default {
         throw new Error(`Unknown schema for type: ${ type }`);
       }
 
-      url = schema.links.collection;
+      url = schema.links.collection?.replace(`${ window.location.origin }/`, '/');
       if ( id ) {
         url += `/${ id }`;
       }
