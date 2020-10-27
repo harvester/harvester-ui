@@ -97,50 +97,33 @@ export default {
 
   watch: {
     sortedTabs(tabs) {
-      const {
-        defaultTab,
-        $route: { hash }
-      } = this;
+      const { defaultTab } = this;
       const activeTab = tabs.find(t => t.active);
 
       if (activeTab && activeTab.canToggle) {
         this.showHiddenTabs = true;
       }
 
-      const windowHash = hash.slice(1);
-      const windowHashTabMatch = tabs.find(t => t.name === windowHash && !t.active);
       const firstTab = head(tabs) || null;
 
       if (isEmpty(activeTab)) {
-        if (!isEmpty(windowHashTabMatch)) {
-          this.select(windowHashTabMatch.name);
-        } else if (!isEmpty(defaultTab) && !isEmpty(tabs.find(t => t.name === defaultTab))) {
+        if (!isEmpty(defaultTab) && !isEmpty(tabs.find(t => t.name === defaultTab))) {
           this.select(defaultTab);
         } else if (firstTab?.name) {
           this.select(firstTab.name);
         }
-      } else if (activeTab?.name === windowHash) {
-        this.select(activeTab.name);
       }
     },
   },
 
   mounted() {
-    window.addEventListener('hashchange', this.hashChange);
-
     this.$nextTick(() => {
       const {
-        $route: { hash },
         defaultTab,
         sortedTabs,
       } = this;
 
       let tab;
-      const selected = (hash || '').replace(/^#/, '');
-
-      if ( selected ) {
-        tab = this.find(selected);
-      }
 
       if ( !tab ) {
         tab = this.find(defaultTab);
@@ -152,36 +135,15 @@ export default {
     });
   },
 
-  unmounted() {
-    window.removeEventListener('hashchange', this.hashChange);
-  },
-
   methods: {
-    hashChange() {
-      if (!this.scrollOnChange) {
-        const scrollable = document.getElementsByTagName('main')[0];
-
-        if (scrollable) {
-          scrollable.scrollTop = 0;
-        }
-      }
-      this.select(this.$route.hash);
-    },
-
     find(name) {
       return this.sortedTabs.find(x => x.name === name );
     },
 
     select(name/* , event */) {
-      const {
-        sortedTabs,
-        tabsUseHistoryReplace,
-        $route: { hash: routeHash },
-        $router: { currentRoute },
-      } = this;
+      const { sortedTabs } = this;
 
       const selected = this.find(name);
-      const hashName = `#${ name }`;
 
       if ( !selected || selected.disabled) {
         return;
@@ -189,18 +151,6 @@ export default {
 
       if (selected.canToggle) {
         this.showHiddenTabs = true;
-      }
-
-      if (routeHash !== hashName) {
-        const kurrentRoute = { ...currentRoute };
-
-        kurrentRoute.hash = hashName;
-
-        if (tabsUseHistoryReplace) {
-          this.$router.replace(kurrentRoute);
-        } else {
-          this.$router.push(kurrentRoute);
-        }
       }
 
       for ( const tab of sortedTabs ) {
@@ -257,7 +207,6 @@ export default {
         role="presentation"
       >
         <a
-          :aria-controls="'#' + tab.name"
           :aria-selected="tab.active"
           role="tab"
           @click.prevent="select(tab.name, $event)"
