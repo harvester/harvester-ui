@@ -542,14 +542,11 @@ export const actions = {
 
     await dispatch('cluster/unsubscribe');
     commit('clusterChanged', false);
-    // commit('cluster/reset');
-    commit('cluster/forgetAll');
+    commit('cluster/reset');
 
     await dispatch('clusterExternal/unsubscribe');
-    // commit('rancher/reset');
-    // commit('catalog/reset');
-    commit('clusterExternal/forgetAll');
-    commit('rancher/forgetAll');
+    commit('rancher/reset');
+    commit('catalog/reset');
   },
 
   nuxtServerInit({ dispatch, rootState }, nuxt) {
