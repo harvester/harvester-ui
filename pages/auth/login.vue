@@ -283,12 +283,13 @@ export default {
           </div>
         </div>
         <div v-if="allowLocalUser && localMode" class="mt-20">
-          <LabeledInput v-model="form.username" label="Username" />
+          <LabeledInput v-model="form.username" label="Username" required />
           <LabeledInput
             v-model="form.password"
             label="Password"
             type="password"
             class="mt-10"
+            required
           />
         </div>
       </div>
@@ -394,10 +395,6 @@ export default {
       background-size: cover;
       background-position: center center;
       height: 100vh;
-    }
-
-    LABEL {
-      margin: 0;
     }
   }
 </style>
