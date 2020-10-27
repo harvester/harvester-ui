@@ -91,11 +91,11 @@ export default {
           class="labeled-input--tooltip"
           required
         >
-          <template v-slot:label>
-            <div>
-              <span class="label">Enter Url</span>
-              <i v-tooltip="t('vmimage.urlTip', {}, raw=true)" class="icon icon-info" />
-            </div>
+          <template #label>
+            <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
+              Enter Url
+              <i v-tooltip="t('vmimage.urlTip', {}, raw=true)" class="icon icon-info" style="font-size: 14px" />
+            </label>
           </template>
         </LabeledInput>
       </div>
