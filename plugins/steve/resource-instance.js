@@ -13,6 +13,7 @@ import { addObject, addObjects, findBy, removeAt } from '@/utils/array';
 import CustomValidators from '@/utils/custom-validators';
 import { downloadFile, generateZip } from '@/utils/download';
 import { eachLimit } from '@/utils/promise';
+import { getPrefix } from '@/utils/url';
 import { get } from '@/utils/object';
 import { DEV } from '@/store/prefs';
 import { sortableNumericSuffix } from '@/utils/sort';
@@ -139,6 +140,12 @@ const STATES = {
   waiting:            { color: 'info', icon: 'tag' },
   waitapplied:        { color: 'info', icon: 'tag' },
   notready:           { color: 'warning', icon: 'tag' },
+  imported:           { color: 'success', icon: 'dot-open' },
+  validated:          { color: 'success', icon: 'dot-open' },
+  progress:           { color: 'warning', icon: 'x' },
+  'in-use':           { color: 'success', icon: 'dot-open' },
+  'N/A':              { color: 'warning', icon: 'x' },
+  'vm-error':         { color: 'error', icon: 'dot' },
 };
 
 const SORT_ORDER = {
@@ -252,6 +259,12 @@ export default {
     return omitBy(all, (value, key) => {
       return matchesSomeRegex(key, this.labelsToIgnoreRegexes);
     });
+  },
+
+  getLabelValue() {
+    return (label) => {
+      return _.get(this, ['metadata', 'labels', label]);
+    };
   },
 
   annotations() {
@@ -457,12 +470,26 @@ export default {
     return (trans || error) && message && message.toLowerCase() !== this.stateDisplay.toLowerCase();
   },
 
+  _stateDisplay() {
+    return (state) => {
+      if ( REMAP_STATE[state] ) {
+        return REMAP_STATE[state];
+      }
+
+      return state.split(/-/).map(ucFirst).join('-');
+    };
+  },
+
   getStatusConditionOfType() {
     return (type, defaultValue = []) => {
       const conditions = Array.isArray(_.get(this, 'status.conditions')) ? this.status.conditions : defaultValue;
 
       return conditions.find( cond => cond.type === type);
     };
+  },
+
+  getStatusPhase() {
+    return this?.status?.phase;
   },
 
   // ------------------------------------------------------------------
@@ -712,14 +739,14 @@ export default {
 
   linkFor() {
     return (linkName) => {
-      return (this.links || {})[linkName];
+      return (this.links || {})[linkName]?.replace(`${ window.location.origin }/`, '/');
     };
   },
 
   followLink() {
     return (linkName, opt = {}) => {
       if ( !opt.url ) {
-        opt.url = (this.links || {})[linkName];
+        opt.url = (this.links || {})[linkName]?.replace(`${ window.location.origin }/`, '/');
       }
 
       if ( opt.urlSuffix ) {
@@ -744,7 +771,7 @@ export default {
 
   actionLinkFor() {
     return (actionName) => {
-      return (this.actions || {})[actionName];
+      return (this.actions || {})[actionName]?.replace(`${ window.location.origin }/`, '');
     };
   },
 
@@ -855,7 +882,7 @@ export default {
   remove() {
     return async(opt = {}) => {
       if ( !opt.url ) {
-        opt.url = (this.links || {})['self'];
+        opt.url = (this.links || {})['self'].replace(`${ window.location.origin }/`, '');
       }
 
       opt.method = 'delete';
@@ -1033,7 +1060,15 @@ export default {
 
   viewInApi() {
     return () => {
-      window.open(this.links.self, '_blank');
+      const prefix = getPrefix();
+
+      if (prefix) {
+        const origin = `${ window.location.origin }/`;
+
+        window.open(`${ prefix }${ this.links.self.replace(new RegExp(origin, 'g'), '') }`, '_blank');
+      } else {
+        window.open(this.links.self, '_blank');
+      }
     };
   },
 
@@ -1051,7 +1086,7 @@ export default {
   urlFromAttrs() {
     const schema = this.$getters['schemaFor'](this.type);
     const { metadata:{ namespace = 'default' } } = this;
-    let url = schema.links.collection;
+    let url = schema.links.collection?.replace(`${ window.location.origin }/`, '');
 
     const attributes = schema?.attributes;
 

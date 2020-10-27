@@ -1,6 +1,6 @@
 import { EventTarget } from 'event-target-shim';
 import { isSafari } from '@/utils/platform';
-import { addParam } from '@/utils/url';
+import { addParam, addPrefix } from '@/utils/url';
 
 let sockId = 1;
 let warningShown = false;
@@ -44,6 +44,7 @@ export default class Socket extends EventTarget {
 
   constructor(url, autoReconnect = true, frameTimeout = null, protocol = null) {
     super();
+    url = addPrefix(url);
 
     this.setUrl(url);
     this.autoReconnect = autoReconnect;

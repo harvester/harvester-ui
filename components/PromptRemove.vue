@@ -5,6 +5,7 @@ import { NAMESPACE, RIO } from '@/config/types';
 import Card from '@/components/Card';
 import { alternateLabel } from '@/utils/platform';
 import LinkDetail from '@/components/formatter/LinkDetail';
+import { addPrefix } from '@/utils/url';
 
 export default {
   components: { Card, LinkDetail },
@@ -38,7 +39,10 @@ export default {
 
     selfLinks() {
       return this.toRemove.map((resource) => {
-        return get(resource, 'links.self');
+        const path = get(resource, 'links.self').split('//')[1];
+        const start = path.indexOf('/');
+
+        return addPrefix(path.substring(start));
       });
     },
 

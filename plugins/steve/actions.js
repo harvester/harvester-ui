@@ -1,6 +1,7 @@
 import https from 'https';
 import cloneDeep from 'lodash/cloneDeep';
 import { SCHEMA } from '@/config/types';
+import { addPrefix } from '@/utils/url';
 import { normalizeType } from './normalize';
 import { proxyFor, SELF } from './resource-proxy';
 
@@ -9,6 +10,7 @@ export default {
     // @TODO queue/defer duplicate requests
     opt.depaginate = opt.depaginate !== false;
     opt.url = opt.url.replace(/\/*$/g, '');
+    opt.url = addPrefix(opt.url); // rancher proxy
 
     opt.httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
