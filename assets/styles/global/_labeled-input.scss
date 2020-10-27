@@ -107,4 +107,15 @@
       display: inline;
     }
   }
+
+  &--tooltip {
+    .has-tooltip {
+      position:relative;
+      z-index: 2;
+    }
+
+    INPUT, SELECT, TEXTAREA {
+      margin-top: -16px;
+    }
+  }
 }

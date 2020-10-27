@@ -1,7 +1,7 @@
 <script>
 import Footer from '@/components/form/Footer';
 import LabeledInput from '@/components/form/LabeledInput';
-import ResourceTabs from '@/components/form/ResourceTabs';
+import LabelAndAnnoTabs from '@/components/form/LabelAndAnnoTabs';
 import CreateEditView from '@/mixins/create-edit-view';
 
 const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
@@ -12,7 +12,7 @@ export default {
   components: {
     Footer,
     LabeledInput,
-    ResourceTabs
+    LabelAndAnnoTabs,
   },
 
   mixins: [CreateEditView],
@@ -83,54 +83,47 @@ export default {
 
 <template>
   <form>
-    <el-card class="box-card mb-20">
-      <div class="row mb-20">
-        <div class="col span-12">
-          <LabeledInput
-            v-model="url"
-            :mode="mode"
-            class="labeled-input--tooltip"
-          >
-            <template v-slot:label>
-              <div>
-                <span class="label">Enter Url</span>
-                <el-tooltip v-if="isCreate" placement="top" effect="dark">
-                  <div slot="content">
-                    Protip: supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>.
-                    Bootable ISO images can also be used and are treated like <code>raw</code> images.
-                    Images may be compressed with either the <code>gz</code> or <code>xz</code> format.
-                  </div>
-                  <span><i class="el-icon-info"></i></span>
-                </el-tooltip>
-              </div>
-            </template>
-          </LabeledInput>
-        </div>
+    <div class="row mb-20">
+      <div class="col span-12">
+        <LabeledInput
+          v-model="url"
+          :mode="mode"
+          class="labeled-input--tooltip"
+          required
+        >
+          <template v-slot:label>
+            <div>
+              <span class="label">Enter Url</span>
+              <i v-tooltip="t('vmimage.urlTip', {}, raw=true)" class="icon icon-info" />
+            </div>
+          </template>
+        </LabeledInput>
       </div>
+    </div>
 
-      <div class="row mb-20">
-        <div class="col span-12">
-          <LabeledInput
-            v-model="displayName"
-            :mode="mode"
-            label="Image Name"
-          />
-        </div>
+    <div class="row mb-20">
+      <div class="col span-12">
+        <LabeledInput
+          v-model="displayName"
+          :mode="mode"
+          label="Image Name"
+          required
+        />
       </div>
+    </div>
 
-      <div v-if="isCreate" class="row mb-20">
-        <div class="col span-12">
-          <LabeledInput
-            v-model="value.spec.description"
-            type="multiline"
-            :is-resize="true"
-            label="Description"
-          />
-        </div>
+    <div v-if="isCreate" class="row mb-20">
+      <div class="col span-12">
+        <LabeledInput
+          v-model="value.spec.description"
+          type="multiline"
+          :is-resize="true"
+          label="Description"
+        />
       </div>
+    </div>
 
-      <ResourceTabs v-model="value" :mode="mode" />
-    </el-card>
+    <LabelAndAnnoTabs v-model="value" :mode="mode" />
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
   </form>
 </template>
