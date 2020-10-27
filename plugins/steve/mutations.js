@@ -176,18 +176,6 @@ export default {
     }
   },
 
-  forgetAll(state) {
-    for ( const type of Object.keys(state.types) ) {
-      const cache = state.types[type];
-
-      if ( cache ) {
-        cache.haveAll = false;
-        clear(cache.list);
-        cache.map.clear();
-      }
-    }
-  },
-
   forgetType(state, type) {
     const cache = state.types[type];
 

@@ -444,8 +444,7 @@ export const actions = {
 
       await dispatch('cluster/unsubscribe');
       await dispatch('clusterExternal/unsubscribe');
-      commit('cluster/forgetAll');
-      // commit('cluster/reset');
+      commit('cluster/reset');
 
       // await dispatch('management/watch', {
       //   type:      MANAGEMENT.PROJECT,
@@ -454,8 +453,7 @@ export const actions = {
       // });
       // commit('management/forgetType', MANAGEMENT.PROJECT);
 
-      // commit('catalog/reset');
-      commit('clusterExternal/forgetAll');
+      commit('catalog/reset');
       commit('clusterChanged', false);
     }
 
@@ -537,8 +535,7 @@ export const actions = {
   async onLogout({ dispatch, commit }) {
     await dispatch('management/unsubscribe');
     commit('managementChanged', { ready: false });
-    // commit('management/reset');
-    commit('management/forgetAll');
+    commit('management/reset');
 
     await dispatch('cluster/unsubscribe');
     commit('clusterChanged', false);
