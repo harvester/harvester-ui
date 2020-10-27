@@ -5,7 +5,7 @@ import { DATA_VOLUME_OWNEDBY } from '@/config/labels-annotations';
 export default {
   props: {
     value: {
-      type:    Object,
+      type:    [String, Object],
       default: () => {}
     },
     row: {

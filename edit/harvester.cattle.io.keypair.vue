@@ -55,7 +55,7 @@ export default {
 </script>
 
 <template>
-  <el-card class="mt-20 keypair-card">
+  <div class="keypair-card">
     <div class="header mb-20">
       <FileSelector v-if="isCreate" class="btn btn-sm bg-primary mt-10" label="Read From File" accept=".pub" @selected="onKeySelected" />
     </div>
@@ -81,7 +81,7 @@ export default {
     </div>
 
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
-  </el-card>
+  </div>
 </template>
 
 <style lang="scss">
