@@ -1,7 +1,7 @@
 <script>
 import NameNsDescription from '@/components/form/NameNsDescription';
 import Footer from '@/components/form/Footer';
-import ResourceTabs from '@/components/form/ResourceTabs';
+import LabelAndAnnoTabs from '@/components/form/LabelAndAnnoTabs';
 import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
 import { STORAGE_CLASS, IMAGE } from '@/config/types';
@@ -13,7 +13,7 @@ export default {
   components: {
     Footer,
     VolumeSource,
-    ResourceTabs,
+    LabelAndAnnoTabs,
     NameNsDescription
   },
 
@@ -93,20 +93,17 @@ export default {
 </script>
 
 <template>
-  <el-card class="box-card mb-20">
-    <div>
-      <NameNsDescription
-        v-if="isCreate"
-        :value="value"
-        :mode="mode"
-        name-label="Name"
-      />
+  <div>
+    <NameNsDescription
+      v-if="isCreate"
+      :value="value"
+      :mode="mode"
+    />
 
-      <VolumeSource ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnnotation" />
+    <VolumeSource ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnnotation" />
 
-      <ResourceTabs :key="randow" v-model="value" :mode="mode" />
+    <LabelAndAnnoTabs :key="randow" v-model="value" :mode="mode" />
 
-      <Footer :mode="mode" :errors="errors" @save="beforeSave" @done="done" />
-    </div>
-  </el-card>
+    <Footer :mode="mode" :errors="errors" @save="beforeSave" @done="done" />
+  </div>
 </template>
