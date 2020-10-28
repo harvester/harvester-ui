@@ -11,7 +11,7 @@ export default {
     },
     buttonAction: {
       type:    Function,
-      default: () => {}
+      default: null
     },
     buttonText: {
       type:    String,
@@ -19,9 +19,12 @@ export default {
     },
   },
 
-  methods: {
-    hasSlot(name) {
-      return !!this.$slots[name] || !!this.$scopedSlots[name];
+  computed: {
+    hasTitle() {
+      return (!!this.$slots.title || !!this.$scopedSlots.title) || !!this.title;
+    },
+    hasAction() {
+      return (!!this.$slots.actions || !!this.$scopedSlots.actions) || !!this.buttonAction;
     }
   }
 };
@@ -29,7 +32,7 @@ export default {
 
 <template>
   <div class="card-container">
-    <div v-if="hasSlot('title')" class="card-title">
+    <div v-if="hasTitle" class="card-title">
       <slot name="title">
         {{ title }}
       </slot>
@@ -39,7 +42,7 @@ export default {
         {{ content }}
       </slot>
     </div>
-    <div v-if="hasSlot('actions')" class="card-actions">
+    <div v-if="hasAction" class="card-actions">
       <slot name="actions">
         <button class="btn role-primary" @click="buttonAction">
           {{ buttonText }}
