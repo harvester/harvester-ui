@@ -1,8 +1,11 @@
 <script>
 import { IMAGE } from '@/config/types';
+import Card from '@/components/Card';
 
 export default {
   name: 'Overview',
+
+  components: { Card },
 
   props: {
     mode: {
@@ -67,77 +70,79 @@ export default {
 </script>
 
 <template>
-  <div class="mt-20">
-    <div class="row mb-15">
-      <div class="col span-4">
-        <div class="labeled-input view">
-          <label>
-            Source
-          </label>
-          <div>
-            {{ source }}
+  <Card class="mt-20">
+    <template #body>
+      <div class="row mb-15">
+        <div class="col span-4">
+          <div class="labeled-input view">
+            <label>
+              Source
+            </label>
+            <div>
+              {{ source }}
+            </div>
+          </div>
+        </div>
+
+        <div v-if="source !== 'blank'" class="col span-4">
+          <div class="labeled-input view">
+            <label>
+              Image
+            </label>
+            <div>
+              {{ image }}
+            </div>
+          </div>
+        </div>
+
+        <div class="col span-4">
+          <div class="labeled-input view">
+            <label>
+              Storage
+            </label>
+            <div>
+              {{ storage }}
+            </div>
           </div>
         </div>
       </div>
 
-      <div v-if="source !== 'blank'" class="col span-4">
-        <div class="labeled-input view">
-          <label>
-            Image
-          </label>
-          <div>
-            {{ image }}
+      <div class="row">
+        <div class="col span-4">
+          <div class="labeled-input view">
+            <label>
+              StorageClass
+            </label>
+            <div>
+              {{ storageClassName }}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="col span-4">
-        <div class="labeled-input view">
-          <label>
-            Storage
-          </label>
-          <div>
-            {{ storage }}
+        <div class="col span-4">
+          <div class="labeled-input view">
+            <label>
+              AccessMode
+            </label>
+            <div>
+              {{ accessMode }}
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="col span-4">
-        <div class="labeled-input view">
-          <label>
-            StorageClass
-          </label>
-          <div>
-            {{ storageClassName }}
+        <div class="col span-4">
+          <div class="labeled-input view">
+            <label>
+              VolumeMode
+            </label>
+            <div>
+              {{ volumeMode }}
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="col span-4">
-        <div class="labeled-input view">
-          <label>
-            AccessMode
-          </label>
-          <div>
-            {{ accessMode }}
-          </div>
-        </div>
-      </div>
-
-      <div class="col span-4">
-        <div class="labeled-input view">
-          <label>
-            VolumeMode
-          </label>
-          <div>
-            {{ volumeMode }}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    </template>
+  </Card>
 </template>
 
 <style lang="scss">

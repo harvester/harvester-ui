@@ -17,13 +17,19 @@ export default {
       type:    String,
       default: 'go'
     },
+  },
+
+  methods: {
+    hasSlot(name) {
+      return !!this.$slots[name] || !!this.$scopedSlots[name];
+    }
   }
 };
 </script>
 
 <template>
   <div class="card-container">
-    <div class="card-title">
+    <div v-if="hasSlot('title')" class="card-title">
       <slot name="title">
         {{ title }}
       </slot>
@@ -33,7 +39,7 @@ export default {
         {{ content }}
       </slot>
     </div>
-    <div class="card-actions">
+    <div v-if="hasSlot('actions')" class="card-actions">
       <slot name="actions">
         <button class="btn role-primary" @click="buttonAction">
           {{ buttonText }}
