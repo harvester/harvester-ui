@@ -1,5 +1,6 @@
 <script>
 import VmState from '@/components/formatter/vmState';
+import BaseCard from '@/components/BaseCard';
 import SSHKeysBar from '@/components/form/SSHKeysBar';
 import OverviewBasics from './basics';
 import OverviewConfigurations from './configurations';
@@ -10,6 +11,7 @@ export default {
   name: 'Overview',
 
   components: {
+    BaseCard,
     VmState,
     OverviewBasics,
     OverviewConfigurations,
@@ -62,98 +64,48 @@ export default {
   <div>
     <div class="row mb-20">
       <div class="col span-8">
-        <el-card class="box-card mb-20">
-          <div slot="header" class="clearfix">
-            <div class="row">
-              <div class="col span-6">
-                <span>Basics</span>
-              </div>
-              <div class="col span-6 text-right">
-                <VmState v-model="value.id" :row="value" />
-              </div>
+        <BaseCard class="mb-20">
+          <template #title>
+            <div class="col span-8">
+              <h4>Basics</h4>
             </div>
-          </div>
-          <div>
+            <div class="col span-4 text-right">
+              <VmState v-model="value.id" :row="value" />
+            </div>
+          </template>
+          <template #body>
             <OverviewBasics v-model="value" :resource="resource" mode="view" />
-          </div>
-        </el-card>
+          </template>
+        </BaseCard>
 
-        <el-card class="box-card mb-20">
-          <div slot="header" class="clearfix">
-            <span>Configurations</span>
-          </div>
-          <div>
+        <BaseCard title="Configurations" class="mb-20">
+          <template #body>
             <OverviewConfigurations v-model="value" :resource="resource" :mode="mode" />
-          </div>
-        </el-card>
+          </template>
+        </BaseCard>
 
-        <el-card class="box-card">
-          <div slot="header">
-            <div class="row">
-              <div class="col span-8">
-                Inventory
-              </div>
-              <div class="col span-4 text-right">
-                <SSHKeysBar :resource="resource" />
-              </div>
+        <BaseCard class="mb-20">
+          <template #title>
+            <div class="col span-8">
+              <h4>Inventory</h4>
             </div>
-          </div>
-          <div>
+            <div class="col span-4 text-right">
+              <SSHKeysBar :resource="resource" />
+            </div>
+          </template>
+          <template #body>
             <OverviewInventory v-model="value" />
-          </div>
-        </el-card>
+          </template>
+        </BaseCard>
       </div>
 
       <div class="col span-4">
-        <el-card class="box-card events-card">
-          <div slot="header" class="clearfix">
-            <span>Events</span>
-          </div>
-          <div class="">
+        <BaseCard title="Events">
+          <template #body>
             <OverviewEvents :events="events" />
-          </div>
-        </el-card>
+          </template>
+        </BaseCard>
       </div>
     </div>
   </div>
 </template>
-
-<style lang="scss">
-  .vm-overview {
-    flex-wrap: wrap;
-    justify-content: space-between;
-
-    &__left, &__right {
-      width: 25%;
-    }
-
-    &__center {
-      width: 45%;
-    }
-
-    &__left, &__center, &__right {
-      .el-card {
-        margin-bottom: 15px;
-      }
-      &:last-child, .el-card:last-child {
-        margin: 0;
-      }
-    }
-
-    .el-card__header {
-      font-size: 16px;
-    }
-
-    .events-card .el-card__body {
-      max-height: 500px;
-      overflow: auto;
-    }
-
-    &__left {
-      .badge-state {
-        font-size: 12px;
-        padding: 2px 4px;
-      }
-    }
-  }
-</style>

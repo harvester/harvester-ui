@@ -59,7 +59,7 @@ export default {
 <template>
   <div class="vm-events">
     <div v-if="events.length > 0">
-      <el-card v-for="event in events" :key="event.id">
+      <div v-for="event in events" :key="event.id">
         <div class="row">
           <div class="col span-4">
             <ResourceState v-model="event.involvedObject.kind" />
@@ -83,7 +83,7 @@ export default {
             {{ event.message }}
           </div>
         </div>
-      </el-card>
+      </div>
     </div>
     <p v-else>
       {{ t("vm.detail.events.down") }}

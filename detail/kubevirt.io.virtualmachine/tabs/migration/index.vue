@@ -62,9 +62,8 @@ export default {
 
 <template>
   <div>
-    <el-card class="box-card mb-20">
+    <div class="box-card mb-20">
       <div slot="header" class="clearfix">
-        <span>Migration</span>
         <MigrationState style="float: right; padding: 3px 0" :vm-resource="value" />
       </div>
 
@@ -91,6 +90,6 @@ export default {
           <LabelValue name="Message" :value="message" />
         </div>
       </div>
-    </el-card>
+    </div>
   </div>
 </template>

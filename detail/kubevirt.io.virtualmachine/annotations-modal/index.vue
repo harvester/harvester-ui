@@ -16,7 +16,7 @@ export default {
     },
     mode: {
       type:     String,
-      default: 'view'
+      default: 'create'
     }
   },
 

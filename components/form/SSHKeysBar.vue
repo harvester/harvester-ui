@@ -1,8 +1,11 @@
 <script>
+import Card from '@/components/Card';
 import { allHash } from '@/utils/promise';
 import { SSH } from '@/config/types';
 
 export default {
+  components: { Card },
+
   props: {
     resource: {
       type:     Object,
@@ -53,16 +56,21 @@ export default {
   },
 
   methods: {
-    handleClose() {
-      this.toggleModal(false);
+    save() {
+      this.$set(this.spec.metadata, 'annotations', this.annotations);
+      this.$emit('update');
+      this.hide();
     },
-    open() {
+
+    hide() {
+      this.$modal.hide('sshKeyBar');
+      this.$emit('close');
+    },
+    show() {
       const ssh = this.$store.getters['cluster/all'](SSH);
 
       this.allssh = ssh || [];
-    },
-    toggleModal(b) {
-      this.visible = b;
+      this.$modal.show('sshKeyBar');
     },
     viewKey(index) {
       const neu = this.sshkeys[index];
@@ -84,49 +92,55 @@ export default {
 
 <template>
   <div class="sshkeys-modal">
-    <button class="color-light-text-primary" @click="toggleModal(true)">
-      el-icon-view SSH-keys
+    <button class="btn btn-sm role-link" @click="show">
+      <i class="iconfont icons-eye"></i>
+      <span>SSH-keys</span>
     </button>
-    <el-dialog
-      class="text-left"
-      title="View SSH Keys"
-      :visible="visible"
+    <modal
+      name="sshKeyBar"
       width="50%"
-      :before-close="handleClose"
-      @open="open"
+      :click-to-close="false"
+      height="auto"
     >
-      <div class="overview-sshkeys">
-        <div v-for="(ssh, index) in sshkeys" :key="ssh.id" class="row overview-sshkeys__item">
-          <div class="col span-4">
-            {{ ssh.metadata.name }}
-          </div>
-          <div class="col span-7 offset-1">
-            <div v-if="ssh.showKey" class="key-display">
-              {{ ssh.spec.publicKey }}
-              <el-button class="hide-bar" type="text" @click="hideKey(index)">
-                <i class="el-icon-close"></i>
-              </el-button>
+      <Card>
+        <template #title>
+          <h4 slot="title" class="text-default-text">
+            View SSH Keys
+          </h4>
+        </template>
+
+        <template #body>
+          <div class="overview-sshkeys">
+            <div v-for="(ssh, index) in sshkeys" :key="ssh.id" class="row overview-sshkeys__item">
+              <div class="col span-4">
+                {{ ssh.metadata.name }}
+              </div>
+              <div class="col span-7 offset-1">
+                <div v-if="ssh.showKey" class="key-display">
+                  {{ ssh.spec.publicKey }}
+                  <button class="btn btn-sm role-link hide-bar" @click="hideKey(index)">
+                    <i class="icon icon-x"></i>
+                  </button>
+                </div>
+                <button v-else class="btn btn-sm role-link" @click="viewKey(index)">
+                  *******<i class="iconfont icons-eye"></i>
+                </button>
+              </div>
             </div>
-            <el-button v-else type="text" @click="viewKey(index)">
-              *******<i class="el-icon-view el-icon--right"></i>
-            </el-button>
           </div>
-        </div>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <button class="btn btn-sm role-secondary" @click="handleClose">Close</button>
-      </span>
-    </el-dialog>
+        </template>
+
+        <template #actions>
+          <button class="btn btn-sm role-secondary" @click="hide">
+            Close
+          </button>
+        </template>
+      </Card>
+    </modal>
   </div>
 </template>
 
-<style lang="scss">
-  .sshkeys-modal {
-    .el-button--text {
-      color: var(--link-text) !important
-    }
-  }
-
+<style lang="scss" scoped>
   .overview-sshkeys {
     text-align: left;
     max-height: 700px;
@@ -143,6 +157,7 @@ export default {
     .key-display {
       position: relative;
       padding-right: 30px;
+      word-break: break-word;
 
       .hide-bar {
         position: absolute;

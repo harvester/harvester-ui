@@ -70,7 +70,6 @@ export default {
           key="description"
           v-model="description"
           label="Description"
-          :mode="mode"
           :min-height="30"
         />
       </template>
