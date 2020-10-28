@@ -56,6 +56,7 @@ export default {
     width="50%"
     height="auto"
     :click-to-close="false"
+    class="label-modal"
     @open="open"
   >
     <Card>
@@ -88,3 +89,13 @@ export default {
     </Card>
   </modal>
 </template>
+
+<style lang="scss">
+  .label-modal {
+    .extra-column {
+      LABEL {
+        position: relative;
+      }
+    }
+  }
+</style>

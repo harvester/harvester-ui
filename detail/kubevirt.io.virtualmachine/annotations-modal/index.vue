@@ -68,6 +68,7 @@ export default {
     width="50%"
     :click-to-close="false"
     height="auto"
+    class="anno-modal"
   >
     <Card>
       <template #title>
@@ -105,4 +106,11 @@ export default {
   font-size: 13px;
   font-style: italic;
 }
+  .anno-modal {
+    .extra-column {
+      LABEL {
+        position: relative;
+      }
+    }
+  }
 </style>
