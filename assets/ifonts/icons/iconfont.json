@@ -6,6 +6,13 @@
   "description": "Harvester",
   "glyphs": [
     {
+      "icon_id": "17896520",
+      "name": "Home, homepage, menu",
+      "font_class": "home",
+      "unicode": "e634",
+      "unicode_decimal": 58932
+    },
+    {
       "icon_id": "5789228",
       "name": "查看",
       "font_class": "eye",
@@ -15,7 +22,7 @@
     {
       "icon_id": "17824874",
       "name": "copy1",
-      "font_class": "copy1",
+      "font_class": "copy",
       "unicode": "e62f",
       "unicode_decimal": 58927
     },
@@ -43,7 +50,7 @@
     {
       "icon_id": "17824878",
       "name": "key2",
-      "font_class": "key2",
+      "font_class": "key",
       "unicode": "e633",
       "unicode_decimal": 58931
     }

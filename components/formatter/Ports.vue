@@ -42,8 +42,14 @@ export default {
   <div>
     {{ ports }}
     <span v-if="hasPorts" @click="open">
-      这里需要一个图标（眼睛）
+      <i class="iconfont icons-eye"></i>
     </span>
     <PortsModal :visible="dialogVisible" :rows="formattedPorts" @close="close" />
   </div>
 </template>
+
+<style lang="scss" scoped>
+  SPAN {
+    cursor: pointer;
+  }
+</style>
