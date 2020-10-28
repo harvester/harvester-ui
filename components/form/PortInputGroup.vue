@@ -90,8 +90,8 @@ export default {
           />
         </div>
       </div>
-      <button v-if="!isView" class="btn bg-primary btn-sm" @click="removeRows(index)">
-        <i class="el-icon-delete"></i>
+      <button v-if="!isView" class="btn role-primary" @click="removeRows(index)">
+        <i class="icon icon-delete"></i>
       </button>
     </div>
     <button v-if="!isView" class="btn bg-primary btn-sm" @click="addRows()">
@@ -120,7 +120,7 @@ export default {
       margin-bottom: 15px;
 
       BUTTON {
-        padding: 8px;
+        padding: 6px;
         height: 28px;
       }
     }
