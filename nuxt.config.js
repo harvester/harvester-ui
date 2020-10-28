@@ -70,6 +70,7 @@ module.exports = {
     version,
     dev,
     pl,
+    api
   },
 
   buildDir: dev ? '.nuxt' : '.nuxt-prod',
