@@ -51,7 +51,6 @@ export default {
       errors:                   [],
       labelsToIgnoreRegex:      LABELS_TO_IGNORE_REGEX,
       annotationsToIgnoreRegex: ANNOTATIONS_TO_IGNORE_REGEX,
-      moreDetails:              null,
     };
   },
 
