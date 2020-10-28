@@ -1,9 +1,10 @@
 <script>
 import CopyToClipboardText from '@/components/formatter/CopyToClipboardText';
 import { getFileSize } from '@/utils/units';
+import Card from '@/components/Card';
 
 export default {
-  components: { CopyToClipboardText },
+  components: { CopyToClipboardText, Card },
 
   props: {
     value: {
@@ -37,37 +38,39 @@ export default {
 </script>
 
 <template>
-  <div class="mt-20">
-    <div class="row">
-      <div class="col span-12">
-        <div>Url</div>
-        <div><CopyToClipboardText v-model="value.spec.url" /></div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col span-12">
-        <div>Size</div>
-        <div>{{ formattedValue }}</div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col span-12">
-        <div>Description</div>
-        <div>{{ description }}</div>
-      </div>
-    </div>
-
-    <div v-if="errorMessage !== '-'" class="row">
-      <div class="col span-12">
-        <div>Message</div>
-        <div :class="{ 'error': errorMessage !== '-' }">
-          {{ errorMessage }}
+  <Card class="mt-20">
+    <template #body>
+      <div class="row">
+        <div class="col span-12">
+          <div>Url</div>
+          <div><CopyToClipboardText v-model="value.spec.url" /></div>
         </div>
       </div>
-    </div>
-  </div>
+
+      <div class="row">
+        <div class="col span-12">
+          <div>Size</div>
+          <div>{{ formattedValue }}</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col span-12">
+          <div>Description</div>
+          <div>{{ description }}</div>
+        </div>
+      </div>
+
+      <div v-if="errorMessage !== '-'" class="row">
+        <div class="col span-12">
+          <div>Message</div>
+          <div :class="{ 'error': errorMessage !== '-' }">
+            {{ errorMessage }}
+          </div>
+        </div>
+      </div>
+    </template>
+  </Card>
 </template>
 
 <style lang="scss" scoped>
