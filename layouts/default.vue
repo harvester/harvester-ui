@@ -245,7 +245,6 @@ export default {
 
     <main v-if="clusterReady">
       <nuxt class="outlet" />
-      <Footer />
 
       <ActionMenu />
       <PromptRemove />
