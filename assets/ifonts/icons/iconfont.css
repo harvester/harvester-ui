@@ -1,3 +1,5 @@
+
+
 .iconfont {
   font-family: "iconfont" !important;
   font-size: 16px;
@@ -6,11 +8,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icons-home:before {
+  content: "\e634";
+}
+
 .icons-eye:before {
   content: "\e609";
 }
 
-.icons-copy1:before {
+.icons-copy:before {
   content: "\e62f";
 }
 
@@ -26,7 +32,7 @@
   content: "\e632";
 }
 
-.icons-key2:before {
+.icons-key:before {
   content: "\e633";
 }
 
