@@ -35,7 +35,8 @@ export default {
   computed: {
     readiedImages() {
       return this.images.filter( (I) => {
-        return (I.spec.displayName.toLowerCase()).includes(this.searchKey.toLowerCase()) && I.isReady;
+        // return (I.spec.displayName.toLowerCase()).includes(this.searchKey.toLowerCase()) && I.isReady;
+                return (I.spec.displayName.toLowerCase()).includes(this.searchKey.toLowerCase());
       });
     },
     displayImages() {
@@ -47,6 +48,13 @@ export default {
       }
 
       return this.readiedImages.slice(start, end);
+    },
+    pageConfig() {
+      return {
+        total: this.readiedImages.length,
+        pageSize: 10,
+        pageNo: 1,
+      }
     }
   },
 
@@ -68,6 +76,9 @@ export default {
   methods: {
     selected(neu) {
       this.activeName = neu;
+    },
+    changeCurrentPage(i){
+      this.currentPage = i
     }
   }
 };
@@ -118,7 +129,7 @@ export default {
             class="text-center"
           >
           </el-pagination> -->
-          <!-- <Pagination /> -->
+          <Pagination :page-config="pageConfig" @changeCurrentPage="changeCurrentPage" />
         </div>
 
         <div class="mt-20">

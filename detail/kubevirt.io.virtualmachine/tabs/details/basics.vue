@@ -176,15 +176,11 @@ export default {
   </div>
 </template>
 
-<style lang="scss">
-  .console {
-    display: flex;
-  }
-
+<style lang="scss" scoped>
   .cosoleBut {
     position: relative;
-    top: -10px;
-    left: 20px;
+    top: -20px;
+    left: 38px;
   }
 
   .overview-basics {
@@ -202,6 +198,10 @@ export default {
     .smart-row {
       display: flex;
       flex-direction: row;
+
+      .console {
+        display: flex;
+      }
     }
 
     &__name {

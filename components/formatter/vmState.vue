@@ -153,7 +153,7 @@ export default {
       if ((this.vmiResource || this.row.isVMCreated) && this.podResource) {
         const podStatus = this.podResource.getPodStatus;
 
-        if (POD_STATUS_ALL_ERROR.includes(podStatus.status)) {
+        if (POD_STATUS_ALL_ERROR.includes(podStatus?.status)) {
           return {
             ...podStatus,
             status: 'LAUNCHER_POD_ERROR',
@@ -187,7 +187,7 @@ export default {
         if (this.podResource) {
           const podStatus = this.podResource.getPodStatus;
 
-          if (!POD_STATUS_ALL_READY.includes(podStatus.status)) {
+          if (!POD_STATUS_ALL_READY.includes(podStatus?.status)) {
             return {
               ...podStatus,
               status:          'STARTING',

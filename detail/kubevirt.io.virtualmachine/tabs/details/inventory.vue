@@ -93,7 +93,7 @@ export default {
     <button type="button" class="btn btn-sm bg-primary mb-10" :disabled="!showEjectAction" @click="ejectCdrow">
       Eject CDROM
     </button>
-    <DiskModal v-model="diskRows" :row-actions="false" :is-eject-cdrow="true" />
+    <DiskModal v-model="diskRows" class="mb-20" :row-actions="false" :is-eject-cdrow="true" />
 
     <h2>Networks</h2>
     <NetworkModal v-model="networkRows" :row-actions="false" />

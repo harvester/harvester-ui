@@ -1,4 +1,6 @@
 <script>
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
 import { EVENT, VMI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 import Details from './tabs/details/';
@@ -9,6 +11,8 @@ export default {
   name: 'VMIDetailsPage',
 
   components: {
+    Tab,
+    Tabbed,
     Events,
     Details,
     Migration,
@@ -60,16 +64,18 @@ export default {
 
 <template>
   <div>
-    <a-tabs type="card" class="mt-15">
-      <a-tab-pane key="details" :tab="t('vm.detail.tabs.details')">
+    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+      <Tab name="detail" :label="t('vm.detail.tabs.details')" class="bordered-table">
         <Details v-model="value" :resource="vmi" :events="events" mode="edit" />
-      </a-tab-pane>
-      <a-tab-pane key="events" :tab="t('vm.detail.tabs.events')">
+      </Tab>
+
+      <Tab name="event" :label="t('vm.detail.tabs.events')">
         <Events :resource="vmi" :events="events" />
-      </a-tab-pane>
-      <a-tab-pane key="Migration" :tab="t('vm.detail.tabs.migration')">
+      </Tab>
+
+      <Tab name="migration" :label="t('vm.detail.tabs.migration')">
         <Migration v-model="value" :vmi-resource="vmi" />
-      </a-tab-pane>
-    </a-tabs>
+      </Tab>
+    </Tabbed>
   </div>
 </template>
