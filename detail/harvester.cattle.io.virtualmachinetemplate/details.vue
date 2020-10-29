@@ -143,21 +143,22 @@ export default {
         </div>
       </div>
       <div class="col span-1 action">
-        <Action :resource="current">
-        </action>
+        <Action :resource="current" />
       </div>
     </div>
 
     <template>
-      <el-tabs v-model="activeName">
-        <el-tab-pane label="Disks" name="disk">
+      <div>
+        <div class="mb-20">
+          <h4>Disks</h4>
           <DiskModal v-model="diskRows" :row-actions="false" />
-        </el-tab-pane>
+        </div>
 
-        <el-tab-pane label="Networks" name="network">
+        <div>
+          <h4>Networks</h4>
           <NetworkModal v-model="networkRows" :row-actions="false" />
-        </el-tab-pane>
-      </el-tabs>
+        </div>
+      </div>
     </template>
   </div>
 </template>
