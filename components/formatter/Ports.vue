@@ -41,9 +41,9 @@ export default {
 <template>
   <div>
     {{ ports }}
-    <span v-if="hasPorts" @click="open">
-      <i class="iconfont icons-eye"></i>
-    </span>
+    <button v-if="hasPorts" class="btn btn-sm role-link" @click="open">
+      <i class="icons icon-h-eye"></i>
+    </button>
     <PortsModal :visible="dialogVisible" :rows="formattedPorts" @close="close" />
   </div>
 </template>

@@ -30,6 +30,7 @@ export function init(store) {
     name:        'virtual-dashboard',
     weight:      500,
     route:       { name: 'c-cluster-virtual' },
+    icon:        'icons icon-h-home',
     exact:       true,
   });
 
@@ -44,6 +45,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: VM }
     },
+    icon:       'icons icon-h-display',
     exact: false,
   });
 
@@ -58,6 +60,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: IMAGE }
     },
+    icon:       'icons icon-h-drawer',
     exact: false,
   });
 
@@ -72,6 +75,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: SSH }
     },
+    icon:       'icons icon-h-key',
     exact: false,
   });
 
@@ -86,6 +90,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: TEMPLATE }
     },
+    icon:       'icons icon-h-copy',
     exact: false,
   });
 
@@ -100,6 +105,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: DATA_VOLUME }
     },
+    icon:       'icons icon-h-database',
     exact: false,
   });
 }

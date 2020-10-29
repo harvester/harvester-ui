@@ -2,9 +2,23 @@
   "id": "2153138",
   "name": "harvester-ui",
   "font_family": "iconfont",
-  "css_prefix_text": "icons-",
+  "css_prefix_text": "icon-h-",
   "description": "Harvester",
   "glyphs": [
+    {
+      "icon_id": "12154820",
+      "name": "restart",
+      "font_class": "restart",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "14682396",
+      "name": "migrate",
+      "font_class": "migrate",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
     {
       "icon_id": "17896520",
       "name": "Home, homepage, menu",

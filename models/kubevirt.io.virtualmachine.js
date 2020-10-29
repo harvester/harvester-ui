@@ -27,37 +27,37 @@ export default {
       {
         action:     'stopVM',
         enabled:    !!this.actions?.stop,
-        icon:       'icon icon-fw icon-pause',
+        icon:       'icon icon-pause',
         label:      'stop',
       },
       {
         action:     'pauseVM',
         enabled:    !!this.actions?.pause,
-        icon:       'icon icon-fw icon-spinner',
+        icon:       'icon icon-pause',
         label:      'pause',
       },
       {
         action:     'unpauseVM',
         enabled:    !!this.actions?.unpause,
-        icon:       'icon icon-fw icon-spinner',
+        icon:       'icon icon-spinner',
         label:      'unpause',
       },
       {
         action:     'restartVM',
         enabled:    !!this.actions?.restart,
-        icon:       'icon icon-fw icon-spinner',
+        icon:       'icon icon-spinner',
         label:      'restart',
       },
       {
         action:     'startVM',
         enabled:    !!this.actions?.start,
-        icon:       'icon icon-fw icon-play',
+        icon:       'icon icon-play',
         label:      'start',
       },
       {
         action:     'migrateVM',
         enabled:    !!this.actions?.migrate,
-        icon:       'icon icon-fw el-icon-position',
+        icon:       'icons icon-h-migrate',
         label:      'migrate',
       },
       {

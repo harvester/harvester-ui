@@ -31,6 +31,18 @@
           <ul class="icon_lists dib-box">
           
             <li class="dib">
+              <span class="icon iconfont">&#xe600;</span>
+                <div class="name">restart</div>
+                <div class="code-name">&amp;#xe600;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon iconfont">&#xe601;</span>
+                <div class="name">migrate</div>
+                <div class="code-name">&amp;#xe601;</div>
+              </li>
+          
+            <li class="dib">
               <span class="icon iconfont">&#xe634;</span>
                 <div class="name">Home, homepage, menu</div>
                 <div class="code-name">&amp;#xe634;</div>
@@ -123,65 +135,83 @@
         <ul class="icon_lists dib-box">
           
           <li class="dib">
-            <span class="icon iconfont icons-home"></span>
+            <span class="icon iconfont icon-h-restart"></span>
+            <div class="name">
+              restart
+            </div>
+            <div class="code-name">.icon-h-restart
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon iconfont icon-h-migrate"></span>
+            <div class="name">
+              migrate
+            </div>
+            <div class="code-name">.icon-h-migrate
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon iconfont icon-h-home"></span>
             <div class="name">
               Home, homepage, menu
             </div>
-            <div class="code-name">.icons-home
+            <div class="code-name">.icon-h-home
             </div>
           </li>
           
           <li class="dib">
-            <span class="icon iconfont icons-eye"></span>
+            <span class="icon iconfont icon-h-eye"></span>
             <div class="name">
               查看
             </div>
-            <div class="code-name">.icons-eye
+            <div class="code-name">.icon-h-eye
             </div>
           </li>
           
           <li class="dib">
-            <span class="icon iconfont icons-copy"></span>
+            <span class="icon iconfont icon-h-copy"></span>
             <div class="name">
               copy1
             </div>
-            <div class="code-name">.icons-copy
+            <div class="code-name">.icon-h-copy
             </div>
           </li>
           
           <li class="dib">
-            <span class="icon iconfont icons-database"></span>
+            <span class="icon iconfont icon-h-database"></span>
             <div class="name">
               database
             </div>
-            <div class="code-name">.icons-database
+            <div class="code-name">.icon-h-database
             </div>
           </li>
           
           <li class="dib">
-            <span class="icon iconfont icons-display"></span>
+            <span class="icon iconfont icon-h-display"></span>
             <div class="name">
               display
             </div>
-            <div class="code-name">.icons-display
+            <div class="code-name">.icon-h-display
             </div>
           </li>
           
           <li class="dib">
-            <span class="icon iconfont icons-drawer"></span>
+            <span class="icon iconfont icon-h-drawer"></span>
             <div class="name">
               drawer
             </div>
-            <div class="code-name">.icons-drawer
+            <div class="code-name">.icon-h-drawer
             </div>
           </li>
           
           <li class="dib">
-            <span class="icon iconfont icons-key"></span>
+            <span class="icon iconfont icon-h-key"></span>
             <div class="name">
               key2
             </div>
-            <div class="code-name">.icons-key
+            <div class="code-name">.icon-h-key
             </div>
           </li>
           
@@ -203,7 +233,7 @@
 <pre><code class="language-html">&lt;link rel="stylesheet" href="./iconfont.css"&gt;
 </code></pre>
         <h3 id="-">第二步：挑选相应图标并获取类名，应用于页面：</h3>
-<pre><code class="language-html">&lt;span class="iconfont icons-xxx"&gt;&lt;/span&gt;
+<pre><code class="language-html">&lt;span class="iconfont icon-h-xxx"&gt;&lt;/span&gt;
 </code></pre>
         <blockquote>
           <p>"
@@ -216,58 +246,74 @@
           
             <li class="dib">
                 <svg class="icon svg-icon" aria-hidden="true">
-                  <use xlink:href="#icons-home"></use>
+                  <use xlink:href="#icon-h-restart"></use>
+                </svg>
+                <div class="name">restart</div>
+                <div class="code-name">#icon-h-restart</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#icon-h-migrate"></use>
+                </svg>
+                <div class="name">migrate</div>
+                <div class="code-name">#icon-h-migrate</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#icon-h-home"></use>
                 </svg>
                 <div class="name">Home, homepage, menu</div>
-                <div class="code-name">#icons-home</div>
+                <div class="code-name">#icon-h-home</div>
             </li>
           
             <li class="dib">
                 <svg class="icon svg-icon" aria-hidden="true">
-                  <use xlink:href="#icons-eye"></use>
+                  <use xlink:href="#icon-h-eye"></use>
                 </svg>
                 <div class="name">查看</div>
-                <div class="code-name">#icons-eye</div>
+                <div class="code-name">#icon-h-eye</div>
             </li>
           
             <li class="dib">
                 <svg class="icon svg-icon" aria-hidden="true">
-                  <use xlink:href="#icons-copy"></use>
+                  <use xlink:href="#icon-h-copy"></use>
                 </svg>
                 <div class="name">copy1</div>
-                <div class="code-name">#icons-copy</div>
+                <div class="code-name">#icon-h-copy</div>
             </li>
           
             <li class="dib">
                 <svg class="icon svg-icon" aria-hidden="true">
-                  <use xlink:href="#icons-database"></use>
+                  <use xlink:href="#icon-h-database"></use>
                 </svg>
                 <div class="name">database</div>
-                <div class="code-name">#icons-database</div>
+                <div class="code-name">#icon-h-database</div>
             </li>
           
             <li class="dib">
                 <svg class="icon svg-icon" aria-hidden="true">
-                  <use xlink:href="#icons-display"></use>
+                  <use xlink:href="#icon-h-display"></use>
                 </svg>
                 <div class="name">display</div>
-                <div class="code-name">#icons-display</div>
+                <div class="code-name">#icon-h-display</div>
             </li>
           
             <li class="dib">
                 <svg class="icon svg-icon" aria-hidden="true">
-                  <use xlink:href="#icons-drawer"></use>
+                  <use xlink:href="#icon-h-drawer"></use>
                 </svg>
                 <div class="name">drawer</div>
-                <div class="code-name">#icons-drawer</div>
+                <div class="code-name">#icon-h-drawer</div>
             </li>
           
             <li class="dib">
                 <svg class="icon svg-icon" aria-hidden="true">
-                  <use xlink:href="#icons-key"></use>
+                  <use xlink:href="#icon-h-key"></use>
                 </svg>
                 <div class="name">key2</div>
-                <div class="code-name">#icons-key</div>
+                <div class="code-name">#icon-h-key</div>
             </li>
           
           </ul>

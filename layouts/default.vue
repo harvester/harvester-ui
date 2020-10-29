@@ -302,22 +302,10 @@ export default {
       }
 
       li {
-        a {
-          grid-template-areas: "icon label count" !important;
-          grid-template-columns: 45px auto auto !important;
-          grid-template-rows: 50px;
-          align-items: center;
-          padding: 0 !important;
-          outline: none;
-          &:hover {
-            text-decoration: none;
-          }
-          i {
-            display: block;
-            grid-area: icon;
-            text-align: right;
-            font-size: 18px;
-          }
+        font-size: 18px;
+        i {
+          font-size: 18px;
+          margin-right: 10px;
         }
       }
     }
