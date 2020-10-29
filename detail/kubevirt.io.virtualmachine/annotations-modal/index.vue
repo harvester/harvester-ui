@@ -101,16 +101,16 @@ export default {
   </modal>
 </template>
 
-<style lang="scss" scoped>
-.tip {
-  font-size: 13px;
-  font-style: italic;
-}
-  .anno-modal {
-    .extra-column {
-      LABEL {
-        position: relative;
-      }
+<style lang="scss">
+.anno-modal {
+  .tip {
+    font-size: 13px;
+    font-style: italic;
+  }
+  .extra-column {
+    LABEL {
+      position: relative;
     }
   }
+}
 </style>
