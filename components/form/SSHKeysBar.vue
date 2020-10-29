@@ -93,7 +93,7 @@ export default {
 <template>
   <div class="sshkeys-modal">
     <button class="btn btn-sm role-link" @click="show">
-      <i class="iconfont icons-eye"></i>
+      <i class="icons icon-h-eye"></i>
       <span>SSH-keys</span>
     </button>
     <modal
@@ -123,7 +123,7 @@ export default {
                   </button>
                 </div>
                 <button v-else class="btn btn-sm role-link" @click="viewKey(index)">
-                  *******<i class="iconfont icons-eye"></i>
+                  *******<i class="icons icon-h-eye"></i>
                 </button>
               </div>
             </div>

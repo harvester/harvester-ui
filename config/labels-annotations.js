@@ -74,3 +74,5 @@ export const ANNOTATIONS_TO_FOLD = [
 
 // VM
 export const STORAGE_CLASS_LABEL = { DEFAULT_CALSS: 'storageclass.kubernetes.io/is-default-class' };
+
+export const DATA_VOLUME_OWNEDBY = 'harvester.cattle.io/owned-by';

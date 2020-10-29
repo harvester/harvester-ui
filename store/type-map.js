@@ -594,6 +594,7 @@ export const getters = {
       }
 
       function highlightLabel(original, icon) {
+        console.log('----c', icon, original)
         let label = escapeHtml(original);
 
         if ( searchRegex ) {
@@ -606,7 +607,9 @@ export const getters = {
           }
         }
 
-        if ( icon ) {
+        if (icon.includes('icons ')) {
+          label = `<i class="${ icon }"></i>${ label }`;
+        } else if ( icon ) {
           label = `<i class="icon icon-fw icon-${ icon }"></i>${ label }`;
         }
 
