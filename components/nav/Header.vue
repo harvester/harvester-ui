@@ -1,6 +1,6 @@
 <script>
 import { mapGetters } from 'vuex';
-import { NORMAN } from '@/config/types';
+import { NORMAN, VM } from '@/config/types';
 import Md5 from '@/utils/crypto/browserMd5';
 import Identicon from 'identicon.js';
 
@@ -30,14 +30,29 @@ export default {
       return `data:image/png;base64,${ imgData }`;
     },
   },
+
+  methods: {
+    goVM() {
+      this.$router.replace({
+        name:   'c-cluster-product-resource',
+        params: {
+          resource: VM,
+          product:  'virtual',
+        }
+      });
+    }
+  }
 };
 </script>
 
 <template>
   <header>
     <div class="product">
-      <div alt="Logo" class="logo">
-        <img src="~/assets/images/half-logo.svg" />
+      <div class="go" @click="goVM">
+        <div class="productName">
+          Harvester
+        </div>
+        <div class="logo" alt="Logo" />
       </div>
     </div>
 
@@ -100,16 +115,27 @@ export default {
       background-color: var(--header-btn-bg);
       position: relative;
 
+      .go {
+        cursor: pointer;
+      }
+
+      .productName {
+        color: #fff;
+        font-size: 18px;
+        line-height: 50px;
+        left: 84px;
+        position: absolute;
+      }
+
       .logo {
-        height: 30px;
+        background-color: var(--header-logo);
+        mask: url("~assets/images/logo.svg") no-repeat center;
+        height: 33px;
+        width: 56px;
         position: absolute;
         top: 9px;
-        left: 0;
+        left: 15px;
         z-index: 2;
-
-        img {
-          height: 30px;
-        }
       }
     }
 
