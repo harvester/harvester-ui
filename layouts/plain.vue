@@ -1,11 +1,11 @@
 <script>
-import Header from '@/components/nav/Header';
+import PureHeader from '@/components/nav/PureHeader';
 import Footer from '@/components/nav/Footer';
 
 export default {
 
   components: {
-    Header,
+    PureHeader,
     Footer,
   },
 
@@ -25,7 +25,7 @@ export default {
 
 <template>
   <div class="dashboard-root">
-    <Header />
+    <PureHeader />
 
     <main>
       <nuxt class="outlet" />

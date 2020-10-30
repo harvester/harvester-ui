@@ -8,7 +8,7 @@ import WindowManager from '@/components/nav/WindowManager';
 import PromptRemove from '@/components/PromptRemove';
 import AssignTo from '@/components/AssignTo';
 import Group from '@/components/nav/Group';
-import Header from '@/components/nav/Header';
+import PureHeader from '@/components/nav/PureHeader';
 import { COUNT, SCHEMA, MANAGEMENT } from '@/config/types';
 import { BASIC, FAVORITE, USED } from '@/store/type-map';
 import { addObjects, replaceWith, clear } from '@/utils/array';
@@ -21,7 +21,7 @@ export default {
     Jump,
     PromptRemove,
     AssignTo,
-    Header,
+    PureHeader,
     ActionMenu,
     Group,
     WindowManager
@@ -220,7 +220,7 @@ export default {
 
 <template>
   <div v-if="managementReady" class="dashboard-root">
-    <Header />
+    <PureHeader />
 
     <nav v-if="clusterReady">
       <Jump v-if="showJump" class="m-10" />
