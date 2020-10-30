@@ -15,14 +15,6 @@ export default {
       return this.$store.getters['auth/enabled'];
     },
 
-    principal() {
-      return this.$store.getters['rancher/byId'](NORMAN.PRINCIPAL, this.$store.getters['auth/principalId']) || {};
-    },
-
-    showShell() {
-      return !!this.currentCluster?.links?.shell;
-    },
-
     imgUrl() {
       const hash = new Md5();
       const imgData = new Identicon(hash.digest('hex'), 40).toString();
