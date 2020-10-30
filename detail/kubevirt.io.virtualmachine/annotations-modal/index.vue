@@ -34,7 +34,14 @@ export default {
 
   methods: {
     save() {
-      this.$set(this.spec.metadata, 'annotations', this.annotations);
+      const description = this.spec?.metadata?.annotations?.description;
+      const mergeAnno = this.annotations;
+
+      if (description) {
+        mergeAnno.description = description;
+      }
+
+      this.$set(this.spec.metadata, 'annotations', mergeAnno);
       this.$emit('update');
       this.hide();
     },
