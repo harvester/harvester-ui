@@ -11,28 +11,19 @@ export default {
     },
     buttonAction: {
       type:    Function,
-      default: null
+      default: () => {}
     },
     buttonText: {
       type:    String,
       default: 'go'
     },
-  },
-
-  computed: {
-    hasTitle() {
-      return (!!this.$slots.title || !!this.$scopedSlots.title) || !!this.title;
-    },
-    hasAction() {
-      return (!!this.$slots.actions || !!this.$scopedSlots.actions) || !!this.buttonAction;
-    }
   }
 };
 </script>
 
 <template>
   <div class="card-container">
-    <div v-if="hasTitle" class="card-title">
+    <div class="card-title">
       <slot name="title">
         {{ title }}
       </slot>
@@ -42,7 +33,7 @@ export default {
         {{ content }}
       </slot>
     </div>
-    <div v-if="hasAction" class="card-actions">
+    <div class="card-actions">
       <slot name="actions">
         <button class="btn role-primary" @click="buttonAction">
           {{ buttonText }}
