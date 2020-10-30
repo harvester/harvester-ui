@@ -1,13 +1,15 @@
 <script>
 import LabeledInput from '@/components/form/LabeledInput';
-import Card from '@/components/Card';
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
 
 export default {
   name: 'ViewSSH',
 
   components: {
     LabeledInput,
-    Card
+    Tab,
+    Tabbed
   },
 
   props: {
@@ -32,8 +34,8 @@ export default {
 </script>
 
 <template>
-  <Card class="mt-20 keypair-card">
-    <template #body>
+  <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+    <Tab name="detail" :label="t('vm.detail.tabs.details')" class="bordered-table">
       <div class="row">
         <div class="col span-12">
           <LabeledInput
@@ -46,8 +48,8 @@ export default {
           />
         </div>
       </div>
-    </template>
-  </Card>
+    </Tab>
+  </Tabbed>
 </template>
 
 <style lang="scss">
