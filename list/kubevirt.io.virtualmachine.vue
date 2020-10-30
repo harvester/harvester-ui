@@ -1,13 +1,13 @@
 <script>
 import { STATE, AGE, NAME, NAMESPACE as NAMESPACE_COL } from '@/config/table-headers';
-import ResourceTable from '@/components/ResourceTable';
+import SortableTable from '@/components/SortableTable';
 import VmState from '@/components/formatter/vmState';
 import MigrationState from '@/components/formatter/MigrationState';
 
 export default {
   name:       'ListVM',
   components: {
-    ResourceTable, VmState, MigrationState
+    SortableTable, VmState, MigrationState
   },
 
   props: {
@@ -67,14 +67,21 @@ export default {
 </script>
 
 <template>
-  <ResourceTable :schema="schema" :rows="rows" default-sort-by="age" :headers="headers" group-by="namespace">
+  <SortableTable
+    v-bind="$attrs"
+    :headers="headers"
+    default-sort-by="age"
+    :rows="[...rows]"
+    key-field="_key"
+    v-on="$listeners"
+  >
     <template slot="cell:state" slot-scope="scope" class="state-col">
       <div class="state">
         <VmState v-model="scope.row.id" class="vmstate" :row="scope.row" />
         <MigrationState :vm-resource="scope.row" :show-success="false" />
       </div>
     </template>
-  </ResourceTable>
+  </sortabletable>
 </template>
 
 <style lang="scss" scoped>

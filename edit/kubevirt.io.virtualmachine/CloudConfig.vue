@@ -127,14 +127,22 @@ export default {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
+$yaml-height: 200px;
+
 .resource-yaml {
   flex: 1;
   display: flex;
   flex-direction: column;
 
-  .yaml-editor {
-    min-height: 200px;
+  & .yaml-editor{
+    flex: 1;
+    min-height: $yaml-height;
+    & .code-mirror .CodeMirror {
+      position: initial;
+      height: auto;
+      min-height: $yaml-height;
+    }
   }
 
   footer .actions {

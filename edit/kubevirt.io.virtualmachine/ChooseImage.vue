@@ -1,5 +1,4 @@
 <script>
-/* eslint-disable */
 import Pagination from '@/components/Pagination';
 import { IMAGE } from '@/config/types';
 const TIP = 'An external URL to the .iso, .img, .qcow2 or .raw that the virtual machine should be created from.';
@@ -35,8 +34,7 @@ export default {
   computed: {
     readiedImages() {
       return this.images.filter( (I) => {
-        // return (I.spec.displayName.toLowerCase()).includes(this.searchKey.toLowerCase()) && I.isReady;
-                return (I.spec.displayName.toLowerCase()).includes(this.searchKey.toLowerCase());
+        return (I.spec.displayName.toLowerCase()).includes(this.searchKey.toLowerCase()) && I.isReady;
       });
     },
     displayImages() {
@@ -51,10 +49,10 @@ export default {
     },
     pageConfig() {
       return {
-        total: this.readiedImages.length,
+        total:    this.readiedImages.length,
         pageSize: 10,
-        pageNo: 1,
-      }
+        pageNo:   1,
+      };
     }
   },
 
@@ -77,8 +75,8 @@ export default {
     selected(neu) {
       this.activeName = neu;
     },
-    changeCurrentPage(i){
-      this.currentPage = i
+    changeCurrentPage(i) {
+      this.currentPage = i;
     }
   }
 };
@@ -120,15 +118,6 @@ export default {
         </div>
 
         <div class="mt-20">
-          <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :page-size="pageSize"
-            :current-page.sync="currentPage"
-            :total="readiedImages.length"
-            class="text-center"
-          >
-          </el-pagination> -->
           <Pagination :page-config="pageConfig" @changeCurrentPage="changeCurrentPage" />
         </div>
 
