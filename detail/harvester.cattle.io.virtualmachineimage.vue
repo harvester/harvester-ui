@@ -1,10 +1,15 @@
 <script>
 import CopyToClipboardText from '@/components/formatter/CopyToClipboardText';
 import { getFileSize } from '@/utils/units';
-import Card from '@/components/Card';
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
 
 export default {
-  components: { CopyToClipboardText, Card },
+  components: {
+    CopyToClipboardText,
+    Tab,
+    Tabbed
+  },
 
   props: {
     value: {
@@ -38,8 +43,8 @@ export default {
 </script>
 
 <template>
-  <Card class="mt-20">
-    <template #body>
+  <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+    <Tab name="detail" :label="t('vm.detail.tabs.details')" class="bordered-table">
       <div class="row">
         <div class="col span-12">
           <div>Url</div>
@@ -69,8 +74,8 @@ export default {
           </div>
         </div>
       </div>
-    </template>
-  </Card>
+    </Tab>
+  </Tabbed>
 </template>
 
 <style lang="scss" scoped>

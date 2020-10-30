@@ -1,11 +1,15 @@
 <script>
 import { IMAGE } from '@/config/types';
-import Card from '@/components/Card';
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
 
 export default {
   name: 'Overview',
 
-  components: { Card },
+  components: {
+    Tab,
+    Tabbed
+  },
 
   props: {
     mode: {
@@ -70,8 +74,8 @@ export default {
 </script>
 
 <template>
-  <Card class="mt-20">
-    <template #body>
+  <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+    <Tab name="detail" :label="t('vm.detail.tabs.details')" class="bordered-table">
       <div class="row mb-15">
         <div class="col span-4">
           <div class="labeled-input view">
@@ -141,8 +145,8 @@ export default {
           </div>
         </div>
       </div>
-    </template>
-  </Card>
+    </Tab>
+  </Tabbed>
 </template>
 
 <style lang="scss">
