@@ -1,11 +1,18 @@
 <script>
 import { mapGetters } from 'vuex';
-import { NORMAN, VM } from '@/config/types';
-import Md5 from '@/utils/crypto/browserMd5';
-import Identicon from 'identicon.js';
+import { NORMAN } from '@/config/types';
+import ProductSwitcher from './ProductSwitcher';
+import ClusterSwitcher from './ClusterSwitcher';
+import NamespaceFilter from './NamespaceFilter';
+import WorkspaceSwitcher from './WorkspaceSwitcher';
 
 export default {
-  components: {},
+  components: {
+    ProductSwitcher,
+    ClusterSwitcher,
+    NamespaceFilter,
+    WorkspaceSwitcher,
+  },
 
   computed: {
     ...mapGetters(['clusterReady', 'isMultiCluster', 'currentCluster',
@@ -15,40 +22,52 @@ export default {
       return this.$store.getters['auth/enabled'];
     },
 
-    imgUrl() {
-      const hash = new Md5();
-      const imgData = new Identicon(hash.digest('hex'), 40).toString();
+    principal() {
+      return this.$store.getters['rancher/byId'](NORMAN.PRINCIPAL, this.$store.getters['auth/principalId']) || {};
+    },
 
-      return `data:image/png;base64,${ imgData }`;
+    showShell() {
+      return !!this.currentCluster?.links?.shell;
     },
   },
-
-  methods: {
-    goVM() {
-      this.$router.replace({
-        name:   'c-cluster-product-resource',
-        params: {
-          resource: VM,
-          product:  'virtual',
-        }
-      });
-    }
-  }
 };
 </script>
 
 <template>
-  <header>
+  <header :class="{explorer: isExplorer}">
     <div class="product">
-      <div class="go" @click="goVM">
-        <div class="productName">
-          Harvester
-        </div>
-        <div class="logo" alt="Logo" />
+      <ProductSwitcher v-if="currentCluster" />
+      <div alt="Logo" class="logo">
+        <img src="~/assets/images/half-logo.svg" />
       </div>
     </div>
 
-    <div class="top"></div>
+    <div class="apps">
+      <nuxt-link v-if="currentCluster" :to="{name: 'c-cluster-apps', params: { cluster: currentCluster.id }}" class="btn role-tertiary">
+        <i class="icon icon-lg icon-marketplace pr-5" /> Apps
+      </nuxt-link>
+    </div>
+
+    <div class="top">
+      <NamespaceFilter v-if="clusterReady && currentProduct && currentProduct.showNamespaceFilter" />
+      <WorkspaceSwitcher v-else-if="clusterReady && currentProduct && currentProduct.showWorkspaceSwitcher" />
+    </div>
+
+    <div class="back">
+      <a v-if="currentProduct" class="btn role-tertiary" :href="(currentProduct.inStore === 'management' ? backToRancherGlobalLink : backToRancherLink)">
+        {{ t('nav.backToRancher') }}
+      </a>
+    </div>
+
+    <div class="kubectl">
+      <button v-if="currentProduct && currentProduct.showClusterSwitcher" :disabled="!showShell" type="button" class="btn role-tertiary" @click="currentCluster.openShell()">
+        <i class="icon icon-terminal icon-lg" /> {{ t('nav.shell') }}
+      </button>
+    </div>
+
+    <div class="cluster">
+      <ClusterSwitcher v-if="isMultiCluster && currentProduct && currentProduct.showClusterSwitcher" />
+    </div>
 
     <div class="user">
       <v-popover
@@ -59,11 +78,20 @@ export default {
         :popper-options="{modifiers: { flip: { enabled: false } } }"
       >
         <div class="text-right">
-          <img :src="imgUrl" width="40" height="40" />
+          <img v-if="principal && principal.avatarSrc" :src="principal.avatarSrc" :class="{'avatar-round': principal.provider === 'github'}" width="40" height="40" />
+          <i v-else class="icon icon-user icon-3x avatar" />
         </div>
 
         <template slot="popover">
           <ul class="list-unstyled dropdown">
+            <li v-if="authEnabled" class="user-info">
+              <div class="user-name">
+                <i class="icon icon-lg icon-user" /> {{ principal.loginName }}
+              </div>
+              <div class="text-small pb-5">
+                {{ principal.name }}
+              </div>
+            </li>
             <nuxt-link tag="li" :to="{name: 'prefs'}" class="hand">
               <a>Preferences <i class="icon icon-fw icon-gear" /></a>
             </nuxt-link>
@@ -107,27 +135,16 @@ export default {
       background-color: var(--header-btn-bg);
       position: relative;
 
-      .go {
-        cursor: pointer;
-      }
-
-      .productName {
-        color: #fff;
-        font-size: 18px;
-        line-height: 50px;
-        left: 84px;
-        position: absolute;
-      }
-
       .logo {
-        background-color: var(--header-logo);
-        mask: url("~assets/images/logo.svg") no-repeat center;
-        height: 33px;
-        width: 56px;
+        height: 30px;
         position: absolute;
         top: 9px;
-        left: 15px;
+        left: 0;
         z-index: 2;
+
+        img {
+          height: 30px;
+        }
       }
     }
 
