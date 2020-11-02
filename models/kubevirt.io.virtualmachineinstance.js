@@ -54,8 +54,7 @@ export default {
   migrationStateBackground() {
     const state = this.migrationState.status;
 
-    // return this.stateColor(state).replace('text-', 'bg-');
-    return colorForState(state);
+    return colorForState(state).replace('text-', 'bg-');
   },
 
   isPaused() {

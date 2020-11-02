@@ -12,8 +12,7 @@ export default {
   },
 
   stateBackground() {
-    // return this.stateColor(this.stateDisplay).replace('text-', 'bg-');
-    return colorForState(this.stateDisplay);
+    return colorForState(this.stateDisplay).replace('text-', 'bg-');
   },
 
   statusDisplay() {
