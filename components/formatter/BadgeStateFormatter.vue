@@ -29,8 +29,6 @@ export default {
     if (this.arbitrary) {
       const color = colorForState(this.value);
 
-      console.log('-a', colorForState(this.value));
-
       out.stateDisplay = stateDisplay(this.value);
       out.stateBackground = color.replace('text-', 'bg-');
     }

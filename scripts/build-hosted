@@ -26,4 +26,4 @@ BASE=https://releases.rancher.com/harvester-ui/${DIR}
 
 echo "Building for ${BASE}..."
 
-NUXT_ENV_commit=${COMMIT} NUXT_ENV_version=${VERSION} OUTPUT_DIR=dist/${DIR} ROUTER_BASE="/dashboard" RESOURCE_BASE="${BASE}" yarn run build --spa
+OUTPUT_DIR=dist/${DIR} ROUTER_BASE="/" RESOURCE_BASE="${BASE}" yarn run build --spa

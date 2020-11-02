@@ -157,7 +157,6 @@ const SORT_ORDER = {
 };
 
 export function colorForState(state) {
-  console.log('----state', state);
   const key = (state || '').toLowerCase();
   let color;
 

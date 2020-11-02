@@ -22,7 +22,8 @@ export default {
 
   computed: {
     bg() {
-      return this.value?.stateBackground || this.color;
+      // return this.value?.stateBackground || this.color;
+      return 'bg-success';
     },
 
     msg() {
