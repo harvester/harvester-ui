@@ -192,7 +192,7 @@ export default {
               ...podStatus,
               status:          'STARTING',
               message:         STARTING_MESSAGE,
-              detailedMessage: podStatus.message,
+              detailedMessage: podStatus?.message,
               pod:             this.podResource,
             };
           }

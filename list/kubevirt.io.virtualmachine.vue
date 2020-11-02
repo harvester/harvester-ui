@@ -36,10 +36,7 @@ export default {
           width:         350,
           formatter:     'vmName',
         },
-        {
-          ...NAMESPACE_COL,
-          name: 'groupByLabel'
-        },
+        { ...NAMESPACE_COL },
         {
           name:      'ip',
           label:     'IP Address',
