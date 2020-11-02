@@ -63,7 +63,7 @@ trigger:
 
 platform:
   os: linux
-  OAarch: amd64
+  arch: amd64
 
 steps:
 - name: docker-image
@@ -111,7 +111,7 @@ steps:
     source: dist/latest
     target: releases.rancher.com/harvester-ui/latest
     token:
-      from_secret: google_auth_keOAy
+      from_secret: google_auth_key
 
 ---
 kind: pipeline
@@ -290,4 +290,3 @@ steps:
     target: releases.rancher.com/harvester-ui/${DRONE_TAG}.tar.gz
     token:
       from_secret: google_auth_key
-
