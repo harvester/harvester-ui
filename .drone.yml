@@ -44,7 +44,7 @@ steps:
   settings:
     dockerfile: Dockerfile
     tag: ${DRONE_BRANCH}
-    repo: rancherlabs/dashboard
+    repo: rancher/harvester-ui
     username:
       from_secret: docker_username
     password:
@@ -63,7 +63,7 @@ trigger:
 
 platform:
   os: linux
-  arch: amd64
+  OAarch: amd64
 
 steps:
 - name: docker-image
@@ -71,7 +71,7 @@ steps:
   settings:
     dockerfile: Dockerfile
     tag: ${DRONE_TAG}
-    repo: rancherlabs/dashboard
+    repo: rancher/harvester-ui
     username:
       from_secret: docker_username
     password:
@@ -109,9 +109,9 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/latest
-    target: releases.rancher.com/dashboard/latest
+    target: releases.rancher.com/harvester-ui/latest
     token:
-      from_secret: google_auth_key
+      from_secret: google_auth_keOAy
 
 ---
 kind: pipeline
@@ -146,7 +146,7 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/${DRONE_BRANCH}
-    target: releases.rancher.com/dashboard/${DRONE_BRANCH}
+    target: releases.rancher.com/harvester-ui/${DRONE_BRANCH}
     token:
       from_secret: google_auth_key
 
@@ -180,7 +180,7 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/${DRONE_TAG}
-    target: releases.rancher.com/dashboard/${DRONE_TAG}
+    target: releases.rancher.com/harvester-ui/${DRONE_TAG}
     token:
       from_secret: google_auth_key
 
@@ -216,7 +216,7 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/${DRONE_BRANCH}.tar.gz
-    target: releases.rancher.com/dashboard/latest.tar.gz
+    target: releases.rancher.com/harvester-ui/latest.tar.gz
     token:
       from_secret: google_auth_key
 
@@ -253,7 +253,7 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/${DRONE_BRANCH}.tar.gz
-    target: releases.rancher.com/dashboard/${DRONE_BRANCH}.tar.gz
+    target: releases.rancher.com/harvester-ui/${DRONE_BRANCH}.tar.gz
     token:
       from_secret: google_auth_key
 
@@ -287,6 +287,7 @@ steps:
     - allUsers:READER
     cache_control: "no-cache,must-revalidate"
     source: dist/${DRONE_TAG}.tar.gz
-    target: releases.rancher.com/dashboard/${DRONE_TAG}.tar.gz
+    target: releases.rancher.com/harvester-ui/${DRONE_TAG}.tar.gz
     token:
       from_secret: google_auth_key
+
