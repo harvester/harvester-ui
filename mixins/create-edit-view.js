@@ -134,10 +134,29 @@ export default {
       });
     },
 
-    async save(buttonDone, url) {
+    async save(buttonDone, url, noFetch = false) {
       this.errors = null;
+
+      if (this.value?.nameDisplay && this.checkLength() === false) {
+        this.errors = [this.$store.getters['i18n/t']('validation.custom.tooLongName', { max: 63 })];
+        buttonDone(false);
+
+        return;
+      } else if (this.value?.nameDisplay === undefined) {
+        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Name' })];
+        buttonDone(false);
+
+        return;
+      }
+
       try {
-        await this.applyHooks(BEFORE_SAVE_HOOKS);
+        const beforeHooksValue = await this.applyHooks(BEFORE_SAVE_HOOKS);
+
+        if (beforeHooksValue.validate === false) {
+          buttonDone(false);
+
+          return;
+        }
 
         // Remove the labels map if it's empty
         if ( this.value?.metadata?.labels && Object.keys(this.value.metadata.labels || {}).length === 0 ) {
@@ -155,12 +174,15 @@ export default {
           }
         }
 
-        await this.actuallySave(url);
+        if (noFetch === false) {
+          await this.actuallySave(url);
+        }
 
         await this.applyHooks(AFTER_SAVE_HOOKS);
         buttonDone(true);
         this.done();
       } catch (err) {
+        // await this.applyHooks(AFTER_SAVE_HOOKS);
         this.errors = exceptionToErrorsArray(err);
         buttonDone(false);
       }
@@ -169,7 +191,6 @@ export default {
     async actuallySave(url) {
       if ( this.isCreate ) {
         url = url || this.schema.linkFor('collection');
-
         const res = await this.value.save({ url });
 
         if (res) {
@@ -178,6 +199,10 @@ export default {
       } else {
         await this.value.save();
       }
-    }
+    },
+
+    checkLength() {
+      return this.value?.nameDisplay?.length <= 63;
+    },
   },
 };
