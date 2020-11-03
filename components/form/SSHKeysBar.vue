@@ -7,9 +7,9 @@ export default {
   components: { Card },
 
   props: {
-    resource: {
+    value: {
       type:     Object,
-      required: true,
+      required: true
     }
   },
 
@@ -23,36 +23,6 @@ export default {
       allssh:  [],
       sshkeys: [],
     };
-  },
-
-  watch: {
-    allssh() {
-      let userData = '';
-      const r = /(\r\n\t|\n|\r\t)|(\s*)/gm;
-
-      this.sshKeys = [];
-
-      if (!this.resource || !this.resource.spec || !this.resource.spec.volumes) {
-        return;
-      }
-
-      this.resource.spec.volumes.forEach((v) => {
-        if (v.cloudInitNoCloud) {
-          userData = v.cloudInitNoCloud.userData;
-        }
-      });
-
-      userData = userData.replace(r, '');
-
-      this.sshkeys = this.allssh.filter((ssh) => {
-        return userData.includes(ssh.spec.publicKey.replace(r, ''));
-      }).map((ssh) => {
-        return {
-          ...ssh,
-          showKey: false
-        };
-      });
-    }
   },
 
   methods: {
@@ -70,7 +40,36 @@ export default {
       const ssh = this.$store.getters['cluster/all'](SSH);
 
       this.allssh = ssh || [];
+      this.getKey();
       this.$modal.show('sshKeyBar');
+    },
+    getKey() {
+      let userData = '';
+      const r = /(\r\n\t|\n|\r\t)|(\s*)/gm;
+      const volumes = this.value?.spec?.template?.spec?.volumes;
+
+      this.sshKeys = [];
+
+      if (!volumes) {
+        return;
+      }
+
+      volumes.forEach((v) => {
+        if (v.cloudInitNoCloud) {
+          userData = v.cloudInitNoCloud.userData;
+        }
+      });
+
+      userData = userData.replace(r, '');
+
+      this.sshkeys = this.allssh.filter((ssh) => {
+        return userData.includes(ssh.spec.publicKey.replace(r, ''));
+      }).map((ssh) => {
+        return {
+          ...ssh,
+          showKey: false
+        };
+      });
     },
     viewKey(index) {
       const neu = this.sshkeys[index];

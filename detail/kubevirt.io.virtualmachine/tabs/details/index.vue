@@ -90,7 +90,7 @@ export default {
               <h4>Inventory</h4>
             </div>
             <div class="col span-4 text-right">
-              <SSHKeysBar :resource="resource" />
+              <SSHKeysBar v-model="value" />
             </div>
           </template>
           <template #body>
