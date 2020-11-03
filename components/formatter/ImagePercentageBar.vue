@@ -21,12 +21,12 @@ export default {
   computed: {
     percentage() {
       const value = Number.parseFloat(this.value);
-      let color = 'green';
+      let color = 'bg-success';
 
       if (value < 30) {
-        color = 'grey';
+        color = 'bg-secondary';
       } else if (value < 70) {
-        color = 'yellow';
+        color = 'bg-warning';
       }
 
       return [{
@@ -49,7 +49,7 @@ export default {
 <template>
   <div class="parent">
     <div>
-      <ProgressBarMulti :values="percentage" />
+      <ProgressBarMulti :values="percentage" :min="0" :max="100" />
     </div>
     <span v-if="state === 'Failed'" class="error">{{ errorMessage }}</span>
   </div>
@@ -60,19 +60,8 @@ export default {
   width: 80%;
 
   .progress {
-    background-color: darken(#EBEEF5, 15%)
-  }
-
-  .grey {
-    background: #909399;
-  }
-
-  .green {
-    background: #67c23a
-  }
-
-  .yellow {
-    background: #e6a23c;
+    background-color: darken(#EBEEF5, 15%);
+    width: 100%;
   }
 
 }
