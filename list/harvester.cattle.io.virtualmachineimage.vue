@@ -47,6 +47,10 @@ export default {
     };
   },
 
+  created() {
+    this.schema.attributes.actuallyKind = 'Image';
+  },
+
   customCreateFormName() {
     return 'Image';
   },
