@@ -246,3 +246,9 @@ $spacing-property-map: (
   margin-bottom: 20px;
   border-radius: var(--border-radius);
 }
+
+.card {
+  box-shadow: 0 0 20px var(--shadow);
+  background-color: var(--body-bg);
+  padding: 10px;
+}
