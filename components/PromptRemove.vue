@@ -34,10 +34,6 @@ export default {
         return `resource${ this.toRemove.length === 1 ? '' : 's' }`;
       }
 
-      if (schema?.attributes?.kind === 'VirtualMachineImage') {
-        schema.attributes.kind = 'Image';
-      }
-
       return this.$store.getters['type-map/labelFor'](schema, this.toRemove.length);
     },
 

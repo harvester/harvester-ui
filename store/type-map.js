@@ -289,7 +289,7 @@ export const getters = {
           return rootGetters['i18n/t'](key, {count}).trim();
         }
 
-        let out = schema?.attributes?.kind || schema.id || '?';
+        let out = schema?.attributes?.actuallyKind || schema?.attributes?.kind || schema.id || '?';
 
         // Add spaces, but breaks typing names into jump menu naturally
         // out = ucFirst(out.replace(/([a-z])([A-Z])/g,'$1 $2'));
