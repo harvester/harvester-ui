@@ -250,6 +250,7 @@ module.exports = {
     { src: '~/plugins/js-yaml', ssr: false },
     { src: '~/plugins/resize', ssr: false },
     { src: '~/plugins/shortkey', ssr: false },
+    { src: '~/plugins/echarts' },
 
     // First-party
     '~/plugins/i18n',

@@ -236,3 +236,11 @@ export function ensureRegex(strOrRegex, exact = true) {
 
   return strOrRegex;
 }
+
+export function calculatePercentage(total, usage) {
+  const a = Number.parseFloat(total);
+  const b = Number.parseFloat(usage);
+  const percent = (b / a);
+
+  return formatPercent(percent);
+}

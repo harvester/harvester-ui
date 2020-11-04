@@ -488,6 +488,18 @@ export default {
     };
   },
 
+  getConditionStatus() {
+    return (condition) => {
+      const entry = findBy((this?.status?.conditions || []), 'type', condition);
+
+      if ( !entry ) {
+        return false;
+      }
+
+      return entry?.status || false;
+    };
+  },
+
   getStatusPhase() {
     return this?.status?.phase;
   },
