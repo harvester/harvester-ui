@@ -43,7 +43,7 @@ export default {
     });
 
     this.rows = rows.filter((row) => {
-      return instanceMap?.[row.metadata?.uid]?.status?.nodeName === this.value?.metadata?.labels?.[HOSTNAME];
+      return instanceMap[row.metadata?.uid]?.status?.nodeName === this.value?.metadata?.labels?.[HOSTNAME];
     });
   },
 
@@ -72,24 +72,6 @@ export default {
       mode:         'view',
       rows:          []
     };
-  },
-
-  computed: {
-    pidPressureStatus() {
-      return this.mapToStatus(this.value.isPidPressureOk);
-    },
-
-    diskPressureStatus() {
-      return this.mapToStatus(this.value.isDiskPressureOk);
-    },
-
-    memoryPressureStatus() {
-      return this.mapToStatus(this.value.isMemoryPressureOk);
-    },
-
-    kubeletStatus() {
-      return this.mapToStatus(this.value.isKubeletOk);
-    },
   },
 
   mounted() {
@@ -135,30 +117,3 @@ export default {
     </Tab> -->
   </Tabbed>
 </template>
-
-<style lang="scss" scoped>
-.cluster {
-  flex: 1;
-}
-
-$divider-spacing: 20px;
-
-.glance {
-  margin-top: 20px;
-
-  & > * {
-    padding: 0 $divider-spacing;
-
-    &:first-child {
-      padding-left: 0;
-    }
-  }
-}
-
-.alerts {
-  width: 25%;
-  & > * {
-    flex: 1;
-  }
-}
-</style>
