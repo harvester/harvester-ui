@@ -34,6 +34,21 @@ export function init(store) {
     exact:       true,
   });
 
+  basicType(['virtual-node']);
+  virtualType({
+    label:       'Host',
+    group:      'Root',
+    namespaced:  false,
+    name:        'virtual-node',
+    weight:      399,
+    route:       {
+      name:   'c-cluster-product-resource',
+      params: { resource: 'node' }
+    },
+    icon:        'icons icon-h-home',
+    exact:       false,
+  });
+
   basicType([VM]);
   virtualType({
     label:      'Virtual Machine',

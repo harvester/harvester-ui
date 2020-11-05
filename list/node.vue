@@ -33,6 +33,10 @@ export default {
     };
   },
 
+  typeDisplay() {
+    return 'Host';
+  },
+
   mounted() {
     this.metricPoller.start();
   },

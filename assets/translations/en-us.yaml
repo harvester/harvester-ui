@@ -851,6 +851,13 @@ node:
       images: Images
       info: Info
       taints: Taints
+    basic:
+      hostIP: Host IP
+      os: Operating System
+      create: Creation Time
+      update: Last Update Time
+    more:
+      uuid: UUID
 
 persistentVolumeClaim:
   accessModes: Access Modes
@@ -1655,6 +1662,9 @@ vm:
       networkInterfaces: Network Interfaces
       disks: Disks
       basics: Basics
+      hostBasic: Basic Attributes
+      instance: VM Instance
+      monitor: Monitor Data
     details:
       title:
         vmDetails: Virtual Machine Details
