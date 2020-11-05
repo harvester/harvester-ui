@@ -1,5 +1,4 @@
 <script type="text/javascript">
-/* eslint-disable */
 import { allHash } from '@/utils/promise';
 import { METRIC, NODE, VM } from '@/config/types';
 import { formatSi } from '@/utils/units';
@@ -46,7 +45,7 @@ export default {
     cpusTotal() {
       let out = 0;
 
-      this.metricNodes?.forEach((node) => {
+      this.metricNodes.forEach((node) => {
         out += node.cpuCapacity;
       });
 
@@ -56,7 +55,7 @@ export default {
     cpusUsageTotal() {
       let out = 0;
 
-      this.metricNodes?.forEach((node) => {
+      this.metricNodes.forEach((node) => {
         out += node.cpuUsage;
       });
 
@@ -66,7 +65,7 @@ export default {
     memorysTotal() {
       let out = 0;
 
-      this.metricNodes?.forEach((node) => {
+      this.metricNodes.forEach((node) => {
         out += node.memoryCapacity;
       });
 
@@ -76,7 +75,7 @@ export default {
     memorysUsageTotal() {
       let out = 0;
 
-      this.metricNodes?.forEach((node) => {
+      this.metricNodes.forEach((node) => {
         out += node.memoryUsage;
       });
 
@@ -86,7 +85,7 @@ export default {
     storageUsage() {
       let out = 0;
 
-      this.metricNodes?.forEach((node) => {
+      this.metricNodes.forEach((node) => {
         out += node.storageUsage;
       });
 
@@ -96,7 +95,7 @@ export default {
     storageTotal() {
       let out = 0;
 
-      this.metricNodes?.forEach((node) => {
+      this.metricNodes.forEach((node) => {
         out += node.storageTotal;
       });
 
@@ -116,7 +115,6 @@ export default {
     },
 
     nodesStatus() {
-      const out = [];
       let success = 0;
       let warning = 0;
       let error = 0;
@@ -133,9 +131,9 @@ export default {
         }
       });
 
-      this.hostStatus.success = success;
-      this.hostStatus.error = error;
-      this.hostStatus.warning = warning;
+      this.$set(this.hostStatus, 'success', success);
+      this.$set(this.hostStatus, 'error', error);
+      this.$set(this.hostStatus, 'warning', warning);
 
       return [
         {
@@ -151,14 +149,13 @@ export default {
     },
 
     vmsStatus() {
-      const out = [];
       let Running = 0;
       let Stopped = 0;
       let Unknown = 0;
 
       this.vms.forEach((vm) => {
         const status = vm.actualState;
-        
+
         if (status === 'Running') {
           Running += 1;
         } else if (status === 'Stopped' || status === 'Paused') {
@@ -168,9 +165,9 @@ export default {
         }
       });
 
-      this.vmStatus.Running = Running;
-      this.vmStatus.Stopped = Stopped;
-      this.vmStatus.Unknown = Unknown;
+      this.$set(this.vmStatus, 'Running', Running);
+      this.$set(this.vmStatus, 'Stopped', Stopped);
+      this.$set(this.vmStatus, 'Unknown', Unknown);
 
       return [
         {
@@ -204,7 +201,7 @@ export default {
 
         <div class="content">
           <div class="left">
-            {{ this.nodes.length }}
+            {{ nodes.length }}
           </div>
 
           <div class="right">
@@ -212,21 +209,21 @@ export default {
               <span>
                 <i class="icon icon-dot success"></i> Connected
               </span>
-              <i>{{ this.hostStatus.success }}</i>
+              <i>{{ hostStatus.success }}</i>
             </div>
 
             <div class="item">
               <span>
                 <i class="icon icon-dot error"></i> Disconnected
               </span>
-              <i>{{ this.hostStatus.error }}</i>
+              <i>{{ hostStatus.error }}</i>
             </div>
 
             <div class="item">
               <span>
                 <i class="icon icon-dot warning"></i> Unknown
               </span>
-              <i>{{ this.hostStatus.warning }}</i>
+              <i>{{ hostStatus.warning }}</i>
             </div>
           </div>
         </div>
@@ -275,7 +272,7 @@ export default {
 
         <div class="content">
           <div class="left">
-            {{ this.vms.length }}
+            {{ vms.length }}
           </div>
 
           <div class="right">
@@ -283,21 +280,21 @@ export default {
               <span>
                 <i class="icon icon-dot success"></i> Running
               </span>
-              <i>{{ this.vmStatus.Running }}</i>
+              <i>{{ vmStatus.Running }}</i>
             </div>
 
             <div class="item">
               <span>
                 <i class="icon icon-dot error"></i> Stopped
               </span>
-              <i>{{ this.vmStatus.Stopped }}</i>
+              <i>{{ vmStatus.Stopped }}</i>
             </div>
 
             <div class="item">
               <span>
                 <i class="icon icon-dot warning"></i> Unknown
               </span>
-              <i>{{ this.vmStatus.Unknown }}</i>
+              <i>{{ vmStatus.Unknown }}</i>
             </div>
           </div>
         </div>

@@ -181,3 +181,5 @@ export const IMAGE = 'harvester.cattle.io.virtualmachineimage';
 export const SSH = 'harvester.cattle.io.keypair';
 export const NETWORK_ATTACHMENT = 'k8s.cni.cncf.io.networkattachmentdefinition';
 export const DATA_VOLUME = 'cdi.kubevirt.io.datavolume';
+export const HARVESTER_USER = 'harvester.cattle.io.user';
+export const HARVESTER_SETTING = 'harvester.cattle.io.setting';

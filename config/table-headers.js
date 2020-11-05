@@ -562,3 +562,9 @@ export const FLEET_SUMMARY = {
   align:     'center',
   width:     100,
 };
+
+// harvester
+export const IS_ADMIN = {
+  name:     'Isadmin',
+  value:    'isAdmin'
+};

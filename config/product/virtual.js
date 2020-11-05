@@ -1,5 +1,5 @@
 import {
-  IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME
+  IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME, HARVESTER_USER, HARVESTER_SETTING, NODE
 } from '@/config/types';
 
 import { DSL } from '@/store/type-map';
@@ -34,18 +34,18 @@ export function init(store) {
     exact:       true,
   });
 
-  basicType(['virtual-node']);
+  basicType([NODE]);
   virtualType({
     label:       'Host',
     group:      'Root',
     namespaced:  false,
-    name:        'virtual-node',
+    name:        NODE,
     weight:      399,
     route:       {
       name:   'c-cluster-product-resource',
-      params: { resource: 'node' }
+      params: { resource: NODE }
     },
-    icon:        'icons icon-h-home',
+    icon:        'icons icon-h-host',
     exact:       false,
   });
 
@@ -123,4 +123,34 @@ export function init(store) {
     icon:       'icons icon-h-database',
     exact: false,
   });
+
+  basicType([HARVESTER_USER]);
+  virtualType({
+    label:      'User',
+    group:      'root',
+    namespaced:  true,
+    name:       HARVESTER_USER,
+    weight:     87,
+    route:      {
+      name:     'c-cluster-product-resource',
+      params:   { resource: HARVESTER_USER }
+    },
+    icon:       'icons icon-h-user',
+    exact: false,
+  });
+
+  // basicType([HARVESTER_SETTING]);
+  // virtualType({
+  //   label:      'Setting',
+  //   group:      'root',
+  //   namespaced:  true,
+  //   name:       HARVESTER_SETTING,
+  //   weight:     86,
+  //   route:      {
+  //     name:     'c-cluster-product-resource',
+  //     params:   { resource: HARVESTER_SETTING }
+  //   },
+  //   icon:       'icons icon-h-setting',
+  //   exact: false,
+  // });
 }
