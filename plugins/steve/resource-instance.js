@@ -286,7 +286,7 @@ export default {
   },
 
   nameDisplay() {
-    return this.spec?.displayName || this.metadata?.name || this.id;
+    return this.spec?.displayName || this.metadata?.name || this.id || this.username; // TODO
   },
 
   nameSort() {
