@@ -853,11 +853,16 @@ node:
       taints: Taints
     basic:
       hostIP: Host IP
+      role: Role
       os: Operating System
       create: Creation Time
       update: Last Update Time
     more:
       uuid: UUID
+    type:
+      management: Management
+      compute: Compute
+      
 
 persistentVolumeClaim:
   accessModes: Access Modes

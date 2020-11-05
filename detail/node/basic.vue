@@ -31,6 +31,16 @@ export default {
 
       return `${ UNITS[exponent] }iB`;
     },
+
+    nodeType() {
+      const isMaster = this.value.metadata?.labels?.['node-role.kubernetes.io/master'] === 'true';
+
+      return isMaster ? this.t('node.detail.type.management') : this.t('node.detail.type.compute');
+    },
+
+    lastUpdateTime() {
+      return this.value.status?.conditions?.[0]?.lastHeartbeatTime;
+    }
   },
 
   methods: {
@@ -59,7 +69,15 @@ export default {
     </div>
     <div class="row mb-20">
       <div class="col span-6">
+        <LabeledInput v-model="nodeType" :label="t('node.detail.basic.role')" :mode="mode" />
+      </div>
+    </div>
+    <div class="row mb-20">
+      <div class="col span-6">
         <LabeledInput v-model="value.metadata.creationTimestamp" :label="t('node.detail.basic.create')" :mode="mode" />
+      </div>
+      <div class="col span-6">
+        <LabeledInput v-model="lastUpdateTime" :label="t('node.detail.basic.update')" :mode="mode" />
       </div>
     </div>
     <hr class="divider" />
@@ -78,10 +96,8 @@ export default {
     <hr class="divider" />
     <h3>More Information</h3>
     <div class="row mb-20">
-      <div class="col span-12">
-        <div class="col span-6">
-          <LabeledInput v-model="value.status.nodeInfo.systemUUID" :label="t('node.detail.more.uuid')" :mode="mode" />
-        </div>
+      <div class="col span-6">
+        <LabeledInput v-model="value.status.nodeInfo.systemUUID" :label="t('node.detail.more.uuid')" :mode="mode" />
       </div>
     </div>
   </div>
