@@ -234,8 +234,8 @@ export default {
     },
     {
       label:         this.t('node.detail.detailTop.containerRuntime'),
-      formatter:     'IconText',
-      formatterOpts: { iconClass: this.containerRuntimeIcon },
+      // formatter:     'IconText',
+      // formatterOpts: { iconClass: this.containerRuntimeIcon },
       content:       this.containerRuntimeVersion
     }];
   }
