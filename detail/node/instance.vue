@@ -1,5 +1,5 @@
 <script>
-import { STATE, AGE, NAME, CPU } from '@/config/table-headers';
+import { STATE, AGE, NAME } from '@/config/table-headers';
 import SortableTable from '@/components/SortableTable';
 import VmState from '@/components/formatter/vmState';
 import MigrationState from '@/components/formatter/MigrationState';

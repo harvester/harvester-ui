@@ -2,7 +2,7 @@
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import Poller from '@/utils/poller';
-import { METRIC, VM, NODE } from '@/config/types';
+import { METRIC, VM, NODE, VMI } from '@/config/types';
 import { HOSTNAME } from '@/config/labels-annotations';
 import { defaultAsyncData } from '@/components/ResourceDetail';
 import Basic from './basic';
@@ -32,9 +32,18 @@ export default {
 
   async fetch() {
     const rows = await this.$store.dispatch('cluster/findAll', { type: VM });
+    const instanceMap = {};
+
+    (this.$store.getters['cluster/all'](VMI) || []).forEach((vmi) => {
+      const vmiUID = vmi?.metadata?.ownerReferences?.[0]?.uid;
+
+      if (vmiUID) {
+        instanceMap[vmiUID] = vmi;
+      }
+    });
 
     this.rows = rows.filter((row) => {
-      return row.status?.nodeName === this.value?.metadata?.labels?.[HOSTNAME];
+      return instanceMap?.[row.metadata?.uid]?.status?.nodeName === this.value?.metadata?.labels?.[HOSTNAME];
     });
   },
 
