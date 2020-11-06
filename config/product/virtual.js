@@ -1,5 +1,5 @@
 import {
-  IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME, HARVESTER_USER, HARVESTER_SETTING, NODE
+  IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME, HARVESTER_USER, NODE, HARVESTER_SETTING
 } from '@/config/types';
 
 import { DSL } from '@/store/type-map';
@@ -13,6 +13,7 @@ export function init(store) {
     product,
     basicType,
     virtualType,
+    uncreatableType
   } = DSL(store, NAME);
 
   product({
@@ -139,18 +140,19 @@ export function init(store) {
     exact: false,
   });
 
-  // basicType([HARVESTER_SETTING]);
-  // virtualType({
-  //   label:      'Setting',
-  //   group:      'root',
-  //   namespaced:  true,
-  //   name:       HARVESTER_SETTING,
-  //   weight:     86,
-  //   route:      {
-  //     name:     'c-cluster-product-resource',
-  //     params:   { resource: HARVESTER_SETTING }
-  //   },
-  //   icon:       'icons icon-h-setting',
-  //   exact: false,
-  // });
+  basicType([HARVESTER_SETTING]);
+  uncreatableType(HARVESTER_SETTING);
+  virtualType({
+    label:      'Setting',
+    group:      'root',
+    namespaced:  true,
+    name:       HARVESTER_SETTING,
+    weight:     86,
+    route:      {
+      name:     'c-cluster-product-resource',
+      params:   { resource: HARVESTER_SETTING }
+    },
+    icon:       'icons icon-h-setting',
+    exact: false,
+  });
 }
