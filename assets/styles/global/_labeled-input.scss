@@ -108,10 +108,15 @@
       display: inline;
     }
   }
+  
+  &.suffix INPUT:not(.view){
+    padding-right: 8px;
+  }
 
   &--tooltip {
     .has-tooltip {
       z-index: 2;
     }
   }
+
 }
