@@ -1,5 +1,5 @@
 <script>
-import { STATE, AGE, USERNAME, IS_ADMIN } from '@/config/table-headers';
+import { STATE, AGE, USERNAME } from '@/config/table-headers';
 import SortableTable from '@/components/SortableTable';
 
 export default {
@@ -26,7 +26,6 @@ export default {
           ...USERNAME,
           width: 250
         },
-        IS_ADMIN,
         AGE
       ];
     },

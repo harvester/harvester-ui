@@ -211,7 +211,7 @@ export default {
     const podList = this.$rootGetters['cluster/all'](POD);
 
     return podList.find( (P) => {
-      return vmiResource.metadata.name === P.metadata?.ownerReferences?.[0].name;
+      return vmiResource?.metadata?.name === P.metadata?.ownerReferences?.[0].name;
     });
   },
 
