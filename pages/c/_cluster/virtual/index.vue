@@ -103,15 +103,15 @@ export default {
     },
 
     memoryPrecent() {
-      return (this.memorysUsageTotal / this.memorysTotal).toFixed(2) * 100;
+      return (this.memorysUsageTotal / this.memorysTotal * 100).toFixed(2);
     },
 
     cpuPrecent() {
-      return (this.cpusUsageTotal / this.cpusTotal).toFixed(2) * 100;
+      return (this.cpusUsageTotal / this.cpusTotal * 100).toFixed(2);
     },
 
     storagePrecent() {
-      return (this.storageUsage / this.storageTotal).toFixed(2) * 100;
+      return (this.storageUsage / this.storageTotal * 100).toFixed(2);
     },
 
     nodesStatus() {

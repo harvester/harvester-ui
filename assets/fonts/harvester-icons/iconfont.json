@@ -6,6 +6,13 @@
   "description": "Harvester",
   "glyphs": [
     {
+      "icon_id": "5225543",
+      "name": "Networks-WF.png-在线离线",
+      "font_class": "network",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    },
+    {
       "icon_id": "3348056",
       "name": "host",
       "font_class": "host",

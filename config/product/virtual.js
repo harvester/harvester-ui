@@ -1,5 +1,5 @@
 import {
-  IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME, HARVESTER_USER, NODE, HARVESTER_SETTING
+  IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME, HARVESTER_USER, NODE, HARVESTER_SETTING, NETWORK_ATTACHMENT
 } from '@/config/types';
 
 import { DSL } from '@/store/type-map';
@@ -62,6 +62,21 @@ export function init(store) {
       params:   { resource: VM }
     },
     icon:       'icons icon-h-display',
+    exact: false,
+  });
+
+  basicType([NETWORK_ATTACHMENT]);
+  virtualType({
+    label:      'Networks',
+    group:      'root',
+    namespaced: true,
+    name:       NETWORK_ATTACHMENT,
+    weight:     298,
+    route:      {
+      name:     'c-cluster-product-resource',
+      params:   { resource: NETWORK_ATTACHMENT }
+    },
+    icon:       'icons icon-h-network',
     exact: false,
   });
 
