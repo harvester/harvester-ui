@@ -235,7 +235,7 @@ export default {
 
       <div class="col span-3 card">
         <div class="chart">
-          <Pie ref="Cpu" title="Cpu" :value="cpuPrecent">
+          <Pie ref="Cpu" title="CPU" :value="cpuPrecent">
             <span>Used: <i>{{ formatSi(cpusUsageTotal) }}</i></span>
             <hr>
             <span>Actual Total: <i>{{ formatSi(cpusTotal) }}</i></span>

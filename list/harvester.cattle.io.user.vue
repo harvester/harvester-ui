@@ -22,13 +22,11 @@ export default {
     headers() {
       return [
         { ...STATE },
-        USERNAME,
-        IS_ADMIN,
         {
-          name:  'Description',
-          label: 'Description',
-          value: 'description',
+          ...USERNAME,
+          width: 250
         },
+        IS_ADMIN,
         AGE
       ];
     },
