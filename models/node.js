@@ -56,7 +56,12 @@ export default {
   },
 
   labels() {
-    return this.metadata?.labels || {};
+    // return this.metadata?.labels || {};
+    return {};
+  },
+
+  annotations() {
+    return {};
   },
 
   isWorker() {
@@ -219,25 +224,26 @@ export default {
   },
 
   details() {
-    return [{
-      label:     this.t('node.detail.detailTop.ipAddress'),
-      formatter: 'CopyToClipboardText',
-      content:   this.externalIp || this.internalIp
-    },
-    {
-      label:    this.t('node.detail.detailTop.version'),
-      content:  this.version
-    },
-    {
-      label:    this.t('node.detail.detailTop.os'),
-      content:  this.status.nodeInfo.osImage
-    },
-    {
-      label:         this.t('node.detail.detailTop.containerRuntime'),
-      // formatter:     'IconText',
-      // formatterOpts: { iconClass: this.containerRuntimeIcon },
-      content:       this.containerRuntimeVersion
-    }];
+    // return [{
+    //   label:     this.t('node.detail.detailTop.ipAddress'),
+    //   formatter: 'CopyToClipboardText',
+    //   content:   this.externalIp || this.internalIp
+    // },
+    // {
+    //   label:    this.t('node.detail.detailTop.version'),
+    //   content:  this.version
+    // },
+    // {
+    //   label:    this.t('node.detail.detailTop.os'),
+    //   content:  this.status.nodeInfo.osImage
+    // },
+    // {
+    //   label:         this.t('node.detail.detailTop.containerRuntime'),
+    //   // formatter:     'IconText',
+    //   // formatterOpts: { iconClass: this.containerRuntimeIcon },
+    //   content:       this.containerRuntimeVersion
+    // }];
+    return [];
   }
 };
 
