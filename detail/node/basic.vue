@@ -83,14 +83,11 @@ export default {
     <hr class="divider" />
     <h3>Configurations</h3>
     <div class="row mb-20">
-      <div class="col span-4">
+      <div class="col span-6">
         <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.cpu')" :capacity="value.cpuCapacity" :used="value.cpuUsage" />
       </div>
-      <div class="col span-4">
+      <div class="col span-6">
         <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.memory')" :capacity="value.ramCapacity" :used="value.ramUsage" :units="memoryUnits" :number-formatter="memoryFormatter" />
-      </div>
-      <div class="col span-4">
-        <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.pods')" :capacity="value.podCapacity" :used="value.podConsumed" />
       </div>
     </div>
     <hr class="divider" />

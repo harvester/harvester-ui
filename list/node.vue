@@ -1,14 +1,27 @@
 <script>
 import ResourceTable from '@/components/ResourceTable';
 import Poller from '@/utils/poller';
-import {
-  STATE, NAME, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM
-} from '@/config/table-headers';
+import { STATE, NAME, AGE } from '@/config/table-headers';
 
 import { METRIC } from '@/config/types';
 
 const METRICS_POLL_RATE_MS = 30000;
 const MAX_FAILURES = 2;
+const HOST_ROLES = {
+  name:      'host-roles',
+  labelKey:  'tableHeaders.roles',
+  sort:      'host-roles',
+  value:     `metadata.labels`,
+  formatter: 'HostRoles'
+};
+const HOST_IP = {
+  name:      'host-ip',
+  labelKey:  'tableHeaders.hostIp',
+  search:    ['internalIp'],
+  sort:      ['internalIp'],
+  value:     'internalIp',
+  formatter: 'HostIp'
+};
 
 export default {
   name:       'ListNode',
@@ -28,7 +41,7 @@ export default {
 
   data() {
     return {
-      headers:         [STATE, NAME, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM],
+      headers:         [STATE, NAME, HOST_ROLES, HOST_IP, AGE],
       metricPoller:    new Poller(this.loadMetrics, METRICS_POLL_RATE_MS, MAX_FAILURES),
     };
   },

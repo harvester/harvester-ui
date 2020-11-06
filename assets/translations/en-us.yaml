@@ -860,8 +860,8 @@ node:
     more:
       uuid: UUID
     type:
-      management: Management
-      compute: Compute
+      management: Management Node
+      compute: Compute Node
       
 
 persistentVolumeClaim:
@@ -1149,6 +1149,7 @@ tableHeaders:
   imageSize: Size
   ingressTarget: Target
   internalExternalIp: External/Internal IP
+  hostIp: Host IP
   key: Key
   keys: Data
   lastUpdated: Last Updated
