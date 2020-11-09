@@ -360,6 +360,7 @@ export default {
       :mode="mode"
       :has-extra="!isSingle"
       :name-label="nameLabel"
+      :namespaced="false"
       :extra-columns="['type']"
     >
       <template v-slot:type>

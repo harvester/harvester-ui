@@ -100,7 +100,7 @@ module.exports = {
   },
 
   router: {
-    mode:       'hash', // Compatible with rancher proxy
+    // mode:       'hash', // Compatible with rancher proxy
     base:       routerBasePath,
     middleware: ['i18n'],
   },

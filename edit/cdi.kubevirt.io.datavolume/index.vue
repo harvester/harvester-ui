@@ -102,6 +102,7 @@ export default {
     <NameNsDescription
       v-if="isCreate"
       :value="value"
+      :namespaced="false"
       :mode="mode"
       @change="updateAnno"
     />

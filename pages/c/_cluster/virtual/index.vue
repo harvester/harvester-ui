@@ -11,9 +11,9 @@ export default {
 
   async fetch() {
     const hash = {
-      metricNodes: this.$store.dispatch('management/findAll', { type: METRIC.NODE }),
-      nodes:       this.$store.dispatch('management/findAll', { type: NODE }),
-      vms:         this.$store.dispatch('management/findAll', { type: VM }),
+      metricNodes: this.$store.dispatch('cluster/findAll', { type: METRIC.NODE }),
+      nodes:       this.$store.dispatch('cluster/findAll', { type: NODE }),
+      vms:         this.$store.dispatch('cluster/findAll', { type: VM }),
     };
 
     const res = await allHash(hash);
