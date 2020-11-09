@@ -49,7 +49,13 @@ export default {
     },
     events() {
       return this.allEvents.filter((e) => {
-        return e?.involvedObject?.name === this.value?.metadata?.name;
+        const { name, creationTimestamp } = this.value?.metadata || {};
+
+        if (e?.involvedObject?.name === name) {
+          // debugger;
+        }
+
+        return e?.involvedObject?.name === name && e.firstTimestamp >= creationTimestamp;
       }).reverse();
     },
   },
