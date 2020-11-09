@@ -39,6 +39,9 @@ export default {
 
       return this.row.stateDisplay;
     },
+    failed() {
+      return this.state === 'Failed';
+    },
     errorMessage() {
       return this.row.getStatusConditionOfType('imported')?.reason;
     }
@@ -48,20 +51,35 @@ export default {
 
 <template>
   <div class="parent">
-    <div>
+    <div class="progress-box">
       <ProgressBarMulti :values="percentage" :min="0" :max="100" />
     </div>
-    <span v-if="state === 'Failed'" class="error">{{ errorMessage }}</span>
+    <div class="text">
+      {{ value || 0 }}%
+    </div>
+    <span v-if="failed" class="error">{{ errorMessage }}</span>
   </div>
 </template>
 
 <style lang="scss">
 .parent {
-  width: 80%;
+  display: grid;
+  grid-template-areas: "progress text";
+  grid-template-columns: auto 80px;
+  align-items: center;
 
   .progress {
     background-color: darken(#EBEEF5, 15%);
     width: 100%;
+  }
+
+  .progress-box {
+    grid-area: progress;
+  }
+
+  .text {
+    grid-area: text;
+    text-align: center;
   }
 
 }
