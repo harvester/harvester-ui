@@ -33,10 +33,10 @@ export default {
       return this.localResource?.status?.migrationState;
     },
     sourceNode() {
-      return this.migrationState?.sourceNode || '-';
+      return this.migrationState?.sourceNode || 'N/A';
     },
     targetNode() {
-      return this.migrationState?.targetNode || '-';
+      return this.migrationState?.targetNode || 'N/A';
     },
     started() {
       return this.migrationState?.startTimestamp || 'N/A';
