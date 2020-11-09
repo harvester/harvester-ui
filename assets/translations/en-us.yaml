@@ -839,6 +839,7 @@ node:
         cpu: CPU
         memory: MEMORY
         pods: PODS
+        storage: Storage Size
       diskPressure: Disk Pressure
       kubelet: kubelet
       memoryPressure: Memory Pressure
