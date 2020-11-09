@@ -945,7 +945,7 @@ export default {
   detailLocation() {
     const schema = this.$getters['schemaFor'](this.type);
 
-    const id = this.id.replace(/.*\//, '');
+    const id = this?.id?.replace(/.*\//, '');
 
     return {
       name:   `c-cluster-product-resource${ schema?.attributes?.namespaced ? '-namespace' : '' }-id`,

@@ -77,26 +77,19 @@ export default {
 
 <template>
   <div>
-    <div class="row mb-20">
-      <div class="col span-6">
-        <LabeledInput v-model="name" label="Name" required />
-      </div>
+    <LabeledInput v-model="name" class="mb-20" label="Name" required :disabled="isEdit" />
 
-      <div class="col span-6">
-        <LabeledSelect v-model="type" label="Type" :options="typeOption" :disabled="true" required />
-      </div>
-    </div>
+    <LabeledSelect
+      v-model="type"
+      class="mb-20"
+      label="Type"
+      :options="typeOption"
+      :disabled="true"
+      required
+    />
 
-    <div class="row">
-      <div class="col span-6">
-        <LabeledInput v-model.number="vlanId" label="Vlan ID" required placeholder="i.e 1-4094" />
-      </div>
-    </div>
+    <LabeledInput v-model.number="vlanId" class="mb-20" label="Vlan ID" required placeholder="i.e 1-4094" />
 
     <Footer :mode="mode" :errors="errors" @save="beforeSave" @done="done" />
   </div>
 </template>
-
-<style lang="scss" scoped>
-
-</style>

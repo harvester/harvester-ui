@@ -49,16 +49,10 @@ export default {
 </script>
 
 <template>
-  <div>
-    <div class="row" @input="update">
-      <div class="col span-6">
-        <LabeledSelect v-model="type" label="Type" :options="typeOption" :disabled="true" />
-      </div>
+  <div @input="update">
+    <LabeledSelect v-model="type" class="mb-20" label="Type" :options="typeOption" :disabled="true" />
 
-      <div class="col span-6">
-        <LabeledInput v-model="parseDefaultValue.NIC" label="Physical NIC" />
-      </div>
-    </div>
+    <LabeledInput v-model="parseDefaultValue.NIC" label="Physical NIC" />
   </div>
 </template>
 

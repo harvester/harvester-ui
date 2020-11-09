@@ -7,7 +7,7 @@ export default {
   },
 
   cpuCapacity() {
-    return parseSi(this.$rootGetters['management/byId'](NODE, this.id)?.status?.allocatable?.cpu || '0');
+    return parseSi(this.$rootGetters['cluster/byId'](NODE, this.id)?.status?.allocatable?.cpu || '0');
   },
 
   cpuUsagePercentage() {
@@ -19,7 +19,7 @@ export default {
   },
 
   memoryCapacity() {
-    return parseSi(this.$rootGetters['management/byId'](NODE, this.id)?.status?.capacity?.memory || '0');
+    return parseSi(this.$rootGetters['cluster/byId'](NODE, this.id)?.status?.capacity?.memory || '0');
   },
 
   memoryUsagePercentage() {
@@ -27,10 +27,10 @@ export default {
   },
 
   storageUsage() {
-    return parseSi(this.$rootGetters['management/byId'](NODE, this.id)?.status?.capacity?.['ephemeral-storage']) - parseSi(this.$rootGetters['management/byId'](NODE, this.id)?.status?.allocatable?.['ephemeral-storage']);
+    return parseSi(this.$rootGetters['cluster/byId'](NODE, this.id)?.status?.capacity?.['ephemeral-storage']) - parseSi(this.$rootGetters['cluster/byId'](NODE, this.id)?.status?.allocatable?.['ephemeral-storage']);
   },
 
   storageTotal() {
-    return parseSi(this.$rootGetters['management/byId'](NODE, this.id)?.status?.capacity?.['ephemeral-storage']);
+    return parseSi(this.$rootGetters['cluster/byId'](NODE, this.id)?.status?.capacity?.['ephemeral-storage']);
   }
 };

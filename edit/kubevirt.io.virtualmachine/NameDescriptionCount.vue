@@ -49,7 +49,7 @@ export default {
     },
     namePlaceholder: {
       type:    String,
-      default: ''
+      default: 'nameNsDescription.name.placeholder',
     },
     nameDisabled: {
       type:    Boolean,
@@ -122,6 +122,10 @@ export default {
   },
 
   computed: {
+    nameReallyDisabled() {
+      return this.nameDisabled || ( this.mode === _EDIT && !this.nameEditable);
+    },
+
     namespaceReallyDisabled() {
       return !!this.forceNamespace || this.namespaceDisabled || this.mode === _EDIT; // namespace is never editable
     },
@@ -215,6 +219,7 @@ export default {
       <div :class="{col: true, 'span-6': true}">
         <slot name="namespace">
           <InputWithSelect
+            v-if="namespaced"
             ref="name"
             :options="namespaces"
             :text-label="nameLabel"
@@ -226,6 +231,19 @@ export default {
             :mode="mode"
             :disabled="namespaceReallyDisabled"
             @input="changeNameAndNamespace($event)"
+          />
+
+          <LabeledInput
+            v-else
+            ref="name"
+            key="name"
+            v-model="name"
+            :label="nameLabel"
+            :placeholder="t(namePlaceholder)"
+            :disabled="nameReallyDisabled"
+            :mode="mode"
+            :min-height="30"
+            :required="true"
           />
         </slot>
       </div>
