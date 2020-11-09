@@ -51,10 +51,6 @@ export default {
       return this.allEvents.filter((e) => {
         const { name, creationTimestamp } = this.value?.metadata || {};
 
-        if (e?.involvedObject?.name === name) {
-          // debugger;
-        }
-
         return e?.involvedObject?.name === name && e.firstTimestamp >= creationTimestamp;
       }).reverse();
     },
