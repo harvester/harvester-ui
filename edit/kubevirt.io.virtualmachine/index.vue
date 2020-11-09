@@ -96,17 +96,18 @@ export default {
 
     return {
       baseSpec,
-      isSingle:             true,
-      count:                1,
-      realHostname:         '',
+      isSingle:              true,
+      count:                 1,
+      realHostname:          '',
       spec,
-      templateName:         '',
-      templateVersion:      '',
-      namespace:            'default',
-      isRunning:            true,
-      useTemplate:          false,
-      pageType:             'vm',
+      templateName:          '',
+      templateVersion:       '',
+      namespace:             'default',
+      isRunning:             true,
+      useTemplate:           false,
+      pageType:              'vm',
       isLanuchFromTemplate:     false,
+      isUseMouseEnhancement:    true
     };
   },
 
@@ -227,6 +228,19 @@ export default {
         this.$set(this.value, 'spec', spec);
         this.templateName = '';
         this.templateVersion = '';
+      }
+    },
+    isUseMouseEnhancement(neu) {
+      if (neu) {
+        Object.assign(this.spec.template.spec.domain.devices, {
+          inputs: [{
+            bus:  'usb',
+            name: 'tablet',
+            type: 'tablet'
+          }]
+        });
+      } else {
+        this.$delete(this.spec.template.spec.domain.devices, 'inputs');
       }
     }
   },
@@ -428,9 +442,10 @@ export default {
       </LabeledInput>
 
       <CloudConfig :user-script="userScript" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
-    </Collapse>
 
-    <div class="spacer"></div>
+      <div class="spacer"></div>
+      <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" label="Use mouse enhancement" />
+    </Collapse>
 
     <div class="spacer"></div>
     <Checkbox v-model="isRunning" class="check" type="checkbox" label="Start virtual machine on creation" />
