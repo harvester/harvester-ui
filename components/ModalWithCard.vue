@@ -10,6 +10,16 @@ export default {
     name: {
       type:     String,
       required: true
+    },
+
+    closeText: {
+      type:    String,
+      default: 'Close'
+    },
+
+    saveText: {
+      type:    String,
+      default: 'Save'
     }
   },
 
@@ -19,9 +29,13 @@ export default {
     },
     open() {
       this.$modal.show(this.name);
+    },
+    save(event) {
+      this.$emit('beforeClose', event);
     }
   }
 };
+
 </script>
 
 <template>
@@ -29,6 +43,7 @@ export default {
     :name="name"
     width="50%"
     :click-to-close="false"
+    height="auto"
   >
     <Card>
       <template #title>
@@ -42,7 +57,14 @@ export default {
       </template>
 
       <template #actions>
-        <slot name="footer"></slot>
+        <slot name="footer">
+          <button class="btn role-secondary btn-sm mr-20" @click="hide">
+            {{ closeText }}
+          </button>
+          <button class="btn role-tertiary bg-primary btn-sm mr-20" @click="save">
+            {{ saveText }}
+          </button>
+        </slot>
       </template>
     </Card>
   </modal>

@@ -9,7 +9,7 @@ export default {
   request({ dispatch }, opt) {
     // @TODO queue/defer duplicate requests
     opt.depaginate = opt.depaginate !== false;
-    opt.url = opt.url.replace(/\/*$/g, '');
+    opt.url = opt.url?.replace(/\/*$/g, '');
     opt.url = addPrefix(opt.url); // rancher proxy
 
     opt.httpsAgent = new https.Agent({ rejectUnauthorized: false });

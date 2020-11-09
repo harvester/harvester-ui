@@ -1,5 +1,6 @@
 <script>
 import DiskModal from '@/components/form/DiskModal';
+import ModalWithCard from '@/components/ModalWithCard';
 import NetworkModal from '@/components/form/NetworkModal';
 import VM_MIXIN from '@/mixins/vm';
 
@@ -9,6 +10,7 @@ export default {
   components: {
     DiskModal,
     NetworkModal,
+    ModalWithCard
   },
 
   mixins: [VM_MIXIN],
@@ -22,8 +24,9 @@ export default {
 
   data() {
     return {
-      spec:      this.value.spec,
-      cdrowName: []
+      spec:       this.value.spec,
+      cdrowName:  [],
+      nameString: ''
     };
   },
 
@@ -56,21 +59,14 @@ export default {
   methods: {
     ejectCdrow() {
       const diskNames = this.getCheckCdrow();
-      const nameSring = diskNames.join(', ');
+      const nameString = diskNames.join(', ');
 
       if (diskNames.length === 0) {
         return;
       }
+      this.nameString = nameString;
 
-      this.$confirm(`Are you sure you want to eject CD-ROM ${ nameSring } ,this action will restart the virtual machine`, 'Eject CD-ROM', {
-        confirmButtonText:  'Yes',
-        cancelButtonText:   'No',
-        cancelButtonClass:  'bg-primary',
-        confirmButtonClass: 'bg-primary'
-      })
-        .then(async() => {
-          await this.value.doAction('ejectCdRom', { diskNames });
-        });
+      this.$refs.CDROM.open();
     },
     getCheckCdrow() {
       const diskNames = [];
@@ -82,6 +78,18 @@ export default {
       }
 
       return diskNames;
+    },
+
+    async beforeClose(event) {
+      const diskNames = this.getCheckCdrow();
+
+      try {
+        await this.value.doAction('ejectCdRom', { diskNames });
+        this.$refs.CDROM.hide();
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log(err);
+      }
     }
   }
 };
@@ -97,5 +105,15 @@ export default {
 
     <h2>Networks</h2>
     <NetworkModal v-model="networkRows" :row-actions="false" />
+
+    <ModalWithCard ref="CDROM" name="CDROM" close-text="No" save-text="Yes" @beforeClose="beforeClose">
+      <template #title>
+        Eject CD-ROM
+      </template>
+
+      <template #content>
+        {{ `Are you sure you want to eject CD-ROM ${ nameString } ,this action will restart the virtual machine` }}
+      </template>
+    </ModalWithCard>
   </div>
 </template>
