@@ -3,6 +3,7 @@ import Footer from '@/components/form/Footer';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabelAndAnnoTabs from '@/components/form/LabelAndAnnoTabs';
 import CreateEditView from '@/mixins/create-edit-view';
+import { DESCRIPTION } from '@/config/labels-annotations';
 
 const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
 
@@ -37,10 +38,13 @@ export default {
     }
 
     const displayName = this.value?.spec?.displayName || '';
+    const description = this.value?.metadata?.annotations?.[DESCRIPTION];
 
     return {
       displayName,
-      url: this.value.spec.url
+      url:    this.value.spec.url,
+      description,
+      randow: Math.random(),
     };
   },
 
@@ -62,7 +66,15 @@ export default {
     },
     displayName(neu) {
       this.value.spec.displayName = neu;
-    }
+    },
+    description(neu) {
+      this.randow = Math.random();
+
+      this.$set(this.value.metadata, 'annotations', {
+        ...this.value.metadata.annotations,
+        [DESCRIPTION]: neu
+      });
+    },
   },
 
   created() {
@@ -115,7 +127,7 @@ export default {
     <div v-if="isCreate" class="row mb-20">
       <div class="col span-12">
         <LabeledInput
-          v-model="value.spec.description"
+          v-model="description"
           type="multiline"
           :is-resize="true"
           label="Description"
@@ -123,7 +135,7 @@ export default {
       </div>
     </div>
 
-    <LabelAndAnnoTabs v-model="value" :mode="mode" />
+    <LabelAndAnnoTabs :key="randow" v-model="value" :mode="mode" />
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
   </form>
 </template>
