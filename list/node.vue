@@ -63,7 +63,7 @@ export default {
       const schema = this.$store.getters['cluster/schemaFor'](METRIC.NODE);
 
       if (schema) {
-        await this.$store.dispatch('cluster/findAll', {
+        await this.$store.dispatch('management/findAll', {
           type: METRIC.NODE,
           opt:  { force: true }
         });

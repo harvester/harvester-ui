@@ -14,6 +14,14 @@ export default {
       required: true,
     },
 
+    metrics: {
+      type:     Object,
+      required: false,
+      default:  () => {
+        return null;
+      }
+    },
+
     mode: {
       type:     String,
       required: false,
@@ -26,8 +34,68 @@ export default {
   },
 
   computed: {
+    cpuTotal() {
+      let out = 0;
+
+      if (this.metrics) {
+        out = this.metrics.cpuCapacity;
+      }
+
+      return out;
+    },
+
+    cpuUsage() {
+      let out = 0;
+
+      if (this.metrics) {
+        out = this.metrics.cpuUsage;
+      }
+
+      return out;
+    },
+
+    memoryTotal() {
+      let out = 0;
+
+      if (this.metrics) {
+        out = this.metrics.memoryCapacity;
+      }
+
+      return out;
+    },
+
+    memoryUsage() {
+      let out = 0;
+
+      if (this.metrics) {
+        out = this.metrics.memoryUsage;
+      }
+
+      return out;
+    },
+
+    storageUsage() {
+      let out = 0;
+
+      if (this.metrics) {
+        out = this.metrics.storageUsage;
+      }
+
+      return out;
+    },
+
+    storageTotal() {
+      let out = 0;
+
+      if (this.metrics) {
+        out = this.metrics.storageTotal;
+      }
+
+      return out;
+    },
+
     memoryUnits() {
-      const exponent = exponentNeeded(this.value.ramCapacity, 1024);
+      const exponent = exponentNeeded(this.memoryTotal, 1024);
 
       return `${ UNITS[exponent] }iB`;
     },
@@ -83,11 +151,14 @@ export default {
     <hr class="divider" />
     <h3>Configurations</h3>
     <div class="row mb-20">
-      <div class="col span-6">
-        <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.cpu')" :capacity="value.cpuCapacity" :used="value.cpuUsage" />
+      <div class="col span-4">
+        <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.cpu')" :capacity="cpuTotal" :used="cpuUsage" />
       </div>
-      <div class="col span-6">
-        <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.memory')" :capacity="value.ramCapacity" :used="value.ramUsage" :units="memoryUnits" :number-formatter="memoryFormatter" />
+      <div class="col span-4">
+        <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.memory')" :capacity="memoryTotal" :used="memoryUsage" :units="memoryUnits" :number-formatter="memoryFormatter" />
+      </div>
+      <div class="col span-4">
+        <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.storage')" :capacity="storageTotal" :used="storageUsage" :units="memoryUnits" :number-formatter="memoryFormatter" />
       </div>
     </div>
     <hr class="divider" />
