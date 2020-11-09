@@ -1,6 +1,7 @@
 <script>
 import CopyToClipboardText from '@/components/formatter/CopyToClipboardText';
 import { getFileSize } from '@/utils/units';
+import { DESCRIPTION } from '@/config/labels-annotations';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 
@@ -32,7 +33,7 @@ export default {
     },
 
     description() {
-      return this.value.spec.description || '-';
+      return this.value?.metadata?.annotations?.[DESCRIPTION] || '-';
     },
 
     errorMessage() {
