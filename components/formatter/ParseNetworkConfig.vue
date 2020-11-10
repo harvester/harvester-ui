@@ -2,7 +2,7 @@
 export default {
   props:      {
     value: {
-      type:     String,
+      type:     [String, Object],
       default: ''
     },
     col: {
@@ -12,7 +12,14 @@ export default {
   },
   computed: {
     parseValue() {
-      const config = JSON.parse(this.value);
+      let config = {};
+
+      try {
+        config = JSON.parse(this.value);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log('waiting...');
+      }
 
       return config?.[this.col.type] || '';
     }
