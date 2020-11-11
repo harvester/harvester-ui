@@ -158,11 +158,15 @@ export default {
       },
       set(neu) {
         try {
-          const oldCloudConfig = safeLoad(this.getCloudInit());
+          this.useCustomHostname = false;
+          if (neu || neu.length > 0) {
+            this.useCustomHostname = true;
+            const oldCloudConfig = safeLoad(this.getCloudInit());
 
-          oldCloudConfig.hostname = neu;
+            oldCloudConfig.hostname = neu;
 
-          this.$set(this.spec.template.spec, 'hostname', neu);
+            this.$set(this.spec.template.spec, 'hostname', neu);
+          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log('---watch hostname has error');
@@ -255,6 +259,9 @@ export default {
       }
     });
     this.registerBeforeHook(this.validateBefore, 'validate');
+    this.registerFailureHook(() => {
+      this.$set(this.value, 'type', VM);
+    });
   },
 
   mounted() {
@@ -272,7 +279,7 @@ export default {
       const url = `v1/${ VM }s`;
 
       this.normalizeSpec();
-      const realHostname = this.realHostname || this.value.spec.template.spec.hostname || this.value.metadata.name;
+      const realHostname = this.useCustomHostname ? this.value.spec.template.spec.hostname : this.value.metadata.name;
 
       this.$set(this.value.spec.template.spec, 'hostname', realHostname);
       const noFetch = !this.isSingle;
@@ -309,7 +316,7 @@ export default {
 
     async getClone() {
       const baseName = this.value.metadata.name;
-      const baseHostname = this.realHostname || this.value.spec.template.spec.hostname || this.value.metadata.name;
+      const baseHostname = this.useCustomHostname ? this.value.spec.template.spec.hostname : this.value.metadata.name;
       const join = baseName.endsWith('-') ? '' : '-';
       const countLength = this.count.toString().length;
 

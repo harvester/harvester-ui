@@ -45,6 +45,7 @@ export default {
       publicKey:  '',
       showCloudInit: false,
       sshAuthorizedKeys:   '',
+      useCustomHostname: false
     };
   },
 
@@ -255,12 +256,6 @@ export default {
         let newInitScript = {};
         if (out) {
           newInitScript = safeLoad(out)
-        }
-
-        if (!newInitScript?.hostname) {
-          this.realHostname = '';
-        } else {
-          this.realHostname = newInitScript.hostname;
         }
 
         if (newInitScript?.ssh_authorized_keys) {

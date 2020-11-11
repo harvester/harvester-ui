@@ -2,7 +2,7 @@ import { _CREATE, _EDIT, _VIEW } from '@/config/query-params';
 import { LAST_NAMESPACE } from '@/store/prefs';
 import { ANNOTATIONS_TO_IGNORE_REGEX, LABELS_TO_IGNORE_REGEX } from '@/config/labels-annotations';
 import { exceptionToErrorsArray } from '@/utils/error';
-import ChildHook, { BEFORE_SAVE_HOOKS, AFTER_SAVE_HOOKS } from './child-hook';
+import ChildHook, { BEFORE_SAVE_HOOKS, AFTER_SAVE_HOOKS, AFTER_FAILURE_HOOKS } from './child-hook';
 
 export default {
   mixins: [ChildHook],
@@ -182,7 +182,7 @@ export default {
         buttonDone(true);
         this.done();
       } catch (err) {
-        // await this.applyHooks(AFTER_SAVE_HOOKS);
+        await this.applyHooks(AFTER_FAILURE_HOOKS);
         this.errors = exceptionToErrorsArray(err);
         buttonDone(false);
       }
