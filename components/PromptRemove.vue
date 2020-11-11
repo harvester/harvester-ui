@@ -10,7 +10,13 @@ import { addPrefix } from '@/utils/url';
 export default {
   components: { Card, LinkDetail },
   data() {
-    return { confirmName: '', error: '' };
+    const { resource } = this.$route.params;
+
+    return {
+      confirmName:     '',
+      error:           '',
+      removeComponent: this.$store.getters['type-map/importCustomPromptRemove'](resource)
+    };
   },
   computed:   {
     names() {
@@ -118,6 +124,14 @@ export default {
       return this.t('promptRemove.protip', { alternateLabel });
     },
 
+    hasResourceExtend() {
+      const { resource } = this.$route.params;
+
+      const hasCustomRemove = this.$store.getters['type-map/hasCustomPromptRemove'](resource);
+
+      return !!hasCustomRemove && this.toRemove.length > 0;
+    },
+
     ...mapState('action-menu', ['showPromptRemove', 'toRemove']),
     ...mapGetters({ t: 'i18n/t' })
   },
@@ -140,6 +154,11 @@ export default {
     },
 
     remove() {
+      if (this.hasResourceExtend && this.$refs?.customPrompt?.remove) {
+        this.$refs.customPrompt.remove();
+
+        return;
+      }
       if (this.needsConfirm && this.confirmName !== this.names[0]) {
         this.error = 'Resource names do not match';
         // if doneLocation is defined, redirect after deleting
@@ -164,6 +183,7 @@ export default {
     }
   }
 };
+
 </script>
 
 <template>
@@ -183,9 +203,20 @@ export default {
           {{ t('promptRemove.attemptingToRemove', {type}) }} <template v-for="(resource, i) in names">
             <template v-if="i<5">
               <LinkDetail :key="resource" :value="resource" :row="toRemove[i]" @click.native="close" />
-              <span v-if="i===names.length-1" :key="resource+2">{{ plusMore }}</span><span v-else :key="resource+1">{{ i === toRemove.length-2 ? ', and ' : ', ' }}</span>
+              <span v-if="i===names.length-1" :key="resource.id">{{ plusMore }}</span><span v-else :key="resource.id">{{ i === toRemove.length-2 ? ', and ' : ', ' }}</span>
             </template>
           </template>
+
+          <component
+            :is="removeComponent"
+            v-if="hasResourceExtend"
+            ref="customPrompt"
+            v-model="toRemove"
+            v-bind="_data"
+            :needs-confirm="needsConfirm"
+            :value="toRemove"
+          />
+
           <span v-if="needsConfirm" :key="resource">Re-enter its name below to confirm:</span>
         </div>
         <input v-if="needsConfirm" id="confirm" v-model="confirmName" type="text" />
