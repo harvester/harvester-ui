@@ -6,6 +6,34 @@
   "description": "Harvester",
   "glyphs": [
     {
+      "icon_id": "587169",
+      "name": "warning",
+      "font_class": "warning",
+      "unicode": "e836",
+      "unicode_decimal": 59446
+    },
+    {
+      "icon_id": "7685117",
+      "name": "info",
+      "font_class": "info",
+      "unicode": "e6fd",
+      "unicode_decimal": 59133
+    },
+    {
+      "icon_id": "10304434",
+      "name": "success",
+      "font_class": "success",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "15167668",
+      "name": "error",
+      "font_class": "error",
+      "unicode": "e658",
+      "unicode_decimal": 58968
+    },
+    {
       "icon_id": "5225543",
       "name": "Networks-WF.png-在线离线",
       "font_class": "network",
