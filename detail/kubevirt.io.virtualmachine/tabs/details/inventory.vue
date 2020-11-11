@@ -1,15 +1,17 @@
 <script>
-import DiskModal from '@/components/form/DiskModal';
 import ModalWithCard from '@/components/ModalWithCard';
 import NetworkModal from '@/components/form/NetworkModal';
+import SortableTable from '@/components/SortableTable';
 import VM_MIXIN from '@/mixins/vm';
+import Checkbox from '@/components/form/Checkbox';
 
 export default {
   name: 'Inventory',
 
   components: {
-    DiskModal,
+    Checkbox,
     NetworkModal,
+    SortableTable,
     ModalWithCard
   },
 
@@ -26,7 +28,9 @@ export default {
     return {
       spec:       this.value.spec,
       cdrowName:  [],
-      nameString: ''
+      nameString: '',
+      rows:       [],
+      hasChecked: false
     };
   },
 
@@ -44,8 +48,51 @@ export default {
       return `${ count } ${ unit }`;
     },
     showEjectAction() {
+      return this.value.hasAction('ejectCdRom') && this.hasChecked;
+    },
+    hasAction() {
       return this.value.hasAction('ejectCdRom');
-    }
+    },
+    headers() {
+      const out = [{
+        name:  'name',
+        label: 'Name',
+        value: 'name',
+      },
+      {
+        name:  'Source',
+        label: 'Source',
+        value: 'source',
+      },
+      {
+        name:      'Size',
+        label:     'Size',
+        value:     'size',
+      },
+      {
+        name:  'Interface',
+        label: 'Bus',
+        value: 'bus',
+      },
+      {
+        name:  'Storage Class',
+        label: 'Storage Class',
+        value: 'storageClassName',
+      }, {
+        name:  'bootOrder',
+        label: 'Boot Order',
+        value: 'bootOrder',
+      }];
+
+      out.unshift({
+        name:      '',
+        label:     '',
+        value:     '',
+        width:      30,
+      });
+
+      return out;
+    },
   },
   watch: {
     value: {
@@ -53,7 +100,19 @@ export default {
         this.$set(this, 'spec', this.value.spec);
       },
       deep: true
-    }
+    },
+    diskRows: {
+      handler(neu) {
+        this.rows = neu;
+      },
+      deep: true
+    },
+    rows: {
+      handler(neu) {
+        this.getCheckCdrow();
+      },
+      deep: true
+    },
   },
 
   methods: {
@@ -71,8 +130,11 @@ export default {
     getCheckCdrow() {
       const diskNames = [];
 
+      this.hasChecked = false;
+
       for (let i = 0; i < this.diskRows.length; i++) {
         if (this.diskRows[i]?.isEjectCdRow) {
+          this.hasChecked = true;
           diskNames.push(this.diskRows[i].name);
         }
       }
@@ -101,18 +163,35 @@ export default {
     <button type="button" class="btn btn-sm bg-primary mb-10" :disabled="!showEjectAction" @click="ejectCdrow">
       Eject CDROM
     </button>
-    <DiskModal v-model="diskRows" class="mb-20" :row-actions="false" :is-eject-cdrow="true" />
+
+    <SortableTable
+      class="mb-20"
+      key-field="id"
+      :rows="rows"
+      :search="false"
+      :headers="headers"
+      :row-actions-width="160"
+      :row-actions="false"
+      :table-actions="false"
+    >
+      <template slot="cell:" slot-scope="scope" class="state-col">
+        <div class="state">
+          <Checkbox v-if="scope.row.type === 'cd-rom'" v-model="scope.row.isEjectCdRow" class="selection-checkbox" :disabled="!hasAction" type="checkbox" />
+        </div>
+      </template>
+    </SortableTable>
 
     <h2>Networks</h2>
     <NetworkModal v-model="networkRows" :row-actions="false" />
 
     <ModalWithCard ref="CDROM" name="CDROM" close-text="No" save-text="Yes" @beforeClose="beforeClose">
       <template #title>
-        Eject CD-ROM
+        Eject CDROM
       </template>
 
       <template #content>
-        {{ `Are you sure you want to eject CD-ROM ${ nameString } ,this action will restart the virtual machine` }}
+        Are you sure you want to eject CD-ROM
+        <span class="text-info">{{ nameString }}</span>, this action will restart the virtual machine
       </template>
     </ModalWithCard>
   </div>
