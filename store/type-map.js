@@ -270,6 +270,7 @@ export const state = function() {
       list:         {},
       detail:       {},
       edit:         {},
+      promptRemove: {},
       componentFor: {},
     },
   };
@@ -852,6 +853,27 @@ export const getters = {
     };
   },
 
+  hasCustomPromptRemove(state, getters) {
+    return (rawType) => {
+      const type = getters.componentFor(rawType);
+
+      const cache = state.cache.promptRemove;
+
+      if ( cache[type] !== undefined ) {
+        return cache[type];
+      }
+
+      try {
+        require.resolve(`@/promptRemove/${ type }`);
+        cache[type] = true;
+      } catch (e) {
+        cache[type] = false;
+      }
+
+      return cache[type];
+    };
+  },
+
   importList(state, getters) {
     return (rawType) => {
       const type = getters.componentFor(rawType);
@@ -873,6 +895,14 @@ export const getters = {
       const type = getters.componentFor(rawType);
 
       return () => import(`@/edit/${ type }`);
+    };
+  },
+
+  importCustomPromptRemove(state, getters) {
+    return (rawType) => {
+      const type = getters.componentFor(rawType);
+
+      return () => import(`@/promptRemove/${ type }`);
     };
   },
 
