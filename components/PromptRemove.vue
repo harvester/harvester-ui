@@ -11,8 +11,11 @@ export default {
   components: { Card, LinkDetail },
   data() {
     const { resource } = this.$route.params;
+    const getters = this.$store.getters;
+    const hasCustomRemove = getters['type-map/hasCustomPromptRemove'](resource);
 
     return {
+      hasCustomRemove,
       confirmName:     '',
       error:           '',
       removeComponent: this.$store.getters['type-map/importCustomPromptRemove'](resource)
@@ -124,14 +127,6 @@ export default {
       return this.t('promptRemove.protip', { alternateLabel });
     },
 
-    hasResourceExtend() {
-      const { resource } = this.$route.params;
-
-      const hasCustomRemove = this.$store.getters['type-map/hasCustomPromptRemove'](resource);
-
-      return !!hasCustomRemove && this.toRemove.length > 0;
-    },
-
     ...mapState('action-menu', ['showPromptRemove', 'toRemove']),
     ...mapGetters({ t: 'i18n/t' })
   },
@@ -140,6 +135,11 @@ export default {
     showPromptRemove(show) {
       if (show) {
         this.$modal.show('promptRemove');
+        const { resource } = this.$route.params;
+
+        this.hasCustomRemove = this.$store.getters['type-map/hasCustomPromptRemove'](resource);
+
+        this.removeComponent = this.$store.getters['type-map/importCustomPromptRemove'](resource);
       } else {
         this.$modal.hide('promptRemove');
       }
@@ -154,7 +154,7 @@ export default {
     },
 
     remove() {
-      if (this.hasResourceExtend && this.$refs?.customPrompt?.remove) {
+      if (this.hasCustomRemove && this.$refs?.customPrompt?.remove) {
         this.$refs.customPrompt.remove();
 
         return;
@@ -209,7 +209,7 @@ export default {
 
           <component
             :is="removeComponent"
-            v-if="hasResourceExtend"
+            v-if="hasCustomRemove"
             ref="customPrompt"
             v-model="toRemove"
             v-bind="_data"
