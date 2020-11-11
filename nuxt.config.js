@@ -256,6 +256,7 @@ module.exports = {
     '~/plugins/i18n',
     '~/plugins/global-formatters',
     '~/plugins/trim-whitespace',
+    '~/plugins/notification',
     { src: '~/plugins/int-number', ssr: false },
     { src: '~/plugins/extend-router' },
     { src: '~/plugins/lookup', ssr: false },
