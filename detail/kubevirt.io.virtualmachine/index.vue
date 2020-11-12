@@ -1,11 +1,11 @@
 <script>
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
+import { defaultAsyncData } from '@/components/ResourceDetail';
 import { EVENT, VMI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 import Details from './tabs/details/';
 import Events from './tabs/events/';
-import Migration from './tabs/migration';
 
 export default {
   name: 'VMIDetailsPage',
@@ -15,7 +15,6 @@ export default {
     Tabbed,
     Events,
     Details,
-    Migration,
   },
 
   mixins: [CreateEditView],
@@ -29,6 +28,13 @@ export default {
 
   fetch() {
     this.getEvents();
+  },
+
+  asyncData(ctx) {
+    const parentOverride = { displayName: 'Virtual Machine' };
+    const resource = ctx.params.resource;
+
+    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {
@@ -75,9 +81,9 @@ export default {
         <Events :resource="vmi" :events="events" />
       </Tab>
 
-      <Tab name="migration" :label="t('vm.detail.tabs.migration')">
+      <!-- <Tab name="migration" :label="t('vm.detail.tabs.migration')">
         <Migration v-model="value" :vmi-resource="vmi" />
-      </Tab>
+      </Tab> -->
     </Tabbed>
   </div>
 </template>

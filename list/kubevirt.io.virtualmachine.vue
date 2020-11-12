@@ -1,5 +1,5 @@
 <script>
-import { STATE, AGE, NAME, NAMESPACE as NAMESPACE_COL } from '@/config/table-headers';
+import { STATE, AGE, NAME } from '@/config/table-headers';
 import SortableTable from '@/components/SortableTable';
 import VmState from '@/components/formatter/vmState';
 import MigrationState from '@/components/formatter/MigrationState';
@@ -36,7 +36,6 @@ export default {
           width:         350,
           formatter:     'vmName',
         },
-        { ...NAMESPACE_COL },
         {
           name:      'ip',
           label:     'IP Address',
@@ -59,6 +58,10 @@ export default {
 
   customCreateFormName() {
     return 'Virtual Machine';
+  },
+
+  typeDisplay() {
+    return 'Virtual Machines';
   },
 };
 </script>

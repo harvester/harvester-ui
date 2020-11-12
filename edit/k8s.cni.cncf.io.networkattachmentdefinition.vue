@@ -1,5 +1,6 @@
 <script>
 import Footer from '@/components/form/Footer';
+import { defaultAsyncData } from '@/components/ResourceDetail';
 import CreateEditView from '@/mixins/create-edit-view';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import LabeledInput from '@/components/form/LabeledInput';
@@ -16,6 +17,13 @@ export default {
     },
   },
 
+  asyncData(ctx) {
+    const parentOverride = { displayName: 'Network' };
+    const resource = ctx.params.resource;
+
+    return defaultAsyncData(ctx, resource, parentOverride);
+  },
+
   data() {
     if (!this.value.spec) {
       this.value.spec = {
@@ -26,7 +34,7 @@ export default {
           bridge:      'harvester-br0',
           promiscMode: true,
           vlan:        '',
-          ipam:        { type: 'static' }
+          ipam:        {}
         }
       };
       this.value.metadata.namespace = 'default';

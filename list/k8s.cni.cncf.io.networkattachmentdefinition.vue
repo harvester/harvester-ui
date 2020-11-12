@@ -46,6 +46,10 @@ export default {
   customCreateFormName() {
     return 'Networks';
   },
+
+  typeDisplay() {
+    return 'Networks';
+  },
 };
 </script>
 

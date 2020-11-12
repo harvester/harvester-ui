@@ -23,7 +23,7 @@ export default {
     }
 
     return {
-      type: 'VLAN',
+      type: 'L2VlanNetwork',
       parseDefaultValue
     };
   },
@@ -31,8 +31,8 @@ export default {
   computed: {
     typeOption() {
       return [{
-        value: 'VLAN',
-        label: 'VLAN'
+        value: 'L2VlanNetwork',
+        label: 'L2VlanNetwork'
       }];
     }
   },
