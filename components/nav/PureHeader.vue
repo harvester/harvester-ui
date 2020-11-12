@@ -92,12 +92,12 @@ export default {
 
       .logo {
         background-color: var(--header-logo);
-        mask: url("~assets/images/logo.svg") no-repeat center;
-        height: 33px;
-        width: 56px;
+        mask: url("~assets/images/pl/half-logo.svg") no-repeat center;
+        width: 36px;
+        height: 30px;
         position: absolute;
         top: 9px;
-        left: -28px;
+        left: 0;
         z-index: 2;
       }
     }
