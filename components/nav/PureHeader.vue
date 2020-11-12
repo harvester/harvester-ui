@@ -85,9 +85,8 @@ export default {
 
       .productName {
         color: #fff;
-        font-size: 18px;
         line-height: 50px;
-        left: 84px;
+        left: 43px;
         position: absolute;
       }
 
@@ -98,7 +97,7 @@ export default {
         width: 56px;
         position: absolute;
         top: 9px;
-        left: 15px;
+        left: -28px;
         z-index: 2;
       }
     }

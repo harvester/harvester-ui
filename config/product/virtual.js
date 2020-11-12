@@ -25,7 +25,7 @@ export function init(store) {
 
   basicType(['virtual-dashboard']);
   virtualType({
-    label:       'Home',
+    label:       'Dashboard',
     group:      'Root',
     namespaced:  false,
     name:        'virtual-dashboard',
