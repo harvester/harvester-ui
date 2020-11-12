@@ -39,6 +39,9 @@ export default {
 
       return this.row.stateDisplay;
     },
+    completed() {
+      return Number.parseFloat(this.value) === 100;
+    },
     failed() {
       return this.state === 'Failed';
     },
@@ -50,14 +53,17 @@ export default {
 </script>
 
 <template>
-  <div class="parent">
-    <div class="progress-box">
+  <div v-if="!completed" class="parent">
+    <div v-if="!failed" class="progress-box">
       <ProgressBarMulti :values="percentage" :min="0" :max="100" />
     </div>
-    <div class="text">
+    <div v-if="!failed" class="text">
       {{ value || 0 }}%
     </div>
     <span v-if="failed" class="error">{{ errorMessage }}</span>
+  </div>
+  <div v-else>
+    Completed
   </div>
 </template>
 
