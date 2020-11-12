@@ -275,6 +275,12 @@ export default {
     });
   },
 
+  getAnnotationValue() {
+    return (label) => {
+      return _.get(this, ['metadata', 'annotations', label]);
+    };
+  },
+
   typeDisplay() {
     const schema = this.schema;
 

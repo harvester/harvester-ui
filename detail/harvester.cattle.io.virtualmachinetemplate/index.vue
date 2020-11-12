@@ -2,6 +2,7 @@
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import { VM_TEMPLATE } from '@/config/types';
+import { defaultAsyncData } from '@/components/ResourceDetail';
 import Detail from './details.vue';
 import Version from './versions.vue';
 
@@ -19,6 +20,13 @@ export default {
       type:     Object,
       required: true
     }
+  },
+
+  asyncData(ctx) {
+    const parentOverride = { displayName: 'Template' };
+    const resource = ctx.params.resource;
+
+    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {

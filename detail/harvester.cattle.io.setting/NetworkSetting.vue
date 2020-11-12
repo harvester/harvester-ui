@@ -17,9 +17,10 @@ export default {
     } catch (error) {
       parseDefaultValue = JSON.parse(this.value.default);
     }
+    const type = this.value.getAnnotationValue('networks.harvester.cattle.io/type');
 
     return {
-      type: 'VLAN',
+      type,
       parseDefaultValue
     };
   },

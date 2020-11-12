@@ -1,8 +1,9 @@
 <script>
 import _ from 'lodash';
 import { mapGetters } from 'vuex';
-import { cleanForNew } from '@/plugins/steve/normalize';
 import { safeLoad } from 'js-yaml';
+import { cleanForNew } from '@/plugins/steve/normalize';
+import { defaultAsyncData } from '@/components/ResourceDetail';
 import Footer from '@/components/form/Footer';
 import Collapse from '@/components/Collapse';
 import RadioGroup from '@/components/form/RadioGroup';
@@ -82,6 +83,13 @@ export default {
       type:     Object,
       required: true,
     },
+  },
+
+  asyncData(ctx) {
+    const parentOverride = { displayName: 'Virtual Machine' };
+    const resource = ctx.params.resource;
+
+    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {

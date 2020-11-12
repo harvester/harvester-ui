@@ -11,6 +11,7 @@ import { VM_TEMPLATE } from '@/config/types';
 import VM_MIXIN from '@/mixins/vm';
 import CreateEditView from '@/mixins/create-edit-view';
 import { _ADD } from '@/config/query-params';
+import { defaultAsyncData } from '@/components/ResourceDetail';
 import ChooseImage from '../kubevirt.io.virtualmachine/ChooseImage';
 import CloudConfig from '../kubevirt.io.virtualmachine/CloudConfig';
 
@@ -37,6 +38,13 @@ export default {
       type:     Object,
       required: true,
     },
+  },
+
+  asyncData(ctx) {
+    const parentOverride = { displayName: 'Template' };
+    const resource = ctx.params.resource;
+
+    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {

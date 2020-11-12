@@ -6,6 +6,7 @@ import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
 import { STORAGE_CLASS, IMAGE } from '@/config/types';
 import { DESCRIPTION } from '@/config/labels-annotations';
+import { defaultAsyncData } from '@/components/ResourceDetail';
 import VolumeSource from './VolumeSource';
 
 export default {
@@ -32,6 +33,13 @@ export default {
       image:         this.$store.dispatch('cluster/findAll', { type: IMAGE }),
       storageClass:  this.$store.dispatch('cluster/findAll', { type: STORAGE_CLASS }),
     });
+  },
+
+  asyncData(ctx) {
+    const parentOverride = { displayName: 'Volume' };
+    const resource = ctx.params.resource;
+
+    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {

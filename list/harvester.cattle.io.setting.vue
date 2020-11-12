@@ -22,10 +22,6 @@ export default {
     return { headers: [STATE, NAME, AGE] };
   },
 
-  typeDisplay() {
-    return 'Setting';
-  },
-
   methods: {}
 
 };

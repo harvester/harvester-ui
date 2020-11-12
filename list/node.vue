@@ -39,7 +39,7 @@ export default {
   },
 
   typeDisplay() {
-    return 'Host';
+    return 'Hosts';
   },
 };
 </script>
