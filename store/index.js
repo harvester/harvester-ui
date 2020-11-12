@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Steve from '@/plugins/steve';
 import {
-  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, FLEET
+  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, FLEET, POD
 } from '@/config/types';
 import { CLUSTER as CLUSTER_PREF, NAMESPACE_FILTERS, LAST_NAMESPACE, WORKSPACE } from '@/store/prefs';
 import { allHash } from '@/utils/promise';
@@ -515,6 +515,7 @@ export const actions = {
       templateVersion:   dispatch('cluster/findAll', { type: VM_TEMPLATE.version, opt: { url: `${ VM_TEMPLATE.version }s` } }),
       ssh:                dispatch('cluster/findAll', { type: SSH, opt: { url: `${ SSH }s` } }),
       DATA_VOLUME:        dispatch('cluster/findAll', { type: DATA_VOLUME, opt: { url: `${ DATA_VOLUME }s` } }),
+      pods:               dispatch('cluster/findAll', { type: POD }),
     });
 
     commit('updateNamespaces', {

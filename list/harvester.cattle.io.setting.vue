@@ -1,6 +1,6 @@
 <script>
 import ResourceTable from '@/components/ResourceTable';
-import { STATE, NAME, AGE } from '@/config/table-headers';
+import { STATE, NAME, SETTING_VALUE } from '@/config/table-headers';
 
 export default {
   name:       'ListSetting',
@@ -19,7 +19,7 @@ export default {
   },
 
   data() {
-    return { headers: [STATE, NAME, AGE] };
+    return { headers: [STATE, NAME, SETTING_VALUE] };
   },
 
   methods: {}

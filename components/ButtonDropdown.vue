@@ -9,6 +9,11 @@ export default {
     dualAction: {
       type:    Boolean,
       default: true
+    },
+
+    disableButton: {
+      type:    Boolean,
+      default: false
     }
   },
 
@@ -86,13 +91,14 @@ export default {
             ref="popoverButton"
             class="icon-container bg-transparent"
             :class="buttonSize"
+            :disabled="disableButton"
             type="button"
           >
             <i class="icon icon-chevron-down" />
           </button>
         </slot>
 
-        <template slot="popover">
+        <template v-if="!disableButton" slot="popover">
           <slot name="popover-content" />
         </template>
       </v-popover>

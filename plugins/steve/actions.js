@@ -320,6 +320,16 @@ export default {
     });
   },
 
+  setConfig(ctx, { type, data }) {
+    const { commit } = ctx;
+
+    commit('setConfig', {
+      ctx,
+      type,
+      data
+    });
+  },
+
   create(ctx, data) {
     return proxyFor(ctx, data);
   },
