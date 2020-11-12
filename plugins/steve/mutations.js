@@ -11,7 +11,8 @@ function registerType(state, type) {
     cache = {
       list:         [],
       haveAll:      false,
-      haveSelector: {}
+      haveSelector: {},
+      config:       {}
     };
 
     // Not enumerable so they don't get sent back to the client for SSR
@@ -140,6 +141,12 @@ export default {
     cache.haveAll = true;
   },
 
+  setConfig(state, { type, data, ctx }) {
+    const cache = registerType(state, type);
+
+    cache.config = data;
+  },
+
   remove(state, obj) {
     let type = normalizeType(obj.type);
     const keyField = KEY_FIELD_FOR[type] || KEY_FIELD_FOR['default'];
@@ -170,6 +177,7 @@ export default {
       if ( cache ) {
         cache.haveAll = false;
         cache.haveSelector = {};
+        cache.config = {};
         clear(cache.list);
         cache.map.clear();
       }

@@ -7,7 +7,7 @@ import { sortBy } from '@/utils/sort';
 import { allHash } from '@/utils/promise';
 import { MemoryUnit, SOURCE_TYPE } from '@/config/map';
 import {
-  NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, VMI, STORAGE_CLASS, NETWORK_ATTACHMENT
+  NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, VMI, STORAGE_CLASS, NETWORK_ATTACHMENT, POD
 } from '@/config/types';
 import { STORAGE_CLASS_LABEL } from '@/config/labels-annotations';
 
@@ -25,6 +25,7 @@ export default {
 
   async fetch() {
     const hash = await allHash({
+      pods:               this.$store.dispatch('cluster/findAll', { type: POD }),
       ssh:                this.$store.dispatch('cluster/findAll', { type: SSH }),
       pvcs:               this.$store.dispatch('cluster/findAll', { type: PVC }),
       image:              this.$store.dispatch('cluster/findAll', { type: IMAGE }),
