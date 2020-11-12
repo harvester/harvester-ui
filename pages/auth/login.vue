@@ -313,11 +313,9 @@ export default {
 
 <style lang="scss">
   .login {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+    display: grid;
+    grid-template-columns: 100%;
+    place-items: center;
 
     &__alert {
       width: 450px;
@@ -325,7 +323,6 @@ export default {
 
     &__box {
       width: 450px;
-      margin: 0 auto;
       font-size: 14px;
 
       &__header {
