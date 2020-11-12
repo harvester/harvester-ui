@@ -1,13 +1,13 @@
 <script>
 import { STATE, AGE, NAME } from '@/config/table-headers';
-import ResourceTable from '@/components/ResourceTable';
+import SortableTable from '@/components/SortableTable';
 import { DATA_VOLUME, VM, PV } from '@/config/types';
 import { allHash } from '@/utils/promise';
 import Loading from '@/components/Loading';
 
 export default {
   name:       'ListPV',
-  components: { Loading, ResourceTable },
+  components: { Loading, SortableTable },
 
   props: {
     schema: {
@@ -95,5 +95,12 @@ export default {
 
 <template>
   <Loading v-if="$fetchState.pending" />
-  <ResourceTable v-else :schema="schema" :rows="rows" :headers="headers" />
+  <SortableTable
+    v-else
+    v-bind="$attrs"
+    :headers="headers"
+    :rows="[...rows]"
+    key-field="_key"
+    v-on="$listeners"
+  />
 </template>
