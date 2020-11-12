@@ -144,7 +144,7 @@ export default {
             {{ t("vm.detail.details.ipAddress") }}
           </label>
           <div>
-            <IPAddress v-model="value.id" :row="value" />
+            <IPAddress v-model="value.id" :row="value" :is-list="true" />
           </div>
         </div>
       </div>

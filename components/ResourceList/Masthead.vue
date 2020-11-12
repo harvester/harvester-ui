@@ -67,6 +67,13 @@ export default {
 
       return this.resource;
     },
+    disableCreateButton() {
+      const type = this.resource;
+      const inStore = this.$store.getters['currentProduct'].inStore;
+      const config = this.$store.getters[`${ inStore }/getCacheConfig`](type);
+
+      return config.disableCreateButton || false;
+    }
   },
 };
 </script>
@@ -75,18 +82,20 @@ export default {
   <header>
     <TypeDescription :resource="resource" />
     <h1>
-      {{ typeDisplay }} <Favorite v-if="isExplorer" :resource="resource" />
+      {{ typeDisplay }}<Favorite v-if="isExplorer" :resource="resource" />
     </h1>
     <div class="actions">
       <ButtonDropdown
         v-if="isCreatable || isYamlCreatable"
+        :disable-button="disableCreateButton"
       >
         <template #button-content="slotProps">
           <nuxt-link
             v-if="isCreatable"
             :to="createLocation"
-            class="btn bg-transparent"
+            class="btn bg-transparent link"
             :class="slotProps.buttonSize"
+            :disabled="disableCreateButton"
           >
             {{ t("resourceList.head.create") }}
           </nuxt-link>

@@ -1,6 +1,9 @@
 <script>
+import Banner from '@/components/Banner';
+
 export default {
-  name: 'Detail',
+  name:       'Detail',
+  components: { Banner },
 
   props:      {
     value: {
@@ -24,6 +27,12 @@ export default {
       parseDefaultValue
     };
   },
+
+  computed: {
+    statusText() {
+      return this.value?.configuredCondition?.reason;
+    }
+  }
 };
 </script>
 
@@ -52,6 +61,13 @@ export default {
         </div>
       </div>
     </div>
+
+    <Banner
+      v-if="statusText"
+      color="error"
+    >
+      {{ statusText }}
+    </Banner>
   </div>
 </template>
 

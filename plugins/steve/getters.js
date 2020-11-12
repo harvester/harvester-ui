@@ -195,6 +195,17 @@ export default {
     return false;
   },
 
+  getCacheConfig: (state, getters) => (type) => {
+    type = getters.normalizeType(type);
+    const entry = state.types[type];
+
+    if ( entry ) {
+      return entry.config || {};
+    }
+
+    return {};
+  },
+
   haveSelector: (state, getters) => (type, selector) => {
     type = getters.normalizeType(type);
     const entry = state.types[type];

@@ -1,22 +1,41 @@
 <script>
-import { STATE, AGE, NAME } from '@/config/table-headers';
+import { STATE, NAME } from '@/config/table-headers';
 import SortableTable from '@/components/SortableTable';
 import Banner from '@/components/Banner';
+import Loading from '@/components/Loading';
+import { HARVESTER_SETTING, NETWORK_ATTACHMENT } from '@/config/types';
+import { allHash } from '@/utils/promise';
+import { findBy } from '@/utils/array';
 
 export default {
   name:       'ListNetwork',
-  components: { SortableTable, Banner },
+  components: {
+    SortableTable, Banner, Loading
+  },
 
   props: {
     schema: {
       type:     Object,
       required: true,
-    },
+    }
+  },
 
-    rows: {
-      type:     Array,
-      required: true,
-    },
+  async fetch() {
+    const hash = await allHash({
+      setting: this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
+      rows:    this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
+    });
+
+    this.rows = hash.rows;
+    this.setting = hash.setting;
+  },
+
+  data() {
+    return {
+      setting: [],
+      rows:    [],
+      hash:    {}
+    };
   },
 
   computed: {
@@ -37,14 +56,37 @@ export default {
           sort:      'spec.config',
           type:       'vlan',
           formatter:  'ParseNetworkConfig'
-        },
-        AGE
+        }
       ];
     },
+    configuredStatus() {
+      const network = findBy((this.setting || []), 'metadata.name', 'network-setting');
+
+      return network?.getConditionStatus('configured') === 'True';
+    },
+    statusText() {
+      const network = findBy((this.setting || []), 'metadata.name', 'network-setting');
+
+      return network?.configuredCondition?.reason;
+    }
+  },
+
+  watch: {
+    configuredStatus: {
+      handler(neu) {
+        const type = this.$route.params.resource;
+
+        this.$store.commit('cluster/setConfig', {
+          type,
+          data: { disableCreateButton: !neu }
+        });
+      },
+      immediate: true
+    }
   },
 
   customCreateFormName() {
-    return 'Networks';
+    return 'Network';
   },
 
   typeDisplay() {
@@ -54,23 +96,33 @@ export default {
 </script>
 
 <template>
-  <div>
+  <Loading v-if="$fetchState.pending" />
+  <div v-else>
     <div>
       <Banner
         color="error"
       >
-        please config the
-        <nuxt-link to="harvester.cattle.io.setting/network-setting?mode=edit">
-          cluster networks
-        </nuxt-link>
-        settings before creating a new L2 Vlan network.
+        <div v-if="!statusText">
+          please config the
+          <nuxt-link to="harvester.cattle.io.setting/network-setting?mode=edit">
+            cluster networks
+          </nuxt-link>
+          settings before creating a new L2 Vlan network.
+        </div>
+
+        <div v-else>
+          Invalid
+          <nuxt-link to="harvester.cattle.io.setting/network-setting?mode=edit">
+            network configuration
+          </nuxt-link>, error: {{ statusText }}
+        </div>
       </Banner>
     </div>
     <SortableTable
       v-bind="$attrs"
       :headers="headers"
       default-sort-by="age"
-      :rows="[...rows]"
+      :rows="rows"
       key-field="_key"
       v-on="$listeners"
     >

@@ -1,3 +1,5 @@
+import { findBy } from '@/utils/array';
+
 const hasFormName = ['network-setting']; // It has the function of editing form
 
 export default {
@@ -16,4 +18,8 @@ export default {
 
     return out;
   },
+
+  configuredCondition() {
+    return findBy((this?.status?.conditions || []), 'type', 'configured') || {};
+  }
 };
