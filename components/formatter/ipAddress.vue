@@ -35,7 +35,7 @@ export default {
         return resource?.metadata?.name === P.metadata?.ownerReferences?.[0].name;
       });
 
-      const networkStatus = podResource.getAnnotationValue('k8s.v1.cni.cncf.io/network-status');
+      const networkStatus = podResource?.getAnnotationValue('k8s.v1.cni.cncf.io/network-status');
 
       try {
         if (networkStatus) {
