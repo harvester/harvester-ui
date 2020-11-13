@@ -1,4 +1,5 @@
 <script>
+import _ from 'lodash';
 import { VMI, POD } from '@/config/types';
 import CopyToClipboardText from '@/components/CopyToClipboardText';
 
@@ -50,10 +51,10 @@ export default {
       }
       ips.add(resource?.status?.interfaces?.[0]?.ipAddress);
 
-      return [...ips].join(',  ');
+      return _.compact([...ips]).join(',  ');
     },
     ipList() {
-      return this.ip.split(', ');
+      return (this.ip && this.ip.split(', ')) || [];
     }
   },
 };
