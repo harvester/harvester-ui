@@ -190,8 +190,10 @@ export default {
       </template>
 
       <template #content>
-        Are you sure you want to eject CD-ROM
-        <span class="text-info">{{ nameString }}</span>, this action will restart the virtual machine
+        <div>
+          Are you sure you want to eject CD-ROM
+          <span class="text-info">{{ nameString }}</span>, this action will restart the virtual machine
+        </div>
       </template>
     </ModalWithCard>
   </div>
