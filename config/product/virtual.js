@@ -1,7 +1,6 @@
 import {
   IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME, HARVESTER_USER, NODE, HARVESTER_SETTING, NETWORK_ATTACHMENT
 } from '@/config/types';
-
 import { DSL } from '@/store/type-map';
 
 export const NAME = 'virtual';
@@ -37,7 +36,7 @@ export function init(store) {
 
   basicType([NODE]);
   virtualType({
-    label:       'Host',
+    label:       'Hosts',
     group:      'Root',
     namespaced:  false,
     name:        NODE,
@@ -52,7 +51,7 @@ export function init(store) {
 
   basicType([VM]);
   virtualType({
-    label:      'Virtual Machine',
+    label:      'Virtual Machines',
     group:      'root',
     namespaced: true,
     name:       VM,
@@ -62,66 +61,6 @@ export function init(store) {
       params:   { resource: VM }
     },
     icon:       'icons icon-h-display',
-    exact: false,
-  });
-
-  basicType([NETWORK_ATTACHMENT]);
-  virtualType({
-    label:      'Networks',
-    group:      'root',
-    namespaced: true,
-    name:       NETWORK_ATTACHMENT,
-    weight:     298,
-    route:      {
-      name:     'c-cluster-product-resource',
-      params:   { resource: NETWORK_ATTACHMENT }
-    },
-    icon:       'icons icon-h-network',
-    exact: false,
-  });
-
-  basicType([IMAGE]);
-  virtualType({
-    label:      'Image',
-    group:      'root',
-    namespaced: true,
-    name:       IMAGE,
-    weight:     199,
-    route:      {
-      name:     'c-cluster-product-resource',
-      params:   { resource: IMAGE }
-    },
-    icon:       'icons icon-h-drawer',
-    exact: false,
-  });
-
-  basicType([SSH]);
-  virtualType({
-    label:      'SSH Keys',
-    group:      'root',
-    namespaced: true,
-    name:       SSH,
-    weight:     99,
-    route:      {
-      name:     'c-cluster-product-resource',
-      params:   { resource: SSH }
-    },
-    icon:       'icons icon-h-key',
-    exact: false,
-  });
-
-  basicType([TEMPLATE]);
-  virtualType({
-    label:      'Templates',
-    group:      'root',
-    namespaced: true,
-    name:       TEMPLATE,
-    weight:     89,
-    route:      {
-      name:     'c-cluster-product-resource',
-      params:   { resource: TEMPLATE }
-    },
-    icon:       'icons icon-h-copy',
     exact: false,
   });
 
@@ -140,9 +79,73 @@ export function init(store) {
     exact: false,
   });
 
-  basicType([HARVESTER_USER]);
+  basicType([IMAGE]);
   virtualType({
-    label:      'User',
+    label:      'Images',
+    group:      'root',
+    namespaced: true,
+    name:       IMAGE,
+    weight:     199,
+    route:      {
+      name:     'c-cluster-product-resource',
+      params:   { resource: IMAGE }
+    },
+    icon:       'icons icon-h-drawer',
+    exact: false,
+  });
+
+  basicType([
+    TEMPLATE,
+    NETWORK_ATTACHMENT,
+    SSH,
+    HARVESTER_USER,
+    HARVESTER_SETTING
+  ], 'Advanced');
+
+  virtualType({
+    label:      'VM Templates',
+    group:      'root',
+    namespaced: true,
+    name:       TEMPLATE,
+    weight:     89,
+    route:      {
+      name:     'c-cluster-product-resource',
+      params:   { resource: TEMPLATE }
+    },
+    icon:       'icons icon-h-copy',
+    exact: false,
+  });
+
+  virtualType({
+    label:      'Networks',
+    group:      'root',
+    namespaced: true,
+    name:       NETWORK_ATTACHMENT,
+    weight:     298,
+    route:      {
+      name:     'c-cluster-product-resource',
+      params:   { resource: NETWORK_ATTACHMENT }
+    },
+    icon:       'icons icon-h-network',
+    exact: false,
+  });
+
+  virtualType({
+    label:      'SSH Keys',
+    group:      'root',
+    namespaced: true,
+    name:       SSH,
+    weight:     99,
+    route:      {
+      name:     'c-cluster-product-resource',
+      params:   { resource: SSH }
+    },
+    icon:       'icons icon-h-key',
+    exact: false,
+  });
+
+  virtualType({
+    label:      'Users',
     group:      'root',
     namespaced:  true,
     name:       HARVESTER_USER,
@@ -158,7 +161,7 @@ export function init(store) {
   basicType([HARVESTER_SETTING]);
   uncreatableType(HARVESTER_SETTING);
   virtualType({
-    label:      'Setting',
+    label:      'Settings',
     group:      'root',
     namespaced:  true,
     name:       HARVESTER_SETTING,
