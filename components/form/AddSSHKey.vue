@@ -68,6 +68,7 @@ export default {
 
   methods: {
     show() {
+      this.errors = [];
       this.$modal.show('newSSH');
     },
 
@@ -128,6 +129,8 @@ export default {
 
         this.checkedSsh.push(this.sshName);
 
+        this.resetFields();
+
         this.hide();
       } catch (err) {
         this.errors = [err.message];
@@ -144,6 +147,11 @@ export default {
 
     updateSSH(sshKey) {
       this.checkedSsh = sshKey;
+    },
+
+    resetFields() {
+      this.sshName = '';
+      this.publicKey = '';
     }
   }
 };
