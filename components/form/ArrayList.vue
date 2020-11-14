@@ -12,6 +12,8 @@ import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
   - Concealed value
 */
 
+const DEFAULT_PROTIP = 'ProTip: Paste lines into any list field for easy bulk entry';
+
 export default {
   components: { TextAreaAutoGrow },
 
@@ -39,9 +41,8 @@ export default {
     },
     protip: {
       type:    [String, Boolean],
-      default: 'ProTip: Paste lines of <code>key=value</code> or <code>key: value</code> into any key field for easy bulk entry',
+      default: DEFAULT_PROTIP,
     },
-
     showHeader: {
       type:    Boolean,
       default: false,
@@ -62,7 +63,7 @@ export default {
     },
     valueMultiline: {
       type:    Boolean,
-      default: true,
+      default: false,
     },
     valueConcealed: {
       type:    Boolean,
@@ -116,7 +117,7 @@ export default {
       rows.push({ value: '' });
     }
 
-    return { rows };
+    return { rows, lastUpdateWasFromValue: false };
   },
 
   computed: {
@@ -135,16 +136,40 @@ export default {
     showRemove() {
       return !this.isView && this.removeAllowed;
     },
+
+    isDefaultProtip() {
+      return this.protip === DEFAULT_PROTIP;
+    },
+
+    showProtip() {
+      if (this.protip && !this.isDefaultProtip) {
+        return true;
+      }
+
+      return !this.valueMultiline && this.protip;
+    }
   },
 
   watch: {
     value() {
+      this.lastUpdateWasFromValue = true;
       this.rows = (this.value || []).map(v => ({ value: v }));
+    },
+    rows: {
+      deep: true,
+      handler(newValue, oldValue) {
+        // lastUpdateWasFromValue is used to break a cycle where when rows are updated
+        // this was called which then forced rows to updated again
+        if (!this.lastUpdateWasFromValue) {
+          this.queueUpdate();
+        }
+        this.lastUpdateWasFromValue = false;
+      }
     }
   },
 
   created() {
-    this.queueUpdate = debounce(this.update, 100);
+    this.queueUpdate = debounce(this.update, 50);
   },
 
   methods: {
@@ -176,7 +201,8 @@ export default {
       const out = [];
 
       for ( const row of this.rows ) {
-        const value = (typeof row.value === 'string') ? row.value.trim() : row.value;
+        const trim = !this.valueMultiline && (typeof row.value === 'string');
+        const value = trim ? row.value.trim() : row.value;
 
         if ( typeof value !== 'undefined' ) {
           out.push(value);
@@ -184,6 +210,19 @@ export default {
       }
 
       this.$emit('input', out);
+    },
+
+    onPaste(index, event) {
+      if (this.valueMultiline) {
+        return;
+      }
+
+      event.preventDefault();
+      const text = event.clipboardData.getData('text/plain');
+      const split = text.split('\n').map(value => ({ value }));
+
+      this.rows.splice(index, 1, ...split);
+      this.update();
     }
   },
 };
@@ -192,13 +231,15 @@ export default {
 <template>
   <div>
     <div v-if="title" class="clearfix">
-      <h4>
-        {{ title }}
-        <i v-if="protip" v-tooltip="protip" class="icon icon-info" />
-        <button v-if="titleAdd && showAdd" type="button" class="btn btn-xs role-tertiary p-5 ml-10" style="position: relative; top: -3px;" @click="add">
-          <i class="icon icon-plus icon-lg icon-fw" />
-        </button>
-      </h4>
+      <slot name="title">
+        <h4>
+          {{ title }}
+          <i v-if="showProtip" v-tooltip="protip" class="icon icon-info" />
+          <button v-if="titleAdd && showAdd" type="button" class="btn btn-xs role-tertiary p-5 ml-10" style="position: relative; top: -3px;" @click="add">
+            <i class="icon icon-plus icon-lg icon-fw" />
+          </button>
+        </h4>
+      </slot>
     </div>
 
     <template v-if="rows.length">
@@ -237,6 +278,7 @@ export default {
                 ref="value"
                 v-model="row.value"
                 :placeholder="valuePlaceholder"
+                @paste="onPaste(idx, $event)"
                 @input="queueUpdate"
               />
               <input
@@ -244,6 +286,7 @@ export default {
                 ref="value"
                 v-model="row.value"
                 :placeholder="valuePlaceholder"
+                @paste="onPaste(idx, $event)"
                 @input="queueUpdate"
               />
             </slot>

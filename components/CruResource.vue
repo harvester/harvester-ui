@@ -217,7 +217,7 @@ export default {
                   <a href="" target="_blank" rel="noopener nofollow" class="flex-right">More Info <i class="icon icon-external-link" /></a>
                 </div>
                 <hr />
-                <div class="description">
+                <div v-if="subtype.description" class="description">
                   <span
                     v-if="$store.getters['i18n/exists'](subtype.description)"
                     v-html="t(subtype.description, {}, true)"
@@ -279,6 +279,7 @@ export default {
           :offer-preview="isEdit"
           :done-route="doneRoute"
           :done-override="resource.doneOverride"
+          :save-override="resource.yamlSaveOverride"
           :errors="errors"
           @apply-hooks="$emit('apply-hooks', $event)"
           @error="e=>$emit('error', e)"

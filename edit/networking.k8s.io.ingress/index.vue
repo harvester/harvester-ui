@@ -4,10 +4,10 @@ import { SECRET, SERVICE } from '@/config/types';
 import NameNsDescription from '@/components/form/NameNsDescription';
 import CreateEditView from '@/mixins/create-edit-view';
 import Tab from '@/components/Tabbed/Tab';
-import { _VIEW } from '@/config/query-params';
 import CruResource from '@/components/CruResource';
 import Labels from '@/components/form/Labels';
 import Tabbed from '@/components/Tabbed';
+import { get, set } from '@/utils/object';
 import DefaultBackend from './DefaultBackend';
 import Certificates from './Certificates';
 import Rules from './Rules';
@@ -50,9 +50,6 @@ export default {
     return { allSecrets: [], allServices: [] };
   },
   computed: {
-    isView() {
-      return this.mode === _VIEW;
-    },
     serviceTargets() {
       return this.filterByCurrentResourceNamespace(this.allServices)
         .map(service => ({
@@ -60,7 +57,10 @@ export default {
           value: service.metadata.name,
           ports: service.spec.ports?.map(p => p.port)
         }));
-    }
+    },
+    firstTabLabel() {
+      return this.isView ? this.t('ingress.rulesAndCertificates.title') : this.t('ingress.rules.title');
+    },
   },
   created() {
     if (!this.value.spec) {
@@ -84,8 +84,14 @@ export default {
       });
     },
     willSave() {
-      if (this.value?.spec?.backend && (!this.value?.spec?.backend?.serviceName || !this.value?.spec?.backend?.servicePort)) {
-        this.value.spec.backend = null;
+      const backend = get(this.value.spec, this.value.defaultBackendPath);
+      const serviceName = get(backend, this.value.serviceNamePath);
+      const servicePort = get(backend, this.value.servicePortPath);
+
+      if (backend && (!serviceName || !servicePort)) {
+        const path = this.value.defaultBackendPath;
+
+        set(this.value.spec, path, null);
       }
     },
   }
@@ -113,14 +119,14 @@ export default {
     <div class="spacer"></div>
 
     <Tabbed :side-tabs="true">
-      <Tab :label="t('ingress.rules.title')" name="rules" :weight="3">
+      <Tab :label="firstTabLabel" name="rules" :weight="3">
         <Rules v-model="value" :mode="mode" :service-targets="serviceTargets" />
       </Tab>
-      <Tab :label="t('ingress.certificates.label')" name="certificates" :weight="2">
-        <Certificates v-model="value" :mode="mode" :secrets="allSecrets" />
+      <Tab :label="t('ingress.defaultBackend.label')" name="default-backend" :weight="2">
+        <DefaultBackend v-model="value" :service-targets="serviceTargets" :mode="mode" />
       </Tab>
-      <Tab :label="t('ingress.defaultBackend.label')" name="default-backend" :weight="1">
-        <DefaultBackend v-model="value.spec.backend" :service-targets="serviceTargets" :mode="mode" />
+      <Tab v-if="!isView" :label="t('ingress.certificates.label')" name="certificates" :weight="1">
+        <Certificates v-model="value" :mode="mode" :secrets="allSecrets" />
       </Tab>
       <Tab
         name="labels-and-annotations"

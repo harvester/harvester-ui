@@ -5,6 +5,8 @@ import { allHash, allHashSettled } from '@/utils/promise';
 import { clone } from '@/utils/object';
 import { findBy, addObject, filterBy } from '@/utils/array';
 import { stringify } from '@/utils/error';
+import { proxyFor } from '@/plugins/steve/resource-proxy';
+import { sortBy } from '@/utils/sort';
 
 const ALLOWED_CATEGORIES = [
   'Storage',
@@ -25,6 +27,9 @@ export const state = function() {
     namespacedRepos: [],
     charts:          {},
     versionInfos:    {},
+    config: {
+      namespace: 'catalog'
+    }
   };
 };
 
@@ -69,14 +74,21 @@ export const getters = {
        return true;
     });
 
-    return out; 
+    return sortBy(out, ['certifiedSort', 'repoName', 'chartName']);
   },
 
   chart(state, getters) {
-    return ({ repoType, repoName, chartName, preferRepoType, preferRepoName }) => {
-      const matching = filterBy(getters.charts, {
-        repoType, repoName, chartName
+    return ({ repoType, repoName, chartName, preferRepoType, preferRepoName, includeHidden }) => {
+      let matching = filterBy(getters.charts, {
+        repoType,
+        repoName,
+        chartName,
+        deprecated: false, 
       });
+
+      if ( includeHidden === false ) {
+        matching = matching.filter((x) => !x.hidden)
+      }
 
       if ( !matching.length ) {
         return;
@@ -240,9 +252,8 @@ export const mutations = {
 };
 
 export const actions = {
-  async load({
-    state, getters, rootGetters, commit, dispatch
-  }, { force, reset } = {}) {
+  async load(ctx, { force, reset } = {}) {
+  const { state, getters, rootGetters, commit, dispatch } = ctx;
 
     let promises = {};
     if ( rootGetters['cluster/schemaFor'](CATALOG.CLUSTER_REPO) ) {
@@ -283,7 +294,7 @@ export const actions = {
 
       for ( const k in obj.value.entries ) {
         for ( const entry of obj.value.entries[k] ) {
-          addChart(charts, entry, repo);
+          addChart(ctx, charts, entry, repo);
         }
       }
 
@@ -341,11 +352,13 @@ const CERTIFIED_SORTS = {
   other:                               3,
 };
 
-function addChart(map, chart, repo) {
-  const key = `${ repo.type }/${ repo.metadata.name }/${ chart.name }`;
+function addChart(ctx, map, chart, repo) {
+  const repoType = (repo.type === CATALOG.CLUSTER_REPO ? 'cluster' : 'namespace');
+  const repoName = repo.metadata.name;
+  const key = `${ repoType }/${ repoName }/${ chart.name }`;
   let obj = map[key];
-  const certifiedAnnotation = chart.annotations?.[CATALOG_ANNOTATIONS.CERTIFIED];
 
+  const certifiedAnnotation = chart.annotations?.[CATALOG_ANNOTATIONS.CERTIFIED];
   let certified = null;
   let sideLabel = null;
 
@@ -369,31 +382,32 @@ function addChart(map, chart, repo) {
     sideLabel = certifiedAnnotation;
   }
 
-  const repoType = (repo.type === CATALOG.CLUSTER_REPO ? 'cluster' : 'namespace');
-  const repoName = repo.metadata.name;
-
   if ( !obj ) {
-    obj = {
+    if ( ctx ) { }
+    obj = proxyFor(ctx, {
       key,
+      type: 'chart',
+      id: key,
       certified,
       sideLabel,
       repoType,
       repoName,
-      certifiedSort:   CERTIFIED_SORTS[certified] || 99,
-      icon:            chart.icon,
-      color:           repo.color,
-      chartName:       chart.name,
-      description:     chart.description,
-      repoKey:         repo._key,
-      versions:        [],
-      categories:      filterCategories(chart.keywords),
-      deprecated:      !!chart.deprecated,
-      hidden:          !!chart.annotations?.[CATALOG_ANNOTATIONS.HIDDEN],
-      targetNamespace: chart.annotations?.[CATALOG_ANNOTATIONS.NAMESPACE],
-      targetName:      chart.annotations?.[CATALOG_ANNOTATIONS.RELEASE_NAME],
-      scope:           chart.annotations?.[CATALOG_ANNOTATIONS.SCOPE],
-      provides:        [],
-    };
+      certifiedSort:    CERTIFIED_SORTS[certified] || 99,
+      icon:             chart.icon,
+      color:            repo.color,
+      chartName:        chart.name,
+      chartDisplayName: chart.annotations?.[CATALOG_ANNOTATIONS.DISPLAY_NAME] || chart.name,
+      chartDescription: chart.description,
+      repoKey:          repo._key,
+      versions:         [],
+      categories:       filterCategories(chart.keywords),
+      deprecated:       !!chart.deprecated,
+      hidden:           !!chart.annotations?.[CATALOG_ANNOTATIONS.HIDDEN],
+      targetNamespace:  chart.annotations?.[CATALOG_ANNOTATIONS.NAMESPACE],
+      targetName:       chart.annotations?.[CATALOG_ANNOTATIONS.RELEASE_NAME],
+      scope:            chart.annotations?.[CATALOG_ANNOTATIONS.SCOPE],
+      provides:         [],
+    });
 
     map[key] = obj;
   }

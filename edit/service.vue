@@ -15,6 +15,7 @@ import { ucFirst } from '@/utils/string';
 import CruResource from '@/components/CruResource';
 import Banner from '@/components/Banner';
 import Labels from '@/components/form/Labels';
+import { clone } from '@/utils/object';
 
 const SESSION_AFFINITY_ACTION_VALUES = {
   NONE:     'None',
@@ -132,6 +133,10 @@ export default {
     }
   },
 
+  created() {
+    this.registerBeforeHook(this.willSave, 'willSave');
+  },
+
   mounted() {
     const initialType = this.serviceType;
 
@@ -151,7 +156,29 @@ export default {
 
     updateServicePorts(servicePorts) {
       this.$set(this.value.spec, 'ports', servicePorts);
-    }
+    },
+
+    targetPortsStrOrInt(targetPorts = []) {
+      const neu = clone(targetPorts);
+      const isNumeric = new RegExp('^\\d+$');
+
+      neu.forEach((port, idx) => {
+        if (port?.targetPort && isNumeric.test(port.targetPort)) {
+          port.targetPort = parseInt(port.targetPort, 10);
+        }
+      });
+
+      return neu;
+    },
+
+    willSave() {
+      const { ports = [] } = this.value.spec;
+
+      if (ports && ports.length > 0) {
+        this.value.spec.ports = this.targetPortsStrOrInt(this.value.spec.ports);
+      }
+    },
+
   }
 };
 </script>
@@ -234,11 +261,6 @@ export default {
         </div>
       </Tab>
       <Tab name="ips" :label="t('servicesPage.ips.label')">
-        <div class="row">
-          <div class="col span-12">
-            <Banner color="warning" :label="t('servicesPage.ips.helpText')" />
-          </div>
-        </div>
         <div
           v-if="checkTypeIs('ClusterIP') || checkTypeIs('LoadBalancer') || checkTypeIs('NodePort')"
           class="row mb-20"
@@ -269,7 +291,6 @@ export default {
               v-model="value.spec.externalIPs"
               :title="t('servicesPage.ips.external.label')"
               :value-placeholder="t('servicesPage.ips.external.placeholder')"
-              :value-multiline="false"
               :mode="mode"
               :pad-left="false"
               :protip="t('servicesPage.ips.external.protip')"

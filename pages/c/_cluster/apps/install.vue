@@ -59,6 +59,7 @@ export default {
     const query = this.$route.query;
 
     await this.$store.dispatch('catalog/load');
+
     this.defaultRegistrySetting = await this.$store.dispatch('management/find', {
       type: MANAGEMENT.SETTING,
       id:   'system-default-registry'
@@ -73,7 +74,10 @@ export default {
 
     if ( this.repo && chartName ) {
       this.chart = this.$store.getters['catalog/chart']({
-        repoType, repoName, chartName
+        repoType,
+        repoName,
+        chartName,
+        includeHidden: true,
       });
     }
 
@@ -235,7 +239,7 @@ export default {
 
       this.removeGlobalValuesFrom(userValues);
       this.chartValues = merge(merge({}, this.versionInfo.values), userValues);
-      this.valuesYaml = jsyaml.safeDump(this.chartValues);
+      this.valuesYaml = jsyaml.safeDump(this.chartValues || {});
 
       if ( this.valuesYaml === '{}\n' ) {
         this.valuesYaml = '';
@@ -266,7 +270,7 @@ export default {
       mode:                   null,
       value:                  null,
       valuesComponent:        null,
-      valuesYaml:             null,
+      valuesYaml:             '',
       version:                null,
       versionInfo:            null,
       project:                null,
@@ -280,7 +284,7 @@ export default {
       nameDisabled:        false,
       openApi:             true,
       resetValues:         false,
-      selectedTabName:     'readme',
+      defaultTab:          'appReadme',
       showPreview:         false,
       showDiff:            false,
       showValuesComponent: true,
@@ -333,17 +337,21 @@ export default {
     },
 
     isValuesTab() {
-      const tabName = this.selectedTabName;
+      const tabName = this.$refs.tabs?.activeTabName;
 
-      if (tabName === 'helm' || tabName === 'readme') {
-        return false;
-      }
-
-      return true;
+      return tabName && !['appReadme', 'helm', 'readme'].includes(tabName);
     },
 
     charts() {
-      return this.$store.getters['catalog/charts'].filter(x => !x.deprecated);
+      const currentKey = this.existing?.matchingChart(true)?.key;
+
+      return this.$store.getters['catalog/charts'].filter((x) => {
+        if ( x.key === currentKey ) {
+          return true;
+        }
+
+        return !x.deprecated && !x.hidden;
+      });
     },
 
     repo() {
@@ -439,8 +447,10 @@ export default {
       }
     },
 
-    selectChart(key, version) {
-      const chart = findBy(this.charts, 'key', key);
+    selectChart(chart, version) {
+      if ( !chart ) {
+        return;
+      }
 
       this.$router.applyQuery({
         [REPO]:      chart.repoName,
@@ -455,17 +465,15 @@ export default {
     },
 
     preview() {
-      this.valuesYaml = jsyaml.safeDump(this.chartValues);
+      this.valuesYaml = jsyaml.safeDump(this.chartValues || {});
       this.previousYamlValues = this.valuesYaml;
 
       this.showPreview = true;
       this.showValuesComponent = false;
       this.showQuestions = false;
 
-      this.tabChanged({ tab: { name: 'values-yaml' } });
-
       this.$nextTick(() => {
-        window.location.hash = '#values-yaml';
+        this.$refs.tabs.select('values-yaml');
       });
     },
 
@@ -730,8 +738,6 @@ export default {
     tabChanged({ tab }) {
       window.scrollTop = 0;
 
-      this.selectedTabName = tab.name;
-
       if ( tab.name === 'values-yaml' ) {
         this.$nextTick(() => {
           if ( this.$refs.yaml ) {
@@ -740,6 +746,10 @@ export default {
           }
         });
       }
+    },
+
+    getOptionLabel(opt) {
+      return opt?.chartDisplayName;
     },
   },
 };
@@ -753,7 +763,7 @@ export default {
       <t k="catalog.install.header.upgrade" :name="existing.nameDisplay" />
     </h1>
     <h1 v-else-if="chart">
-      <t k="catalog.install.header.install" :name="chart.chartName" />
+      <t k="catalog.install.header.install" :name="chart.chartDisplayName" />
     </h1>
     <h1 v-else>
       <t k="catalog.install.header.installGeneric" />
@@ -766,8 +776,7 @@ export default {
         </div>
       </div>
       <div class="description">
-        <Markdown v-if="versionInfo && versionInfo.appReadme" v-model="versionInfo.appReadme" class="md md-desc" />
-        <p v-else-if="chart.description">
+        <p>
           {{ chart.description }}
         </p>
       </div>
@@ -794,11 +803,10 @@ export default {
         <div class="col span-6">
           <LabeledSelect
             label="Chart"
-            :value="$route.query.chart"
-            option-label="chartName"
-            option-key="key"
-            :reduce="opt=>opt.key"
+            :value="chart"
             :options="charts"
+            :get-option-label="opt => getOptionLabel(opt)"
+            option-key="key"
             @input="selectChart($event)"
           />
         </div>
@@ -830,13 +838,15 @@ export default {
         </NameNsDescription>
 
         <Tabbed
+          ref="tabs"
           :side-tabs="true"
           :class="{'with-name': showNameEditor}"
-          :default-tab="selectedTabName"
+          :default-tab="defaultTab"
           @changed="tabChanged($event)"
         >
-          <Tab v-if="showReadme" name="readme" :label="t('catalog.install.section.readme')" :weight="100">
-            <Markdown v-if="showReadme" ref="readme" v-model="versionInfo.readme" class="md readme" />
+          <Tab name="appReadme" :label="t('catalog.install.section.appReadme')" :weight="100">
+            <Markdown v-if="versionInfo && versionInfo.appReadme" v-model="versionInfo.appReadme" class="md md-desc" />
+            <Markdown v-else :value="t('catalog.install.appReadmeGeneric')" class="md md-desc" />
           </Tab>
 
           <template v-if="valuesComponent && showValuesComponent">
@@ -911,7 +921,11 @@ export default {
             />
           </Tab>
 
-          <Tab name="helm" :label="t('catalog.install.section.helm')" :weight="-1">
+          <Tab v-if="showReadme" name="readme" :label="t('catalog.install.section.readme')" :weight="-1">
+            <Markdown v-if="showReadme" ref="readme" v-model="versionInfo.readme" class="md readme" />
+          </Tab>
+
+          <Tab name="helm" :label="t('catalog.install.section.helm')" :weight="-2">
             <div><Checkbox v-if="existing" v-model="cleanupOnFail" :label="t('catalog.install.helm.cleanupOnFail')" /></div>
             <div><Checkbox v-if="!existing" v-model="crds" :label="t('catalog.install.helm.crds')" /></div>
             <div><Checkbox v-model="hooks" :label="t('catalog.install.helm.hooks')" /></div>
@@ -1001,7 +1015,7 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-  $desc-height: 150px;
+  $desc-height: 100px;
   $padding: 5px;
 
   .md {
@@ -1015,7 +1029,7 @@ export default {
       * + H4,
       * + H5,
       * + H6 {
-        margin-top: 20px;
+        margin-top: 40px;
       }
     }
   }
@@ -1028,10 +1042,11 @@ export default {
     margin-top: 10px;
     display: flex;
     height: $desc-height;
+    align-items: center;
 
     .logo-container {
       height: $desc-height;
-      width: $sideways-tabs-width;
+      width: $desc-height;
       text-align: center;
     }
 
@@ -1041,7 +1056,6 @@ export default {
       background-color: white;
       border: $padding solid white;
       border-radius: calc( 3 * var(--border-radius));
-      margin: 0 auto;
       position: relative;
     }
 
@@ -1061,9 +1075,10 @@ export default {
     .description {
       flex-grow: 1;
       padding-left: 20px;
-      width: calc(100% - #{$sideways-tabs-width});
-      height: $desc-height;
+      // width: calc(100% - #{$sideways-tabs-width});
+      // height: $desc-height;
       overflow: auto;
+      color: var(--secondary);
 
       .name {
         margin: #{-1 * $padding} 0 0 0;

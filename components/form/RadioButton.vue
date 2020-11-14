@@ -79,6 +79,7 @@ export default {
     @click.stop="clicked($event)"
   >
     <input
+      :id="_uid+'-radio'"
       :disabled="disabled"
       :name="name"
       :value="''+val"
@@ -95,12 +96,12 @@ export default {
       :aria-checked="isChecked"
       role="radio"
     />
-    <span
+    <label
       v-if="label"
       :class="[ disabled ? 'text-muted' : '', 'radio-label']"
     >
       <slot name="label">{{ label }}</slot>
-    </span>
+    </label>
   </label>
 </template>
 
@@ -131,13 +132,14 @@ export default {
   padding-bottom: 5px;
 
   .radio-label {
-    color: var(--input-label);
     margin: 3px 10px 0px 5px;
   }
 
  .radio-custom {
     height: 14px;
     width: 14px;
+    min-height: 14px;
+    min-width: 14px;
     background-color: var(--input-bg);
     border-radius: 50%;
     transition: all 0.3s ease-out;
@@ -153,13 +155,15 @@ export default {
     display: none;
   }
 
-  input:checked ~ .radio-custom {
+  .radio-custom {
+    &[aria-checked="true"] {
       background-color: var(--dropdown-text);
       -webkit-transform: rotate(0deg) scale(1);
       -ms-transform: rotate(0deg) scale(1);
       transform: rotate(0deg) scale(1);
       opacity:1;
       border: 1.5px solid var(--dropdown-text);
+    }
   }
 
   input:disabled ~ .radio-custom {

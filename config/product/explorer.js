@@ -7,7 +7,7 @@ import {
 
 import {
   STATE, NAME as NAME_COL, NAMESPACE as NAMESPACE_COL, AGE, KEYS,
-  INGRESS_TARGET, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM,
+  INGRESS_DEFAULT_BACKEND, INGRESS_TARGET, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM,
   SPEC_TYPE, TARGET_PORT, SELECTOR, NODE as NODE_COL, TYPE, WORKLOAD_IMAGES, POD_IMAGES
 } from '@/config/table-headers';
 
@@ -98,7 +98,7 @@ export function init(store) {
   mapGroup(/^(.*\.)?monitoring\.coreos\.com$/, 'Monitoring');
   mapGroup(/^(.*\.)?tekton\.dev$/, 'Tekton');
   mapGroup(/^(.*\.)?longhorn(\.rancher)?\.io$/, 'Longhorn');
-  mapGroup(/^(.*\.)?fleet\.cattle\.io$/, 'Fleet');
+  mapGroup(/^(.*\.)?(fleet|gitjob)\.cattle\.io$/, 'Fleet');
   mapGroup(/^(.*\.)?(helm|upgrade|k3s)\.cattle\.io$/, 'k3s');
   mapGroup(/^(.*\.)?cis\.cattle\.io$/, 'CIS');
   mapGroup(/^(catalog|project|management)\.cattle\.io$/, 'Rancher');
@@ -133,7 +133,7 @@ export function init(store) {
     },
     AGE
   ]);
-  headers(INGRESS, [STATE, NAME_COL, NAMESPACE_COL, INGRESS_TARGET, AGE]);
+  headers(INGRESS, [STATE, NAME_COL, NAMESPACE_COL, INGRESS_TARGET, INGRESS_DEFAULT_BACKEND, AGE]);
   headers(NODE, [STATE, NAME_COL, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM, AGE]);
   headers(SERVICE, [STATE, NAME_COL, NAMESPACE_COL, SPEC_TYPE, TARGET_PORT, SELECTOR, AGE]);
 

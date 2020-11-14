@@ -1,11 +1,15 @@
 import { LOGGING } from '@/config/types';
 import { DSL } from '@/store/type-map';
+import {
+  LOGGING_OUTPUT_PROVIDERS, STATE, NAME as NAME_COL, NAMESPACE as NAMESPACE_COL, AGE, OUTPUT, CLUSTER_OUTPUT, CONFIGURED_PROVIDERS
+} from '@/config/table-headers';
 
 export const NAME = 'logging';
 export const CHART_NAME = 'rancher-logging';
 
 export function init(store) {
   const {
+    headers,
     product,
     basicType,
     virtualType,
@@ -36,4 +40,9 @@ export function init(store) {
     route:      { name: 'c-cluster-logging' },
     exact:       true,
   });
+
+  headers(LOGGING.FLOW, [STATE, NAME_COL, NAMESPACE_COL, OUTPUT, CLUSTER_OUTPUT, CONFIGURED_PROVIDERS, AGE]);
+  headers(LOGGING.OUTPUT, [STATE, NAME_COL, NAMESPACE_COL, LOGGING_OUTPUT_PROVIDERS, AGE]);
+  headers(LOGGING.CLUSTER_FLOW, [STATE, NAME_COL, NAMESPACE_COL, CLUSTER_OUTPUT, CONFIGURED_PROVIDERS, AGE]);
+  headers(LOGGING.CLUSTER_OUTPUT, [STATE, NAME_COL, NAMESPACE_COL, LOGGING_OUTPUT_PROVIDERS, AGE]);
 }

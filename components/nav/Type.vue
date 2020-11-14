@@ -67,7 +67,8 @@ export default {
 
 <style lang="scss" scoped>
   .child {
-    margin-right: var(--outline);
+    margin: 0 var(--outline) 0 0;
+
     .label {
       grid-area: label;
       display: block;

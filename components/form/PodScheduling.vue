@@ -12,10 +12,11 @@ export default {
         return {};
       }
     },
+
     mode: {
       type:    String,
       default: 'create'
-    }
+    },
   },
 
   data() {
@@ -47,7 +48,7 @@ export default {
       </h4>
       <PodAffinity v-model="podAffinity" :mode="mode" />
     </div>
-    <hr class="divider" />
+    <hr class="section-divider" />
 
     <h4 class="mb-10">
       <t k="workload.scheduling.affinity.antiAffinityTitle" />

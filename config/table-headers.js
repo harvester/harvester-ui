@@ -36,6 +36,15 @@ export const NAME = {
   canBeVariable: true,
 };
 
+export const LOGGING_OUTPUT_PROVIDERS = {
+  name:          'logging-output-providers',
+  labelKey:      'tableHeaders.loggingOutputProviders',
+  value:         'providersDisplay',
+  sort:          ['providersSortable'],
+  width:         '75%',
+  formatter:     'List',
+};
+
 export const SIMPLE_NAME = {
   name:     'name',
   labelKey: 'tableHeaders.simpleName',
@@ -51,35 +60,20 @@ export const EFFECT = {
   sort:     ['effect'],
 };
 
-export const FLOW = {
-  name:          'flow',
-  labelKey:      'tableHeaders.flow',
-  value:         'flow',
-  sort:          ['flow.name'],
-  formatter:     'Link',
-  formatterOpts: { options: 'internal' },
-};
-
-export const CLUSTER_FLOW = {
-  ...FLOW,
-  labelKey:      'tableHeaders.clusterFlow',
-  formatterOpts: { options: 'internal' },
-};
-
 export const OUTPUT = {
   name:          'localOutputRefs',
   labelKey:      'tableHeaders.output',
   value:         'outputs',
-  sort:          'outputs.text',
+  sort:          ['outputsSortable'],
   formatter:     'ListLink',
-  formatterOpts: { options: 'internal' },
+  formatterOpts: { options: { internal: true } },
 };
 
 export const CONFIGURED_PROVIDERS = {
   name:      'configuredProviders',
   labelKey:  'tableHeaders.configuredProviders',
-  value:     'providers',
-  sort:      'providers',
+  value:     'providersDisplay',
+  sort:      'providersSortable',
   formatter: 'List'
 };
 
@@ -87,6 +81,7 @@ export const CLUSTER_OUTPUT = {
   ...OUTPUT,
   name:     'globalOutputRefs',
   value:    'clusterOutputs',
+  sort:     ['clusterOutputsSortable'],
   labelKey: 'tableHeaders.clusterOutput',
 };
 
@@ -99,10 +94,11 @@ export const NAME_UNLINKED = {
 };
 
 export const NAMESPACE = {
-  name:     'namespace',
-  labelKey: 'tableHeaders.namespace',
-  value:    'metadata.namespace',
-  sort:     'namespace',
+  name:        'namespace',
+  labelKey:    'tableHeaders.namespace',
+  value:       'namespace',
+  sort:        'namespace',
+  dashIfEmpty: true,
 };
 
 export const NODE = {
@@ -479,6 +475,16 @@ export const API_GROUP = {
   sort:     ['apiGroups']
 };
 
+export const INGRESS_DEFAULT_BACKEND = {
+  name:      'ingressDefaultBackend',
+  labelKey:  'tableHeaders.ingressDefaultBackend',
+  value:     'hasDefaultBackend',
+  sort:      ['hasDefaultBackend:desc'],
+  formatter: 'Checked',
+  width:     75,
+  align:     'center'
+};
+
 export const INGRESS_TARGET = {
   name:      'ingressTarget',
   labelKey:  'tableHeaders.ingressTarget',
@@ -516,7 +522,15 @@ export const CHART = {
   name:     'chart',
   labelKey: 'tableHeaders.chart',
   value:    'chartDisplay',
-  sort:     'chartDisplay'
+  sort:     ['chartDisplay', 'versionSort'],
+};
+
+export const CHART_UPGRADE = {
+  name:        'upgrade',
+  labelKey:    'tableHeaders.upgrade',
+  value:       'upgradeAvailable',
+  sort:        'upgradeAvailableSort:desc',
+  dashIfEmpty: true,
 };
 
 export const RESOURCES = {
@@ -559,6 +573,17 @@ export const FLEET_SUMMARY = {
   sort:      false,
   search:    false,
   formatter: 'FleetSummaryGraph',
+  align:     'center',
+  width:     100,
+};
+
+export const APP_SUMMARY = {
+  name:      'summary',
+  labelKey:  'tableHeaders.resources',
+  value:     'deployedResources.length',
+  sort:      false,
+  search:    false,
+  formatter: 'AppSummaryGraph',
   align:     'center',
   width:     100,
 };

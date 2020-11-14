@@ -13,6 +13,7 @@ import CodeMirror from '@/components/CodeMirror';
 import { mapGetters } from 'vuex';
 import ButtonDropdown from '@/components/ButtonDropdown';
 import FileSelector from '@/components/form/FileSelector';
+import { HIDE_SENSITIVE } from '@/store/prefs';
 
 const LARGE_LIMIT = 2 * 1024;
 
@@ -217,6 +218,10 @@ export default {
       return this.mode === _VIEW;
     },
 
+    hideSensitive() {
+      return this.$store.getters['prefs/get'](HIDE_SENSITIVE);
+    },
+
     showAdd() {
       return !this.isView && this.addAllowed;
     },
@@ -230,7 +235,11 @@ export default {
     },
 
     threeColumns() {
-      return (this.valueBinary && this.isView) || this.showRemove;
+      return ((this.valueBinary || this.hasSomeBinary) && this.isView) || this.showRemove;
+    },
+
+    hasSomeBinary() {
+      return !!(this.rows.filter(row => !!get(row, '_display.binary')) || []).length;
     },
 
     ...mapGetters({ t: 'i18n/t' })
@@ -345,6 +354,37 @@ export default {
         byteSize
       };
     },
+
+    onPaste(index, event, pastedValue) {
+      const text = event.clipboardData.getData('text/plain');
+      const lines = text.split('\n');
+      const splits = lines.map((line) => {
+        if (line.includes(':')) {
+          return line.split(':');
+        }
+
+        return line.split('=');
+      });
+
+      if (splits.length === 0 || (splits.length === 1 && splits[0].length < 2)) {
+        return;
+      }
+      event.preventDefault();
+
+      const keyValues = splits.map(split => ({
+        [this.keyName]:   (split[0] || '').trim(),
+        [this.valueName]: (split[1] || '').trim(),
+        _display:         this.displayProps(split[1])
+      }));
+
+      this.rows.splice(index, 1, ...keyValues);
+      this.queueUpdate();
+    },
+
+    useClickExpand(row) {
+      return get(row, '_display.isLarge') || (row[this.valueName].length > 100 && this.valueConcealed && this.hideSensitive);
+    },
+
     get
   }
 };
@@ -352,118 +392,132 @@ export default {
 
 <template>
   <div class="key-value" :class="mode">
-    <template v-if="title || !!$slots.title">
-      <div v-if="title" class="clearfix">
+    <div v-if="title" class="clearfix">
+      <slot name="title">
         <h3>
           {{ title }}
           <button v-if="titleAdd && showAdd" type="button" class="btn btn-xs role-tertiary p-5 ml-10" style="position: relative; top: -3px;" @click="add()">
             <i class="icon icon-plus icon-lg icon-fw" />
           </button>
         </h3>
-      </div>
-    </template>
-
-    <div v-if="rows.length || isView" :class="{'extra-column':threeColumns}" class="kv-row headers">
-      <label class="text-label" :class="{'view':isView}">
-        {{ keyLabel }}
-        <i v-if="protip && !isView" v-tooltip="protip" class="icon icon-info" style="font-size: 14px" />
-      </label>
-      <label class="text-label" :class="{'view':isView}">{{ valueLabel }}</label>
-      <span v-if="threeColumns" :class="{'view':isView}" />
+      </slot>
     </div>
 
-    <div v-if="isView && !rows.length" class="kv-row last" :class="{'extra-column':threeColumns}">
-      <div class="text-muted">
-        &mdash;
+    <div class="kv-container" :class="{'extra-column':threeColumns}">
+      <template v-if="rows.length || isView">
+        <label class="text-label" :class="{'view':isView}">
+          {{ keyLabel }}
+          <i v-if="protip && !isView" v-tooltip="protip" class="icon icon-info" style="font-size: 14px" />
+        </label>
+        <label class="text-label" :class="{'view':isView}">
+          {{ valueLabel }}
+        </label>
+        <span v-if="threeColumns" :class="{'view':isView}" />
+      </template>
+
+      <div v-if="isView && !rows.length" class="kv-row last" :class="{'extra-column':threeColumns}">
+        <div class="text-muted">
+          &mdash;
+        </div>
+        <div class="text-muted">
+          &mdash;
+        </div>
+        <div v-if="threeColumns" class="text-muted">
+          &mdash;
+        </div>
       </div>
-      <div class="text-muted">
-        &mdash;
-      </div>
-      <div v-if="threeColumns" class="text-muted">
-        &mdash;
-      </div>
+
+      <template v-for="(row,i) in rows">
+        <div :key="i+'key'" class="kv-item key">
+          <slot
+            name="key"
+            :row="row"
+            :mode="mode"
+            :keyName="keyName"
+            :valueName="valueName"
+            :isView="isView"
+          >
+            <div v-if="isView" class="view force-wrap">
+              {{ row[keyName] }}
+            </div>
+            <input
+              v-else
+              ref="key"
+              v-model="row[keyName]"
+              :placeholder="keyPlaceholder"
+              @input="queueUpdate"
+              @paste="onPaste(i, $event)"
+            />
+          </slot>
+        </div>
+
+        <div :key="i+'value'" class="kv-item value">
+          <slot
+            name="value"
+            :row="row"
+            :mode="mode"
+            :keyName="keyName"
+            :valueName="valueName"
+            :isView="isView"
+            :queueUpdate="queueUpdate"
+          >
+            <span v-if="(valueBinary || get(row, '_display.binary')) && !asciiLike(row[valueName])">
+              {{ row[valueName].length }} byte<span v-if="row[valueName].length !== 1">s</span>
+            </span>
+            <div v-else-if="isView" class="view force-wrap">
+              <span>
+                <template v-if="get(row, '_display.parsed')">
+                  <CodeMirror
+                    :options="{mode:{name:'javascript', json:true}, lineNumbers:false, foldGutter:false, readOnly:true}"
+                    :value="get(row, '_display.parsed')"
+                    :class="{'conceal':valueConcealed && hideSensitive}"
+                  />
+                </template>
+                <ClickExpand v-else-if="useClickExpand(row)" :value-concealed="valueConcealed && hideSensitive" :value="row[valueName]" :size=" get(row, '_display.isLarge') ? get(row, '_display.byteSize') : null" />
+                <span v-else-if="get(row, '_display.withBreaks')" :class="{'conceal':valueConcealed && hideSensitive}" v-html="get(row, '_display.withBreaks')" />
+                <span v-else class="text-muted">&mdash;</span>
+              </span>
+              <template v-if="valueConcealed && hideSensitive && !(get(row, '_display.isLarge') || row[valueName].length > 100)">
+                <button class="btn role-link copy-value" @click="$copyText(row[valueName])">
+                  <i class="icon icon-copy" />
+                </button>
+              </template>
+            </div>
+            <TextAreaAutoGrow
+              v-else-if="valueMultiline"
+              v-model="row[valueName]"
+              :placeholder="valuePlaceholder"
+              :min-height="50"
+              :spellcheck="false"
+              @input="queueUpdate"
+            />
+            <input
+              v-else
+              v-model="row[valueName]"
+              :placeholder="valuePlaceholder"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              @input="queueUpdate"
+            />
+          </slot>
+        </div>
+
+        <div v-if="valueBinary && isView" :key="i" class="kv-item">
+          <a href="#" @click="download(i, $event)">Download</a>
+        </div>
+
+        <div v-if="showRemove" :key="i" class="kv-item remove">
+          <slot name="removeButton" :remove="remove" :row="row">
+            <button type="button" class="btn bg-transparent role-link" @click="remove(i)">
+              {{ removeLabel || t('generic.remove') }}
+            </button>
+          </slot>
+        </div>
+      </template>
     </div>
-    <div v-for="(row,i) in rows" :key="i" :class="{'extra-column':threeColumns, 'last':i===rows.length-1}" class="kv-row">
-      <div class="col">
-        <slot
-          name="key"
-          :row="row"
-          :mode="mode"
-          :keyName="keyName"
-          :valueName="valueName"
-          :isView="isView"
-        >
-          <div v-if="isView" class="view force-wrap">
-            {{ row[keyName] }}
-          </div>
-          <input
-            v-else
-            ref="key"
-            v-model="row[keyName]"
-            :placeholder="keyPlaceholder"
-            @input="queueUpdate"
-          />
-        </slot>
-      </div>
 
-      <div class="col">
-        <slot
-          name="value"
-          :row="row"
-          :mode="mode"
-          :keyName="keyName"
-          :valueName="valueName"
-          :isView="isView"
-          :queueUpdate="queueUpdate"
-        >
-          <span v-if="(valueBinary || get(row, '_display.binary')) && !asciiLike(row[valueName])">
-            {{ row[valueName].length }} byte<span v-if="row[valueName].length !== 1">s</span>
-          </span>
-          <div v-else-if="isView" class="view force-wrap">
-            <template v-if="get(row, '_display.parsed')">
-              <CodeMirror
-                :options="{mode:{name:'javascript', json:true}, lineNumbers:false, foldGutter:false, readOnly:true}"
-                :value="get(row, '_display.parsed')"
-              />
-            </template>
-            <ClickExpand v-else-if="get(row, '_display.isLarge')" :value="row[valueName]" :size="get(row, '_display.byteSize')" />
-            <span v-else-if="get(row, '_display.withBreaks')" v-html="get(row, '_display.withBreaks')" />
-            <span v-else class="text-muted">&mdash;</span>
-          </div>
-          <TextAreaAutoGrow
-            v-else-if="valueMultiline"
-            v-model="row[valueName]"
-            :placeholder="valuePlaceholder"
-            :min-height="50"
-            :spellcheck="false"
-            @input="queueUpdate"
-          />
-          <input
-            v-else
-            v-model="row[valueName]"
-            :placeholder="valuePlaceholder"
-            autocorrect="off"
-            autocapitalize="off"
-            spellcheck="false"
-            @input="queueUpdate"
-          />
-        </slot>
-      </div>
-
-      <div v-if="valueBinary && isView" class="col">
-        <a href="#" @click="download(i, $event)">Download</a>
-      </div>
-
-      <div v-if="showRemove" class="col remove">
-        <slot name="removeButton" :remove="remove" :row="row">
-          <button type="button" class="btn bg-transparent role-link" @click="remove(i)">
-            {{ removeLabel || t('generic.remove') }}
-          </button>
-        </slot>
-      </div>
-    </div>
-
-    <div v-if="!titleAdd && (showAdd || showRead)" class="footer mt-10">
+    <div v-if="!titleAdd && (showAdd || showRead)" class="footer">
       <slot name="add" :add="add">
         <ButtonDropdown size="sm">
           <template #button-content>
@@ -495,31 +549,28 @@ export default {
     padding: 0;
   }
 
-  .kv-row{
+  .kv-container{
     display: grid;
     align-items: center;
-    // this value keeps right-side padding consistent with row/col classed inputs
-    grid-template-columns: 49.15% 49.15%;
+    grid-template-columns: auto 1fr;
     column-gap: $column-gutter;
 
     &.extra-column {
-      grid-template-columns: 1fr 1fr 100px;
+       grid-template-columns: 1fr 1fr 100px;
     }
 
-    & > .col {
+    & .kv-item {
       width: 100%;
-    }
+      margin: 10px 0px 10px 0px;
+      &.key {
+        align-self: start;
+      }
 
-    &:not(.headers):not(.last){
-      margin-bottom: 20px;
-    }
-
-    &.headers SPAN, &.headers LABEL {
-      color: var(--input-label);
-      &:not(.view) {
-       margin-bottom:10px;
+      &.value {
+        font-family: monospace, monospace;
       }
     }
+
   }
 
   .remove {
@@ -552,6 +603,10 @@ export default {
 
   .download {
     text-align: right;
+  }
+
+  .copy-value{
+    padding: 0px 0px 0px 10px;
   }
 
 }

@@ -45,6 +45,8 @@
 //                            --  obj must have a `name` that is unique among all virtual types.
 //                            -- `cluster` is automatically added to route.params if it exists.
 //
+// spoofedType(obj)           Create a fake type that can be treated like a normal type
+//
 // basicType(                 Mark type(s) as always shown in the top of the nav
 //   type(s),                 -- Type name or arrry of type names
 //   group                    -- Group to show the type(s) under; false-y for top-level.
@@ -113,6 +115,11 @@ export const FAVORITE = 'favorite';
 export const USED = 'used';
 
 export const ROOT = 'root';
+
+export const SPOOFED_PREFIX = '__[[spoofed]]__';
+export const SPOOFED_API_PREFIX = '__[[spoofedapi]]__';
+
+const instanceMethods = {};
 
 export function DSL(store, product, module = 'type-map') {
   // store.commit(`${ module }/product`, { name: product });
@@ -218,6 +225,10 @@ export function DSL(store, product, module = 'type-map') {
     virtualType(obj) {
       store.commit(`${ module }/virtualType`, {product, obj});
     },
+
+    spoofedType(obj) {
+      store.commit(`${ module }/spoofedType`, {product, obj});
+    }
   };
 }
 
@@ -246,6 +257,7 @@ export const state = function() {
   return {
     products:                [],
     virtualTypes:            {},
+    spoofedTypes:            {},
     basicTypes:              {},
     groupIgnore:             [],
     groupWeights:            {},
@@ -618,6 +630,57 @@ export const getters = {
     };
   },
 
+  isSpoofed(state, getters, rootState, rootGetters) {
+    return (product, type) => {
+      const productSpoofedTypes = state.spoofedTypes[product] || [];
+      return productSpoofedTypes.some(st => st.type === type);
+    };
+  },
+
+  getSpoofedInstances(state, getters, rootState, rootGetters) {
+    return async (type, product) => {
+      product = product || rootGetters['productId'];
+      const getInstances = instanceMethods[product]?.[type] || (() => []);
+      const instances = await getInstances();
+      
+      instances.forEach((instance) => {
+        const type = instance.type;
+        const id = instance.id;
+        const link = `/${SPOOFED_PREFIX}/${type}/${id}`;
+        const apiLink = `/${SPOOFED_API_PREFIX}/${type}/${id}`;
+
+        instance.links = {
+          remove: link,
+          self: link,
+          update: link,
+          view: apiLink,
+        };
+      });
+      return instances;
+    };
+  },
+
+  getSpoofedInstance(state, getters, rootState, rootGetters) {
+    return async (type, id, product) => {
+      const productInstances = await getters.getSpoofedInstances(type, product);
+      return productInstances.find( instance => instance.id === id);
+    };
+  },
+
+  allSpoofedTypes(state, getters, rootState, rootGetters) {
+    return Object.values(state.spoofedTypes).flat();
+  },
+
+  allSpoofedSchemas(state, getters, rootState, rootGetters) {
+    return getters.allSpoofedTypes.flatMap(type => {
+      const schemas = type.schemas || [];
+      return schemas.map(schema => ({
+        ...schema,
+        isSpoofed: true
+      }));
+    });
+  },
+
   allTypes(state, getters, rootState, rootGetters) {
     return (product, mode = ALL) => {
       const module = findBy(state.products, 'name', product).inStore;
@@ -658,7 +721,7 @@ export const getters = {
         };
       }
 
-      // Add virtual types
+      // Add virtual types and spoofed types
       if ( mode !== USED ) {
         const virtualTypes = state.virtualTypes[product] || [];
 
@@ -697,6 +760,11 @@ export const getters = {
           out[id] = item;
         }
       }
+
+      const spoofedTypes = state.spoofedTypes[product] || [];
+      spoofedTypes.forEach(type => {
+        out[type.name] = type;
+      });
 
       return out;
     };
@@ -1050,6 +1118,34 @@ export const mutations = {
     }
   },
 
+  spoofedType(state, {product, obj}) {
+    if ( !state.spoofedTypes[product] ) {
+      state.spoofedTypes[product] = [];
+    }
+
+    const copy = clone(obj);
+    
+    instanceMethods[product] = instanceMethods[product] || {};
+    instanceMethods[product][copy.type] = copy.getInstances;
+    delete copy.getInstances;
+
+    copy.isSpoofed = true;
+    copy.virtual = true;
+    copy.schemas.forEach(schema => {
+      schema.links = {
+        collection: `/${SPOOFED_PREFIX}/${schema.id}`,
+        ...(schema.links || {})
+      } 
+    });
+
+    const existing = findBy(state.spoofedTypes[product], 'type', copy.type);
+    if ( existing ) {
+      Object.assign(existing, copy);
+    } else {
+      addObject(state.spoofedTypes[product], copy);
+    }
+  },
+
   basicType(state, {product, group, types}) {
     if ( !product ) {
       product === EXPLORER;
@@ -1155,6 +1251,15 @@ export const mutations = {
     state.uncreatable.push(match);
   },
 
+  removeUncreatableType(state, {match}) {
+    match = ensureRegex(match);
+    match = regexToString(match);
+    const matchingIndex = state.uncreatable.findIndex((regex) => regex === match);
+    if (matchingIndex >= 0) {
+      state.uncreatable.splice(matchingIndex, 1);
+    }
+  },
+
   immutableType(state, { match }) {
     match = ensureRegex(match);
     match = regexToString(match);
@@ -1202,6 +1307,12 @@ export const actions = {
 
     dispatch('prefs/set', { key: EXPANDED_GROUPS, value: groups }, { root: true });
   },
+  uncreatableType({ commit }, match) {
+    commit(`uncreatableType`, match);
+  },
+  removeUncreatableType({ commit }, match) {
+    commit(`removeUncreatableType`, match);
+  }
 };
 
 function _sortGroup(tree, mode) {

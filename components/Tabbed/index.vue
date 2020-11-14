@@ -3,6 +3,7 @@ import head from 'lodash/head';
 import isEmpty from 'lodash/isEmpty';
 import { addObject, removeObject, findBy } from '@/utils/array';
 import { sortBy } from '@/utils/sort';
+import findIndex from 'lodash/findIndex';
 
 export default {
   name: 'Tabbed',
@@ -18,18 +19,7 @@ export default {
       default: false
     },
 
-    // tabs with canToggle will be hidden by default and revealed by clicking this link
-    showMoreLabel: {
-      type:    String,
-      default: 'Show Extra'
-    },
-
-    hideMoreLabel: {
-      type:    String,
-      default: 'Hide Extra'
-    },
-
-    hideAllowed: {
+    showTabsAddRemove: {
       type:    Boolean,
       default: false
     },
@@ -67,32 +57,20 @@ export default {
   },
 
   data() {
-    return { tabs: [], showHiddenTabs: false };
+    return {
+      tabs:          [],
+      activeTabName: null,
+    };
   },
 
   computed: {
     // keep the tabs list ordered for dynamic tabs
-    sortedShownTabs() {
+    sortedTabs() {
       const { tabs } = this;
       const shownTabs = tabs.filter(tab => !tab.canToggle);
 
       return sortBy(shownTabs, ['weight:desc', 'label', 'name']);
     },
-
-    sortedHiddenTabs() {
-      const { tabs } = this;
-      const hiddenTabs = tabs.filter(tab => tab.canToggle);
-
-      return sortBy(hiddenTabs, ['weight:desc', 'label', 'name']);
-    },
-
-    sortedTabs() {
-      return [...this.sortedShownTabs, ...this.sortedHiddenTabs];
-    },
-
-    showTabToggle() {
-      return this.sortedHiddenTabs.length && (this.hideAllowed || !this.showHiddenTabs);
-    }
   },
 
   watch: {
@@ -158,6 +136,7 @@ export default {
       }
 
       this.$emit('changed', { tab: selected });
+      this.activeTabName = selected.name;
     },
 
     selectNext(direction) {
@@ -183,7 +162,17 @@ export default {
           return nxt;
         }
       }
-    }
+    },
+
+    tabAddClicked() {
+      this.$emit('addTab');
+    },
+
+    tabRemoveClicked() {
+      const activeTabIndex = findIndex(this.tabs, tab => tab.active);
+
+      this.$emit('removeTab', activeTabIndex);
+    },
   },
 };
 </script>
@@ -198,9 +187,11 @@ export default {
       tabindex="0"
       @keydown.right.prevent="selectNext(1)"
       @keydown.left.prevent="selectNext(-1)"
+      @keydown.down.prevent="selectNext(1)"
+      @keydown.up.prevent="selectNext(-1)"
     >
       <li
-        v-for="tab in sortedShownTabs"
+        v-for="tab in sortedTabs"
         :id="tab.name"
         :key="tab.name"
         :class="{tab: true, active: tab.active, disabled: tab.disabled}"
@@ -214,31 +205,16 @@ export default {
           {{ tab.label }}
         </a>
       </li>
-      <li v-if="showTabToggle" class="tab toggle">
-        <a @click.prevent="showHiddenTabs = !showHiddenTabs">
-          <i class="icon icon-sm" :class="{'icon-plus': !showHiddenTabs, 'icon-minus':showHiddenTabs}" />
-          {{ showHiddenTabs ? hideMoreLabel : showMoreLabel }}
-        </a>
-      </li>
-      <template v-if="showHiddenTabs">
-        <li
-          v-for="tab in sortedHiddenTabs"
-          :id="tab.name"
-          :key="tab.name"
-          class="can-toggle"
-          :class="{tab: true, active: tab.active, disabled: tab.disabled}"
-          role="presentation"
-        >
-          <a
-            :aria-controls="'#' + tab.name"
-            :aria-selected="tab.active"
-            role="tab"
-            @click.prevent="select(tab.name, $event)"
-          >
-            {{ tab.label }}
-          </a>
+      <ul v-if="sideTabs && showTabsAddRemove" class="tab-list-footer">
+        <li>
+          <button type="button" class="btn bg-transparent" @click="tabAddClicked">
+            <i class="icon icon-plus" />
+          </button>
+          <button type="button" class="btn bg-transparent" @click="tabRemoveClicked">
+            <i class="icon icon-minus" />
+          </button>
         </li>
-      </template>
+      </ul>
     </ul>
     <div class="tab-container">
       <slot />
@@ -310,6 +286,9 @@ export default {
     & .tabs {
       width: $sideways-tabs-width;
       min-width: $sideways-tabs-width;
+      display: flex;
+      flex: 1 0;
+      flex-direction: column;
 
       & .tab {
         width: 100%;
@@ -330,6 +309,31 @@ export default {
           & A{
             color: var(--input-label);
           }
+        }
+      }
+      .tab-list-footer {
+        list-style: none;
+        padding: 0;
+        margin-top: auto;
+
+        li {
+          display: flex;
+          flex: 1;
+
+          .btn {
+            flex: 1 1;
+          }
+
+          button:first-of-type {
+            border-top: solid thin var(--border);
+            border-right: solid thin var(--border);
+            border-top-right-radius: 0;
+          }
+          button:last-of-type {
+            border-top: solid thin var(--border);
+            border-top-left-radius: 0;
+          }
+
         }
       }
     }

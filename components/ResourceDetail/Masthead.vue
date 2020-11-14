@@ -6,7 +6,8 @@ import BadgeState from '@/components/BadgeState';
 import Banner from '@/components/Banner';
 import { get } from '@/utils/object';
 import { NAME as FLEET_NAME } from '@/config/product/fleet';
-import { _EDIT, _VIEW } from '@/config/query-params';
+import { _CREATE, _EDIT, _VIEW } from '@/config/query-params';
+import { HIDE_SENSITIVE } from '@/store/prefs';
 
 export default {
   components: {
@@ -73,6 +74,10 @@ export default {
 
     isEdit() {
       return this.mode === _EDIT;
+    },
+
+    isCreate() {
+      return this.mode === _CREATE;
     },
 
     isNamespace() {
@@ -165,7 +170,12 @@ export default {
       }
 
       return out ;
-    }
+    },
+
+    hideSensitiveData() {
+      return this.$store.getters['prefs/get'](HIDE_SENSITIVE);
+    },
+
   },
   methods: {
     get,
@@ -178,6 +188,12 @@ export default {
 
     toggleYaml(val) {
       this.$emit('update:asYaml', val);
+    },
+
+    toggleSensitiveData() {
+      const hideData = this.$store.getters['prefs/get'](HIDE_SENSITIVE);
+
+      this.$store.dispatch('prefs/set', { key: HIDE_SENSITIVE, value: !hideData });
     }
   }
 };
@@ -187,22 +203,22 @@ export default {
   <header class="masthead">
     <div class="title">
       <div class="primaryheader">
-        <h1 v-if="isEdit">
+        <h1 v-if="isCreate || isEdit || isView">
           <nuxt-link :to="parent.location">
             {{ parent.displayName }}:
           </nuxt-link>
-          <t k="resourceDetail.header.edit" />
+          <t v-if="isCreate" k="resourceDetail.header.create" />
+          <t v-if="isEdit" k="resourceDetail.header.edit" />
           <span v-if="resourceSubtype" v-html="resourceSubtype" />
-          {{ value.nameDisplay }}
+          <span v-if="!isCreate" v-html="value.nameDisplay" />
         </h1>
         <h1 v-else>
           <nuxt-link :to="parent.location">
             {{ parent.displayName }}:
           </nuxt-link>
-          <span v-if="resourceSubtype" v-html="resourceSubtype" />
           <span v-html="h1" />
         </h1>
-        <BadgeState v-if="isView" :value="value" />
+        <BadgeState v-if="isView && !parent.hideBadgeState" :value="value" />
       </div>
       <!-- //TODO use  nuxt-link for an internal project detail page once it exists -->
       <div v-if="isView" class="subheader">
@@ -214,6 +230,12 @@ export default {
     </div>
     <slot name="right">
       <div v-if="isView" class="actions">
+        <template v-if="!!value.hasSensitiveData">
+          <button type="button" class="btn role-link" @click="toggleSensitiveData">
+            <i class="icon" :class="{'icon-show': hideSensitiveData, 'icon-hide': !hideSensitiveData}" />
+            {{ hideSensitiveData ? t(`resourceDetail.masthead.show`) : t(`resourceDetail.masthead.hide`) }}
+          </button>
+        </template>
         <div v-if="hasDetailOrEdit">
           <ButtonGroup :labels-are-translations="true" :value="asYaml" :options="[{label: 'resourceDetail.masthead.overview', value: false},{label:'resourceDetail.masthead.yaml', value: true }]" @input="toggleYaml" />
         </div>
@@ -237,11 +259,6 @@ export default {
 
       h1 {
         margin-right: 8px;
-      }
-
-      .badge-state {
-        padding: 2px 14px 1px 14px;
-        font-size: 12px;
       }
     }
 

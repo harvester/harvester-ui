@@ -5,12 +5,13 @@
 
   display: block !important;
   z-index: z-index('tooltip');
+  max-width: 50vw;
 
   .tooltip-inner {
     background: var(--tooltip-bg);
     color: var(--tooltip-text);
     border-radius: var(--border-radius);
-    padding: 4px 8px;
+    padding: 8px;
   }
 
   .tooltip-arrow {
@@ -232,14 +233,8 @@
 
     .button-divider {
       border-right: 1px solid var(--link-text);
-      margin: 10px 0;
     }
-
-    &.btn-xs {
-      .button-divider {
-        margin: 1px 0;
-      }
-    }
+    
     &.bg-primary:hover {
       background: var(--accent-btn-hover);
     }

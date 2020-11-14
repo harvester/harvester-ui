@@ -11,7 +11,7 @@ import StorageClassSelector from '@/chart/monitoring/StorageClassSelector';
 import RadioGroup from '@/components/form/RadioGroup';
 
 import { set } from '@/utils/object';
-import { simplify } from '@/utils/selector';
+import { simplify, convert } from '@/utils/selector';
 import { POD } from '@/config/types';
 
 export default {
@@ -69,13 +69,27 @@ export default {
           label: 'monitoring.volume.modes.block',
         },
       ],
-      enablePersistantStorage: false,
+      enablePersistantStorage: !!this.value?.prometheus?.prometheusSpec?.storageSpec?.volumeClaimTemplate?.spec,
       warnUser:                false,
     };
   },
 
   computed: {
     ...mapGetters(['currentCluster']),
+    matchExpressions: {
+      get() {
+        const selector = this.value?.prometheus?.prometheusSpec?.storageSpec?.volumeClaimTemplate?.spec?.selector;
+        let matchExpressions;
+
+        if (selector && selector?.matchExpressions) {
+          matchExpressions = convert((selector?.matchLabels || {}), selector.matchExpressions);
+
+          return matchExpressions;
+        } else {
+          return [];
+        }
+      }
+    },
     filteredWorkloads() {
       let { workloads } = this;
       const { existing = false } = this.$attrs;
@@ -169,9 +183,14 @@ export default {
 
     matchChanged(expressions) {
       const { matchLabels, matchExpressions } = simplify(expressions);
+      const storageSpec = this.value.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec;
 
-      this.$set(this.value.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.selector, 'matchLabels', matchLabels);
-      this.$set(this.value.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.selector, 'matchExpressions', matchExpressions);
+      if (!storageSpec?.selector) {
+        storageSpec['selector'] = { matchExpressions: [], matchLabels: {} };
+      }
+
+      this.$set(storageSpec.selector, 'matchLabels', matchLabels);
+      this.$set(storageSpec.selector, 'matchExpressions', matchExpressions);
     },
   },
 };
@@ -204,7 +223,7 @@ export default {
             :label="t('monitoring.prometheus.config.ignoreNamespaceSelectors.label')"
             :labels="[t('monitoring.prometheus.config.ignoreNamespaceSelectors.radio.enforced'),t('monitoring.prometheus.config.ignoreNamespaceSelectors.radio.ignored')]"
             :mode="mode"
-            :options="[true, false]"
+            :options="[false, true]"
           >
             <template #corner>
               <i v-tooltip="t('monitoring.prometheus.config.ignoreNamespaceSelectors.help', {}, true)" class="icon icon-info" />
@@ -246,7 +265,9 @@ export default {
       </div>
       <div class="row">
         <div class="col span-12 mt-5">
-          <label class="text-label mb-0">{{ t('monitoring.prometheus.config.resourceLimits') }}</label>
+          <h4 class="mb-0">
+            {{ t('monitoring.prometheus.config.resourceLimits') }}
+          </h4>
         </div>
       </div>
       <div class="row">
@@ -333,16 +354,20 @@ export default {
         <div class="row">
           <div class="col span-12">
             <div class="mb-5 mt-5">
-              <label class="text-label mb-10">{{ t('monitoring.prometheus.storage.selector') }}</label>
+              <h4 class=" mb-10">
+                {{ t('monitoring.prometheus.storage.selector') }}
+              </h4>
             </div>
+            <Banner color="warning" :label="t('monitoring.prometheus.storage.selectorWarning', {}, true)" />
             <MatchExpressions
-              :initial-empty-row="mode !== 'view'"
+              :initial-empty-row="false"
               :mode="mode"
               type=""
-              :value="value.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.selector.matchExpressions"
+              :value="matchExpressions"
               :show-remove="false"
               @input="matchChanged($event)"
             />
+            </banner>
           </div>
         </div>
       </template>

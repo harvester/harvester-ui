@@ -156,8 +156,16 @@ const SORT_ORDER = {
   other:   5,
 };
 
-export function colorForState(state) {
-  const key = (state || '').toLowerCase();
+export function colorForState(state, isError, isTransitioning) {
+  if ( isError ) {
+    return 'text-error';
+  }
+
+  if ( isTransitioning ) {
+    return 'text-info';
+  }
+
+  const key = (state || 'active').toLowerCase();
   let color;
 
   if ( STATES[key] && STATES[key].color ) {
@@ -173,12 +181,13 @@ export function colorForState(state) {
 
 export function stateDisplay(state) {
   // @TODO use translations
+  const key = (state || 'active').toLowerCase();
 
-  if ( REMAP_STATE[state] ) {
-    return REMAP_STATE[state];
+  if ( REMAP_STATE[key] ) {
+    return REMAP_STATE[key];
   }
 
-  return state.split(/-/).map(ucFirst).join('-');
+  return key.split(/-/).map(ucFirst).join('-');
 }
 
 export function stateSort(color, display) {
@@ -422,11 +431,12 @@ export default {
   },
 
   stateColor() {
-    if ( this.metadata?.state?.error ) {
-      return 'text-error';
-    }
-
-    return colorForState.call(this, this.state);
+    return colorForState.call(
+      this,
+      this.state,
+      this.metadata?.state?.error,
+      this.metadata?.state?.transitioning
+    );
   },
 
   stateBackground() {
@@ -1256,6 +1266,7 @@ export default {
             type: fieldType,
           } = rule;
           let pathValue = get(data, path) || null;
+
           const parsedRules = compact((validators || []));
           let displayKey = path;
 
@@ -1298,7 +1309,7 @@ export default {
             const validatorExists = Object.prototype.hasOwnProperty.call(CustomValidators, validatorName);
 
             if (!isEmpty(validatorName) && validatorExists) {
-              CustomValidators[validatorName](pathValue, this.$rootGetters, errors, validatorArgs);
+              CustomValidators[validatorName](pathValue, this.$rootGetters, errors, validatorArgs, displayKey);
             } else if (!isEmpty(validatorName) && !validatorExists) {
               // eslint-disable-next-line
               console.warn(this.t('validation.custom.missing', { validatorName }));
