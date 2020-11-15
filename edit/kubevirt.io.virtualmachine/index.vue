@@ -15,6 +15,7 @@ import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
 import MemoryUnit from '@/components/form/MemoryUnit';
+import { HARVESTER_CREATOR } from '@/config/labels-annotations';
 import CreateEditView from '@/mixins/create-edit-view';
 import VM_MIXIN from '@/mixins/vm';
 import NameDescriptionCount from './NameDescriptionCount';
@@ -87,16 +88,13 @@ export default {
   },
 
   asyncData(ctx) {
-    const parentOverride = { displayName: 'Virtual Machine' };
     const resource = ctx.params.resource;
 
-    return defaultAsyncData(ctx, resource, parentOverride);
+    return defaultAsyncData(ctx, resource, { displayName: 'Virtual Machine' });
   },
 
   data() {
     let spec = this.value.spec;
-
-    this.value.metadata.labels = { 'harvester.cattle.io/creator': 'harvester' };
 
     if ( !spec ) {
       spec = _.cloneDeep(baseSpec);
@@ -267,7 +265,13 @@ export default {
         this.getClone();
       }
     });
-    this.registerBeforeHook(this.validateBefore, 'validate');
+
+    this.registerBeforeHook(() => {
+      Object.assign(this.value.metadata.labels, { [HARVESTER_CREATOR]: 'harvester' });
+
+      return this.validateBefore();
+    }, 'validate');
+
     this.registerFailureHook(() => {
       this.$set(this.value, 'type', VM);
     });

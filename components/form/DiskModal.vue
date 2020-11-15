@@ -78,6 +78,14 @@ export default {
       return sortBy(
         choices
           .filter( (obj) => {
+            // let isAvailable = true;
+
+            // this.rows.forEach( (O) => {
+            //   if (O.pvcName === obj.metadata.name) {
+            //     isAvailable = false;
+            //   }
+            // });
+
             return obj.metadata.namespace === this.namespace && obj.phaseStatus === 'Succeeded';
           })
           .map((obj) => {
