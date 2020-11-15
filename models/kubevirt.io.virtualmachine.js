@@ -342,5 +342,7 @@ export default {
       this.otherState?.status;
 
     return state;
-  }
+  },
+
+  // network, disk logic
 };

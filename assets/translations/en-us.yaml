@@ -1322,6 +1322,7 @@ validation:
   custom:
     missing: "No validtor exists for { validatorName }! Does the validtor exist in custom-validtors? Is the name spelled correctly?"
     tooLongName: '"Name" cannot be more than {max} characters.'
+    cidr: 'CIRD is invalid.'
   dns:
     doubleHyphen: '"{key}" Cannot contain two or more consecutive hyphens'
     hostname:

@@ -164,19 +164,26 @@ export default {
         label: 'sriov',
         value: 'sriov'
       }];
-    },
+    }
   },
 
   watch: {
     value(neu) {
       this.rows = neu;
     },
-    'currentRow.networkName'(neu) {
-      if (neu === 'Pod Network' && this.currentRow.masquerade) {
-        this.currentRow.type = 'masquerade';
-      } else {
-        this.currentRow.type = 'bridge';
-      }
+    'currentRow.networkName': {
+      handler(neu) {
+        this.errors.splice(0, 1);
+        if (neu === 'Pod Network' && this.currentRow.masquerade) {
+          this.currentRow.type = 'masquerade';
+        } else {
+          const choices = this.$store.getters['cluster/byId'](NETWORK_ATTACHMENT, `default/${ neu }`);
+
+          this.currentRow.isIpamStatic = choices?.isIpamStatic || false;
+          this.currentRow.type = 'bridge';
+        }
+      },
+      immediate: true
     }
   },
 
@@ -195,6 +202,7 @@ export default {
       });
 
       this.$emit('input', this.rows);
+      this.currentRow = {};
     },
     beforeCancel() {
       this.$set(this, 'errors', []);
@@ -212,6 +220,16 @@ export default {
     validateError() {
       if (!this.currentRow.name) {
         return this.getInvalidMsg('Name');
+      }
+
+      if (this.currentRow.isIpamStatic) {
+        if (!this.currentRow.cidr) {
+          return this.getInvalidMsg('cidr');
+        }
+      }
+
+      if (this.currentRow.isIpamStatic && this.currentRow.cidr) {
+        this.validateCidr(this.currentRow.cidr);
       }
 
       if (!this.currentRow.model) {
@@ -237,6 +255,7 @@ export default {
       }
 
       this.validateName(this.currentRow.name);
+
       this.validateMac(this.currentRow.macAddress);
 
       if (!this.errors.length > 0) {
@@ -297,6 +316,18 @@ export default {
         this.errors.splice(0, 1);
       }
     },
+
+    validateCidr(cidr) {
+      const isCidr = !!/^(?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\/([1-9]|[1-2]\d|3[0-2])$/.test(cidr);
+
+      if (!isCidr) {
+        const message = this.$store.getters['i18n/t']('validation.custom.cidr');
+
+        this.errors.splice(0, 1, message);
+      } else {
+        this.errors.splice(0, 1);
+      }
+    }
   }
 };
 </script>
@@ -352,7 +383,7 @@ export default {
         <LabeledInput
           v-if="!isMasquerade"
           v-model="currentRow.macAddress"
-          class="labeled-input--tooltip"
+          class="mb-20"
           @input="validateMac"
         >
           <template #label>
@@ -363,15 +394,17 @@ export default {
           </template>
         </LabeledInput>
 
+        <LabeledInput
+          v-if="currentRow.isIpamStatic"
+          v-model="currentRow.cidr"
+          label="CIDR"
+          class="mb-20"
+          required
+          @input="validateCidr"
+        />
+
         <PortInputGroup v-if="currentRow.type === 'masquerade'" v-model="currentRow" />
       </template>
     </VMModal>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.tip {
-  font-size: 13px;
-  font-style: italic;
-}
-</style>
