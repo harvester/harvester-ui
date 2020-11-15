@@ -44,9 +44,11 @@ export default {
     const parseSpecConfig = typeof (specConfig) === 'string' ? JSON.parse(specConfig) : specConfig;
 
     return {
-      name:    parseSpecConfig.name,
-      type:    'L2VlanNetwork',
-      vlanId:  parseSpecConfig.vlan,
+      name:     parseSpecConfig.name,
+      type:     'L2VlanNetwork',
+      vlanId:   parseSpecConfig.vlan,
+      ipamType: parseSpecConfig.ipam?.type || '',
+      parseSpecConfig,
       pattern:  /^([1-9]|[1-3]?[0-9]{2,3}|40[0-9][04])$/,
     };
   },
@@ -56,6 +58,15 @@ export default {
       return [{
         value: 'VLAN',
         label: 'VLAN'
+      }];
+    },
+    IPAMOption() {
+      return [{
+        value: 'static',
+        label: 'static'
+      }, {
+        value: '',
+        label: 'None'
       }];
     }
   },
@@ -70,9 +81,15 @@ export default {
         return false;
       }
 
-      this.value.spec.config.vlan = this.vlanId;
-      this.value.spec.config.name = this.name;
-      this.value.spec.config = JSON.stringify(this.value.spec.config);
+      if (this.ipamType === 'static') {
+        this.parseSpecConfig.ipam.type = 'static';
+      } else {
+        this.parseSpecConfig.ipam = {};
+      }
+
+      this.parseSpecConfig.vlan = this.vlanId;
+      this.parseSpecConfig.name = this.name;
+      this.value.spec.config = JSON.stringify(this.parseSpecConfig);
       this.value.metadata.name = this.name;
       await this.save(buttonCb);
 
@@ -121,6 +138,13 @@ export default {
       placeholder="e.g. 1-4094"
       label="Vlan ID"
       @input="input"
+    />
+
+    <LabeledSelect
+      v-model="ipamType"
+      class="mb-20"
+      label="IPAM"
+      :options="IPAMOption"
     />
 
     <Footer :mode="mode" :errors="errors" @save="beforeSave" @done="done" />
