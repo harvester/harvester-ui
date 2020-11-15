@@ -7,7 +7,7 @@ import { SOURCE_TYPE } from '@/config/map';
 import {
   NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, STORAGE_CLASS, NETWORK_ATTACHMENT, POD
 } from '@/config/types';
-import { STORAGE_CLASS_LABEL, HARVESTER_CREATOR, HARVESTER_IMAGE_NAME } from '@/config/labels-annotations';
+import { STORAGE_CLASS_LABEL, HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER_DISK_NAMES } from '@/config/labels-annotations';
 
 const TEMPORARY_VALUE = '$occupancy_url';
 const NETWROK_ANNOTATION = 'k8s.v1.cni.cncf.io/networks';
@@ -136,6 +136,7 @@ export default {
             let storageClassName = '';
             let image = '';
             let container = '';
+            let realName = '';
 
             const type = DISK?.cdrom ? 'cd-rom' : 'disk';
 
@@ -146,9 +147,9 @@ export default {
 
             if (volume?.dataVolume && volume?.dataVolume?.name) {
               const volumeName = volume.dataVolume.name;
-              const DVT = _dataVolumeTemplates.find( (T) => {
-                return T.metadata.name === volumeName;
-              });
+              const DVT = _dataVolumeTemplates.find( T => T.metadata.name === volumeName);
+
+              realName = volumeName;
 
               if (DVT) {
                 if (DVT.spec?.source?.blank) {
@@ -192,6 +193,7 @@ export default {
               bootOrder,
               source,
               name:          DISK.name,
+              realName,
               bus,
               pvcName,
               pvcNS,
@@ -425,15 +427,28 @@ export default {
       const disks = [];
       const volumes = [];
       const dataVolumeTemplates = [];
+      const diskNameLables = [];
+
+      const diskLabel = this.value.spec.template?.metadata?.labels?.[HARVESTER_DISK_NAMES] || '[]';
+
+      const _diskNameLabelsArr = JSON.parse(diskLabel);
 
       disk.forEach( (R) => {
         const prefixName = this.value.metadata?.name || '';
-        const dataVolumeName = `${ prefixName }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
+
+        let dataVolumeName = '';
+
+        if (!_diskNameLabelsArr.includes(R.realName)) {
+          dataVolumeName = `${ prefixName }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
+        } else {
+          dataVolumeName = R.realName;
+        }
 
         const _disk = this.parseDisk(R);
         const _volume = this.parseVolume(R, dataVolumeName);
         const _dataVolumeTemplate = this.parseDateVolumeTemplate(R, dataVolumeName);
 
+        diskNameLables.push(dataVolumeName);
         disks.push(_disk);
         volumes.push(_volume);
 
@@ -468,8 +483,9 @@ export default {
           metadata: {
             ...this.value.spec.template.metadata,
             labels: {
-              [HARVESTER_CREATOR]:          'harvester',
-              [HARVESTER_IMAGE_NAME]:  this.value?.metadata?.name
+              [HARVESTER_CREATOR]:     'harvester',
+              [HARVESTER_IMAGE_NAME]:  this.value?.metadata?.name,
+              [HARVESTER_DISK_NAMES]:  JSON.stringify(diskNameLables)
             }
           },
           spec: {
