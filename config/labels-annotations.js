@@ -82,3 +82,5 @@ export const DATA_VOLUME_OWNEDBY = 'harvester.cattle.io/owned-by';
 export const HARVESTER_CREATOR = 'harvester.cattle.io/creator';
 
 export const HARVESTER_IMAGE_NAME = 'harvester.cattle.io/vmName';
+
+export const HARVESTER_DISK_NAMES = 'harvester.cattle.io/diskNames';
