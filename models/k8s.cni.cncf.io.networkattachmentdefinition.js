@@ -4,4 +4,16 @@ export default {
 
     return out;
   },
+
+  isIpamStatic() {
+    let config = '';
+
+    try {
+      config = JSON.parse(this.spec.config);
+    } catch (err) {
+      return false;
+    }
+
+    return config?.ipam?.type === 'static';
+  }
 };

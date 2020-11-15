@@ -12,6 +12,7 @@ import {
 import { STORAGE_CLASS_LABEL } from '@/config/labels-annotations';
 
 const TEMPORARY_VALUE = '$occupancy_url';
+const NETWROK_ANNOTATION = 'k8s.v1.cni.cncf.io/networks';
 
 export default {
   inheritAttrs: false,
@@ -96,7 +97,7 @@ export default {
           defaultValue = O.metadata.name;
         }
       });
-      return defaultValue
+      return defaultValue;
     },
 
     diskRows: {
@@ -222,20 +223,32 @@ export default {
       get() {
         const networks = this.spec?.template?.spec?.networks || [];
         const interfaces = this.spec?.template?.spec?.domain?.devices?.interfaces || [];
+        const templateAnnotations = this.spec?.template?.metadata?.annotations;
+        let networkAnnotition = [];
+        if (templateAnnotations?.[NETWROK_ANNOTATION]) {
+          networkAnnotition = JSON.parse(templateAnnotations?.[NETWROK_ANNOTATION])
+        }
 
         let out = interfaces.map( (O, index) => {
           const network = networks.find( (N) => {
             return O.name === N.name;
           });
 
+          const netwrokAnnotation = networkAnnotition.find(N => {
+            return (O.name === N.nname) && (network?.multus?.networkName === N.name)
+          })
+
           const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
           const isPod = network?.pod ? true : false;
+
           return {
             ...O,
             type,
             model: O.model || 'virtio',
             networkName: network?.multus?.networkName || 'Pod Network',
             index,
+            isIpamStatic: netwrokAnnotation ? true : false,
+            cidr: netwrokAnnotation?.ips || '',
             isPod
           };
         });
@@ -456,6 +469,7 @@ export default {
         template: {
           ...this.spec.template,
           metadata: {
+            ...this.value.spec.template.metadata,
             labels: {
               'harvester.cattle.io/creator': 'harvester',
               'harvester.cattle.io/vmName':  this.value?.metadata?.name
@@ -475,9 +489,6 @@ export default {
         }
       };
 
-      // if (!this.imageName) {
-      //   delete spec.dataVolumeTemplates;
-      // }
       if (this.pageType !== 'vm') {
         if (!this.imageName) {
           spec.dataVolumeTemplates[0].spec.source.http.url = TEMPORARY_VALUE
@@ -547,14 +558,28 @@ export default {
       return _network;
     },
 
+    parseTemplateNetworkAnnotation(R) {
+      return {
+        name: R.networkName,
+        ips: R.cidr,
+        nname: R.name
+      };
+    },
+
     parseNetworkRows(networkRow) {
       const interfaces = [];
       const networks = [];
+      let templateNetworkAnnotation = [];
 
       networkRow.forEach( (R) => {
         const _interface = this.parseInterface(R);
         const _network = this.parseNetwork(R);
-    
+        
+        if (R.isIpamStatic) {
+          const _templateNetwrokAnnotation = this.parseTemplateNetworkAnnotation(R);
+          templateNetworkAnnotation.push(_templateNetwrokAnnotation)
+        }
+
         interfaces.push(_interface);
         networks.push(_network);
       });
@@ -570,7 +595,15 @@ export default {
         },
         networks
       };
-      
+
+      if (!this.value.spec.template.metadata.annotations) {
+        this.$set(this.value.spec.template.metadata, 'annotations', {})
+      }
+
+      Object.assign(this.value.spec.template.metadata.annotations, {
+        [NETWROK_ANNOTATION]: JSON.stringify(templateNetworkAnnotation)
+      })
+
       if (this.pageType === 'vm') {
         this.$set(this.value.spec.template, 'spec', spec);
         this.$set(this.spec.template, 'spec', spec);
@@ -595,7 +628,6 @@ export default {
           this.$set(this, 'diskRows', _diskRows);
         }
       },
-      // immediate: true
     },
   }
 };

@@ -25,6 +25,7 @@ const baseSpec = {
   dataVolumeTemplates: [],
   running:             true,
   template:            {
+    metadata: {},
     spec:     {
       domain: {
         cpu: {
