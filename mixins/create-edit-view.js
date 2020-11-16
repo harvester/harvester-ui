@@ -157,7 +157,6 @@ export default {
       try {
         const beforeHooksValue = await this.applyHooks(BEFORE_SAVE_HOOKS);
 
-        console.log('---beforeHooksValue', beforeHooksValue);
         if (beforeHooksValue.validate === false) {
           buttonDone(false);
 

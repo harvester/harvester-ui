@@ -344,5 +344,18 @@ export default {
     return state;
   },
 
+  // customValidationRules() {
+  //   const rules = [
+  //     {
+  //       nullable:       false,
+  //       path:           'spec.name',
+  //       required:       true,
+  //       translationKey: 'monitoring.receiver.fields.name'
+  //     },
+  //   ];
+
+  //   return rules;
+  // },
+
   // network, disk logic
 };
