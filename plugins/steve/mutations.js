@@ -155,8 +155,12 @@ export default {
     let entry = state.types[type];
 
     if ( entry ) {
-      removeObject(entry.list, obj);
-      entry.map.delete(id);
+      if (!!entry.map.get(id)) {
+        const deleteObj = entry.map.get(id); // In some cases the change and remove events may occur together,
+
+        removeObject(entry.list, deleteObj);
+        entry.map.delete(id);
+      }
     }
 
     if ( obj.baseType ) {
