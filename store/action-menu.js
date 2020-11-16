@@ -134,17 +134,9 @@ function _add(map, act, incrementCounts = true) {
 }
 
 function _filter(map, disableAll = false) {
-  const out = filterBy(Object.values(map), 'anyEnabled', true);
-  const firstIsDivider = !!out[0].divider;
-  const lastIsDivider = !!out[out.length - 1].divider;
+  let out = filterBy(Object.values(map), 'anyEnabled', true);
 
-  if (firstIsDivider) {
-    out.shift();
-  }
-
-  if (lastIsDivider) {
-    out.pop();
-  }
+  out = _removeExtraDivider(out);
 
   for ( const act of out ) {
     if ( disableAll ) {
@@ -184,4 +176,30 @@ function _execute(resources, action, args, opts = {}) {
   }
 
   return Promise.all(promises);
+}
+
+function _removeExtraDivider(array) {
+  const out = [];
+  const firstIsDivider = !!array[0].divider;
+  const lastIsDivider = !!array[array.length - 1].divider;
+  let isNeighboring = false;
+
+  if (firstIsDivider) {
+    array.shift();
+  }
+
+  if (lastIsDivider) {
+    array.pop();
+  }
+
+  for (const act of array) {
+    if (isNeighboring && !!act.divider) {
+      continue;
+    }
+
+    isNeighboring = !!act.divider;
+    out.push(act);
+  }
+
+  return out;
 }

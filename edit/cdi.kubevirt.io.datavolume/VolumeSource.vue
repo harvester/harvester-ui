@@ -157,7 +157,7 @@ export default {
       const choices = this.$store.getters['cluster/all'](IMAGE);
 
       return choices.find( (I) => {
-        return I.id === this.image;
+        return I.spec.displayName === this.image;
       })
       ?.status?.downloadUrl;
     }
@@ -173,6 +173,7 @@ export default {
       } else {
         imageAnnotations = {};
       }
+
       const spec = {
         ...this.value,
         pvc: {
@@ -239,9 +240,16 @@ export default {
     />
 
     <Collapse :open.sync="isShowAdvanced">
-      <LabeledSelect v-model="volumeMode" label="Volume Mode" :mode="mode" :options="volumeModeOption" class="mb-20" />
+      <LabeledSelect
+        v-model="volumeMode"
+        label="Volume Mode"
+        :mode="mode"
+        :options="volumeModeOption"
+        class="mb-20"
+        @input="update"
+      />
 
-      <LabeledSelect v-model="accessMode" label="Access Model" :mode="mode" :options="accessModeOption" />
+      <LabeledSelect v-model="accessMode" label="Access Model" :mode="mode" :options="accessModeOption" @input="update" />
     </Collapse>
   </div>
 </template>
