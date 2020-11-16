@@ -135,6 +135,16 @@ function _add(map, act, incrementCounts = true) {
 
 function _filter(map, disableAll = false) {
   const out = filterBy(Object.values(map), 'anyEnabled', true);
+  const firstIsDivider = !!out[0].divider;
+  const lastIsDivider = !!out[out.length - 1].divider;
+
+  if (firstIsDivider) {
+    out.shift();
+  }
+
+  if (lastIsDivider) {
+    out.pop();
+  }
 
   for ( const act of out ) {
     if ( disableAll ) {
