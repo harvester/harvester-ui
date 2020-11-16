@@ -46,6 +46,13 @@ export default {
   computed: {
     headers() {
       return [{
+        name:      '',
+        label:     '',
+        value:     '',
+        width:      30,
+        formatter: 'EjectCdRow',
+      },
+      {
         name:     'name',
         label:    'Name',
         value:    'name',

@@ -41,11 +41,6 @@ export default {
       type:     String,
       default:  ''
     },
-
-    isEjectCdrow: {
-      type:    Boolean,
-      default: false
-    }
   },
 
   data() {
@@ -111,7 +106,14 @@ export default {
     },
 
     headers() {
-      const out = [{
+      return [{
+        name:      '',
+        label:     '',
+        value:     '',
+        width:      30,
+        formatter: 'EjectCdRow',
+      },
+      {
         name:  'name',
         label: 'Name',
         value: 'name',
@@ -140,18 +142,6 @@ export default {
         label: 'Boot Order',
         value: 'bootOrder',
       }];
-
-      if (this.isEjectCdrow) {
-        out.unshift({
-          name:      '',
-          label:     '',
-          value:     '',
-          width:      30,
-          formatter: 'EjectCdRow',
-        });
-      }
-
-      return out;
     },
 
     typeOption() {
