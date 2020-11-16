@@ -29,14 +29,18 @@ export default {
       const choices = this.$store.getters['cluster/all'](VMI);
       const podList = this.$store.getters['cluster/all'](POD);
       const ips = new Set();
+      let networkStatus = '[]';
+      let podResource = null;
 
       const resource = choices.find(VMI => VMI.id === this.value) || null;
 
-      const podResource = podList.find( (P) => {
-        return resource?.metadata?.name === P.metadata?.ownerReferences?.[0].name;
-      });
+      if (resource) {
+        podResource = podList.find( (P) => {
+          return resource?.metadata?.name === P.metadata?.ownerReferences?.[0].name;
+        });
 
-      const networkStatus = podResource?.getAnnotationValue('k8s.v1.cni.cncf.io/network-status');
+        networkStatus = podResource?.getAnnotationValue('k8s.v1.cni.cncf.io/network-status');
+      }
 
       try {
         if (networkStatus) {

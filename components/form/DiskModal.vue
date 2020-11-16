@@ -78,15 +78,17 @@ export default {
       return sortBy(
         choices
           .filter( (obj) => {
-            // let isAvailable = true;
+            let isAvailable = true;
 
-            // this.rows.forEach( (O) => {
-            //   if (O.pvcName === obj.metadata.name) {
-            //     isAvailable = false;
-            //   }
-            // });
+            this.rows.forEach( (O) => {
+              if ((O.pvcName === obj.metadata.name && O.accessMode === 'ReadWriteOnce')) {
+                isAvailable = false;
+              }
+            });
 
-            return obj.metadata.namespace === this.namespace && obj.phaseStatus === 'Succeeded';
+            const isExistingRWO = obj.isRWO && obj.attachVM;
+
+            return obj.metadata.namespace === this.namespace && obj.phaseStatus === 'Succeeded' && isAvailable && !isExistingRWO;
           })
           .map((obj) => {
             return {

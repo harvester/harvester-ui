@@ -1,4 +1,6 @@
 import { colorForState } from '@/plugins/steve/resource-instance';
+import { VM } from '@/config/types';
+import { DATA_VOLUME_OWNEDBY } from '@/config/labels-annotations';
 
 export default {
   stateDisplay() {
@@ -23,5 +25,24 @@ export default {
 
   phaseStatus() {
     return this?.status?.phase || 'N/A';
+  },
+
+  attachVM() {
+    const vmList = this.$rootGetters['cluster/all'](VM);
+    const ownerAnnotation = this.getAnnotationValue(DATA_VOLUME_OWNEDBY);
+
+    if (!ownerAnnotation) {
+      return;
+    }
+
+    const owner = JSON.parse(ownerAnnotation)[0]?.refs?.[0];
+
+    return vmList.find( (D) => {
+      return D.id === owner;
+    });
+  },
+
+  isRWO() {
+    return this.spec?.pvc?.accessModes?.[0] === 'ReadWriteOnce';
   }
 };

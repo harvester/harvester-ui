@@ -175,7 +175,7 @@ export default {
 
                 if (pvcResource) {
                   source = SOURCE_TYPE.ATTACH_VOLUME;
-                  accessMode = pvcResource?.spec?.accessModes;
+                  accessMode = pvcResource?.spec?.accessModes?.[0];
                   size = pvcResource?.spec?.resources?.requests?.storage;
                   storageClassName = pvcResource?.spec?.storageClassName;
                   volumeMode = pvcResource?.spec?.volumeMode;
@@ -236,7 +236,7 @@ export default {
           });
 
           const netwrokAnnotation = networkAnnotition.find((N) => {
-            return (O.name === N.nname) && (network?.multus?.networkName === N.name);
+            return network?.multus?.networkName === N.name;
           });
 
           const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
@@ -429,7 +429,7 @@ export default {
       const dataVolumeTemplates = [];
       const diskNameLables = [];
 
-      const diskLabel = this.value.spec.template?.metadata?.labels?.[HARVESTER_DISK_NAMES] || '[]';
+      const diskLabel = this.value.spec.template?.metadata?.annotations?.[HARVESTER_DISK_NAMES] || '[]';
 
       const _diskNameLabelsArr = JSON.parse(diskLabel);
 
@@ -482,10 +482,14 @@ export default {
           ...this.spec.template,
           metadata: {
             ...this.value.spec.template.metadata,
+            annotations: {
+              ...this.value.spec.template.metadata.annotations,
+              [HARVESTER_DISK_NAMES]: JSON.stringify(diskNameLables)
+            },
             labels: {
+              ...this.value.spec.template.metadata.labels,
               [HARVESTER_CREATOR]:     'harvester',
               [HARVESTER_IMAGE_NAME]:  this.value?.metadata?.name,
-              [HARVESTER_DISK_NAMES]:  JSON.stringify(diskNameLables)
             }
           },
           spec: {
@@ -577,7 +581,6 @@ export default {
       return {
         name:  R.networkName,
         ips:   R.cidr,
-        nname: R.name
       };
     },
 
