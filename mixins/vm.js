@@ -503,7 +503,7 @@ export default {
         }
       };
 
-      if (this.pageType === 'vm') {
+      if (this.pageType === 'vm' && this.value?.metadata?.name) {
         Object.assign(spec.template.metadata.annotations, { [HARVESTER_DISK_NAMES]: JSON.stringify(diskNameLables) });
       }
 

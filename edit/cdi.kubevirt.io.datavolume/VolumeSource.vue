@@ -33,7 +33,7 @@ export default {
     const source = this.value?.source?.blank ? 'blank' : this.value?.source?.registry?.url ? 'container' : 'url';
     const image = source === 'url' ? this.$store.getters['cluster/all'](IMAGE).find( (I) => {
       return I?.status?.downloadUrl === this.value?.source?.http?.url;
-    })?.spec?.displayName : '';
+    })?.id : '';
 
     const accessMode = this.value?.pvc?.accessModes?.[0] || 'ReadWriteOnce';
     const storageClassName = this.value?.pvc?.storageClassName;
@@ -157,7 +157,7 @@ export default {
       const choices = this.$store.getters['cluster/all'](IMAGE);
 
       return choices.find( (I) => {
-        return I.spec.displayName === this.image;
+        return I.id === this.image;
       })
       ?.status?.downloadUrl;
     }
