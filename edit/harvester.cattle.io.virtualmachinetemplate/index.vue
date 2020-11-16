@@ -67,7 +67,8 @@ export default {
       spec = {
         dataVolumeTemplates: [],
         template:            {
-          spec: {
+          metadata: {},
+          spec:     {
             domain: {
               cpu: {
                 cores:   null,

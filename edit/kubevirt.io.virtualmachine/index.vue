@@ -465,7 +465,7 @@ export default {
       <CloudConfig :user-script="userScript" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
 
       <div class="spacer"></div>
-      <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" label="Use mouse enhancement" />
+      <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" label="Enable USB Tablet" />
     </Collapse>
 
     <div class="spacer"></div>

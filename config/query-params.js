@@ -32,6 +32,7 @@ export const _VIEW = 'view';
 export const _EDIT = 'edit';
 export const _CLONE = 'clone';
 export const _STAGE = 'stage';
+export const _ADD = 'add';
 
 export const PREVIEW = 'preview';
 

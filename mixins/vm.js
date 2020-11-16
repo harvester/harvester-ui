@@ -429,7 +429,7 @@ export default {
       const dataVolumeTemplates = [];
       const diskNameLables = [];
 
-      const diskLabel = this.value.spec.template?.metadata?.annotations?.[HARVESTER_DISK_NAMES] || '[]';
+      const diskLabel = this.value.spec?.template?.metadata?.annotations?.[HARVESTER_DISK_NAMES] || '[]';
 
       const _diskNameLabelsArr = JSON.parse(diskLabel);
 
@@ -481,13 +481,10 @@ export default {
         template: {
           ...this.spec.template,
           metadata: {
-            ...this.value.spec.template.metadata,
-            annotations: {
-              ...this.value.spec.template.metadata.annotations,
-              [HARVESTER_DISK_NAMES]: JSON.stringify(diskNameLables)
-            },
-            labels: {
-              ...this.value.spec.template.metadata.labels,
+            ...this.spec?.template?.metadata,
+            annotations: { ...this.spec?.template?.metadata?.annotations },
+            labels:      {
+              ...this.spec?.template?.metadata?.labels,
               [HARVESTER_CREATOR]:     'harvester',
               [HARVESTER_IMAGE_NAME]:  this.value?.metadata?.name,
             }
@@ -505,6 +502,10 @@ export default {
           }
         }
       };
+
+      if (this.pageType === 'vm') {
+        Object.assign(spec.template.metadata.annotations, { [HARVESTER_DISK_NAMES]: JSON.stringify(diskNameLables) });
+      }
 
       if (this.pageType !== 'vm') {
         if (!this.imageName) {
@@ -615,11 +616,13 @@ export default {
         networks
       };
 
-      if (!this.value.spec.template.metadata.annotations) {
-        this.$set(this.value.spec.template.metadata, 'annotations', {});
+      if (!this.spec?.template?.metadata?.annotations) {
+        this.$set(this.spec.template.metadata, 'annotations', {});
       }
 
-      Object.assign(this.value.spec.template.metadata.annotations, { [NETWROK_ANNOTATION]: JSON.stringify(templateNetworkAnnotation) });
+      if (this.pageType === 'vm') {
+        Object.assign(this.spec.template.metadata.annotations, { [NETWROK_ANNOTATION]: JSON.stringify(templateNetworkAnnotation) });
+      }
 
       if (this.pageType === 'vm') {
         this.$set(this.value.spec.template, 'spec', spec);

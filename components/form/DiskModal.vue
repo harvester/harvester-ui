@@ -116,12 +116,12 @@ export default {
     },
 
     headers() {
-      return [{
+      const out = [{
         name:      '',
         label:     '',
         value:     '',
         width:      30,
-        formatter: 'EjectCdRow',
+        // formatter: 'EjectCdRow',
       },
       {
         name:  'name',
@@ -152,6 +152,12 @@ export default {
         label: 'Boot Order',
         value: 'bootOrder',
       }];
+
+      if (this.isEjectCdrow) {
+        out[0].formatter = 'EjectCdRow';
+      }
+
+      return out;
     },
 
     typeOption() {
