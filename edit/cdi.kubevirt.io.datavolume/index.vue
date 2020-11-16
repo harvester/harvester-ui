@@ -70,8 +70,14 @@ export default {
   },
 
   methods: {
-    updateAnno() {
+    updateDescription() {
       this.description = this.value.metadata?.annotations?.[DESCRIPTION];
+    },
+    updateAnno(neu) {
+      this.$set(this.value.metadata, 'annotations', {
+        ...this.value.metadata.annotations,
+        ...neu
+      });
     },
     willSave() {
       this.$set(this.value.metadata, 'annotations', {
@@ -112,10 +118,10 @@ export default {
       :value="value"
       :namespaced="false"
       :mode="mode"
-      @change="updateAnno"
+      @change="updateDescription"
     />
 
-    <VolumeSource ref="vs" v-model="spec" :mode="mode" class="mb-20" />
+    <VolumeSource ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnno" />
 
     <LabelAndAnnoTabs v-model="value" :mode="mode" />
 
