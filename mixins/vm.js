@@ -246,7 +246,7 @@ export default {
             ...O,
             type,
             model:        O.model || 'virtio',
-            networkName:  network?.multus?.networkName || 'Pod Network',
+            networkName:  network?.multus?.networkName || 'managment Network',
             index,
             isIpamStatic: !!netwrokAnnotation,
             cidr:         netwrokAnnotation?.ips || '',
