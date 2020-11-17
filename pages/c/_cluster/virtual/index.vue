@@ -336,7 +336,7 @@ export default {
   }
 
   .left {
-    width: 50%;
+    width: 40%;
     display: flex;
     padding-left: 20px;
     align-items: center;
@@ -344,7 +344,7 @@ export default {
   }
 
   .right {
-    width: 50%;
+    width: 60%;
     .item {
       margin-bottom: 10px;
       i {
