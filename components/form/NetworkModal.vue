@@ -117,7 +117,7 @@ export default {
 
       const out = sortBy(
         choices
-          .filter(C => C.metadata.namespace === this.namespace)
+          .filter(C => C.metadata.namespace === 'default')
           .filter((C) => {
             let canUse = true;
 
@@ -139,13 +139,13 @@ export default {
       );
 
       const findPodIndex = _.findIndex(this.rows, (o) => {
-        return o.networkName === 'Pod Network';
+        return o.networkName === 'managment Network';
       });
 
       if (findPodIndex === -1 || (findPodIndex !== -1 && this.rows.length === 1 && this.type !== 'add' )) {
         out.push({
-          label: 'Pod Network',
-          value: 'Pod Network'
+          label: 'managment Network',
+          value: 'managment Network'
         });
       }
 
@@ -153,11 +153,11 @@ export default {
     },
 
     isMasquerade() {
-      return this.currentRow.networkName === 'Pod Network';
+      return this.currentRow.networkName === 'managment Network';
     },
 
     typeOpton() {
-      if (this.currentRow.networkName === 'Pod Network') {
+      if (this.currentRow.networkName === 'managment Network') {
         return [{
           label: 'masquerade',
           value: 'masquerade'
@@ -185,7 +185,7 @@ export default {
     'currentRow.networkName': {
       handler(neu) {
         this.errors.splice(0, 1);
-        if (neu === 'Pod Network' && this.currentRow.masquerade) {
+        if (neu === 'managment Network' && this.currentRow.masquerade) {
           this.currentRow.type = 'masquerade';
         } else {
           const choices = this.$store.getters['cluster/byId'](NETWORK_ATTACHMENT, `default/${ neu }`);
@@ -275,7 +275,7 @@ export default {
     },
 
     validateMac(value) {
-      if (this.currentRow.networkName === 'Pod Network' || !value) {
+      if (this.currentRow.networkName === 'managment Network' || !value) {
         return;
       }
       if (!/^[A-F0-9]{2}(-[A-F0-9]{2}){5}$|^[A-F0-9]{2}(:[A-F0-9]{2}){5}$/.test(value)) {
