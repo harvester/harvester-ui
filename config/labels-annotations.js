@@ -85,4 +85,4 @@ export const HARVESTER_IMAGE_NAME = 'harvester.cattle.io/vmName';
 
 export const HARVESTER_DISK_NAMES = 'harvester.cattle.io/diskNames';
 
-export const HAVERSTER_SSH_NAMES = 'harvester.cattle.io/sshNames';
+export const HARVESTER_SSH_NAMES = 'harvester.cattle.io/sshNames';
