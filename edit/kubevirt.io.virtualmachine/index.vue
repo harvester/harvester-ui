@@ -269,6 +269,7 @@ export default {
     this.registerBeforeHook(() => {
       Object.assign(this.value.metadata.labels, { [HARVESTER_CREATOR]: 'harvester' });
       Object.assign(this.value.spec.template.metadata.annotations, { [HAVERSTER_SSH_NAMES]: JSON.stringify(this.sshKey) });
+      this.$set(this.value.metadata, 'namespace', 'default');
 
       return this.validateBefore();
     }, 'validate');
