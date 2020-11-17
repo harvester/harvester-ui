@@ -15,7 +15,7 @@ import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
 import MemoryUnit from '@/components/form/MemoryUnit';
-import { HARVESTER_CREATOR } from '@/config/labels-annotations';
+import { HARVESTER_CREATOR, HAVERSTER_SSH_NAMES } from '@/config/labels-annotations';
 import CreateEditView from '@/mixins/create-edit-view';
 import VM_MIXIN from '@/mixins/vm';
 import NameDescriptionCount from './NameDescriptionCount';
@@ -268,6 +268,7 @@ export default {
 
     this.registerBeforeHook(() => {
       Object.assign(this.value.metadata.labels, { [HARVESTER_CREATOR]: 'harvester' });
+      Object.assign(this.value.spec.template.metadata.annotations, { [HAVERSTER_SSH_NAMES]: JSON.stringify(this.sshKey) });
 
       return this.validateBefore();
     }, 'validate');
