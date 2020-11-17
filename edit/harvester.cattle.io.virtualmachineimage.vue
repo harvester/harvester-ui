@@ -1,7 +1,8 @@
 <script>
 import Footer from '@/components/form/Footer';
 import LabeledInput from '@/components/form/LabeledInput';
-import LabelAndAnnoTabs from '@/components/form/LabelAndAnnoTabs';
+import LabelsAndAnnosModal from '@/components/form/LabelsAndAnnosModal';
+import NameNsDescription from '@/components/form/NameNsDescription';
 import CreateEditView from '@/mixins/create-edit-view';
 import { DESCRIPTION } from '@/config/labels-annotations';
 
@@ -13,7 +14,8 @@ export default {
   components: {
     Footer,
     LabeledInput,
-    LabelAndAnnoTabs,
+    LabelsAndAnnosModal,
+    NameNsDescription,
   },
 
   mixins: [CreateEditView],
@@ -27,24 +29,25 @@ export default {
 
   data() {
     let spec = this.value.spec;
+    const description = this.value.metadata?.annotations?.[DESCRIPTION];
 
     if ( !this.value.spec ) {
       spec = {};
-      this.value.spec = spec;
+
+      this.$set(this.value, 'spec', spec);
     }
 
     if ( this.value.metadata ) {
       this.value.metadata.generateName = 'image-'; // back end needs
     }
 
-    const displayName = this.value?.spec?.displayName || '';
-    const description = this.value?.metadata?.annotations?.[DESCRIPTION];
+    if (description) {
+      // if description exist, copy it, then remove it from annotations
+      this.$set(this.value.spec, 'description', description);
+      this.value.setAnnotation(DESCRIPTION, null);
+    }
 
-    return {
-      displayName,
-      url: this.value.spec.url,
-      description,
-    };
+    return { url: this.value.spec.url };
   },
 
   watch: {
@@ -55,16 +58,13 @@ export default {
 
       this.value.spec.url = url;
       if (filesFormat.includes(fileSuffiic)) {
-        if (!this.displayName) {
-          this.displayName = suffixName;
+        if (!this.value.spec.displayName) {
+          this.$refs.nd.changeNameAndNamespace({ text: suffixName });
         }
         this.errors = [];
       } else {
         this.errors = ['The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats).'];
       }
-    },
-    displayName(neu) {
-      this.value.spec.displayName = neu;
     },
   },
 
@@ -75,10 +75,10 @@ export default {
 
   methods: {
     willSave() {
-      this.$set(this.value.metadata, 'annotations', {
-        ...this.value.metadata.annotations,
-        [DESCRIPTION]: this.description
-      });
+      // before save image, save description in annotations.
+      this.value.setAnnotation(DESCRIPTION, this.value.spec.description);
+
+      this.value.spec.description = undefined;
     },
     validateBefore() {
       if (!this.value.spec.url || this.value.spec.url.trim() === '') {
@@ -93,6 +93,20 @@ export default {
 
 <template>
   <form>
+    <div class="row">
+      <div class="col span-12">
+        <NameNsDescription
+          ref="nd"
+          v-model="value"
+          :namespaced="false"
+          :mode="mode"
+          label="Name"
+          name-key="spec.displayName"
+          description-key="spec.description"
+        />
+      </div>
+    </div>
+
     <div class="row mb-20">
       <div class="col span-12">
         <LabeledInput
@@ -111,29 +125,7 @@ export default {
       </div>
     </div>
 
-    <div class="row mb-20">
-      <div class="col span-12">
-        <LabeledInput
-          v-model="displayName"
-          :mode="mode"
-          label="Image Name"
-          required
-        />
-      </div>
-    </div>
-
-    <div v-if="isCreate" class="row mb-20">
-      <div class="col span-12">
-        <LabeledInput
-          v-model="description"
-          type="multiline"
-          :is-resize="true"
-          label="Description"
-        />
-      </div>
-    </div>
-
-    <LabelAndAnnoTabs v-model="value" :mode="mode" />
+    <LabelsAndAnnosModal v-model="value" :mode="mode" />
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
   </form>
 </template>
