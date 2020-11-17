@@ -15,7 +15,7 @@ import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
 import MemoryUnit from '@/components/form/MemoryUnit';
-import { HARVESTER_CREATOR, HAVERSTER_SSH_NAMES } from '@/config/labels-annotations';
+import { HARVESTER_CREATOR, HAVERSTER_SSH_NAMES, HARVESTER_DISK_NAMES } from '@/config/labels-annotations';
 import CreateEditView from '@/mixins/create-edit-view';
 import VM_MIXIN from '@/mixins/vm';
 import NameDescriptionCount from './NameDescriptionCount';
@@ -335,6 +335,8 @@ export default {
       const join = baseName.endsWith('-') ? '' : '-';
       const countLength = this.count.toString().length;
 
+      //  Object.assign(spec.template.metadata.annotations, { [HARVESTER_DISK_NAMES]: JSON.stringify(diskNameLables) });
+
       for (let i = 1; i <= this.count; i++) {
         const suffix = i?.toString()?.padStart(countLength, '0');
 
@@ -346,6 +348,7 @@ export default {
         this.normalizeSpec();
         this.$set(this.value.spec.template.spec, 'hostname', hostname);
         this.$delete(this.value, 'type');
+        this.$delete(this.value.spec.template.metadata.annotations, [HARVESTER_DISK_NAMES]);
         await this.value.save({ url: `v1/${ VM }s` });
       }
       this.value.id = '';
