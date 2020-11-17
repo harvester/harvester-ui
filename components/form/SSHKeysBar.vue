@@ -2,6 +2,7 @@
 import Card from '@/components/Card';
 import { allHash } from '@/utils/promise';
 import { SSH } from '@/config/types';
+import { HARVESTER_SSH_NAMES } from '@/config/labels-annotations';
 
 export default {
   components: { Card },
@@ -36,6 +37,7 @@ export default {
       this.$modal.hide('sshKeyBar');
       this.$emit('close');
     },
+
     show() {
       const ssh = this.$store.getters['cluster/all'](SSH);
 
@@ -43,34 +45,28 @@ export default {
       this.getKey();
       this.$modal.show('sshKeyBar');
     },
+
     getKey() {
-      let userData = '';
-      const r = /(\r\n\t|\n|\r\t)|(\s*)/gm;
+      const keys = this.value?.spec?.template?.metadata?.annotations?.[HARVESTER_SSH_NAMES];
       const volumes = this.value?.spec?.template?.spec?.volumes;
+      let userData = null;
 
-      this.sshKeys = [];
+      this.sshkeys = [];
 
-      if (!volumes) {
-        return;
-      }
-
+      // find userData
       volumes.forEach((v) => {
         if (v.cloudInitNoCloud) {
           userData = v.cloudInitNoCloud.userData;
         }
       });
 
-      userData = userData.replace(r, '');
+      if (!keys && !userData) {
+        return;
+      }
 
-      this.sshkeys = this.allssh.filter((ssh) => {
-        return userData.includes(ssh.spec.publicKey.replace(r, ''));
-      }).map((ssh) => {
-        return {
-          ...ssh,
-          showKey: false
-        };
-      });
+      this.sshkeys = this.serializing(keys, userData);
     },
+
     viewKey(index) {
       const neu = this.sshkeys[index];
 
@@ -78,12 +74,48 @@ export default {
 
       this.$set(this.sshkeys, index, neu);
     },
+
     hideKey(index) {
       const neu = this.sshkeys[index];
 
       neu.showKey = false;
 
       this.$set(this.sshkeys, index, neu);
+    },
+
+    serializing(keys, userData) {
+      let out = [];
+      const r = /(\r\n\t|\n|\r\t)|(\s*)/gm;
+
+      keys = keys.split('').filter((k) => {
+        return !['[', ']', '"'].includes(k);
+      });
+      keys = keys.join('').split(',');
+
+      userData = userData.split('- >-').splice(1);
+
+      out = this.allssh.filter(ssh => keys.includes(ssh.metadata.name)).map((ssh) => {
+        return {
+          ...ssh,
+          showKey: false
+        };
+      });
+
+      for (const ssh of out) {
+        userData = userData.filter((data) => {
+          return data.replace(r, '') !== ssh.spec.publicKey.replace(r, '');
+        });
+      }
+
+      userData = userData.map((pub) => {
+        return {
+          metadata: { name: 'Unknown' },
+          spec:     { publicKey: pub },
+          showKey:  false
+        };
+      });
+
+      return out.concat(userData);
     }
   }
 };

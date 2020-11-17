@@ -59,7 +59,7 @@ export default {
 <template>
   <div class="vm-events">
     <div v-if="events.length > 0">
-      <div v-for="event in events" :key="event.id">
+      <div v-for="event in events" :key="event.id" class="mb-20">
         <div class="row">
           <div class="col span-4">
             <ResourceState v-model="event.involvedObject.kind" />
