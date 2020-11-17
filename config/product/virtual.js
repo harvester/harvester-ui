@@ -70,7 +70,7 @@ export function init(store) {
     group:      'root',
     namespaced: true,
     name:       DATA_VOLUME,
-    weight:     88,
+    weight:     199,
     route:      {
       name:     'c-cluster-product-resource',
       params:   { resource: DATA_VOLUME }
@@ -85,7 +85,7 @@ export function init(store) {
     group:      'root',
     namespaced: true,
     name:       IMAGE,
-    weight:     199,
+    weight:     99,
     route:      {
       name:     'c-cluster-product-resource',
       params:   { resource: IMAGE }
@@ -107,7 +107,7 @@ export function init(store) {
     group:      'root',
     namespaced: true,
     name:       TEMPLATE,
-    weight:     89,
+    weight:     289,
     route:      {
       name:     'c-cluster-product-resource',
       params:   { resource: TEMPLATE }
@@ -121,7 +121,7 @@ export function init(store) {
     group:      'root',
     namespaced: true,
     name:       NETWORK_ATTACHMENT,
-    weight:     298,
+    weight:     189,
     route:      {
       name:     'c-cluster-product-resource',
       params:   { resource: NETWORK_ATTACHMENT }
@@ -135,7 +135,7 @@ export function init(store) {
     group:      'root',
     namespaced: true,
     name:       SSH,
-    weight:     99,
+    weight:     89,
     route:      {
       name:     'c-cluster-product-resource',
       params:   { resource: SSH }
@@ -158,7 +158,6 @@ export function init(store) {
     exact: false,
   });
 
-  basicType([HARVESTER_SETTING]);
   uncreatableType(HARVESTER_SETTING);
   virtualType({
     label:      'Settings',
