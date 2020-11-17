@@ -251,12 +251,14 @@ export default {
         <span v-if="!needsConfirm" class="text-info mt-20">{{ protip }}</span>
       </div>
       <template slot="actions">
-        <button class="btn role-secondary" @click="close">
-          Cancel
-        </button>
-        <button class="btn bg-error" :disabled="isDeleteDisabled" @click="remove">
-          Delete
-        </button>
+        <div class="actions">
+          <button class="btn role-secondary" @click="close">
+            Cancel
+          </button>
+          <button class="btn bg-error" :disabled="isDeleteDisabled" @click="remove">
+            Delete
+          </button>
+        </div>
       </template>
     </Card>
   </modal>
@@ -274,5 +276,10 @@ export default {
        & ::-webkit-scrollbar-corner {
          background: rgba(0,0,0,0);
          }
+    }
+    .actions {
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
     }
 </style>

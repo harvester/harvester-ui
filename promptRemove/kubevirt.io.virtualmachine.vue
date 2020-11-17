@@ -20,13 +20,13 @@ export default {
   data() {
     return {
       checkedList: [],
-      checkAll:    false
+      checkAll:    true
     };
   },
 
   computed: {
     removeNameArr() {
-      const out = [];
+      const out = {};
 
       this.value.forEach((crd) => {
         const volumes = crd.spec.template.spec?.volumes || [];
@@ -41,6 +41,20 @@ export default {
 
       return out;
     },
+  },
+
+  watch: {
+    removeNameArr: {
+      handler(neu) {
+        if (this.value.length === 1) {
+          const keys = Object.values(neu[this.value[0].id]);
+
+          this.checkedList.unshift(keys[0]);
+        }
+      },
+      deep:      true,
+      immediate: true
+    }
   },
 
   methods: {
@@ -110,7 +124,7 @@ export default {
           class="checkbox-custom mr-5"
           role="checkbox"
         />
-        Select All
+        Delete All
       </label>
     </div>
   </div>
