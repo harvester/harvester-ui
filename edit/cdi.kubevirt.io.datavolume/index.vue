@@ -1,21 +1,27 @@
 <script>
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
 import NameNsDescription from '@/components/form/NameNsDescription';
 import Footer from '@/components/form/Footer';
-import LabelAndAnnoTabs from '@/components/form/LabelAndAnnoTabs';
+import LabelsAndAnnosModal from '@/components/form/LabelsAndAnnosModal';
 import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
 import { STORAGE_CLASS, IMAGE } from '@/config/types';
 import { DESCRIPTION } from '@/config/labels-annotations';
 import { defaultAsyncData } from '@/components/ResourceDetail';
-import VolumeSource from './VolumeSource';
+import Basic from './basic';
+import Advanced from './advanced';
 
 export default {
   name: 'Volume',
 
   components: {
+    Tab,
+    Tabbed,
     Footer,
-    VolumeSource,
-    LabelAndAnnoTabs,
+    Basic,
+    Advanced,
+    LabelsAndAnnosModal,
     NameNsDescription
   },
 
@@ -44,17 +50,23 @@ export default {
 
   data() {
     let spec = this.value.spec;
+    const description = this.value.metadata?.annotations?.[DESCRIPTION];
 
     if (!spec) {
       spec = { pvc: { resources: { requests: { storage: '' } } } };
       this.value.spec = spec;
     }
 
+    if (description) {
+      // if description exist, copy it, then remove it from annotations
+      this.$set(this.value.spec, 'description', description);
+      this.value.setAnnotation(DESCRIPTION, null);
+    }
+
     return {
       spec,
-      index:       0,
-      errors:      [],
-      description: this.value.metadata?.[DESCRIPTION]
+      index:  0,
+      errors: [],
     };
   },
 
@@ -70,9 +82,6 @@ export default {
   },
 
   methods: {
-    updateDescription() {
-      this.description = this.value.metadata?.annotations?.[DESCRIPTION];
-    },
     updateAnno(neu) {
       this.$set(this.value.metadata, 'annotations', {
         ...this.value.metadata.annotations,
@@ -80,10 +89,9 @@ export default {
       });
     },
     willSave() {
-      this.$set(this.value.metadata, 'annotations', {
-        ...this.value.metadata.annotations,
-        [DESCRIPTION]: this.description
-      });
+      this.value.setAnnotation(DESCRIPTION, this.value.spec.description);
+
+      this.value.spec.description = undefined;
     },
     validateBefore() {
       if (!this.$refs.vs.source) {
@@ -114,16 +122,23 @@ export default {
 <template>
   <div>
     <NameNsDescription
-      v-if="isCreate"
+      description-key="spec.description"
       :value="value"
       :namespaced="false"
       :mode="mode"
-      @change="updateDescription"
     />
 
-    <VolumeSource ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnno" />
-
-    <LabelAndAnnoTabs v-model="value" :mode="mode" />
+    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+      <Tab name="basic" label="Basic" :weight="3" class="bordered-table">
+        <Basic ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnno" />
+      </Tab>
+      <Tab name="labels" label="Labels & Annotations" :weight="2" class="bordered-table">
+        <LabelsAndAnnosModal v-model="value" :mode="mode" />
+      </Tab>
+      <Tab name="advanced" label="Advanced Options" :weight="1" class="bordered-table">
+        <Advanced v-model="spec" :mode="mode" class="mb-20" />
+      </Tab>
+    </Tabbed>
 
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
   </div>
