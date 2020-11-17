@@ -274,10 +274,11 @@ export default {
           newInitScript = safeLoad(out);
         }
 
-        if (newInitScript?.sshAuthorizedKeys) {
-          newInitScript.sshAuthorizedKeys = [...this.getSSHListValue(this.sshKey), ...newInitScript.sshAuthorizedKeys];
+        // eslint-disable-next-line camelcase
+        if (newInitScript?.ssh_authorized_keys) {
+          newInitScript.ssh_authorized_keys = [...this.getSSHListValue(this.sshKey), ...newInitScript.ssh_authorized_keys];
         } else {
-          newInitScript.sshAuthorizedKeys = this.getSSHListValue(this.sshKey);
+          newInitScript.ssh_authorized_keys = this.getSSHListValue(this.sshKey);
         }
         out = safeDump(newInitScript);
       } catch (error) {

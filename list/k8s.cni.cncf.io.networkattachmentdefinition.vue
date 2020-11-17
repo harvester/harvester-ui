@@ -68,6 +68,11 @@ export default {
       const network = findBy((this.setting || []), 'metadata.name', 'network-setting');
 
       return network?.configuredCondition?.reason;
+    },
+    isAbnormal() {
+      const network = findBy((this.setting || []), 'metadata.name', 'network-setting');
+
+      return network?.configuredCondition?.status !== 'True';
     }
   },
 
@@ -98,7 +103,7 @@ export default {
 <template>
   <Loading v-if="$fetchState.pending" />
   <div v-else>
-    <div>
+    <div v-if="isAbnormal">
       <Banner
         color="error"
       >
