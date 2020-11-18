@@ -888,7 +888,7 @@ export default {
 
         // Steve sometimes returns Table responses instead of the resource you just saved.. ignore
         if ( res && res.kind !== 'Table') {
-          await this.$dispatch('load', { data: res, existing: (forNew ? this : undefined ) });
+          // await this.$dispatch('load', { data: res, existing: (forNew ? this : undefined ) }); // TODO:  The real error is not here. It may be in the load action, but no solution is found, reslove multipus resource create
         }
       } catch (e) {
         if ( this.type && this.id && e?._status === 409) {
