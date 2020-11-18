@@ -1,8 +1,27 @@
+import { findBy } from '@/utils/array';
 import { colorForState } from '@/plugins/steve/resource-instance';
 import { VM } from '@/config/types';
 import { DATA_VOLUME_OWNEDBY } from '@/config/labels-annotations';
 
 export default {
+  availableActions() {
+    const out = this._standardActions;
+    const removeAction = findBy(out, 'altAction', 'remove');
+    const idx = out.indexOf(removeAction);
+    const ownedBy = this?.metadata?.annotations?.['harvester.cattle.io/owned-by'];
+
+    if ( !removeAction ) {
+      return out;
+    }
+
+    out[idx] = {
+      ...removeAction,
+      enabled: !ownedBy
+    };
+
+    return out;
+  },
+
   stateDisplay() {
     const ownedBy = this?.metadata?.annotations?.['harvester.cattle.io/owned-by'];
 
