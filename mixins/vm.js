@@ -10,7 +10,7 @@ import {
 import { STORAGE_CLASS_LABEL, HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER_DISK_NAMES } from '@/config/labels-annotations';
 
 const TEMPORARY_VALUE = '$occupancy_url';
-const NETWROK_ANNOTATION = 'k8s.v1.cni.cncf.io/networks';
+// const NETWROK_ANNOTATION = 'k8s.v1.cni.cncf.io/networks';
 
 export default {
   inheritAttrs: false,
@@ -223,21 +223,21 @@ export default {
       get() {
         const networks = this.spec?.template?.spec?.networks || [];
         const interfaces = this.spec?.template?.spec?.domain?.devices?.interfaces || [];
-        const templateAnnotations = this.spec?.template?.metadata?.annotations;
-        let networkAnnotition = [];
+        // const templateAnnotations = this.spec?.template?.metadata?.annotations;
+        // let networkAnnotition = [];
 
-        if (templateAnnotations?.[NETWROK_ANNOTATION]) {
-          networkAnnotition = JSON.parse(templateAnnotations?.[NETWROK_ANNOTATION]);
-        }
+        // if (templateAnnotations?.[NETWROK_ANNOTATION]) {
+        //   networkAnnotition = JSON.parse(templateAnnotations?.[NETWROK_ANNOTATION]);
+        // }
 
         const out = interfaces.map( (O, index) => {
           const network = networks.find( (N) => {
             return O.name === N.name;
           });
 
-          const netwrokAnnotation = networkAnnotition.find((N) => {
-            return network?.multus?.networkName === N.name;
-          });
+          // const netwrokAnnotation = networkAnnotition.find((N) => {
+          //   return network?.multus?.networkName === N.name;
+          // });
 
           const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
           const isPod = !!network?.pod;
@@ -248,8 +248,8 @@ export default {
             model:        O.model || 'virtio',
             networkName:  network?.multus?.networkName || 'managment Network',
             index,
-            isIpamStatic: !!netwrokAnnotation,
-            cidr:         netwrokAnnotation?.ips || '',
+            // isIpamStatic: !!netwrokAnnotation,
+            // cidr:         netwrokAnnotation?.ips || '',
             isPod
           };
         });
@@ -589,17 +589,17 @@ export default {
     parseNetworkRows(networkRow) {
       const interfaces = [];
       const networks = [];
-      const templateNetworkAnnotation = [];
+      // const templateNetworkAnnotation = [];
 
       networkRow.forEach( (R) => {
         const _interface = this.parseInterface(R);
         const _network = this.parseNetwork(R);
 
-        if (R.isIpamStatic) {
-          const _templateNetwrokAnnotation = this.parseTemplateNetworkAnnotation(R);
+        // if (R.isIpamStatic) {
+        //   const _templateNetwrokAnnotation = this.parseTemplateNetworkAnnotation(R);
 
-          templateNetworkAnnotation.push(_templateNetwrokAnnotation);
-        }
+        //   templateNetworkAnnotation.push(_templateNetwrokAnnotation);
+        // }
 
         interfaces.push(_interface);
         networks.push(_network);
@@ -621,9 +621,9 @@ export default {
         this.$set(this.spec.template.metadata, 'annotations', {});
       }
 
-      if (this.pageType === 'vm') {
-        Object.assign(this.spec.template.metadata.annotations, { [NETWROK_ANNOTATION]: JSON.stringify(templateNetworkAnnotation) });
-      }
+      // if (this.pageType === 'vm') {
+      //   Object.assign(this.spec.template.metadata.annotations, { [NETWROK_ANNOTATION]: JSON.stringify(templateNetworkAnnotation) });
+      // }
 
       if (this.pageType === 'vm') {
         this.$set(this.value.spec.template, 'spec', spec);
