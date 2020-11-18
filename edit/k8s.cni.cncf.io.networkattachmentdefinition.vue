@@ -81,11 +81,11 @@ export default {
         return false;
       }
 
-      if (this.ipamType === 'static') {
-        this.parseSpecConfig.ipam.type = 'static';
-      } else {
-        this.parseSpecConfig.ipam = {};
-      }
+      // if (this.ipamType === 'static') {
+      //   this.parseSpecConfig.ipam.type = 'static';
+      // } else {
+      //   this.parseSpecConfig.ipam = {};
+      // }
 
       this.parseSpecConfig.vlan = this.vlanId;
       this.parseSpecConfig.name = this.name;
@@ -140,12 +140,12 @@ export default {
       @input="input"
     />
 
-    <LabeledSelect
+    <!-- <LabeledSelect
       v-model="ipamType"
       class="mb-20"
       label="IPAM"
       :options="IPAMOption"
-    />
+    /> -->
 
     <Footer :mode="mode" :errors="errors" @save="beforeSave" @done="done" />
   </div>

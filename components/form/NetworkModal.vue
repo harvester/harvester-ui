@@ -188,9 +188,9 @@ export default {
         if (neu === 'managment Network' && this.currentRow.masquerade) {
           this.currentRow.type = 'masquerade';
         } else {
-          const choices = this.$store.getters['cluster/byId'](NETWORK_ATTACHMENT, `default/${ neu }`);
+          // const choices = this.$store.getters['cluster/byId'](NETWORK_ATTACHMENT, `default/${ neu }`);
 
-          this.currentRow.isIpamStatic = choices?.isIpamStatic || false;
+          // this.currentRow.isIpamStatic = choices?.isIpamStatic || false;
           this.currentRow.type = 'bridge';
         }
       },
@@ -233,15 +233,15 @@ export default {
         return this.getInvalidMsg('Name');
       }
 
-      if (this.currentRow.isIpamStatic) {
-        if (!this.currentRow.cidr) {
-          return this.getInvalidMsg('cidr');
-        }
-      }
+      // if (this.currentRow.isIpamStatic) {
+      //   if (!this.currentRow.cidr) {
+      //     return this.getInvalidMsg('cidr');
+      //   }
+      // }
 
-      if (this.currentRow.isIpamStatic && this.currentRow.cidr) {
-        this.validateCidr(this.currentRow.cidr);
-      }
+      // if (this.currentRow.isIpamStatic && this.currentRow.cidr) {
+      //   this.validateCidr(this.currentRow.cidr);
+      // }
 
       if (!this.currentRow.model) {
         return this.getInvalidMsg('Model');
@@ -405,14 +405,14 @@ export default {
           </template>
         </LabeledInput>
 
-        <LabeledInput
+        <!-- <LabeledInput
           v-if="currentRow.isIpamStatic"
           v-model="currentRow.cidr"
           label="CIDR"
           class="mb-20"
           required
           @input="validateCidr"
-        />
+        /> -->
 
         <PortInputGroup v-if="currentRow.type === 'masquerade'" v-model="currentRow" />
       </template>
