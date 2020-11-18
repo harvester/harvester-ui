@@ -24,12 +24,17 @@ export default {
   computed: {
     isDown() {
       return this.isEmpty(this.resource);
+    },
+
+    isRunning() {
+      return this.resource.actualState === 'Running';
     }
   },
 
   methods: {
     handleDropdown(c) {
       this.show(c);
+      this.$refs.dropdown.togglePopover();
     },
     show(type) {
       const prefix = getPrefix();
@@ -74,19 +79,19 @@ export default {
       </el-dropdown-menu>
     </el-dropdown> -->
 
-    <ButtonDropdown size="xs">
+    <ButtonDropdown ref="dropdown" :disable-button="!isRunning" size="xs">
       <template #button-content="{ buttonSize }">
-        <button :class="buttonSize" @click="show('vnc')">
+        <button :disabled="!isRunning" :class="buttonSize" @click="show('vnc')">
           &nbsp;Console
         </button>
       </template>
       <template #popover-content>
         <ul class="list-unstyled menu" style="margin: -1px;">
-          <li class="hand" @click="show('vnc')">
+          <li class="hand" @click="handleDropdown('vnc')">
             Open in Web VNC
           </li>
 
-          <li class="hand" @click="show('serial')">
+          <li class="hand" @click="handleDropdown('serial')">
             Open in Serial Console
           </li>
         </ul>
