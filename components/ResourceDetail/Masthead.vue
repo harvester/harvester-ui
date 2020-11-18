@@ -2,7 +2,7 @@
 import { PROJECT } from '@/config/labels-annotations';
 import { FLEET, NAMESPACE, MANAGEMENT } from '@/config/types';
 import ButtonGroup from '@/components/ButtonGroup';
-import BadgeState from '@/components/BadgeState';
+import VmState from '@/components/formatter/vmState';
 import Banner from '@/components/Banner';
 import { get } from '@/utils/object';
 import { NAME as FLEET_NAME } from '@/config/product/fleet';
@@ -11,7 +11,7 @@ import { HIDE_SENSITIVE } from '@/store/prefs';
 
 export default {
   components: {
-    BadgeState, Banner, ButtonGroup
+    VmState, Banner, ButtonGroup
   },
   props:      {
     value: {
@@ -176,6 +176,10 @@ export default {
       return this.$store.getters['prefs/get'](HIDE_SENSITIVE);
     },
 
+    isVM() {
+      return this.value?.kind === 'VirtualMachine';
+    },
+
   },
   methods: {
     get,
@@ -218,7 +222,7 @@ export default {
           </nuxt-link>
           <span v-html="h1" />
         </h1>
-        <BadgeState v-if="isView && !parent.hideBadgeState" :value="value" />
+        <VmState v-if="mode==='view' && isVM" v-model="value.id" :row="value" />
       </div>
       <!-- //TODO use  nuxt-link for an internal project detail page once it exists -->
       <div v-if="isView" class="subheader">
