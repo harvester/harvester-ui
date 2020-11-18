@@ -95,4 +95,11 @@ export default {
   </div>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss" scoped>
+.btn-xs,
+.btn-group-xs > .btn,
+.btn-xs .btn-label {
+    font-size: 13px !important;
+    line-height: 17px !important;
+}
+</style>
