@@ -180,17 +180,7 @@ function _execute(resources, action, args, opts = {}) {
 
 function _removeExtraDivider(array) {
   const out = [];
-  const firstIsDivider = !!array[0].divider;
-  const lastIsDivider = !!array[array.length - 1].divider;
   let isNeighboring = false;
-
-  if (firstIsDivider) {
-    array.shift();
-  }
-
-  if (lastIsDivider) {
-    array.pop();
-  }
 
   for (const act of array) {
     if (isNeighboring && !!act.divider) {
@@ -199,6 +189,17 @@ function _removeExtraDivider(array) {
 
     isNeighboring = !!act.divider;
     out.push(act);
+  }
+
+  const firstIsDivider = !!out?.[0]?.divider;
+  const lastIsDivider = !!out?.[out.length - 1]?.divider;
+
+  if (firstIsDivider) {
+    out.shift();
+  }
+
+  if (lastIsDivider) {
+    out.pop();
   }
 
   return out;
