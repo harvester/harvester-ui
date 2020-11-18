@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { safeLoad } from 'js-yaml';
 import { VMI, POD } from '@/config/types';
 
 const VMI_WAITING_MESSAGE =
@@ -343,6 +344,42 @@ export default {
 
     return state;
   },
+
+  networkIps() {
+    let networkData = '';
+    const out = [];
+    const arrVolumes = this.spec.template?.spec?.volumes || [];
+
+    arrVolumes.forEach((V) => {
+      if (V.cloudInitNoCloud) {
+        networkData = V.cloudInitNoCloud.networkData;
+      }
+    });
+
+    try {
+      const newInitScript = safeLoad(networkData);
+
+      if (newInitScript?.config && Array.isArray(newInitScript.config)) {
+        const config = newInitScript.config;
+
+        config.forEach((O) => {
+          if (O?.subnets && Array.isArray(O.subnets)) {
+            const subnets = O.subnets;
+
+            subnets.forEach((S) => {
+              if (S.address) {
+                out.push(S.address);
+              }
+            });
+          }
+        });
+      }
+    } catch (err) {
+
+    }
+
+    return out;
+  }
 
   // customValidationRules() {
   //   const rules = [

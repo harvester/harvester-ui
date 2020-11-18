@@ -1,5 +1,6 @@
 <script>
 import _ from 'lodash';
+import { HARVESTER_NETWORK_IPS, HARVESTER_NETWORK_STATUS } from '@/config/labels-annotations';
 import { VMI, POD } from '@/config/types';
 import CopyToClipboardText from '@/components/CopyToClipboardText';
 
@@ -26,20 +27,41 @@ export default {
 
   computed: {
     ip() {
-      const choices = this.$store.getters['cluster/all'](VMI);
-      const podList = this.$store.getters['cluster/all'](POD);
+      const s = new Set([...this.vmiIp, ...this.podIp, ...this.networkAnnotationIP]);
+
+      return _.compact([...s]);
+    },
+
+    networkAnnotationIP() {
+      if (this.row.actualState !== 'Running') { // TODO: Running
+        return [];
+      }
+
+      const annotationIp = this.row.getAnnotationValue(HARVESTER_NETWORK_IPS) || '[]';
+
+      const out = JSON.parse(annotationIp);
+
+      return out.map( (O) => {
+        return O.replace(/\/[\d\D]*/, '');
+      });
+    },
+
+    podIp() {
+      const vmiResources = this.$store.getters['cluster/all'](VMI);
+      const podResources = this.$store.getters['cluster/all'](POD);
+
       const ips = new Set();
       let networkStatus = '[]';
       let podResource = null;
 
-      const resource = choices.find(VMI => VMI.id === this.value) || null;
+      const resource = vmiResources.find(VMI => VMI.id === this.value) || null;
 
       if (resource) {
-        podResource = podList.find( (P) => {
+        podResource = podResources.find( (P) => {
           return resource?.metadata?.name === P.metadata?.ownerReferences?.[0].name;
         });
 
-        networkStatus = podResource?.getAnnotationValue('k8s.v1.cni.cncf.io/network-status');
+        networkStatus = podResource?.getAnnotationValue(HARVESTER_NETWORK_STATUS);
       }
 
       try {
@@ -53,12 +75,16 @@ export default {
       } catch (err) {
 
       }
-      ips.add(resource?.status?.interfaces?.[0]?.ipAddress);
 
-      return _.compact([...ips]).join(',  ');
+      return [...ips];
     },
-    ipList() {
-      return (this.ip && this.ip.split(', ')) || [];
+
+    vmiIp() {
+      const vmiResources = this.$store.getters['cluster/all'](VMI);
+      const resource = vmiResources.find(VMI => VMI.id === this.value) || null;
+      const out = resource?.status?.interfaces?.[0]?.ipAddress || '';
+
+      return [out];
     }
   },
 };
@@ -66,11 +92,13 @@ export default {
 
 <template>
   <div v-if="isList">
-    <p v-for="(ipValue, index) in ipList" :key="ipValue">
+    <p v-for="(ipValue, index) in ip" :key="ipValue">
       {{ index+1 }}. <CopyToClipboardText :text="ipValue" />
     </p>
   </div>
   <div v-else>
-    <CopyToClipboardText v-if="ip" :text="ip" />
+    <span v-for="(ipValue, index) in ip" :key="index">
+      <CopyToClipboardText :text="ipValue" /> <span v-if="index !== ip.length-1">, </span>
+    </span>
   </div>
 </template>
