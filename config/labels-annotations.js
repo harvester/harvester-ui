@@ -86,3 +86,7 @@ export const HARVESTER_IMAGE_NAME = 'harvester.cattle.io/vmName';
 export const HARVESTER_DISK_NAMES = 'harvester.cattle.io/diskNames';
 
 export const HARVESTER_SSH_NAMES = 'harvester.cattle.io/sshNames';
+
+export const HARVESTER_NETWORK_IPS = 'networks.harvester.cattle.io/ips';
+
+export const HARVESTER_NETWORK_STATUS = 'k8s.v1.cni.cncf.io/network-status';
