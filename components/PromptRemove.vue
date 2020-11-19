@@ -204,7 +204,7 @@ export default {
 
         this.close();
       }).catch((err) => {
-        this.error = err;
+        this.error = err?.message || err;
       });
     }
   }
@@ -247,7 +247,7 @@ export default {
         </div>
         <input v-if="needsConfirm" id="confirm" v-model="confirmName" type="text" />
         <span class="text-warning">{{ preventDeletionMessage }}</span>
-        <span class="text-error">{{ error }}</span>
+        <span class="error-message text-error">{{ error }}</span>
         <span v-if="!needsConfirm" class="text-info mt-20">{{ protip }}</span>
       </div>
       <template slot="actions">
@@ -266,16 +266,22 @@ export default {
 
 <style lang='scss'>
     #confirm {
-        width: 90%;
-        margin-left: 3px;
+      width: 90%;
+      margin-left: 3px;
     }
+
     .remove-modal {
-       border-radius: var(--border-radius);
-       overflow: scroll;
-       max-height: 100vh;
-       & ::-webkit-scrollbar-corner {
-         background: rgba(0,0,0,0);
-         }
+      border-radius: var(--border-radius);
+      overflow: scroll;
+      max-height: 100vh;
+      & ::-webkit-scrollbar-corner {
+        background: rgba(0,0,0,0);
+      }
+
+      .error-message {
+        display: block;
+        margin-bottom: 10px;
+      }
     }
     .actions {
       width: 100%;
