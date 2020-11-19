@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { safeLoad } from 'js-yaml';
-import { VMI, POD } from '@/config/types';
+import { VMI, POD, VM } from '@/config/types';
 
 const VMI_WAITING_MESSAGE =
   'The virtual machine is waiting for resources to become available.';
@@ -379,7 +379,36 @@ export default {
     }
 
     return out;
-  }
+  },
+
+  warningCount() {
+    return this.resourcesStatus.warningCount;
+  },
+
+  errorCount() {
+    return this.resourcesStatus.errorCount;
+  },
+
+  resourcesStatus() {
+    const vmList = this.$rootGetters['cluster/all'](VM);
+    let Stopped = 0;
+    let Unknown = 0;
+
+    vmList.forEach((vm) => {
+      const status = vm.actualState;
+
+      if (status === 'Stopped' || status === 'Paused') {
+        Stopped += 1;
+      } else if (status !== 'Running') {
+        Unknown += 1;
+      }
+    });
+
+    return {
+      warningCount: Stopped,
+      errorCount:   Unknown
+    };
+  },
 
   // customValidationRules() {
   //   const rules = [

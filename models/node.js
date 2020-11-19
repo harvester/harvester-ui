@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { formatPercent } from '@/utils/string';
 import { NODE_ROLES, RKE } from '@/config/labels-annotations.js';
-import { METRIC } from '@/config/types';
+import { METRIC, NODE } from '@/config/types';
 import { parseSi } from '@/utils/units';
 import { PRIVATE } from '@/plugins/steve/resource-proxy';
 import findLast from 'lodash/findLast';
@@ -244,7 +244,37 @@ export default {
     //   content:       this.containerRuntimeVersion
     // }];
     return [];
-  }
+  },
+
+  warningCount() {
+    return this.resourcesStatus.warningCount;
+  },
+
+  errorCount() {
+    return this.resourcesStatus.errorCount;
+  },
+
+  resourcesStatus() {
+    const nodeList = this.$rootGetters['cluster/all'](NODE);
+
+    let warning = 0;
+    let error = 0;
+
+    nodeList.forEach((item) => {
+      const status = item.getConditionStatus('Ready');
+
+      if (status === 'False') {
+        error += 1;
+      } else if (status === 'Unknown') {
+        warning += 1;
+      }
+    });
+
+    return {
+      warningCount: warning,
+      errorCount:   error
+    };
+  },
 };
 
 function calculatePercentage(allocatable, capacity) {
