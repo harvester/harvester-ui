@@ -1,5 +1,5 @@
 import { colorForState } from '@/plugins/steve/resource-instance';
-import { VM } from '@/config/types';
+import { VM, IMAGE } from '@/config/types';
 
 export default {
   availableActions() {
@@ -45,5 +45,35 @@ export default {
 
   stateBackground() {
     return colorForState(this.stateDisplay).replace('text-', 'bg-');
+  },
+
+  warningCount() {
+    return this.resourcesStatus.warningCount;
+  },
+
+  errorCount() {
+    return this.resourcesStatus.errorCount;
+  },
+
+  resourcesStatus() {
+    const imageList = this.$rootGetters['cluster/all'](IMAGE);
+
+    let warning = 0;
+    let error = 0;
+
+    imageList.forEach((item) => {
+      const status = item.getStatusConditionOfType('imported')?.status;
+
+      if (status === 'False') {
+        error += 1;
+      } else if (status === 'Unknown') {
+        warning += 1;
+      }
+    });
+
+    return {
+      warningCount: warning,
+      errorCount:   error
+    };
   },
 };

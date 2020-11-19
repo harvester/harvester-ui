@@ -1,5 +1,5 @@
 import { colorForState } from '@/plugins/steve/resource-instance';
-import { VM } from '@/config/types';
+import { VM, DATA_VOLUME } from '@/config/types';
 import { DATA_VOLUME_OWNEDBY } from '@/config/labels-annotations';
 
 export default {
@@ -44,5 +44,35 @@ export default {
 
   isRWO() {
     return this.spec?.pvc?.accessModes?.[0] === 'ReadWriteOnce';
-  }
+  },
+
+  warningCount() {
+    return this.resourcesStatus.warningCount;
+  },
+
+  errorCount() {
+    return this.resourcesStatus.errorCount;
+  },
+
+  resourcesStatus() {
+    const list = this.$rootGetters['cluster/all'](DATA_VOLUME);
+
+    let warning = 0;
+    let error = 0;
+
+    list.forEach((item) => {
+      const status = item.getStatusConditionOfType('Ready')?.status;
+
+      if (status === 'False') {
+        error += 1;
+      } else if (status === 'Unknown') {
+        warning += 1;
+      }
+    });
+
+    return {
+      warningCount: warning,
+      errorCount:   error
+    };
+  },
 };

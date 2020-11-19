@@ -1,19 +1,54 @@
-<script type="text/javascript">
+<script>
+import Loading from '@/components/Loading';
+import isEmpty from 'lodash/isEmpty';
+import SortableTable from '@/components/SortableTable';
 import { allHash } from '@/utils/promise';
-import { METRIC, NODE, VM } from '@/config/types';
-import { formatSi } from '@/utils/units';
-import StateProgress from '@/components/StateProgress';
-import Pie from './Pie';
+import Poller from '@/utils/poller';
+import { parseSi, formatSi, exponentNeeded, UNITS } from '@/utils/units';
+import { REASON } from '@/config/table-headers';
+
+import {
+  EVENT, METRIC, NODE, VM, NETWORK_ATTACHMENT, IMAGE, DATA_VOLUME
+} from '@/config/types';
+import SimpleBox from '@/components/SimpleBox';
+import ResourceGauge from '@/components/ResourceGauge';
+import HardwareResourceGauge from './HardwareResourceGauge';
+
+const PARSE_RULES = {
+  memory: {
+    format: {
+      addSuffix:        true,
+      firstSuffix:      'B',
+      increment:        1024,
+      maxExponent:      99,
+      maxPrecision:     2,
+      minExponent:      0,
+      startingExponent: 0,
+      suffix:           'iB',
+    }
+  }
+};
+
+const METRICS_POLL_RATE_MS = 20000;
+const MAX_FAILURES = 2;
+
+const RESOURCES = [NODE, VM, NETWORK_ATTACHMENT, IMAGE, DATA_VOLUME];
 
 export default {
-  name:       'Overview',
-  components: { Pie, StateProgress },
+  components: {
+    Loading,
+    HardwareResourceGauge,
+    ResourceGauge,
+    SimpleBox,
+    SortableTable
+  },
 
   async fetch() {
     const hash = {
-      metricNodes: this.$store.dispatch('cluster/findAll', { type: METRIC.NODE }),
-      nodes:       this.$store.dispatch('cluster/findAll', { type: NODE }),
-      vms:         this.$store.dispatch('cluster/findAll', { type: VM }),
+      vms:         this.fetchClusterResources(VM),
+      nodes:       this.fetchClusterResources(NODE),
+      events:      this.fetchClusterResources(EVENT),
+      metricNodes: this.fetchClusterResources(METRIC.NODE),
     };
 
     const res = await allHash(hash);
@@ -24,24 +59,54 @@ export default {
   },
 
   data() {
-    return {
-      vms:         [],
-      nodes:       [],
-      metricNodes: [],
-      hostStatus:  {
-        success: 0,
-        warning: 0,
-        error:   0
+    const reason = {
+      ...REASON,
+      ...{ canBeVariable: true },
+      width: 100
+    };
+
+    const eventHeaders = [
+      reason,
+      {
+        name:          'resource',
+        label:         'Resource',
+        labelKey:      'clusterIndexPage.sections.events.resource.label',
+        value:         'displayInvolvedObject',
+        sort:          ['involvedObject.kind', 'involvedObject.name'],
+        canBeVariable: true,
       },
-      vmStatus: {
-        Running: 0,
-        Stopped: 0,
-        Unknown: 0
-      }
+      {
+        align:         'right',
+        name:          'date',
+        label:         'Date',
+        labelKey:      'clusterIndexPage.sections.events.date.label',
+        value:         'lastTimestamp',
+        sort:          'lastTimestamp:desc',
+        formatter:     'LiveDate',
+        formatterOpts: { addSuffix: true },
+        width:         125,
+        defaultSort:   true,
+      },
+    ];
+
+    return {
+      metricPoller:   null,
+      eventHeaders,
+      constraints:       [],
+      events:            [],
+      nodeMetrics:       [],
+      nodes:             [],
+      metricNodes:       [],
+      vms:               [],
+      currentCluster:    'local'
     };
   },
 
   computed: {
+    accessibleResources() {
+      return RESOURCES.filter(resource => this.$store.getters['cluster/schemaFor'](resource));
+    },
+
     cpusTotal() {
       let out = 0;
 
@@ -102,259 +167,187 @@ export default {
       return out;
     },
 
-    memoryPrecent() {
-      return (this.memorysUsageTotal / this.memorysTotal * 100).toFixed(2);
+    cpuReserved() {
+      return {
+        total:  parseSi(this.currentCluster?.status?.allocatable?.cpu),
+        useful: parseSi(this.currentCluster?.status?.requested?.cpu)
+      };
     },
 
-    cpuPrecent() {
-      return (this.cpusUsageTotal / this.cpusTotal * 100).toFixed(2);
+    podsReserved() {
+      return {
+        total:  this.storageTotal,
+        useful: this.storageUsage
+      };
     },
 
-    storagePrecent() {
-      return (this.storageUsage / this.storageTotal * 100).toFixed(2);
+    ramReserved() {
+      return {
+        total:  this.memorysTotal,
+        useful: this.memorysUsageTotal
+      };
     },
 
-    nodesStatus() {
-      let success = 0;
-      let warning = 0;
-      let error = 0;
+    metricAggregations() {
+      const nodes = this.nodes;
+      const someNonWorkerRoles = this.nodes.some(node => node.hasARole && !node.isWorker);
+      const metrics = this.nodeMetrics.filter((nodeMetrics) => {
+        const node = nodes.find(nd => nd.id === nodeMetrics.id);
 
-      this.nodes.forEach((item) => {
-        const status = item.getConditionStatus('Ready');
-
-        if (status === 'True') {
-          success += 1;
-        } else if (status === 'False') {
-          error += 1;
-        } else if (status === 'Unknown') {
-          warning += 1;
-        }
+        return node && (!someNonWorkerRoles || node.isWorker);
       });
+      const initialAggregation = {
+        cpu:    0,
+        memory: 0
+      };
 
-      this.$set(this.hostStatus, 'success', success);
-      this.$set(this.hostStatus, 'error', error);
-      this.$set(this.hostStatus, 'warning', warning);
+      if (isEmpty(metrics)) {
+        return null;
+      }
 
-      return [
-        {
-          number: success, text: 'Success', color: 'bg-success'
-        },
-        {
-          number: warning, text: 'Unknown', color: 'bg-warning'
-        },
-        {
-          number: error, text: 'Warning', color: 'bg-error'
-        }
-      ];
+      return metrics.reduce((agg, metric) => {
+        agg.cpu += parseSi(metric.usage.cpu);
+        agg.memory += parseSi(metric.usage.memory);
+
+        return agg;
+      }, initialAggregation);
     },
 
-    vmsStatus() {
-      let Running = 0;
-      let Stopped = 0;
-      let Unknown = 0;
+    cpuUsed() {
+      return {
+        // total:  formatSi(this.cpusTotal),
+        // useful: formatSi(this.cpusUsageTotal)
+        total:  this.cpusTotal,
+        useful: this.cpusUsageTotal
+      };
+    },
 
-      this.vms.forEach((vm) => {
-        const status = vm.actualState;
+    memoryUsed() {
+      return this.createMemoryValues(this.memorysTotal, this.memorysUsageTotal);
+    },
 
-        if (status === 'Running') {
-          Running += 1;
-        } else if (status === 'Stopped' || status === 'Paused') {
-          Stopped += 1;
-        } else {
-          Unknown += 1;
-        }
-      });
-
-      this.$set(this.vmStatus, 'Running', Running);
-      this.$set(this.vmStatus, 'Stopped', Stopped);
-      this.$set(this.vmStatus, 'Unknown', Unknown);
-
-      return [
-        {
-          number: Running, text: 'Running', color: 'bg-success'
-        },
-        {
-          number: Stopped, text: 'Stopped', color: 'bg-error'
-        },
-        {
-          number: Unknown, text: 'Unknown', color: 'bg-warning'
-        }
-      ];
+    storageUsed() {
+      return this.createMemoryValues(this.storageTotal, this.storageUsage);
     },
   },
 
+  mounted() {
+    this.metricPoller = new Poller(this.loadMetrics, METRICS_POLL_RATE_MS, MAX_FAILURES);
+    this.metricPoller.start();
+  },
+
   methods: {
-    formatSi(val, format) {
-      return formatSi(val, { ...format });
+    createMemoryValues(total, useful) {
+      const parsedTotal = parseSi((total || '0').toString());
+      const parsedUseful = parseSi((useful || '0').toString());
+      const format = this.createMemoryFormat(parsedTotal);
+      const formattedTotal = formatSi(parsedTotal, format);
+      const formattedUseful = formatSi(parsedUseful, format);
+
+      return {
+        total:  Number.parseFloat(formattedTotal),
+        useful: Number.parseFloat(formattedUseful),
+        units:  this.createMemoryUnits(parsedTotal)
+      };
     },
+
+    createMemoryFormat(n) {
+      const exponent = exponentNeeded(n, PARSE_RULES.memory.format.increment);
+
+      return {
+        ...PARSE_RULES.memory.format,
+        maxExponent: exponent,
+        minExponent: exponent,
+      };
+    },
+
+    createMemoryUnits(n) {
+      const exponent = exponentNeeded(n, PARSE_RULES.memory.format.increment);
+
+      return `${ UNITS[exponent] }${ PARSE_RULES.memory.format.suffix }`;
+    },
+
+    async fetchClusterResources(type, opt = {}) {
+      const schema = this.$store.getters['cluster/schemaFor'](type);
+
+      if (schema) {
+        try {
+          const resources = await this.$store.dispatch('cluster/findAll', { type, opt });
+
+          return resources;
+        } catch (err) {
+          console.error(`Failed fetching cluster resource ${ type } with error:`, err); // eslint-disable-line no-console
+
+          return [];
+        }
+      }
+
+      return [];
+    },
+
+    async loadMetrics() {
+      this.nodeMetrics = await this.fetchClusterResources(METRIC.NODE, { force: true } );
+    },
+  },
+
+  beforeRouteLeave(to, from, next) {
+    this.metricPoller.stop();
+    next();
   }
 };
 </script>
 
 <template>
-  <div id="echarts">
-    <div class="row mb-20">
-      <div class="col span-3 card">
-        <div class="header">
-          <h4>Host</h4>
-        </div>
+  <Loading v-if="$fetchState.pending" />
+  <section v-else>
+    <header>
+      <h1>
+        <t k="HarvesterIndexPage.header" />
+      </h1>
+    </header>
 
-        <div class="content">
-          <div class="left">
-            {{ nodes.length }}
-          </div>
-
-          <div class="right">
-            <div class="item">
-              <span>
-                <i class="icon icon-dot success"></i> Connected
-              </span>
-              <i>{{ hostStatus.success }}</i>
-            </div>
-
-            <div class="item">
-              <span>
-                <i class="icon icon-dot error"></i> Disconnected
-              </span>
-              <i>{{ hostStatus.error }}</i>
-            </div>
-
-            <div class="item">
-              <span>
-                <i class="icon icon-dot warning"></i> Unknown
-              </span>
-              <i>{{ hostStatus.warning }}</i>
-            </div>
-          </div>
-        </div>
-
-        <div class="bar">
-          <StateProgress :bar-data="nodesStatus" />
-        </div>
-      </div>
-
-      <div class="col span-3 card">
-        <div class="chart">
-          <Pie ref="Cpu" title="CPU" :value="cpuPrecent">
-            <span>Used: <i>{{ formatSi(cpusUsageTotal) }}</i></span>
-            <hr>
-            <span>Actual Total: <i>{{ formatSi(cpusTotal) }}</i></span>
-          </Pie>
-        </div>
-      </div>
-
-      <div class="col span-3 card">
-        <div class="chart">
-          <Pie ref="Memory" title="Memory" :value="memoryPrecent">
-            <span>Used: <i>{{ formatSi(memorysUsageTotal, { increment: 1024 }) }}</i></span>
-            <hr>
-            <span>Actual Total: <i>{{ formatSi(memorysTotal, { increment: 1024 }) }}</i></span>
-          </Pie>
-        </div>
-      </div>
-
-      <div class="col span-3 card">
-        <div class="chart">
-          <Pie ref="storage" title="Storage Size" :value="storagePrecent">
-            <span>Used: <i>{{ formatSi(storageUsage) }}</i></span>
-            <hr>
-            <span>Actual Total: <i>{{ formatSi(storageTotal) }}</i></span>
-          </Pie>
-        </div>
-      </div>
+    <div class="resource-gauges">
+      <ResourceGauge
+        v-for="(resource, i) in accessibleResources"
+        :key="resource"
+        :resource="resource"
+        :primary-color-var="`--sizzle-${i}`"
+      />
     </div>
 
-    <div class="row">
-      <div class="col span-3 card">
-        <div class="header">
-          <h4>VM Instance</h4>
-        </div>
-
-        <div class="content">
-          <div class="left">
-            {{ vms.length }}
-          </div>
-
-          <div class="right">
-            <div class="item">
-              <span>
-                <i class="icon icon-dot success"></i> Running
-              </span>
-              <i>{{ vmStatus.Running }}</i>
-            </div>
-
-            <div class="item">
-              <span>
-                <i class="icon icon-dot error"></i> Stopped
-              </span>
-              <i>{{ vmStatus.Stopped }}</i>
-            </div>
-
-            <div class="item">
-              <span>
-                <i class="icon icon-dot warning"></i> Unknown
-              </span>
-              <i>{{ vmStatus.Unknown }}</i>
-            </div>
-          </div>
-        </div>
-
-        <div class="bar">
-          <StateProgress :bar-data="vmsStatus" />
-        </div>
-      </div>
+    <div class="hardware-resource-gauges">
+      <HardwareResourceGauge :name="t('HarvesterIndexPage.hardwareResourceGauge.cpu')" :total="cpuUsed.total" :useful="cpuUsed.useful" />
+      <HardwareResourceGauge :name="t('HarvesterIndexPage.hardwareResourceGauge.memory')" :total="memoryUsed.total" :useful="memoryUsed.useful" :units="memoryUsed.units" />
+      <HardwareResourceGauge :name="t('HarvesterIndexPage.hardwareResourceGauge.storage')" :total="storageUsed.total" :useful="storageUsed.useful" :units="storageUsed.units" />
     </div>
-  </div>
+
+    <SimpleBox class="events" :title="t('HarvesterIndexPage.sections.events.label')">
+      <SortableTable
+        :rows="events"
+        :headers="eventHeaders"
+        key-field="id"
+        :search="false"
+        :table-actions="false"
+        :row-actions="false"
+        :paging="true"
+        :rows-per-page="10"
+        default-sort-by="date"
+      >
+        <template #cell:resource="{row, value}">
+          <div class="text-info">
+            {{ value }}
+          </div>
+          <div v-if="row.message">
+            {{ row.displayMessage }}
+          </div>
+        </template>
+      </SortableTable>
+    </SimpleBox>
+  </section>
 </template>
 
 <style lang="scss" scoped>
-.chart {
-  span {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 6px;
+  .events {
+    margin-top: 30px;
   }
-}
-
-.bar {
-  margin-top: 48px;
-}
-
-.content {
-  display: flex;
-
-  .success {
-    color: var(--success);
-  }
-
-  .warning {
-    color: var(--warning);
-  }
-
-  .error {
-    color: var(--error);
-  }
-
-  .left {
-    width: 40%;
-    display: flex;
-    padding-left: 20px;
-    align-items: center;
-    font-size: 40px;;
-  }
-
-  .right {
-    width: 60%;
-    .item {
-      margin-bottom: 10px;
-      i {
-        margin-right: 10px;
-      }
-
-      display: flex;
-      justify-content: space-between;
-    }
-  }
-}
-
 </style>

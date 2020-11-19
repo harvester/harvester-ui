@@ -153,3 +153,7 @@ export function uniq(ary) {
 
   return out;
 }
+
+export function dedupe(ary) {
+  return Array.from(ary);
+}

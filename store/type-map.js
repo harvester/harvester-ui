@@ -101,6 +101,7 @@ import { clone, get } from '@/utils/object';
 import { ensureRegex, escapeHtml, escapeRegex, ucFirst, pluralize } from '@/utils/string';
 
 import { NAME as EXPLORER } from '@/config/product/explorer';
+import { mapKind } from '@/config/map';
 import isObject from 'lodash/isObject';
 import { normalizeType } from '@/plugins/steve/normalize';
 import { sortBy } from '@/utils/sort';
@@ -302,7 +303,7 @@ export const getters = {
           return rootGetters['i18n/t'](key, {count}).trim();
         }
 
-        let out = schema?.attributes?.actuallyKind || schema?.attributes?.kind || schema.id || '?';
+        let out = mapKind[schema?.attributes?.kind] || schema?.attributes?.actuallyKind || schema?.attributes?.kind || schema.id || '?';
 
         // Add spaces, but breaks typing names into jump menu naturally
         // out = ucFirst(out.replace(/([a-z])([A-Z])/g,'$1 $2'));
