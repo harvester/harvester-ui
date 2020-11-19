@@ -8,7 +8,7 @@ export default {
     const out = this._standardActions;
     const removeAction = findBy(out, 'altAction', 'remove');
     const idx = out.indexOf(removeAction);
-    const ownedBy = this?.metadata?.annotations?.['harvester.cattle.io/owned-by'];
+    const ownedBy = this?.metadata?.annotations?.[DATA_VOLUME_OWNEDBY];
 
     if ( !removeAction ) {
       return out;
@@ -23,7 +23,7 @@ export default {
   },
 
   stateDisplay() {
-    const ownedBy = this?.metadata?.annotations?.['harvester.cattle.io/owned-by'];
+    const ownedBy = this?.metadata?.annotations?.[DATA_VOLUME_OWNEDBY];
 
     if (ownedBy) {
       return 'In-use';
