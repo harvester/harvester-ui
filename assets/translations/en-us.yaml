@@ -2036,3 +2036,33 @@ typeLabel:
 loginPage:
   tips:
     kubeconfigLimitations: Kubeconfig Authentication method does not support external identity providers or basic authentication.
+
+HarvesterIndexPage:
+  hardwareResourceGauge:
+    consumption: "{useful} of {total} {units} {suffix}"
+    coresReserved: Cores Reserved
+    coresUsed: Cores Used
+    podsReserved: Pods Reserved
+    ramReserved: Memory Reserved
+    ramUsed: Memory Used
+    cpu: CPU
+    memory: Memory
+    storage: Storage Size
+  header: Dashboard
+  resourceGauge:
+    totalResources: Total Resources
+  sections:
+    events:
+      label: Events
+      resource:
+        label: Resource
+      date:
+        label: Date
+    gatekeeper:
+      buttonText: Configure Gatekeeper
+      disabled: OPA Gatekeeper is not configured.
+      label: OPA Gatekeeper Constraint Violations
+      noRows: There are no contraints with violations to show.
+    nodes:
+      label: Unhealthy Nodes
+      noRows: There are no unhealthy nodes to show.

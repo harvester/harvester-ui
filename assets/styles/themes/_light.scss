@@ -204,14 +204,15 @@ $selected: rgba($primary, .5);
   --gauge-error-secondary      : 239, 90, 83;
 
   --sizzle-0                   : 180, 210, 30;
-  --sizzle-1                   : 225, 45, 74;
+  --sizzle-1                   : 255, 235, 0;
   --sizzle-2                   : 212, 66, 148;
   --sizzle-3                   : 0, 169, 217;
   --sizzle-4                   : 244, 136, 68;
   --sizzle-5                   : 0, 147, 128;
   --sizzle-6                   : 136, 81, 165;
   --sizzle-7                   : 45, 47, 149;
-  --sizzle-8                   : 255, 235, 0;
+  --sizzle-8                   : 225, 45, 74;
+
 
   --sizzle-success: #{red($success)}, #{green($success)}, #{blue($success)};
   --sizzle-info:    #{red($info)},    #{green($info)},    #{blue($info)};

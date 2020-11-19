@@ -1,8 +1,7 @@
 <script>
 import CountGauge from '@/components/CountGauge';
-import { NAME as EXPLORER } from '@/config/product/explorer';
+import { NAME as VIRTUAL } from '@/config/product/virtual';
 import { COUNT } from '@/config/types';
-import { colorForState } from '@/plugins/steve/resource-instance';
 
 export function colorToCountName(color) {
   switch (color) {
@@ -21,21 +20,28 @@ export function resourceCounts(store, resource) {
   const clusterCounts = store.getters[`${ inStore }/all`](COUNT)[0].counts;
   const summary = clusterCounts[resource].summary;
 
+  const resourceAll = store.getters[`${ inStore }/all`](resource);
+
+  const warningCount = resourceAll?.[0]?.warningCount || 0;
+  const errorCount = resourceAll?.[0]?.errorCount || 0;
+
   const counts = {
     total:        summary.count || 0,
     useful:       summary.count || 0,
-    warningCount: 0,
-    errorCount:   0
+    warningCount,
+    errorCount
   };
 
-  Object.entries(summary.states || {}).forEach((entry) => {
-    const color = colorForState(entry[0]);
-    const count = entry[1];
-    const countName = colorToCountName(color);
+  // Object.entries(summary.states || {}).forEach((entry) => {
+  //   const color = colorForState(entry[0]);
+  //   const count = entry[1];
+  //   const countName = colorToCountName(color);
 
-    counts['useful'] -= count;
-    counts[countName] += count;
-  });
+  //   counts['useful'] -= count;
+  //   counts[countName] += count;
+  // });
+  counts['useful'] -= warningCount;
+  counts['useful'] -= errorCount;
 
   return counts;
 }
@@ -61,7 +67,7 @@ export default {
     location() {
       return {
         name:     'c-cluster-product-resource',
-        params:   { product: EXPLORER, resource: this.resource }
+        params:   { product: VIRTUAL, resource: this.resource }
       };
     },
 
