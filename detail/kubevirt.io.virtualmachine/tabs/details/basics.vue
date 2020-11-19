@@ -88,7 +88,7 @@ export default {
           <div>
             <div class="smart-row">
               <div class="console">
-                {{ name }} <ConsoleBar :resource="resource" class="cosoleBut" />
+                {{ name }} <ConsoleBar :resource="value" class="cosoleBut" />
               </div>
             </div>
           </div>
