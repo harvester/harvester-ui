@@ -1,6 +1,5 @@
 <script>
 import LabeledSelect from '@/components/form/LabeledSelect';
-import LabeledInput from '@/components/form/LabeledInput';
 
 export default {
   components: { LabeledSelect },
