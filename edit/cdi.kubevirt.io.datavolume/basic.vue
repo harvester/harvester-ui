@@ -49,6 +49,10 @@ export default {
   },
 
   computed: {
+    isCreate() {
+      return this.mode === 'create';
+    },
+
     isBlank() {
       return this.source === 'blank';
     },
@@ -194,7 +198,7 @@ export default {
       @input="update"
     />
 
-    <MemoryUnit v-model="storage" value-name="Size" class="mb-20" />
+    <MemoryUnit v-model="storage" :is-disabled="!isCreate" value-name="Size" class="mb-20" />
 
     <LabeledSelect
       v-if="!isContainer"
@@ -202,6 +206,7 @@ export default {
       label="Storage Class"
       :options="storageOption"
       :mode="mode"
+      :disabled="!isCreate"
       required
       class="mb-20"
       @input="update"

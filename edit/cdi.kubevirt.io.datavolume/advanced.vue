@@ -30,6 +30,10 @@ export default {
   },
 
   computed: {
+    isCreate() {
+      return this.mode === 'create';
+    },
+
     volumeModeOption() {
       return [{
         label: 'FileSystem',
@@ -80,6 +84,7 @@ export default {
     <LabeledSelect
       v-model="volumeMode"
       label="Volume Mode"
+      :disabled="!isCreate"
       :mode="mode"
       :options="volumeModeOption"
       class="mb-20"
