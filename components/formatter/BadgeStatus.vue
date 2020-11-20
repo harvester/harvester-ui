@@ -39,7 +39,7 @@ export default {
 </script>
 
 <template>
-  <span :class="{'badge-state': true, [row.stateBackground]: true}">
+  <span :class="{'badge-state': true, [row.phaseStatusBackgroud]: true}">
     {{ phase }}
   </span>
 </template>

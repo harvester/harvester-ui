@@ -56,6 +56,12 @@ export default {
       border-color: var(--warning);
     }
 
+    &.bg-primary {
+      border-color: var(--primary);
+      background: transparent;
+      color: var(--primary);
+    }
+
     // Successful states are de-emphasized by using [text-]color instead of background-color
     &.bg-success {
       color: var(--success);

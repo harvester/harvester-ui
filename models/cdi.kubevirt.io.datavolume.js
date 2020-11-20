@@ -14,6 +14,10 @@ export default {
   },
 
   stateBackground() {
+    if (this.stateDisplay === 'Ready') {
+      return 'bg-primary';
+    }
+
     return colorForState(this.stateDisplay).replace('text-', 'bg-');
   },
 
@@ -25,6 +29,10 @@ export default {
 
   phaseStatus() {
     return this?.status?.phase || 'N/A';
+  },
+
+  phaseStatusBackgroud() {
+    return colorForState(this.phaseStatus).replace('text-', 'bg-');
   },
 
   attachVM() {
