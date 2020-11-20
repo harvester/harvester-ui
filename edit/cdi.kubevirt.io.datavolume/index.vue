@@ -53,7 +53,7 @@ export default {
     const description = this.value.metadata?.annotations?.[DESCRIPTION];
 
     if (!spec) {
-      spec = { pvc: { resources: { requests: { storage: '' } } } };
+      spec = { pvc: { resources: { requests: { storage: '' } } }, source: { blank: true } };
       this.value.spec = spec;
     }
 
