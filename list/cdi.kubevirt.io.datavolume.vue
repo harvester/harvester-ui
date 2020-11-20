@@ -47,12 +47,12 @@ export default {
           value:     'spec.pvc.resources.requests.storage',
           sort:      'spec.pvc.resources.requests.storage',
         },
-        {
-          name:      'accessMode',
-          label:     'Access Mode',
-          value:     "$['spec']['pvc']['accessModes'][0]",
-          sort:      "$['spec']['pvc']['accessModes'][0]",
-        },
+        // {
+        //   name:      'accessMode',
+        //   label:     'Access Mode',
+        //   value:     "$['spec']['pvc']['accessModes'][0]",
+        //   sort:      "$['spec']['pvc']['accessModes'][0]",
+        // },
         {
           name:      'AttachedVM',
           label:     'Attached VM',
