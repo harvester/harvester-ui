@@ -138,7 +138,7 @@ export default {
       <div class="col span-6">
         <div :style="{'align-items':'center'}" class="row">
           <div class="col span-6">
-            <LabeledSelect v-model="stdinSelect" label="Stdin" :options="['No', 'Once', 'Yes']" :mode="mode" />
+            <LabeledSelect v-model="stdinSelect" :label="t('workload.container.command.stdin')" :options="['No', 'Once', 'Yes']" :mode="mode" />
           </div>
           <div v-if="stdin" class="col span-6">
             <Checkbox v-model="tty" :mode="mode" label="TTY" @input="update" />
@@ -146,7 +146,7 @@ export default {
         </div>
       </div>
     </div>
-    <hr class="section-divider" />
+    <div class="spacer"></div>
     <h3>{{ t('workload.container.titles.env') }}</h3>
     <EnvVars :mode="mode" :config-maps="configMaps" :secrets="secrets" :value="value" />
   </div>

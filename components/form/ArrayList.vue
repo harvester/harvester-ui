@@ -3,6 +3,7 @@ import debounce from 'lodash/debounce';
 import { _EDIT, _VIEW } from '@/config/query-params';
 import { removeAt } from '@/utils/array';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
+import { clone } from '@/utils/object';
 
 /*
   @TODO
@@ -174,7 +175,7 @@ export default {
 
   methods: {
     add() {
-      this.rows.push({ value: this.defaultAddValue });
+      this.rows.push({ value: clone(this.defaultAddValue) });
       if (this.defaultAddValue) {
         this.queueUpdate();
       }
@@ -197,7 +198,6 @@ export default {
       if ( this.isView ) {
         return;
       }
-
       const out = [];
 
       for ( const row of this.rows ) {
@@ -245,9 +245,9 @@ export default {
     <template v-if="rows.length">
       <div v-if="showHeader">
         <slot name="column-headers">
-          <span class="value text-label">
+          <label class="value text-label mb-10">
             {{ valueLabel }}
-          </span>
+          </label>
         </slot>
       </div>
       <div

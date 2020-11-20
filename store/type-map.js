@@ -157,6 +157,10 @@ export function DSL(store, product, module = 'type-map') {
     },
 
     // Type- and Group-dependent
+    groupBy(type, field) {
+      store.commit(`${module}/groupBy`, { type, field });
+    },
+
     headers(type, headers) {
       store.commit(`${ module }/headers`, { type, headers });
     },
@@ -274,6 +278,7 @@ export const state = function() {
     typeMoveMappings:        [],
     typeToComponentMappings: [],
     uncreatable:             [],
+    groupBy:                 {},
     headers:                 {},
     schemaGeneration:        1,
     cache:                   {
@@ -632,7 +637,8 @@ export const getters = {
   },
 
   isSpoofed(state, getters, rootState, rootGetters) {
-    return (product, type) => {
+    return (type, product) => {
+      product = product || rootGetters['productId'];
       const productSpoofedTypes = state.spoofedTypes[product] || [];
       return productSpoofedTypes.some(st => st.type === type);
     };
@@ -651,10 +657,10 @@ export const getters = {
         const apiLink = `/${SPOOFED_API_PREFIX}/${type}/${id}`;
 
         instance.links = {
-          remove: link,
-          self: link,
-          update: link,
-          view: apiLink,
+          remove: instance.links?.remove || link,
+          self: instance.links?.self || link,
+          update: instance.links?.update || link,
+          view: instance.links?.view || apiLink,
         };
       });
       return instances;
@@ -768,6 +774,12 @@ export const getters = {
       });
 
       return out;
+    };
+  },
+
+  groupByFor(state) {
+    return (schema) => {
+      return state.groupBy[schema.id];
     };
   },
 
@@ -1178,6 +1190,10 @@ export const mutations = {
   ignoreType(state, match) {
     match = ensureRegex(match);
     state.typeIgnore.push(regexToString(match));
+  },
+
+  groupBy(state, {type, field}) {
+    state.groupBy[type] = field;
   },
 
   headers(state, { type, headers }) {

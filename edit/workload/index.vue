@@ -303,6 +303,24 @@ export default {
       }
     },
 
+    imagePullSecrets: {
+      get() {
+        if (!this.podTemplateSpec.imagePullSecrets) {
+          this.$set(this.podTemplateSpec, 'imagePullSecrets', []);
+        }
+
+        const { imagePullSecrets } = this.podTemplateSpec;
+
+        return imagePullSecrets.map(each => each.name);
+      },
+      set(neu) {
+        this.podTemplateSpec.imagePullSecrets = neu.map((secret) => {
+          return { name: secret };
+        });
+      }
+
+    },
+
     schema() {
       return this.$store.getters['cluster/schemaFor'](this.type);
     },
@@ -566,7 +584,9 @@ export default {
 </script>
 
 <template>
-  <form>
+  <Loading v-if="$fetchState.pending" />
+
+  <form v-else>
     <CruResource
       :validation-passed="true"
       :selected-subtype="type"
@@ -607,7 +627,7 @@ export default {
         <Tab :label="t('workload.container.titles.container')" name="container">
           <div>
             <h3>{{ t('workload.container.titles.image') }}</h3>
-            <div class="row">
+            <div class="row mb-20">
               <div class="col span-6">
                 <LabeledInput
                   v-model="container.image"
@@ -622,6 +642,20 @@ export default {
                   :label="t('workload.container.imagePullPolicy')"
                   :options="['Always', 'IfNotPresent', 'Never']"
                   :mode="mode"
+                />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col span-6">
+                <LabeledSelect
+                  v-model="imagePullSecrets"
+                  :label="t('workload.container.imagePullSecrets')"
+                  :multiple="true"
+                  :taggable="true"
+                  :options="namespacedSecrets"
+                  :mode="mode"
+                  option-label="metadata.name"
+                  :reduce="service=>service.metadata.name"
                 />
               </div>
             </div>
@@ -711,7 +745,7 @@ export default {
         <Tab :label="t('workload.container.titles.nodeScheduling')" name="nodeScheduling">
           <NodeScheduling :mode="mode" :value="podTemplateSpec" :nodes="allNodes" />
         </Tab>
-        <Tab label="Scaling/Upgrade Policy" name="upgrading">
+        <Tab :label="t('workload.container.titles.upgrading')" name="upgrading">
           <Job v-if="isJob || isCronJob" v-model="spec" :mode="mode" :type="type" />
           <Upgrading v-else v-model="spec" :mode="mode" :type="type" />
         </Tab>

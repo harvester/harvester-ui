@@ -41,6 +41,7 @@ export const SERVICE = 'service';
 export const SECRET = 'secret';
 export const SERVICE_ACCOUNT = 'serviceaccount';
 export const STORAGE_CLASS = 'storage.k8s.io.storageclass';
+export const OBJECT_META = 'io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta';
 
 export const RBAC = {
   ROLE:                 'rbac.authorization.k8s.io.role',
@@ -87,6 +88,8 @@ export const MONITORING = {
     RECEIVER_EMAIL:       'monitoring.coreos.com.receiver.email',
     RECEIVER_SLACK:       'monitoring.coreos.com.receiver.slack',
     RECEIVER_WEBHOOK:     'monitoring.coreos.com.receiver.webhook',
+    RECEIVER_PAGERDUTY:   'monitoring.coreos.com.receiver.pagerduty',
+    RECEIVER_OPSGENIE:    'monitoring.coreos.com.receiver.opsgenie',
     RECEIVER_HTTP_CONFIG: 'monitoring.coreos.com.receiver.httpconfig',
     ROUTE:                'monitoring.coreos.com.route',
     ROUTE_SPEC:           'monitoring.coreos.com.route.spec',
@@ -134,7 +137,10 @@ export const FLEET = {
   TOKEN:         'fleet.cattle.io.clusterregistrationtoken',
 };
 
-export const GATEKEEPER = { CONSTRAINT_TEMPLATE: 'templates.gatekeeper.sh.constrainttemplate' };
+export const GATEKEEPER = {
+  CONSTRAINT_TEMPLATE: 'templates.gatekeeper.sh.constrainttemplate',
+  SPOOFED:             { CONSTRAINT: 'constraints.gatekeeper.sh.constraint' }
+};
 
 export const ISTIO = {
   VIRTUAL_SERVICE:  'networking.istio.io.virtualservice',

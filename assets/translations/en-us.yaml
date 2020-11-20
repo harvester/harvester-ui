@@ -15,6 +15,7 @@ generic:
   default: Default
   disabled: Disabled
   enabled: Enabled
+  hide: "[Hide Value]"
   ignored: Ignored
   labelsAndAnnotations: Labels and Annotations
   na: n/a
@@ -23,6 +24,7 @@ generic:
   number: '{prefix}{value, number}{suffix}'
   overview: Overview
   plusMore: + {n} more
+  plusMoreUnits: + {n} {unit}
   readFromFile: Read from File
   remove: Remove
   resource: |-
@@ -33,6 +35,8 @@ generic:
   save: Save
   type: Type
   unknown: Unknown
+  key: Key
+  value: Value
 
 locale:
   en-us: English
@@ -79,7 +83,17 @@ product:
 suffix:
   cpus: CPUs
   ib: iB
-  seconds: Seconds
+  seconds: |-
+    {count, plural,
+      =1 { Second }
+      other { Seconds }
+    }
+  sec: Sec
+  times: |-
+    {count, plural,
+      =1 { Time }
+      other { Times }
+    }
 
 ##############################
 # Components & Pages
@@ -248,6 +262,8 @@ catalog:
     gitBranch:
       label: Git Branch
       placeholder: e.g. master
+    action:
+      refresh: Refresh
   charts:
     header: Deploy Chart
     certified:
@@ -255,6 +271,9 @@ catalog:
       partner: Partner
       other: Other
     search: Filter
+    all: All
+    categories:
+      all: All Categories
   install:
     header:
       upgrade: Upgrade {name}
@@ -292,6 +311,8 @@ catalog:
             other { seconds }
           }
       wait: Wait
+    action:
+      goToUpgrade: Edit/Upgrade
   app:
     managed: Managed
     section:
@@ -490,33 +511,32 @@ footer:
   slack: Slack
 
 gatekeeperConstraint:
-
   match:
     title: Match
   tab:
     enforcementAction:
       title: Enforcement Action
-    kinds:
-      title: Kinds
+    rules:
+      title: Rules
+      sub:
+        labelSelector:
+          addLabel: Add Label
+          title: Label Selector
     namespaces:
       sub:
         excludedNamespaces: Excluded Namespaces
         namespaces: Namespaces
+        namespaceSelector:
+          addNamespace: Add Namespace
+          title: Namespace Selector
+        scope:
+          title: Scope
       title: Namespaces
     parameters:
       addParameter: Add Parameter
       editAsForm: Edit as Form
       editAsYaml: Edit as YAML
       title: Parameters
-    selectors:
-      sub:
-        labelSelector:
-          addLabel: Add Label
-          title: Label Selector
-        namespaceSelector:
-          addNamespace: Add Namespace
-          title: Namespace Selector
-      title: Selectors
   template: Template
   violations:
     title: Violations
@@ -627,6 +647,10 @@ labels:
   addLabel: Add Label
   addSetLabel: Add/Set Label
   addAnnotation: Add Annotation
+  label:
+    title: Labels
+  annotations:
+    title: Annotations
 
 logging:
   clusterFlow:
@@ -1211,6 +1235,7 @@ sortableTable:
       =0 {No {pluralLabel}}
       =1 {{count} {count, plural, =1 {{singularLabel}} other {{pluralLabel}}}}
       other {{from} - {to} of {count} {pluralLabel}}}
+  search: Filter
 
 tableHeaders:
   address: Address
@@ -1459,7 +1484,7 @@ wm:
 workload:
   container:
     command:
-      addFromResource: Add from Resource
+      addEnvVar: Add Variable
       args: Arguments
       as: as
       command: Command
@@ -1467,13 +1492,23 @@ workload:
       fromResource:
         key:
           label: Key
-          placeholder: e.g. requests.cpu
-        prefix: Prefix or Alias
+          placeholder: "e.g. metadata.labels['<KEY>']"
+        name: 
+          label: Variable Name
+          placeholder: "e.g. FOO"
+        prefix: Prefix
         source:
           label: Source
           placeholder: e.g. my-container
+        secret: Secret
+        configMap: ConfigMap
+        containerName: Container Name
         type: Type
+        value: 
+          label: Value
+          placeholder: e.g. BAR
       workingDir: WorkingDir
+      stdin: Stdin
     healthCheck:
       checkInterval: Check Interval
       command:
@@ -1484,17 +1519,24 @@ workload:
         path: Request Path
         port: Check Port
       initialDelay: Initial Delay
-      livenessProbe: Liveness Probe
+      livenessProbe: Liveness Check
       livenessTip: Containers will be restarted when this check is failing.  Not recommended for most uses.
       noHealthCheck: "There is not a Readiness Check, Liveness Check or Startup Check configured."
-      readinessProbe: Readiness Probe
+      readinessProbe: Readiness Check
       readinessTip: Containers will be removed from service endpoints when this check is failing.  Recommended.
-      startupProbe: Startup Probe
+      startupProbe: Startup Check
       startupTip: Containers will wait until this check succeeds before attempting other health checks.
       successThreshold: Success Threshold
       timeout: Timeout
+      kind:
+        none:  None
+        HTTP:  HTTP request returns a successful status (200-399)
+        HTTPS: HTTPS request returns a successful status
+        tcp:   TCP connection opens successfully
+        exec:  Command run inside the container exits with status 0
     image: Container Image
-    imagePullPolicy: Image Pull Policy
+    imagePullPolicy: Pull Policy
+    imagePullSecrets: Pull Secrets
     name: Container Name
     noResourceLimits: There are no resource requirements configured.
     noPorts: There are no ports configured.
@@ -1507,15 +1549,27 @@ workload:
     security:
       addCapabilities: Add Capabilities
       addGroupIDs: Add Group IDs
-      allowPrivilegeEscalation: Privilege Escalation
+      allowPrivilegeEscalation: 
+        label: Privilege Escalation
+        'false': No
+        'true': "Yes: container can gain more privileges than its parent process"
       dropCapabilities: Drop Capabilities
       fsGroup: Filesystem Group
       hostIPC: Use Host IPC Namespace
       hostPID: Use Host PID Namespace
-      privileged: Privileged
-      readOnlyRootFilesystem: Read-Only Root Filesystem
+      privileged:
+        label: Privileged
+        'false': No
+        'true': "Yes: container has full access to the host"
+      readOnlyRootFilesystem: 
+        label: Read-Only Root Filesystem
+        'false': No
+        'true': "Yes: container has a read-only root filesystem"
       runAsGroup: Run as Group ID
-      runAsNonRoot: Run as Non-Root
+      runAsNonRoot: 
+        label: Run as Non-Root
+        'false': No
+        'true': "Yes: container must run as a non-root user"
       runAsNonRootOptions:
         noOption: "No"
         yesOption: "Yes: containers must run as non-root-user"
@@ -1533,6 +1587,7 @@ workload:
       healthCheck: Health Check
       image: Image
       networking: Networking
+      networkSettings: Network Settings
       podAnnotations: Pod Annotations
       podLabels: Pod Labels
       podScheduling: Pod Scheduling
@@ -1542,6 +1597,7 @@ workload:
       securityContext: Security Context
       status: Status
       volumeClaimTemplates: Volume Claim Templates
+      upgrading: Scaling/Upgrade Policy
   cronSchedule: Schedule
   detailTop:
     node: Node
@@ -2032,6 +2088,40 @@ typeLabel:
       one { Route }
       other { Routes }
     }
+
+action:
+  download: Download YAML
+  remove: Delete
+  goToViewYaml: View as YAML
+  refresh: Refresh
+  goToEdit: Edit as Form
+  goToClone: Clone as Form
+  goToEditYaml: Edit as YAML
+  cloneYaml: Clone as YAML
+  viewInApi: View in API
+  openLogs: View Logs
+
+unit:
+  sec: secs
+  min: mins
+  hour: |-
+    {count, plural,
+      one { hour }
+      other { hours }
+    }
+  day: |-
+    {count, plural,
+      one { day }
+      other { days }
+    }
+
+workloadPorts:
+  addPort: Add Port
+  remove: Remove
+  addHost: Add Host
+
+podAffinity:
+  addLabel: Add Pod Selector
 
 loginPage:
   tips:
