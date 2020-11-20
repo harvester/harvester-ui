@@ -1789,6 +1789,10 @@ workload:
     title: upgrading
 
 vm:
+  nameNsDescription:
+    name:
+      singleLabel: Name
+      multipleLabel: Prefix Name
   detail:
     tabs:
       overview: Overview

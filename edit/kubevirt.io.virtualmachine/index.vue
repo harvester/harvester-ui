@@ -18,7 +18,7 @@ import MemoryUnit from '@/components/form/MemoryUnit';
 import { HARVESTER_CREATOR, HARVESTER_SSH_NAMES, HARVESTER_DISK_NAMES, HARVESTER_NETWORK_IPS } from '@/config/labels-annotations';
 import CreateEditView from '@/mixins/create-edit-view';
 import VM_MIXIN from '@/mixins/vm';
-import NameDescriptionCount from './NameDescriptionCount';
+import NameNsDescription from '@/components/form/NameNsDescription';
 import CloudConfig from './CloudConfig';
 import ChooseImage from './ChooseImage';
 
@@ -73,7 +73,7 @@ export default {
     ChooseImage,
     CloudConfig,
     NetworkModal,
-    NameDescriptionCount,
+    NameNsDescription,
     LabeledInput,
     LabeledSelect,
   },
@@ -182,7 +182,7 @@ export default {
     },
 
     nameLabel() {
-      return this.isSingle ? 'Name' : 'Prefix Name';
+      return this.isSingle ? 'vm.nameNsDescription.name.singleLabel' : 'vm.nameNsDescription.name.multipleLabel';
     },
 
     hostnameLabel() {
@@ -383,13 +383,14 @@ export default {
         />
       </div>
     </div>
-    <NameDescriptionCount
+
+    <NameNsDescription
       v-model="value"
       :mode="mode"
       :has-extra="!isSingle"
       :name-label="nameLabel"
       :namespaced="false"
-      :extra-columns="['type']"
+      :extra-columns="isSingle ? [] :['type']"
     >
       <template v-slot:type>
         <LabeledInput
@@ -403,10 +404,11 @@ export default {
           @input="validataCount"
         />
       </template>
-    </NameDescriptionCount>
+    </NameNsDescription>
 
     <div class="min-spacer"></div>
-    <Checkbox v-model="useTemplate" class="check" type="checkbox" label="Use VM Template:" />
+
+    <Checkbox v-model="useTemplate" class="check mb-20" type="checkbox" label="Use VM Template:" />
 
     <div v-if="useTemplate" class="row mb-20">
       <div class="col span-6">
