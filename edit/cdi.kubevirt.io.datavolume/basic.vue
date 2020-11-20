@@ -10,7 +10,7 @@ export default {
   components: {
     LabeledSelect,
     MemoryUnit,
-    LabeledInput
+    LabeledInput,
   },
 
   props: {
@@ -64,7 +64,7 @@ export default {
     sourceOption() {
       return [{
         value: 'blank',
-        label: 'Blank'
+        label: 'New'
       }, {
         value: 'url',
         label: 'VM Image'

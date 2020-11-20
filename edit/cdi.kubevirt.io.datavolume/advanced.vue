@@ -54,6 +54,10 @@ export default {
     },
   },
 
+  created() {
+    this.update();
+  },
+
   methods: {
     update() {
       const spec = {
@@ -82,6 +86,6 @@ export default {
       @input="update"
     />
 
-    <LabeledSelect v-model="accessMode" label="Access Model" :mode="mode" :options="accessModeOption" @input="update" />
+    <!-- <LabeledSelect v-model="accessMode" label="Access Mode" :mode="mode" :options="accessModeOption" @input="update" /> -->
   </div>
 </template>

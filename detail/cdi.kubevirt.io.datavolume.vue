@@ -131,7 +131,7 @@ export default {
           </div>
         </div>
 
-        <div class="col span-4">
+        <!-- <div class="col span-4">
           <div class="labeled-input view">
             <label>
               AccessMode
@@ -140,7 +140,7 @@ export default {
               {{ accessMode }}
             </div>
           </div>
-        </div>
+        </div> -->
 
         <div class="col span-4">
           <div class="labeled-input view">
