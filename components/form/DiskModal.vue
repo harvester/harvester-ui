@@ -457,7 +457,7 @@ export default {
           label="Boot Order"
           class="mb-20"
           :clearable="true"
-          :searchable="true"
+          :searchable="false"
           :options="bootOrderOption"
           @input="updateBootOrder"
         />
