@@ -140,8 +140,16 @@ export default {
 
   methods: {
     update() {
-      const source = this.isBlank ? { blank: {} } : this.container ? { registry: { url: this.container } } : { http: { url: this.imgUrl } };
+      let source = null;
       let imageAnnotations = '';
+
+      if (this.isBlank) {
+        source = { blank: {} };
+      }
+
+      if (this.isVmImage) {
+        source = { http: { url: this.imgUrl } };
+      }
 
       if (this.isVmImage && this.image) {
         imageAnnotations = { 'harvester.cattle.io/imageId': this.image };
@@ -188,6 +196,7 @@ export default {
       v-model="source"
       label="Source"
       :options="sourceOption"
+      :disabled="!isCreate"
       required
       :mode="mode"
       class="mb-20"
@@ -208,6 +217,7 @@ export default {
       v-model="image"
       label="Select an Image"
       :options="ImageOption"
+      :disabled="!isCreate"
       required
       :mode="mode"
       class="mb-20"
@@ -220,6 +230,7 @@ export default {
       suffix="iB"
       :input-exponent="3"
       :output-exponent="3"
+      :disabled="!isCreate"
       required
       class="mb-20"
       @input="update"
