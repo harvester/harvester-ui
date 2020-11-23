@@ -2,13 +2,10 @@
 import Footer from '@/components/form/Footer';
 import { defaultAsyncData } from '@/components/ResourceDetail';
 import CreateEditView from '@/mixins/create-edit-view';
-import LabeledSelect from '@/components/form/LabeledSelect';
 import LabeledInput from '@/components/form/LabeledInput';
 
 export default {
-  components: {
-    LabeledSelect, LabeledInput, Footer
-  },
+  components: { LabeledInput, Footer },
   mixins:     [CreateEditView],
   props:      {
     value: {
@@ -118,11 +115,10 @@ export default {
   <div>
     <LabeledInput v-model="name" class="mb-20" label="Name" required :disabled="isEdit" />
 
-    <LabeledSelect
+    <LabeledInput
       v-model="type"
       class="mb-20"
       label="Type"
-      :options="typeOption"
       :disabled="true"
       required
     />

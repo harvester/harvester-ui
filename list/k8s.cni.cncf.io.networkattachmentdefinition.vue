@@ -108,11 +108,11 @@ export default {
         color="error"
       >
         <div v-if="!statusText">
-          please config the
+          You must configure a network in
           <nuxt-link to="harvester.cattle.io.setting/network-setting?mode=edit">
-            cluster networks
+            Settings
           </nuxt-link>
-          settings before creating a new L2 Vlan network.
+          before you can create a new network.
         </div>
 
         <div v-else>
