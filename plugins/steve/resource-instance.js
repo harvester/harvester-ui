@@ -146,6 +146,8 @@ const STATES = {
   'in-use':           { color: 'success', icon: 'dot-open' },
   'N/A':              { color: 'warning', icon: 'x' },
   'vm-error':         { color: 'error', icon: 'dot' },
+  off:                { color: 'warning', icon: 'x' },
+  stoping:            { color: 'info', icon: 'dot-open' },
 };
 
 const SORT_ORDER = {

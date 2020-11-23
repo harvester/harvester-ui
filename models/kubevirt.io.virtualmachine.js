@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { safeLoad } from 'js-yaml';
+import { colorForState } from '@/plugins/steve/resource-instance';
 import { VMI, POD, VM } from '@/config/types';
 
 const VMI_WAITING_MESSAGE =
@@ -290,7 +291,7 @@ export default {
         if (!POD_STATUS_ALL_READY.includes(podStatus?.status)) {
           return {
             ...podStatus,
-            status:          'STARTING',
+            status:          'Starting',
             message:         STARTING_MESSAGE,
             detailedMessage: podStatus?.message,
             pod:             this.podResource,
@@ -299,7 +300,7 @@ export default {
       }
 
       return {
-        status: 'STARTING', message: STARTING_MESSAGE, pod: this.podResource
+        status: 'Starting', message: STARTING_MESSAGE, pod: this.podResource
       };
     }
 
@@ -308,7 +309,7 @@ export default {
 
   otherState() {
     const state = (this.vmi && [VMIPhase.Scheduling, VMIPhase.Scheduled].includes(this.vmi.getStatusPhase) && {
-      status:  'STARTING',
+      status:  'Starting',
       message: STARTING_MESSAGE,
     }) ||
     (this.vmi && this.vmi.getStatusPhase === VMIPhase.Pending && {
@@ -343,6 +344,16 @@ export default {
       this.otherState?.status;
 
     return state;
+  },
+
+  stateDisplay() {
+    return this.actualState;
+  },
+
+  stateColor() {
+    const state = this.actualState;
+
+    return colorForState(state);
   },
 
   networkIps() {

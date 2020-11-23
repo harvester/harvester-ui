@@ -1,7 +1,7 @@
 <script>
 import { STATE, AGE, NAME } from '@/config/table-headers';
 import SortableTable from '@/components/SortableTable';
-import VmState from '@/components/formatter/vmState';
+import VmState from '@/components/formatter/BadgeStateFormatter';
 import MigrationState from '@/components/formatter/MigrationState';
 
 export default {
@@ -27,9 +27,8 @@ export default {
       return [
         {
           ...STATE,
-          value:     'id',
-          formatter: 'vmState',
-          width:      250
+          // value:     'id',
+          // width:      250
         },
         {
           ...NAME,
@@ -77,7 +76,7 @@ export default {
   >
     <template slot="cell:state" slot-scope="scope" class="state-col">
       <div class="state">
-        <VmState v-model="scope.row.id" class="vmstate" :row="scope.row" />
+        <VmState class="vmstate" :row="scope.row" />
         <MigrationState :vm-resource="scope.row" :show-success="false" />
       </div>
     </template>

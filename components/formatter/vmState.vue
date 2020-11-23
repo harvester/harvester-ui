@@ -35,13 +35,17 @@ export default {
     },
     isOther() {
       return this.state !== 'Off' && this.state !== 'Running' && this.state !== 'Stoping';
-    }
+    },
+    bg() {
+      return this.row?.stateBackground;
+    },
+    // 'badge-state': true, 'bg-success': isRun, 'bg-error': isError, 'bg-warning': isOf, 'bg-tip': isOther,
   },
 };
 </script>
 
 <template>
-  <span :key="state" :class="{'badge-state': true, 'bg-success': isRun, 'bg-error': isError, 'bg-warning': isOf, 'bg-tip': isOther}">
+  <span :key="state" :class="{'badge-state': true, [bg]: true}">
     <template>
       {{ state }}
     </template>
