@@ -1,15 +1,16 @@
 <script>
 import LabeledSelect from '@/components/form/LabeledSelect';
 import LabeledInput from '@/components/form/LabeledInput';
-import MemoryUnit from '@/components/form/MemoryUnit';
+import UnitInput from '@/components/form/UnitInput';
 import { sortBy } from '@/utils/sort';
+import { formatSi, parseSi } from '@/utils/units';
 import { STORAGE_CLASS, IMAGE } from '@/config/types';
 import { InterfaceOption } from '@/config/map';
 
 export default {
   components: {
     LabeledSelect,
-    MemoryUnit,
+    UnitInput,
     LabeledInput,
   },
 
@@ -35,7 +36,7 @@ export default {
 
     const storageClassName = this.value?.pvc?.storageClassName;
     const container = this.value?.source?.registry?.url || '';
-    const storage = this.value.pvc?.resources?.requests?.storage || '';
+    const storage = this.getSize(this.value.pvc?.resources?.requests?.storage || null);
     const inter = 'virtio';
 
     return {
@@ -152,7 +153,7 @@ export default {
         ...this.value,
         pvc: {
           ...this.value.pvc,
-          resources:        { requests: { storage: this.storage } },
+          resources:        { requests: { storage: this.storage ? `${ this.storage }Gi` : null } },
           storageClassName: this.storageClassName
         },
         source,
@@ -162,6 +163,21 @@ export default {
 
       this.$emit('input', spec);
     },
+
+    getSize(storage) {
+      if (!storage) {
+        return null;
+      }
+
+      const kibUnitSize = parseSi(storage);
+
+      return formatSi(kibUnitSize, {
+        addSuffix:   false,
+        increment:   1024,
+        minExponent: 3,
+        maxExponent: 3
+      });
+    }
   }
 };
 </script>
@@ -198,7 +214,16 @@ export default {
       @input="update"
     />
 
-    <MemoryUnit v-model="storage" :is-disabled="!isCreate" value-name="Size" class="mb-20" />
+    <UnitInput
+      v-model="storage"
+      label="Size"
+      suffix="iB"
+      :input-exponent="3"
+      :output-exponent="3"
+      required
+      class="mb-20"
+      @input="update"
+    />
 
     <LabeledSelect
       v-if="!isContainer"
