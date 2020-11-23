@@ -1,5 +1,5 @@
 <script>
-import VmState from '@/components/formatter/vmState';
+import VmState from '@/components/formatter/BadgeStateFormatter';
 import BaseCard from '@/components/BaseCard';
 import SSHKeysBar from '@/components/form/SSHKeysBar';
 import OverviewBasics from './basics';
@@ -70,7 +70,7 @@ export default {
               <h4>Basics</h4>
             </div>
             <div class="col span-4 text-right">
-              <VmState v-model="value.id" :row="value" />
+              <VmState :row="value" />
             </div>
           </template>
           <template #body>
