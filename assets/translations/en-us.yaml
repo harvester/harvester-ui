@@ -2160,3 +2160,8 @@ HarvesterIndexPage:
     nodes:
       label: Unhealthy Nodes
       noRows: There are no unhealthy nodes to show.
+
+volumePage:
+    size: Size
+    source: Source
+    image: Image

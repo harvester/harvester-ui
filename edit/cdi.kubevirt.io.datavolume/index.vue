@@ -77,7 +77,6 @@ export default {
   },
 
   created() {
-    this.registerBeforeHook(this.validateBefore, 'validate');
     this.registerBeforeHook(this.willSave, 'willSave');
   },
 
@@ -92,25 +91,6 @@ export default {
       this.value.setAnnotation(DESCRIPTION, this.value.spec.description);
 
       this.value.spec.description = undefined;
-    },
-    validateBefore() {
-      if (!this.$refs.vs.source) {
-        this.getInvalidMsg('Source');
-
-        return false;
-      }
-
-      if (!this.$refs.vs.image && this.$refs.vs.isVmImage) {
-        this.getInvalidMsg('Image');
-
-        return false;
-      }
-
-      if (isNaN(parseInt(this.$refs.vs.storage))) {
-        this.getInvalidMsg('Size');
-
-        return false;
-      }
     },
     getInvalidMsg(key) {
       this.errors = [this.$store.getters['i18n/t']('validation.required', { key })];
