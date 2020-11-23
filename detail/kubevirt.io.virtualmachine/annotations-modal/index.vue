@@ -1,4 +1,5 @@
 <script>
+import { DESCRIPTION } from '@/config/labels-annotations';
 import Card from '@/components/Card';
 import KeyValue from '@/components/form/KeyValue';
 
@@ -34,11 +35,11 @@ export default {
 
   methods: {
     save() {
-      const description = this.spec?.metadata?.annotations?.description;
+      const description = this.spec?.metadata?.annotations?.[DESCRIPTION];
       const mergeAnno = this.annotations;
 
       if (description) {
-        mergeAnno.description = description;
+        mergeAnno[DESCRIPTION] = description;
       }
 
       this.$set(this.spec.metadata, 'annotations', mergeAnno);
@@ -55,7 +56,7 @@ export default {
       const annotations = this.spec?.metadata?.annotations || {};
 
       Object.keys(annotations).forEach((key) => {
-        if (key === 'description') {
+        if (key === DESCRIPTION) {
           return;
         }
         filterd[key] = annotations[key];
