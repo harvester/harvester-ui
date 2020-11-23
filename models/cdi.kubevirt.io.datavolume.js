@@ -83,4 +83,35 @@ export default {
       errorCount:   error
     };
   },
+
+  customValidationRules() {
+    const out = [
+      {
+        nullable:       false,
+        path:           'spec.pvc.resources.requests.storage',
+        required:       true,
+        translationKey: 'volumePage.size',
+        type:           'string',
+      },
+      {
+        nullable:       false,
+        path:           'spec.source',
+        required:       true,
+        translationKey: 'volumePage.source',
+        type:           'object',
+      },
+    ];
+
+    if (this.spec.source.http) {
+      out.push({
+        nullable:       false,
+        path:           'spec.source.http.url',
+        required:       true,
+        translationKey: 'volumePage.image',
+        type:           'string',
+      });
+    }
+
+    return out;
+  },
 };
