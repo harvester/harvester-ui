@@ -1,5 +1,6 @@
 <script>
 import { POD } from '@/config/types';
+import { DESCRIPTION } from '@/config/labels-annotations';
 import CreateEditView from '@/mixins/create-edit-view';
 import LabelsModal from '../../labels-modal';
 import AnnotationsModal from '../../annotations-modal';
@@ -75,7 +76,7 @@ export default {
       let count = 0;
 
       Object.keys(this.value?.metadata?.annotations || {}).forEach((key) => {
-        if (key !== 'description') {
+        if (key !== DESCRIPTION) {
           count++;
         }
       });
