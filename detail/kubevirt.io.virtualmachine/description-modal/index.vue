@@ -1,4 +1,5 @@
 <script>
+import { DESCRIPTION } from '@/config/labels-annotations';
 import Card from '@/components/Card';
 import LabeledInput from '@/components/form/LabeledInput';
 
@@ -34,7 +35,7 @@ export default {
 
   methods: {
     save() {
-      this.$set(this.spec.metadata.annotations, 'description', this.description);
+      this.$set(this.spec.metadata.annotations, DESCRIPTION, this.description);
       this.$emit('update');
       this.hide();
     },
@@ -43,7 +44,7 @@ export default {
       this.$emit('close');
     },
     open() {
-      this.description = this.spec?.metadata?.annotations?.description;
+      this.description = this.spec?.metadata?.annotations?.[DESCRIPTION];
       this.$modal.show('descModal');
     }
   }
