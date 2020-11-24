@@ -85,6 +85,9 @@ export default {
 
       return `${ count } ${ unit }`;
     },
+    description() {
+      return this.value?.metadata?.annotations?.[DESCRIPTION];
+    },
     disks() {
       const disks = this.value?.spec?.template?.spec?.domain?.devices?.disks || [];
 
@@ -226,7 +229,7 @@ export default {
           </label>
           <div>
             <a href="javascript:void(0)" @click="toggleDescriptionModal(true)">
-              {{ value.metadata.annotations.description }} <span class="icon icon-edit"></span>
+              {{ description }} <span class="icon icon-edit"></span>
             </a>
             <DescriptionModal
               :spec="value"
