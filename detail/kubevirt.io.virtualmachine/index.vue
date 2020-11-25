@@ -56,9 +56,17 @@ export default {
     events() {
       return this.allEvents.filter((e) => {
         const { name, creationTimestamp } = this.value?.metadata || {};
+        const podName = this.value.podResource?.metadata?.name;
+        const involvedName = e?.involvedObject?.name;
 
-        return e?.involvedObject?.name === name && e.firstTimestamp >= creationTimestamp;
-      }).reverse();
+        return (involvedName === name || involvedName === podName) && e.firstTimestamp >= creationTimestamp;
+      }).sort((a, b) => {
+        if (a.lastTimestamp > b.lastTimestamp) {
+          return -1;
+        }
+
+        return 1;
+      });
     },
   },
 
