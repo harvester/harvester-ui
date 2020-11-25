@@ -209,7 +209,7 @@ export default {
   },
 
   podResource() {
-    const vmiResource = this.$rootGetters['cluster/byId'](POD, this.id);
+    const vmiResource = this.$rootGetters['cluster/byId'](VMI, this.id);
     const podList = this.$rootGetters['cluster/all'](POD);
 
     return podList.find( (P) => {

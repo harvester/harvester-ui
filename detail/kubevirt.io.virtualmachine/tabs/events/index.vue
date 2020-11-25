@@ -59,7 +59,7 @@ export default {
 <template>
   <div class="vm-events">
     <div v-if="events.length > 0">
-      <div v-for="event in events" :key="event.id" class="mb-20">
+      <div v-for="(event, index) in events" :key="event.id">
         <div class="row">
           <div class="col span-4">
             <ResourceState v-model="event.involvedObject.kind" />
@@ -83,6 +83,7 @@ export default {
             {{ event.message }}
           </div>
         </div>
+        <hr v-if="index < events.length - 1" class="section-divider" />
       </div>
     </div>
     <p v-else>
