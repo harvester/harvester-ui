@@ -1,15 +1,11 @@
 <script>
 import NetworkModal from '@/components/form/NetworkModal';
-import SortableTable from '@/components/SortableTable';
 import VM_MIXIN from '@/mixins/vm';
 
 export default {
   name: 'Networks',
 
-  components: {
-    NetworkModal,
-    SortableTable,
-  },
+  components: { NetworkModal },
 
   mixins: [VM_MIXIN],
 

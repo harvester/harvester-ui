@@ -1,5 +1,4 @@
 <script>
-import { allHash } from '@/utils/promise';
 import { SSH } from '@/config/types';
 import { HARVESTER_SSH_NAMES } from '@/config/labels-annotations';
 
