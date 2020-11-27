@@ -1859,10 +1859,15 @@ vm:
       console: Console
       networkInterfaces: Network Interfaces
       disks: Disks
+      networks: Networks
       basics: Basics
+      configurations: Configurations
+      inventory: Inventory
       hostBasic: Basic Attributes
       instance: VM Instance
       monitor: Monitor Data
+      keypairs: SSH KEYS
+      cloudConfig: Cloud Config
     details:
       title:
         vmDetails: Virtual Machine Details
