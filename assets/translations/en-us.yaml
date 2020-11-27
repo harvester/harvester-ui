@@ -1866,7 +1866,7 @@ vm:
       hostBasic: Basic Attributes
       instance: VM Instance
       monitor: Monitor Data
-      keypairs: SSH KEYS
+      keypairs: SSH Keys
       cloudConfig: Cloud Config
     details:
       title:

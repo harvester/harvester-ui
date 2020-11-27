@@ -5,7 +5,6 @@ import { defaultAsyncData } from '@/components/ResourceDetail';
 import { EVENT, VMI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 import OverviewBasics from './tabs/details/basics';
-import OverviewConfigurations from './tabs/details/configurations';
 import OverviewDisks from './tabs/details/disks';
 import OverviewNetworks from './tabs/details/networks';
 import OverviewKeypairs from './tabs/details/keypairs';
@@ -20,7 +19,6 @@ export default {
     Tabbed,
     Events,
     OverviewBasics,
-    OverviewConfigurations,
     OverviewDisks,
     OverviewNetworks,
     OverviewKeypairs,
@@ -97,10 +95,6 @@ export default {
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true" @changed="tabChanged">
       <Tab name="basics" :label="t('vm.detail.tabs.basics')" class="bordered-table" :weight="7">
         <OverviewBasics v-model="value" :resource="vmi" mode="view" />
-      </Tab>
-
-      <Tab name="configurations" :label="t('vm.detail.tabs.configurations')" class="bordered-table" :weight="6">
-        <OverviewConfigurations v-model="value" :resource="vmi" mode="view" />
       </Tab>
 
       <Tab name="disks" :label="t('vm.detail.tabs.disks')" class="bordered-table" :weight="5">
