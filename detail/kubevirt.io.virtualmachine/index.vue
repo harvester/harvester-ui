@@ -4,7 +4,12 @@ import Tab from '@/components/Tabbed/Tab';
 import { defaultAsyncData } from '@/components/ResourceDetail';
 import { EVENT, VMI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
-import Details from './tabs/details/';
+import OverviewBasics from './tabs/details/basics';
+import OverviewConfigurations from './tabs/details/configurations';
+import OverviewDisks from './tabs/details/disks';
+import OverviewNetworks from './tabs/details/networks';
+import OverviewKeypairs from './tabs/details/keypairs';
+import OverviewCloudConfigs from './tabs/details/cloud-configs';
 import Events from './tabs/events/';
 
 export default {
@@ -14,7 +19,12 @@ export default {
     Tab,
     Tabbed,
     Events,
-    Details,
+    OverviewBasics,
+    OverviewConfigurations,
+    OverviewDisks,
+    OverviewNetworks,
+    OverviewKeypairs,
+    OverviewCloudConfigs,
   },
 
   mixins: [CreateEditView],
@@ -38,7 +48,7 @@ export default {
   },
 
   data() {
-    return {};
+    return { switchToCloud: false };
   },
 
   computed: {
@@ -73,19 +83,43 @@ export default {
   methods: {
     getEvents() {
       this.$store.dispatch('cluster/findAll', { type: EVENT });
-    }
+    },
+
+    tabChanged({ tab = {} }) {
+      this.switchToCloud = tab.name === 'cloudConfig';
+    },
   }
 };
 </script>
 
 <template>
   <div>
-    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-      <Tab name="detail" :label="t('vm.detail.tabs.details')" class="bordered-table">
-        <Details v-model="value" :resource="vmi" :events="events" mode="edit" />
+    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true" @changed="tabChanged">
+      <Tab name="basics" :label="t('vm.detail.tabs.basics')" class="bordered-table" :weight="7">
+        <OverviewBasics v-model="value" :resource="vmi" mode="view" />
       </Tab>
 
-      <Tab name="event" :label="t('vm.detail.tabs.events')">
+      <Tab name="configurations" :label="t('vm.detail.tabs.configurations')" class="bordered-table" :weight="6">
+        <OverviewConfigurations v-model="value" :resource="vmi" mode="view" />
+      </Tab>
+
+      <Tab name="disks" :label="t('vm.detail.tabs.disks')" class="bordered-table" :weight="5">
+        <OverviewDisks v-model="value" />
+      </Tab>
+
+      <Tab name="networks" :label="t('vm.detail.tabs.networks')" class="bordered-table" :weight="4">
+        <OverviewNetworks v-model="value" />
+      </Tab>
+
+      <Tab name="keypairs" :label="t('vm.detail.tabs.keypairs')" class="bordered-table" :weight="3">
+        <OverviewKeypairs v-model="value" />
+      </Tab>
+
+      <Tab name="cloudConfig" :label="t('vm.detail.tabs.cloudConfig')" class="bordered-table" :weight="2">
+        <OverviewCloudConfigs v-model="value" :active="switchToCloud" />
+      </Tab>
+
+      <Tab name="event" :label="t('vm.detail.tabs.events')" :weight="1">
         <Events :resource="vmi" :events="events" />
       </Tab>
 
