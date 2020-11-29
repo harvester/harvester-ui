@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import _ from 'lodash';
 import { safeLoad } from 'js-yaml';
 import { colorForState } from '@/plugins/steve/resource-instance';
@@ -421,18 +422,51 @@ export default {
     };
   },
 
-  // customValidationRules() {
-  //   const rules = [
-  //     {
-  //       nullable:       false,
-  //       path:           'spec.name',
-  //       required:       true,
-  //       translationKey: 'monitoring.receiver.fields.name'
-  //     },
-  //   ];
+  actuallyBeforeSave() {
+    return () => {
+      Vue.delete(this, 'type');
+    };
+  },
 
-  //   return rules;
-  // },
+  customValidationRules() {
+    const rules = [
+      {
+        nullable:       false,
+        path:           'metadata.name',
+        required:       true,
+        minLength:      1,
+        maxLength:      63,
+        translationKey: 'vm.fields.name'
+      },
+      {
+        nullable:       false,
+        path:           'spec.template.spec.domain.cpu.cores',
+        min:            1,
+        max:            100,
+        required:       true,
+        translationKey: 'vm.fields.cpu',
+      },
+      {
+        nullable:       false,
+        path:           'spec.template.spec.domain.resources.requests.memory',
+        required:       true,
+        translationKey: 'vm.fields.memory',
+        validators:     ['vmMemoryUnit'],
+      },
+      {
+        nullable:       false,
+        path:           'spec.template.spec',
+        validators:     ['vmNetworks'],
+      },
+      {
+        nullable:       false,
+        path:           'spec',
+        validators:     ['vmDisks'],
+      },
+    ];
+
+    return rules;
+  },
 
   // network, disk logic
 };

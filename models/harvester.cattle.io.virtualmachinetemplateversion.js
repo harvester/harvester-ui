@@ -4,7 +4,14 @@ import { MODE, _ADD, _EDIT } from '@/config/query-params';
 
 export default {
   availableActions() {
-    const out = this._standardActions;
+    let out = this._standardActions;
+    const toFilter = ['cloneYaml', 'goToEditYaml', 'goToViewYaml'];
+
+    out = out.filter((action) => {
+      if (!toFilter.includes(action.action)) {
+        return action;
+      }
+    });
 
     return [
       {
@@ -83,5 +90,52 @@ export default {
       templateResource.spec.defaultVersionId = this.id;
       await templateResource.save();
     };
-  }
+  },
+
+  defaultVersion() {
+    const templates = this.$rootGetters['cluster/all'](VM_TEMPLATE.template);
+    const template = templates.find(T => this.spec.templateId === T.id);
+
+    return template?.status?.defaultVersion;
+  },
+
+  customValidationRules() {
+    const rules = [
+      {
+        nullable:       false,
+        path:           'metadata.name',
+        required:       true,
+        minLength:      1,
+        maxLength:      63,
+        translationKey: 'vm.fields.name'
+      },
+      {
+        nullable:       false,
+        path:           'spec.vm.template.spec.domain.cpu.cores',
+        min:            1,
+        max:            100,
+        required:       true,
+        translationKey: 'vm.fields.cpu',
+      },
+      {
+        nullable:       false,
+        path:           'spec.vm.template.spec.domain.resources.requests.memory',
+        required:       true,
+        translationKey: 'vm.fields.memory',
+        validators:     ['vmMemoryUnit'],
+      },
+      {
+        nullable:       false,
+        path:           'spec.vm.template.spec',
+        validators:     ['vmNetworks'],
+      },
+      {
+        nullable:       false,
+        path:           'spec.vm',
+        validators:     ['vmDisks'],
+      },
+    ];
+
+    return rules;
+  },
 };

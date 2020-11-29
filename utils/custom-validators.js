@@ -5,6 +5,7 @@ import { interval, matching } from '@/utils/validators/monitoring-route';
 import { containerImages } from '@/utils/validators/container-images';
 import { cronSchedule } from '@/utils/validators/cron-schedule';
 import { podAffinity } from '@/utils/validators/pod-affinity';
+import { vmNetworks, vmDisks, vmMemoryUnit } from '@/utils/validators/vm';
 
 /**
 * Custom validation functions beyond normal scalr types
@@ -22,5 +23,8 @@ export default {
   matching,
   containerImages,
   cronSchedule,
-  podAffinity
+  podAffinity,
+  vmNetworks,
+  vmDisks,
+  vmMemoryUnit
 };

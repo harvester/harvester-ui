@@ -29,9 +29,40 @@ export const InterfaceOption = [{
   value: 'scsi'
 }];
 
+// export const SOURCE_TYPE = {
+//   IMAGE:          'VM Image',
+//   BLANK:          'blank',
+//   ATTACH_VOLUME:  'Existing Volume',
+//   CONTAINER_DISK: 'Container'
+// };
 export const SOURCE_TYPE = {
+  NEW:            'New',
   IMAGE:          'VM Image',
-  BLANK:          'blank',
   ATTACH_VOLUME:  'Existing Volume',
-  CONTAINER_DISK: 'Container'
+  CONTAINER:     'Container'
 };
+
+export const MODEL = [{
+  label: 'virtio',
+  value: 'virtio'
+},
+{
+  label: 'e1000',
+  value: 'e1000'
+},
+{
+  label: 'e1000e',
+  value: 'e1000e'
+},
+{
+  label: 'ne2k_pci',
+  value: 'ne2k_pci'
+},
+{
+  label: 'pcnet',
+  value: 'pcnet'
+},
+{
+  label: 'rtl8139',
+  value: 'rtl8139'
+}];

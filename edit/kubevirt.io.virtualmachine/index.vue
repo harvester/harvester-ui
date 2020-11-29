@@ -4,75 +4,40 @@ import { mapGetters } from 'vuex';
 import { safeLoad } from 'js-yaml';
 import { cleanForNew } from '@/plugins/steve/normalize';
 import { defaultAsyncData } from '@/components/ResourceDetail';
-import Footer from '@/components/form/Footer';
-import Collapse from '@/components/Collapse';
+import CruResource from '@/components/CruResource';
 import RadioGroup from '@/components/form/RadioGroup';
 import Checkbox from '@/components/form/Checkbox';
-import AddSSHKey from '@/components/form/AddSSHKey';
-import DiskModal from '@/components/form/DiskModal';
 import LabeledInput from '@/components/form/LabeledInput';
-import NetworkModal from '@/components/form/NetworkModal';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
-import MemoryUnit from '@/components/form/MemoryUnit';
 import { HARVESTER_CREATOR, HARVESTER_SSH_NAMES, HARVESTER_DISK_NAMES, HARVESTER_NETWORK_IPS } from '@/config/labels-annotations';
 import CreateEditView from '@/mixins/create-edit-view';
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
 import VM_MIXIN from '@/mixins/vm';
 import NameNsDescription from '@/components/form/NameNsDescription';
-import CloudConfig from './CloudConfig';
-import ChooseImage from './ChooseImage';
-
-const baseSpec = {
-  dataVolumeTemplates: [],
-  running:             true,
-  template:            {
-    metadata: {},
-    spec:     {
-      domain: {
-        cpu: {
-          cores:   null,
-          sockets: 1,
-          threads: 1
-        },
-        devices: {
-          inputs: [{
-            bus:  'usb',
-            name: 'tablet',
-            type: 'tablet'
-          }],
-          interfaces: [{
-            masquerade: {},
-            model:      'virtio',
-            name:       'default'
-          }],
-          disks: [],
-        },
-        resources: { requests: { memory: '' } }
-      },
-      hostname: '',
-      networks: [{
-        name: 'default',
-        pod:  {}
-      }],
-      volumes: []
-    }
-  }
-};
+import Volume from '@/edit/kubevirt.io.virtualmachine/volume';
+import Network from '@/edit/kubevirt.io.virtualmachine/network';
+import CpuMemory from '@/edit/kubevirt.io.virtualmachine/CpuMemory';
+import CloudConfig from '@/edit/kubevirt.io.virtualmachine/CloudConfig';
+import ImageSelect from '@/edit/kubevirt.io.virtualmachine/Image';
+import SSHKey from '@/edit/kubevirt.io.virtualmachine/SSHKey';
 
 export default {
   name: 'EditVM',
 
   components: {
-    Footer,
     Checkbox,
-    Collapse,
-    DiskModal,
-    MemoryUnit,
+    CruResource,
+    Volume,
+    Network,
+    Tabbed,
+    Tab,
+    CpuMemory,
+    ImageSelect,
     RadioGroup,
-    AddSSHKey,
-    ChooseImage,
+    SSHKey,
     CloudConfig,
-    NetworkModal,
     NameNsDescription,
     LabeledInput,
     LabeledSelect,
@@ -94,27 +59,16 @@ export default {
   },
 
   data() {
-    let spec = this.value.spec;
-
-    if ( !spec ) {
-      spec = _.cloneDeep(baseSpec);
-      this.value.spec = spec;
-    }
-
     return {
-      baseSpec,
       isSingle:              true,
       count:                 1,
       realHostname:          '',
-      spec,
       templateName:          '',
       templateVersion:       '',
       namespace:             'default',
       isRunning:             true,
       useTemplate:           false,
-      pageType:              'vm',
       isLanuchFromTemplate:     false,
-      isUseMouseEnhancement:    true
     };
   },
 
@@ -202,7 +156,7 @@ export default {
       });
       const sshKey = [];
 
-      if (templateSpec.spec?.keyPairIds?.length > 0) {
+      if (templateSpec?.spec?.keyPairIds?.length > 0) {
         templateSpec.spec.keyPairIds.map( (O) => {
           const ssh = O.split('/')[1];
 
@@ -217,8 +171,8 @@ export default {
       this.$set(this, 'userScript', cloudScript?.userData);
       this.$set(this, 'networkScript', cloudScript?.networkData);
       this.$set(this, 'sshKey', sshKey);
-      this.$refs.ssh.updateSSH(sshKey);
-      this.$set(this, 'spec', templateSpec.spec.vm);
+      // this.$refs.ssh.updateSSH(sshKey);
+      this.$set(this, 'spec', templateSpec?.spec?.vm);
     },
 
     async templateName(id) {
@@ -274,7 +228,7 @@ export default {
 
       this.$set(this.value.metadata, 'namespace', 'default');
 
-      return this.validateBefore();
+      // return this.validateBefore();
     }, 'validate');
 
     this.registerFailureHook(() => {
@@ -306,18 +260,6 @@ export default {
     },
 
     validateBefore(buttonCb) {
-      if (!this.imageName) {
-        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Image' })];
-
-        return false;
-      }
-
-      if (!this.spec.template.spec.domain.cpu.cores) {
-        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Cpu' })];
-
-        return false;
-      }
-
       if (!this.memory.match(/[0-9]/)) {
         this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Memory' })];
 
@@ -352,27 +294,32 @@ export default {
         this.$set(this.value.spec.template.spec, 'hostname', hostname);
         this.$delete(this.value, 'type');
         this.$delete(this.value.spec.template.metadata.annotations, [HARVESTER_DISK_NAMES]);
-        await this.value.save({ url: `v1/${ VM }s` });
+        await this.save({ url: `v1/${ VM }s` });
       }
       this.value.id = '';
     },
-    validateMax(value) {
-      if (value > 100) {
-        this.$set(this.spec.template.spec.domain.cpu, 'cores', 100);
-      }
-    },
+
     validataCount(count) {
       if (count > 10) {
         this.$set(this, 'count', 10);
       }
-    }
+    },
+    updateCpuMemory(cpu, memory) {
+      this.$set(this.spec.template.spec.domain.cpu, 'cores', cpu);
+      this.$set(this, 'memory', memory);
+    },
+    onTabChanged({ tab }) { // yamlEdit component is lazyload
+      if (tab.name === 'advanced' && this.$refs.yamlEditor?.refresh) {
+        this.$refs.yamlEditor.refresh();
+      }
+    },
   },
 };
 </script>
 
 <template>
   <div id="vm">
-    <div class="row mb-20">
+    <div v-if="isCreate" class="row mb-20">
       <div class="col span-12">
         <RadioGroup
           v-model="isSingle"
@@ -408,7 +355,7 @@ export default {
 
     <div class="min-spacer"></div>
 
-    <Checkbox v-model="useTemplate" class="check mb-20" type="checkbox" label="Use VM Template:" />
+    <Checkbox v-if="isCreate" v-model="useTemplate" class="check mb-20" type="checkbox" label="Use VM Template:" />
 
     <div v-if="useTemplate" class="row mb-20">
       <div class="col span-6">
@@ -420,47 +367,76 @@ export default {
       </div>
     </div>
 
-    <div class="spacer"></div>
+    <CruResource
+      :done-route="doneRoute"
+      :resource="value"
+      :mode="mode"
+      :errors="errors"
+      @apply-hooks="applyHooks"
+      @finish="saveVM"
+    >
+      <Tabbed :side-tabs="true" @changed="onTabChanged">
+        <Tab name="Basic" label="Basic">
+          <CpuMemory :cpu="spec.template.spec.domain.cpu.cores" :memory="memory" @updateCpuMemory="updateCpuMemory" />
 
-    <ChooseImage v-model="imageName" />
+          <div class="mb-20">
+            <ImageSelect v-model="imageName" :disk-rows="diskRows" :disabled="!isCreate" />
+          </div>
 
-    <div class="spacer"></div>
+          <div class="mb-20">
+            <SSHKey v-model="sshKey" @update:sshKey="updateSSHKey" />
+          </div>
+        </Tab>
 
-    <h2>CPU & Memory:</h2>
-    <div class="row">
-      <div class="col span-6">
-        <LabeledInput
-          v-model.number="spec.template.spec.domain.cpu.cores"
-          v-int-number
-          min="1"
-          type="number"
-          label="CPU (core)"
-          required
-          @input="validateMax"
-        />
-      </div>
+        <Tab
+          name="Volume"
+          label="Volumes"
+          :weight="-1"
+        >
+          <Volume v-model="diskRows" :mode="mode" />
+        </Tab>
 
-      <div class="col span-6">
-        <MemoryUnit v-model="memory" value-name="Memory" :value-col="8" :unit-col="4" />
-      </div>
-    </div>
+        <Tab
+          name="Network"
+          label="Networks"
+          :weight="-2"
+        >
+          <Network v-model="networkRows" :mode="mode" />
+        </Tab>
 
-    <div class="spacer"></div>
+        <Tab
+          name="advanced"
+          label="Advanced Options"
+          :weight="-3"
+        >
+          <LabeledInput v-model="hostname" class="labeled-input--tooltip mb-20" required placeholder="default to the virtual machine name.">
+            <template #label>
+              <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
+                {{ hostnameLabel }}
+                <i v-tooltip="'Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes.'" class="icon icon-info" style="font-size: 14px" />
+              </label>
+            </template>
+          </LabeledInput>
 
-    <h2>Disks:</h2>
+          <CloudConfig ref="yamlEditor" :user-script="userScript" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
+
+          <div class="spacer"></div>
+          <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" label="Enable USB Tablet" />
+        </Tab>
+      </Tabbed>
+
+      <template #extend>
+        <div class="mt-20">
+          <Checkbox v-model="isRunning" class="check mb-20" type="checkbox" label="Start virtual machine on creation" />
+        </div>
+      </template>
+    </CruResource>
+
+    <!-- <ChooseImage v-model="imageName" />
+
     <DiskModal v-model="diskRows" class="vm__disk-modal" :namespace="value.metadata.namespace" />
 
-    <div class="spacer"></div>
-
-    <h2>Networks:</h2>
     <NetworkModal v-model="networkRows" :namespace="value.metadata.namespace" />
-
-    <div class="spacer"></div>
-
-    <h2>Authentication:</h2>
-    <AddSSHKey ref="ssh" :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
-
-    <div class="spacer"></div>
 
     <Collapse :open.sync="showCloudInit" title="Advanced Details">
       <LabeledInput v-model="hostname" class="labeled-input--tooltip mb-20" required placeholder="default to the virtual machine name.">
@@ -478,9 +454,7 @@ export default {
       <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" label="Enable USB Tablet" />
     </Collapse>
 
-    <div class="spacer"></div>
-    <Checkbox v-model="isRunning" class="check" type="checkbox" label="Start virtual machine on creation" />
-    <Footer :mode="mode" :errors="errors" @save="saveVM" @done="done" />
+    <Footer :mode="mode" :errors="errors" @save="saveVM" @done="done" /> -->
   </div>
 </template>
 
@@ -488,55 +462,8 @@ export default {
 #vm {
   .radio-group {
     display: flex;
-
     .radio-container {
       margin-right: 30px;
-    }
-  }
-
-  .tip {
-    color: #8e8e92;
-  }
-
-  .label {
-    color: var(--input-label);
-  }
-
-  .sortable-table {
-    border: 1px solid var(--input-border);
-    border-radius: calc(3 * var(--border-radius));
-
-    thead tr {
-      background-color: rgb(247, 251, 252);
-      height: 60px;
-
-      th {
-        padding-left: 20px;
-
-        &:first-child {
-          border-top-left-radius: calc(3 * var(--border-radius));
-        }
-
-        &:last-child {
-          border-top-right-radius: calc(3 * var(--border-radius));
-        }
-
-        span {
-          color: rgb(134, 196, 211);
-        }
-      }
-    }
-
-    tbody tr {
-      td {
-        height: 60px;
-        padding-left: 20px;
-        color: var(--help-text);
-
-        &:last-child {
-          padding-left: 0;
-        }
-      }
     }
   }
 }

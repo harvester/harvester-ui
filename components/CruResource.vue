@@ -235,6 +235,7 @@ export default {
           class="resource-container"
         >
           <slot />
+          <slot name="extend"></slot>
         </div>
         <div class="controls-row">
           <slot name="form-footer">

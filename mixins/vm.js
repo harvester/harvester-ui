@@ -3,14 +3,53 @@ import randomstring from 'randomstring';
 import { safeLoad, safeDump } from 'js-yaml';
 import { sortBy } from '@/utils/sort';
 import { allHash } from '@/utils/promise';
+import { STORAGE_CLASS_LABEL, HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER_DISK_NAMES } from '@/config/labels-annotations';
+// import { formatSi, parseSi } from '@/utils/units';
 import { SOURCE_TYPE } from '@/config/map';
 import {
-  NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, STORAGE_CLASS, NETWORK_ATTACHMENT, POD
+  NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, STORAGE_CLASS, NETWORK_ATTACHMENT, POD, VM
 } from '@/config/types';
-import { STORAGE_CLASS_LABEL, HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER_DISK_NAMES } from '@/config/labels-annotations';
 
 const TEMPORARY_VALUE = '$occupancy_url';
 // const NETWROK_ANNOTATION = 'k8s.v1.cni.cncf.io/networks';
+const MANAGEMENT_NETWORK = 'management Network';
+
+const baseSpec = {
+  dataVolumeTemplates: [],
+  running:             true,
+  template:            {
+    metadata: {},
+    spec:     {
+      domain: {
+        cpu: {
+          cores:   null,
+          sockets: 1,
+          threads: 1
+        },
+        devices: {
+          inputs: [{
+            bus:  'usb',
+            name: 'tablet',
+            type: 'tablet'
+          }],
+          interfaces: [{
+            masquerade: {},
+            model:      'virtio',
+            name:       'default'
+          }],
+          disks: [],
+        },
+        resources: { requests: { memory: null } }
+      },
+      hostname: '',
+      networks: [{
+        name: 'default',
+        pod:  {}
+      }],
+      volumes: []
+    }
+  }
+};
 
 export default {
   inheritAttrs: false,
@@ -36,16 +75,70 @@ export default {
   },
 
   data() {
+    const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
+    const type = this.$route.params.resource;
+    let pageType = '';
+    let spec = null;
+
+    if (type === VM) {
+      pageType = 'vm';
+    } else {
+      pageType = 'template';
+    }
+
+    if (pageType === 'vm') {
+      spec = this.value.spec;
+
+      if ( !spec ) {
+        spec = _.cloneDeep(baseSpec);
+        this.value.spec = spec;
+      }
+    } else {
+      const templateSpec = this.value.spec;
+
+      spec = choices.find( O => templateSpec.defaultVersionId === O.id )?.spec?.vm || null;
+    }
+    if (!spec) {
+      spec = _.cloneDeep(baseSpec);
+    }
+
+    const sshKeyName = spec?.template?.metadata?.annotations?.['harvester.cattle.io/sshNames'] || '[]';
+    const sshKey = JSON.parse(sshKeyName);
+
+    const hasCreateVolumes = [];
+
+    spec?.template?.spec?.volumes?.map((V) => { // eslint-disable-line
+      if (V?.dataVolume?.name) {
+        hasCreateVolumes.push(V.dataVolume.name);
+      }
+    });
+
+    let userScript = '';
+    let networkScript = '';
+    const volumes = spec.template?.spec?.volumes || [];
+
+    volumes.forEach((v) => {
+      if (v.cloudInitNoCloud) {
+        userScript = v.cloudInitNoCloud.userData;
+        networkScript = v.cloudInitNoCloud.networkData;
+      }
+    });
+
     return {
-      networkScript:     '',
-      userScript:        '',
-      sshKey:            [],
-      imageName:         '',
-      sshName:           '',
-      publicKey:         '',
-      showCloudInit:     false,
-      sshAuthorizedKeys:   '',
-      useCustomHostname: false
+      baseSpec,
+      spec,
+      imageName:             '',
+      sshName:               '',
+      publicKey:             '',
+      showCloudInit:         false,
+      sshAuthorizedKeys:     '',
+      useCustomHostname:     false,
+      isUseMouseEnhancement:    true,
+      hasCreateVolumes,
+      networkScript,
+      userScript,
+      sshKey,
+      pageType,
     };
   },
 
@@ -105,6 +198,7 @@ export default {
         const _volumes = this.spec?.template?.spec?.volumes || [];
         const _dataVolumeTemplates = this.spec?.dataVolumeTemplates || [];
         const _disks = this.spec?.template?.spec?.domain?.devices?.disks || [];
+
         let out = [];
 
         if (_disks.length === 0) {
@@ -115,12 +209,11 @@ export default {
             accessMode:       'ReadWriteOnce',
             bus:              'virtio',
             pvcNS:            '',
-            pvcName:          '',
+            volumeName:       '',
             size:             '10Gi',
             type:             'disk',
             storageClassName: this.defaultStorageClass,
             image:            this.imageName,
-            disableDelete:    true,
             volumeMode:       'Filesystem',
           });
         } else {
@@ -128,7 +221,7 @@ export default {
             const volume = _volumes.find( V => V.name === DISK.name );
 
             let source = '';
-            let pvcName = '';
+            let volumeName = '';
             const pvcNS = '';
             let accessMode = '';
             let size = '';
@@ -140,20 +233,20 @@ export default {
 
             const type = DISK?.cdrom ? 'cd-rom' : 'disk';
 
-            if (volume?.containerDisk) { // is SOURCE_TYPE.CONTAINER_DISK
-              source = SOURCE_TYPE.CONTAINER_DISK;
+            if (volume?.containerDisk) { // is SOURCE_TYPE.CONTAINER
+              source = SOURCE_TYPE.CONTAINER;
               container = volume.containerDisk.image;
             }
 
             if (volume?.dataVolume && volume?.dataVolume?.name) {
-              const volumeName = volume.dataVolume.name;
+              volumeName = volume.dataVolume.name;
               const DVT = _dataVolumeTemplates.find( T => T.metadata.name === volumeName);
 
               realName = volumeName;
 
               if (DVT) {
                 if (DVT.spec?.source?.blank) {
-                  source = SOURCE_TYPE.BLANK;
+                  source = SOURCE_TYPE.NEW;
                 } else if (DVT.spec?.source?.http) { // url may empty
                   source = SOURCE_TYPE.IMAGE;
                   const imageUrl = DVT.spec.source.http.url;
@@ -170,17 +263,14 @@ export default {
                 storageClassName = DVT?.spec?.pvc?.storageClassName || this.defaultStorageClass;
               } else { // mayby is SOURCE_TYPE.ATTACH_VOLUME
                 const choices = this.$store.getters['cluster/all'](PVC);
-
                 const pvcResource = choices.find( O => O.metadata.name === volume?.dataVolume?.name);
 
-                if (pvcResource) {
-                  source = SOURCE_TYPE.ATTACH_VOLUME;
-                  accessMode = pvcResource?.spec?.accessModes?.[0];
-                  size = pvcResource?.spec?.resources?.requests?.storage;
-                  storageClassName = pvcResource?.spec?.storageClassName;
-                  volumeMode = pvcResource?.spec?.volumeMode;
-                  pvcName = volume?.dataVolume?.name;
-                }
+                source = SOURCE_TYPE.ATTACH_VOLUME;
+                accessMode = pvcResource?.spec?.accessModes?.[0] || 'ReadWriteOnce';
+                size = pvcResource?.spec?.resources?.requests?.storage || '10Gi';
+                storageClassName = pvcResource?.spec?.storageClassName;
+                volumeMode = pvcResource?.spec?.volumeMode || 'Filesystem';
+                volumeName = pvcResource?.metadata?.name || '';
               }
             }
 
@@ -189,13 +279,12 @@ export default {
             const bootOrder = DISK?.bootOrder;
 
             return {
-              index,
               bootOrder,
               source,
               name:          DISK.name,
               realName,
               bus,
-              pvcName,
+              volumeName,
               pvcNS,
               container,
               accessMode,
@@ -203,7 +292,6 @@ export default {
               volumeMode:    volumeMode || 'Filesystem',
               image,
               type,
-              disableDelete: index === 0,
               storageClassName,
             };
           });
@@ -246,7 +334,7 @@ export default {
             ...O,
             type,
             model:        O.model || 'virtio',
-            networkName:  network?.multus?.networkName || 'managment Network',
+            networkName:  network?.multus?.networkName || MANAGEMENT_NETWORK,
             index,
             // isIpamStatic: !!netwrokAnnotation,
             // cidr:         netwrokAnnotation?.ips || '',
@@ -344,14 +432,14 @@ export default {
 
     parseVolume(R, dataVolumeName, isCloudInitDisk = false) {
       if (R.source === SOURCE_TYPE.ATTACH_VOLUME) {
-        dataVolumeName = R.pvcName;
+        dataVolumeName = R.volumeName || R.name;
       }
 
       const _volume = { name: R.name };
 
-      if (R.source === SOURCE_TYPE.CONTAINER_DISK) {
+      if (R.source === SOURCE_TYPE.CONTAINER) {
         _volume.containerDisk = { image: R.container };
-      } else if (R.source === SOURCE_TYPE.IMAGE || R.source === SOURCE_TYPE.BLANK || R.source === SOURCE_TYPE.ATTACH_VOLUME) {
+      } else if (R.source === SOURCE_TYPE.IMAGE || R.source === SOURCE_TYPE.NEW || R.source === SOURCE_TYPE.ATTACH_VOLUME) {
         _volume.dataVolume = { name: dataVolumeName };
       } else if (isCloudInitDisk) {
         // cloudInitNoCloud
@@ -377,7 +465,7 @@ export default {
       };
 
       switch (R.source) {
-      case SOURCE_TYPE.BLANK:
+      case SOURCE_TYPE.NEW:
         _dataVolumeTemplate.spec.pvc.storageClassName = R.storageClassName;
         _dataVolumeTemplate.spec.source = { blank: {} };
         break;
@@ -430,17 +518,15 @@ export default {
       const dataVolumeTemplates = [];
       const diskNameLables = [];
 
-      const diskLabel = this.value.spec?.template?.metadata?.annotations?.[HARVESTER_DISK_NAMES] || '[]';
-
-      const _diskNameLabelsArr = JSON.parse(diskLabel);
-
       disk.forEach( (R) => {
         const prefixName = this.value.metadata?.name || '';
 
         let dataVolumeName = '';
 
-        if (!_diskNameLabelsArr.includes(R.realName)) {
+        if (!this.hasCreateVolumes.includes(R.realName)) {
           dataVolumeName = `${ prefixName }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
+        } else if (R.source === SOURCE_TYPE.ATTACH_VOLUME) {
+          dataVolumeName = R.volumeName;
         } else {
           dataVolumeName = R.realName;
         }
@@ -453,7 +539,7 @@ export default {
         disks.push(_disk);
         volumes.push(_volume);
 
-        if (R.source !== SOURCE_TYPE.CONTAINER_DISK && R.source !== SOURCE_TYPE.ATTACH_VOLUME) {
+        if (R.source !== SOURCE_TYPE.CONTAINER && R.source !== SOURCE_TYPE.ATTACH_VOLUME) {
           dataVolumeTemplates.push(_dataVolumeTemplate);
         }
       });

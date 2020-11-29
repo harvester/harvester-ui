@@ -818,6 +818,12 @@ export default {
     };
   },
 
+  actuallyBeforeSave() { // TODO: want to make changes data before saving, but can find the type
+    return () => {
+
+    };
+  },
+
   // ------------------------------------------------------------------
 
   patch() {
@@ -875,6 +881,7 @@ export default {
       if ( !opt.headers['accept'] ) {
         opt.headers['accept'] = 'application/json';
       }
+      this.actuallyBeforeSave(); // TODO
 
       // @TODO remove this once the API maps steve _type <-> k8s type in both directions
       opt.data = { ...this };
@@ -891,6 +898,7 @@ export default {
         // Steve sometimes returns Table responses instead of the resource you just saved.. ignore
         if ( res && res.kind !== 'Table') {
           // await this.$dispatch('load', { data: res, existing: (forNew ? this : undefined ) }); // TODO:  The real error is not here. It may be in the load action, but no solution is found, reslove multipus resource create
+          // TODO why row duplication
         }
       } catch (e) {
         if ( this.type && this.id && e?._status === 409) {
