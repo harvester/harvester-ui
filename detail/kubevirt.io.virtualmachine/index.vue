@@ -97,7 +97,7 @@ export default {
         <OverviewBasics v-model="value" :resource="vmi" mode="view" />
       </Tab>
 
-      <Tab name="disks" :label="t('vm.detail.tabs.disks')" class="bordered-table" :weight="5">
+      <Tab name="disks" label="Volumes" class="bordered-table" :weight="5">
         <OverviewDisks v-model="value" />
       </Tab>
 

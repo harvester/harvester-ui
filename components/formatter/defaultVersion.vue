@@ -17,12 +17,14 @@ export default {
 
   computed: {
     isDefaultVersion() {
-      return this.col.defaultVersion === this.row.status.version ? 'Yes' : 'No';
+      return this.row.defaultVersion === this.row?.status?.version;
     }
   }
 };
 </script>
 
 <template>
-  <div>{{ isDefaultVersion }}</div>
+  <div v-if="isDefaultVersion">
+    <i class="icon icon-lg icon-checkmark" />
+  </div>
 </template>

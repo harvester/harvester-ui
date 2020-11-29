@@ -1845,6 +1845,11 @@ workload:
     title: upgrading
 
 vm:
+  fields:
+    name: Name
+    cpu: Cpu
+    memory: Memory
+    image: Image
   nameNsDescription:
     name:
       singleLabel: Name
@@ -1906,6 +1911,10 @@ vm:
       down: No events in the past hour
     console:
       down: This Virtual Machine is down. Please start it to access its console.
+
+vmtemplate:
+  nameNsDescription:
+    name: Template Name
 
 vmimage:
   ruleTip: 'The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats).'

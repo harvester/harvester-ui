@@ -5,7 +5,6 @@ import VM_MIXIN from '@/mixins/vm';
 import CruResource from '@/components/CruResource';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
-import { HARVESTER_SSH_NAMES } from '@/config/labels-annotations';
 import CreateEditView from '@/mixins/create-edit-view';
 import NameNsDescription from '@/components/form/NameNsDescription';
 import { _ADD } from '@/config/query-params';
@@ -18,7 +17,7 @@ import ImageSelect from '@/edit/kubevirt.io.virtualmachine/Image';
 import SSHKey from '@/edit/kubevirt.io.virtualmachine/SSHKey';
 
 export default {
-  name: 'EditVMTemplate',
+  name: 'EditVMTEMPLATE',
 
   components: {
     Volume,
@@ -52,6 +51,9 @@ export default {
 
   data() {
     let templateSpec = this.value.spec;
+    const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
+
+    let spec = null;
 
     if (!templateSpec) {
       templateSpec = {
@@ -59,9 +61,44 @@ export default {
         defaultVersionId: ''
       };
       this.$set(this.value, 'spec', templateSpec);
+    } else {
+      spec = choices.find( O => templateSpec.defaultVersionId === O.id )?.spec?.vm || null;
+    }
+
+    if ( !spec ) {
+      spec = {
+        dataVolumeTemplates: [],
+        template:            {
+          metadata: {},
+          spec:     {
+            domain: {
+              cpu: {
+                cores:   null,
+                sockets: 1,
+                threads: 1
+              },
+              devices: {
+                interfaces:                 [{
+                  masquerade: {},
+                  model:      'virtio',
+                  name:       'default'
+                }],
+                disks: [],
+              },
+              resources: { requests: { memory: null } }
+            },
+            networks: [{
+              name: 'default',
+              pod:  {}
+            }],
+            volumes: []
+          }
+        }
+      };
     }
 
     return {
+      spec,
       templateName:     '',
       templates:        [],
       versionName:      '',
@@ -73,6 +110,7 @@ export default {
       useTemplate:      false,
       isDefaultVersion:  false,
       keyPairIds:       [],
+      pageType:         'template'
     };
   },
 
@@ -103,10 +141,6 @@ export default {
   created() {
     this.registerAfterHook(() => {
       this.saveVersion();
-    });
-
-    this.registerBeforeHook(() => {
-      Object.assign(this.spec.template.metadata.annotations, { [HARVESTER_SSH_NAMES]: JSON.stringify(this.sshKey) });
     });
   },
 
@@ -216,8 +250,9 @@ export default {
 </script>
 
 <template>
-  <div id="vm">
+  <div>
     <NameNsDescription
+      v-if="!isView"
       v-model="value"
       :mode="mode"
       name-label="vmtemplate.nameNsDescription.name"
@@ -275,5 +310,49 @@ export default {
         </Tab>
       </Tabbed>
     </CruResource>
+
+    <!-- <h2>CPU & Memory::</h2>
+    <div class="row">
+      <div class="col span-5">
+        <LabeledInput
+          v-model.number="spec.template.spec.domain.cpu.cores"
+          v-int-number
+          min="1"
+          type="number"
+          label="CPU Request(core)"
+          required
+          @input="validateMax"
+        />
+      </div>
+
+      <div class="col span-7">
+        <MemoryUnit v-model="memory" value-name="Memory" :value-col="8" :unit-col="4" />
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <h2>Add disk storage:</h2>
+    <DiskModal v-model="diskRows" owner="template" />
+
+    <div class="spacer"></div>
+
+    <h2>Networks:</h2>
+    <NetworkModal v-model="networkRows" />
+
+    <div class="spacer"></div>
+
+    <h2>Authentication:</h2>
+    <AddSSHKey :ssh-key="sshKey" @update:sshKey="updateSSHKey" />
+
+    <div class="spacer"></div>
+
+    <Collapse :open.sync="showCloudInit" title="Advanced Options">
+      <CloudConfig @updateCloudConfig="updateCloudConfig" />
+    </Collapse>
+
+    <div class="spacer"></div>
+
+    <Footer :mode="mode" :errors="errors" @save="saveVMT" @done="done" /> -->
   </div>
 </template>

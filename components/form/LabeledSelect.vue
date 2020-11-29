@@ -221,7 +221,7 @@ export default {
 <style lang='scss'>
 .labeled-select {
   &.hoverable .v-select *{
-    z-index: z-index('overContent')
+    z-index: z-index('hoverOverContent')
   }
   .labeled-container .selected {
     background-color: transparent;

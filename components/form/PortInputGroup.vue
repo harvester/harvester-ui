@@ -1,10 +1,13 @@
 <script>
 import { isArray } from '@/utils/array';
 import LabeledSelect from '@/components/form/LabeledSelect';
+import LabeledInput from '@/components/form/LabeledInput';
 import PortInput from '@/components/form/PortInput';
 
 export default {
-  components: { LabeledSelect, PortInput },
+  components: {
+    LabeledSelect, PortInput, LabeledInput
+  },
 
   props: {
     value: {
@@ -13,7 +16,6 @@ export default {
     },
     mode: {
       type:     String,
-      required: false,
       default:  'edit'
     }
   },
@@ -65,36 +67,35 @@ export default {
 </script>
 
 <template>
-  <div class="multiple-rows-input">
-    <span v-if="!isView" class="title">Add Ports</span>
-    <div class="label-group">
-      <label>
-        Port Name
-      </label>
-      <label>
-        Port Number <span class="required">*</span>
-      </label>
-      <label>
-        Protocol
-      </label>
-    </div>
+  <div :style="{'width':'100%'}" class="multiple-rows-input">
     <div v-for="(row, index) in value.ports" :key="index" class="display-rows">
-      <div class="input-group">
-        <input v-model="row.name" type="text" :placeholder="namePlaceholder" :disabled="isView" />
-        <PortInput :row="row" :mode="mode" />
-        <div>
-          <LabeledSelect
-            v-model="row.protocol"
-            :options="protocolOption"
-            :disabled="isView"
-          />
-        </div>
-      </div>
-      <button v-if="!isView" class="btn role-primary" @click="removeRows(index)">
-        <i class="icon icon-delete"></i>
+      <LabeledInput
+        ref="name"
+        v-model="row.name"
+        label="Name"
+        :placeholder="namePlaceholder"
+        :disabled="isView"
+        :mode="mode"
+      />
+
+      <PortInput :row="row" :mode="mode" />
+
+      <LabeledSelect
+        v-model="row.protocol"
+        :options="protocolOption"
+        :style="{'height':'50px'}"
+        :multiple="false"
+        label="Protocol"
+        :mode="mode"
+        :disabled="isView"
+      />
+
+      <button v-if="!isView" type="button" class="btn bg-transparent role-link" @click.prevent="removeRows(index)">
+        REMOVE
       </button>
     </div>
-    <button v-if="!isView" class="btn bg-primary btn-sm" @click="addRows()">
+
+    <button v-if="!isView" class="btn btn-sm role-secondary" @click.prevent="addRows()">
       Add Port
     </button>
   </div>
@@ -102,34 +103,16 @@ export default {
 
 <style lang="scss">
   .multiple-rows-input {
-    .title {
-      display: block;
-      margin-bottom: 10px;
-      color: var(--input-label);
-    }
-
-    .required {
-      color: red;
-    }
-
     .display-rows {
       display: grid;
-      grid-template-columns: auto 28px;
-      grid-column-gap: 15px;
+      grid-template-columns: 28% 28% 28% 75px;
+      grid-column-gap: $column-gutter;
+      margin-bottom: 10px;
       align-items: center;
-      margin-bottom: 15px;
-
-      BUTTON {
-        padding: 6px;
-        height: 28px;
-      }
     }
 
     .input-group, .label-group {
       display: grid;
-      grid-template-columns: 2fr 2fr 1fr;
-      grid-column-gap: 15px;
-      padding-left: 5px;
     }
 
     .label-group {
@@ -139,12 +122,6 @@ export default {
         display: block;
         color: var(--input-label);
         margin-bottom: 5px;
-      }
-    }
-
-    .input-group {
-      .labeled-select {
-        padding: 2px 10px;
       }
     }
   }

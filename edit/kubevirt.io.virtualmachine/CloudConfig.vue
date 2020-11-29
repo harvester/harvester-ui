@@ -79,6 +79,10 @@ export default {
         return null;
       }
     },
+    refresh() {
+      this.$refs.yamlUser.refresh();
+      this.$refs.yamlNetwork.refresh();
+    }
   }
 };
 </script>

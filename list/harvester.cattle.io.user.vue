@@ -24,8 +24,7 @@ export default {
         { ...STATE },
         {
           ...USERNAME,
-          formatter:   'LinkDetail',
-          width:     250
+          formatter: 'LinkDetail',
         },
         AGE
       ];

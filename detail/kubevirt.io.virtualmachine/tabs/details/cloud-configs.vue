@@ -27,8 +27,8 @@ export default {
 
       volumes.forEach((v) => {
         if (v.cloudInitNoCloud) {
-          out.userData = v.cloudInitNoCloud.userData;
-          out.networkData = v.cloudInitNoCloud.networkData;
+          out.userData = v.cloudInitNoCloud.userData || '';
+          out.networkData = v.cloudInitNoCloud.networkData || '';
         }
       });
 

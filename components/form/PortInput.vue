@@ -1,6 +1,9 @@
 <script>
+import LabeledInput from '@/components/form/LabeledInput';
+
 export default {
-  props: {
+  components: { LabeledInput },
+  props:      {
     row: {
       type:     Object,
       required: true
@@ -38,13 +41,15 @@ export default {
 </script>
 
 <template>
-  <input
+  <LabeledInput
     v-model="row.port"
-    type="text"
+    type="number"
+    :mode="mode"
+    label="Port"
     placeholder="e.g. 8080"
     :disabled="isView"
-    @input="input($event.target.value)"
   >
+  </labeledinput>
 </template>
 
 <style lang="scss"></style>
