@@ -133,26 +133,14 @@ export default {
         return;
       }
 
-      this.$router.replace({
+      this.$router.push({
         name:   this.doneRoute,
         params: this.doneParams || { resource: this.value.type }
       });
     },
 
-    async save(buttonDone, url, noFetch = false) {
+    async save(buttonDone, url) {
       this.errors = null;
-
-      // if (this.value?.nameDisplay && this.checkLength() === false) {
-      //   this.errors = [this.$store.getters['i18n/t']('validation.custom.tooLongName', { max: 63 })];
-      //   buttonDone(false);
-
-      //   return;
-      // } else if (this.value?.nameDisplay === undefined) {
-      //   this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Name' })];
-      //   buttonDone(false);
-
-      //   return;
-      // }
 
       try {
         await this.applyHooks(BEFORE_SAVE_HOOKS);
@@ -173,9 +161,7 @@ export default {
           }
         }
 
-        if (noFetch === false) {
-          await this.actuallySave(url);
-        }
+        await this.actuallySave(url);
 
         // If spoofed we need to reload the values as the server can't have watchers for them.
         if (this.$store.getters['type-map/isSpoofed'](this.value.type)) {

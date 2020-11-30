@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { VM_TEMPLATE, VM } from '@/config/types';
-import { MODE, _ADD, _EDIT } from '@/config/query-params';
+import { MODE, _CREATE } from '@/config/query-params';
 
 export default {
   availableActions() {
@@ -57,23 +57,15 @@ export default {
 
   cloneTemplate() {
     return (moreQuery = {}) => {
-      const templateResource = this.currentTemplate;
-      const launchVersion = this.id;
-      const id = templateResource.id.replace(/.*\//, '');
-      const schema = this.$getters['schemaFor'](this.type);
-      const router = templateResource.currentRouter();
+      const router = this.currentRouter();
 
       router.push({
-        name:   `c-cluster-product-resource${ schema?.attributes?.namespaced ? '-namespace' : '' }-id`,
-        params: {
-          resource:  VM_TEMPLATE.template,
-          namespace: this.metadata?.namespace,
-          id,
-        },
+        name:   `c-cluster-product-resource-create`,
+        params: { resource: VM_TEMPLATE.version },
         query:  {
-          version: launchVersion,
-          [MODE]:   _EDIT,
-          type:     _ADD,
+          [MODE]:     _CREATE,
+          templateId: this.spec.templateId,
+          versionId:  this.id,
         }
       });
     };
@@ -101,14 +93,6 @@ export default {
 
   customValidationRules() {
     const rules = [
-      {
-        nullable:       false,
-        path:           'metadata.name',
-        required:       true,
-        minLength:      1,
-        maxLength:      63,
-        translationKey: 'vm.fields.name'
-      },
       {
         nullable:       false,
         path:           'spec.vm.template.spec.domain.cpu.cores',

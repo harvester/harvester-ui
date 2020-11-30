@@ -1,5 +1,5 @@
-import { VM } from '@/config/types';
-import { MODE, _ADD, _EDIT } from '@/config/query-params';
+import { VM, VM_TEMPLATE } from '@/config/types';
+import { MODE, _CREATE } from '@/config/query-params';
 
 export default {
   availableActions() {
@@ -42,16 +42,16 @@ export default {
 
   addVersion() {
     return (moreQuery = {}) => {
-      const location = this.detailLocation;
+      const router = this.currentRouter();
 
-      location.query = {
-        ...location.query,
-        [MODE]: _EDIT,
-        type:   _ADD,
-        ...moreQuery
-      };
-
-      this.currentRouter().push(location);
+      router.push({
+        name:   `c-cluster-product-resource-create`,
+        params: { resource: VM_TEMPLATE.version },
+        query:  {
+          [MODE]:     _CREATE,
+          templateId: this.id
+        }
+      });
     };
   },
 

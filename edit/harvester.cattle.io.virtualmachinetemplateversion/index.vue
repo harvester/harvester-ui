@@ -2,15 +2,16 @@
 import Checkbox from '@/components/form/Checkbox';
 import { VM_TEMPLATE } from '@/config/types';
 import VM_MIXIN from '@/mixins/vm';
+import randomstring from 'randomstring';
+import { cleanForNew } from '@/plugins/steve/normalize';
 import CruResource from '@/components/CruResource';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
-import { HARVESTER_SSH_NAMES } from '@/config/labels-annotations';
+import { HARVESTER_SSH_NAMES, HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME } from '@/config/labels-annotations';
 import CreateEditView from '@/mixins/create-edit-view';
-import NameNsDescription from '@/components/form/NameNsDescription';
-import { _ADD } from '@/config/query-params';
 import { defaultAsyncData } from '@/components/ResourceDetail';
 import Volume from '@/edit/kubevirt.io.virtualmachine/volume';
+import LabeledInput from '@/components/form/LabeledInput';
 import Network from '@/edit/kubevirt.io.virtualmachine/network';
 import CpuMemory from '@/edit/kubevirt.io.virtualmachine/CpuMemory';
 import CloudConfig from '@/edit/kubevirt.io.virtualmachine/CloudConfig';
@@ -31,7 +32,7 @@ export default {
     Tabbed,
     Tab,
     CloudConfig,
-    NameNsDescription,
+    LabeledInput,
   },
 
   mixins: [CreateEditView, VM_MIXIN],
@@ -51,17 +52,37 @@ export default {
   },
 
   data() {
-    let templateSpec = this.value.spec;
+    const choicesTemplate = this.$store.getters['cluster/all'](VM_TEMPLATE.template);
+    const choicesVersion = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
+    const templateId = this.$route.query.templateId;
+    const versionId = this.$route.query.versionId;
+    let templateValue = choicesTemplate.find( V => V.id === templateId) || null;
+    let templateSpec = templateValue?.spec;
 
-    if (!templateSpec) {
+    if (!templateValue) {
       templateSpec = {
         description:      '',
         defaultVersionId: ''
       };
-      this.$set(this.value, 'spec', templateSpec);
+
+      templateValue = {
+        metadata: { name: '' },
+        spec:     templateSpec,
+        type:     VM_TEMPLATE.template
+      };
+    }
+
+    if (versionId) {
+      const versionValue = choicesVersion.find( V => V.id === versionId);
+
+      this.$set(this.value, 'spec', versionValue.spec);
+      this.$set(this.value.spec, 'vm', versionValue.spec.vm);
     }
 
     return {
+      templateId,
+      templateValue,
+      templateSpec,
       templateName:     '',
       templates:        [],
       versionName:      '',
@@ -69,16 +90,15 @@ export default {
       description:      '',
       templateVersion:  [],
       defaultVersion:   null,
-      isRunning:        true,
       useTemplate:      false,
-      isDefaultVersion:  false,
+      isDefaultVersion: false,
       keyPairIds:       [],
     };
   },
 
   computed: {
-    isAdd() {
-      return this.$route.query.type === _ADD;
+    isVersionEdit() {
+      return Boolean(this.$route.query.templateId);
     },
     allTemplate() {
       return this.$store.getters['cluster/all'](VM_TEMPLATE.template);
@@ -101,12 +121,34 @@ export default {
   },
 
   created() {
-    this.registerAfterHook(() => {
-      this.saveVersion();
+    this.registerBeforeHook(() => {
+      if (!this.spec.template.metadata.annotations) {
+        this.$set(this.spec.template.metadata, 'annotations', {});
+      }
+      Object.assign(this.spec.template.metadata.annotations, { [HARVESTER_SSH_NAMES]: JSON.stringify(this.sshKey) });
     });
 
-    this.registerBeforeHook(() => {
-      Object.assign(this.spec.template.metadata.annotations, { [HARVESTER_SSH_NAMES]: JSON.stringify(this.sshKey) });
+    this.registerAfterHook(async() => {
+      if (this.isDefaultVersion) { // Set the default version according to annotation:[HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME]
+        const choicesVersion = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version, opt: { force: true } });
+
+        const currentVersion = choicesVersion.find( V => V.getAnnotationValue(HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME) === this.customName);
+
+        if (currentVersion) {
+          try {
+            this.templateValue.defaultVersionId = currentVersion.id;
+            const data = [{
+              op: 'replace', path: '/spec/defaultVersionId', value: currentVersion.id
+            }];
+
+            const proxyResource = await this.$store.dispatch('cluster/create', this.templateValue);
+
+            await proxyResource.patch( data, { url: proxyResource.linkFor('view') });
+          } catch (err) {
+            return Promise.reject(new Error(err.message));
+          }
+        }
+      }
     });
   },
 
@@ -118,90 +160,25 @@ export default {
 
   methods: {
     async saveVMT(buttonCb) {
-      const isPass = this.verifyBefSave(buttonCb);
-
-      if (!isPass) {
-        return;
-      }
-
-      if (this.isCreate) {
+      if (this.isCreate) { // namespace does not need
         delete this.value.metadata.namespace;
       }
-      await this.save(buttonCb);
 
-      this.normalizeSpec();
-    },
+      const proxyTemplate = await this.$store.dispatch('cluster/create', this.templateValue);
 
-    async saveVersion() {
-      this.normalizeSpec();
-
-      const versionInfo = await this.$store.dispatch('management/request', {
-        method:  'POST',
-        headers: {
-          'content-type': 'application/json',
-          accept:         'application/json',
-        },
-        url:  `v1/harvester.cattle.io.virtualmachinetemplateversions`,
-        data: {
-          apiVersion: 'harvester.cattle.io/v1alpha1',
-          kind:       'harvester.cattle.io.virtualmachinetemplateversion',
-          type:       'harvester.cattle.io.virtualmachinetemplateversion',
-          spec:       {
-            templateId: `harvester-system/${ this.value.metadata.name }`,
-            keyPairIds: this.keyPairIds,
-            vm:         { ...this.spec }
-          }
-        },
+      await proxyTemplate.save();
+      cleanForNew(this.value);
+      this.customName = randomstring.generate(10);
+      this.$set(this.value.metadata, 'annotations', {
+        ...this.value.metadata.annotations,
+        [HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME]: this.customName
       });
-
-      try {
-        if (this.isDefaultVersion) {
-          this.defaultVersionId = versionInfo.id;
-          this.setVersion(this.defaultVersionId, () => {});
-        }
-      } catch (err) {
-        const message = err.message;
-
-        this.errors = [message];
-      }
+      this.$set(this.value.spec, 'templateId', `harvester-system/${ proxyTemplate.metadata.name }`);
+      this.$set(this.value.spec, 'keyPairIds', this.keyPairIds);
+      this.$set(this.value.spec, 'vm', this.spec);
+      await this.save(buttonCb);
     },
 
-    verifyBefSave(buttonCb) {
-      if (!this.spec.template.spec.domain.cpu.cores) {
-        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Cpu' })];
-        buttonCb(false);
-
-        return false;
-      }
-
-      if (!this.memory.match(/[0-9]/)) {
-        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Memory' })];
-        buttonCb(false);
-
-        return false;
-      }
-
-      return true;
-    },
-
-    async setVersion(id, buttonCb) {
-      this.value.spec.defaultVersionId = id;
-      try {
-        const data = [{
-          op: 'replace', path: '/spec/defaultVersionId', value: id
-        }];
-
-        await this.value.patch( data, { url: this.value.linkFor('view') });
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.log(err);
-      }
-    },
-    validateMax(value) {
-      if (value > 100) {
-        this.$set(this.spec.template.spec.domain.cpu, 'cores', 100);
-      }
-    },
     updateCpuMemory(cpu, memory) {
       this.$set(this.spec.template.spec.domain.cpu, 'cores', cpu);
       this.$set(this, 'memory', memory);
@@ -217,14 +194,16 @@ export default {
 
 <template>
   <div id="vm">
-    <NameNsDescription
-      v-model="value"
-      :mode="mode"
-      name-label="vmtemplate.nameNsDescription.name"
-      :namespaced="false"
-    />
+    <div class="row mb-20">
+      <div class="col span-6">
+        <LabeledInput v-model="templateValue.metadata.name" :disabled="isVersionEdit" label="Template Name" required />
+      </div>
+      <div class="col span-6">
+        <LabeledInput v-model="templateValue.spec.description" label="Description" />
+      </div>
+    </div>
 
-    <Checkbox v-if="isAdd" v-model="isDefaultVersion" class="mb-20" label="Default version" type="checkbox" />
+    <Checkbox v-if="isVersionEdit" v-model="isDefaultVersion" class="mb-20" label="Default version" type="checkbox" />
 
     <CruResource
       :done-route="doneRoute"

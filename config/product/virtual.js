@@ -5,7 +5,7 @@ import { DSL } from '@/store/type-map';
 
 export const NAME = 'virtual';
 
-const TEMPLATE = VM_TEMPLATE.template;
+const TEMPLATE = VM_TEMPLATE.version;
 
 export function init(store) {
   const {

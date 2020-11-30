@@ -854,6 +854,7 @@ export default {
       if ( !opt.url ) {
         if ( forNew ) {
           const schema = this.$getters['schemaFor'](this.type);
+
           let url = schema.linkFor('collection');
 
           if ( schema.attributes && schema.attributes.namespaced ) {
