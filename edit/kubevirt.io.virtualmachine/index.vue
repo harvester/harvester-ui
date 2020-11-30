@@ -232,9 +232,12 @@ export default {
 
   mounted() {
     this.getImages();
-    if (this.$route.query?.templateId) {
-      this.templateName = this.$route.query?.templateId;
-      this.templateVersion = this.$route.query?.version;
+    const templateName = this.$route.query?.templateId;
+    const templateVersion = this.$route.query?.version;
+
+    if (templateName && templateVersion) {
+      this.templateName = templateName;
+      this.templateVersion = templateVersion;
       this.isLanuchFromTemplate = true;
       this.useTemplate = true;
     }

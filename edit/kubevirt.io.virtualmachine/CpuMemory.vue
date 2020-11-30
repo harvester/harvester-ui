@@ -24,6 +24,15 @@ export default {
     };
   },
 
+  watch: {
+    cpu(neu) {
+      this.localCpu = neu;
+    },
+    memory(neu) {
+      this.localMemory = neu;
+    }
+  },
+
   methods: {
     change() {
       this.$emit('updateCpuMemory', this.localCpu, `${ this.localMemory }Gi`);
