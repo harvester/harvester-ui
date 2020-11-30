@@ -30,7 +30,7 @@ export function init(store) {
     name:        'virtual-dashboard',
     weight:      500,
     route:       { name: 'c-cluster-virtual' },
-    icon:        'icons icon-h-home',
+    // icon:        'icons icon-h-home',
     exact:       true,
   });
 
@@ -45,8 +45,8 @@ export function init(store) {
       name:   'c-cluster-product-resource',
       params: { resource: NODE }
     },
-    icon:        'icons icon-h-host',
-    exact:       false,
+    // icon:        'icons icon-h-host',
+    exact: false,
   });
 
   basicType([VM]);
@@ -60,7 +60,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: VM }
     },
-    icon:       'icons icon-h-display',
+    // icon:       'icons icon-h-display',
     exact: false,
   });
 
@@ -75,7 +75,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: DATA_VOLUME }
     },
-    icon:       'icons icon-h-database',
+    // icon:       'icons icon-h-database',
     exact: false,
   });
 
@@ -90,7 +90,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: IMAGE }
     },
-    icon:       'icons icon-h-drawer',
+    // icon:       'icons icon-h-drawer',
     exact: false,
   });
 
@@ -112,7 +112,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: TEMPLATE }
     },
-    icon:       'icons icon-h-copy',
+    // icon:       'icons icon-h-copy',
     exact: false,
   });
 
@@ -126,7 +126,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: NETWORK_ATTACHMENT }
     },
-    icon:       'icons icon-h-network',
+    // icon:       'icons icon-h-network',
     exact: false,
   });
 
@@ -140,7 +140,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: SSH }
     },
-    icon:       'icons icon-h-key',
+    // icon:       'icons icon-h-key',
     exact: false,
   });
 
@@ -154,7 +154,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: HARVESTER_USER }
     },
-    icon:       'icons icon-h-user',
+    // icon:       'icons icon-h-user',
     exact: false,
   });
 
@@ -169,7 +169,7 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: HARVESTER_SETTING }
     },
-    icon:       'icons icon-h-setting',
+    // icon:       'icons icon-h-setting',
     exact: false,
   });
 }
