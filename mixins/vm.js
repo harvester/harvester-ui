@@ -72,10 +72,11 @@ export default {
       templateVersion:    this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
       networkAttachment:  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
     });
+    this.bbb = 'cccc';
   },
 
   data() {
-    const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
+    // const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
     const type = this.$route.params.resource;
     let pageType = '';
     let spec = null;
@@ -94,16 +95,18 @@ export default {
         this.value.spec = spec;
       }
     } else {
-      const templateSpec = this.value.spec;
-
-      spec = choices.find( O => templateSpec.defaultVersionId === O.id )?.spec?.vm || null;
+      spec = this.value?.spec?.vm;
     }
     if (!spec) {
       spec = _.cloneDeep(baseSpec);
+      this.value.spec = {
+        ...this.value.spec,
+        vm: spec
+      };
     }
 
     const sshKeyName = spec?.template?.metadata?.annotations?.['harvester.cattle.io/sshNames'] || '[]';
-    const sshKey = JSON.parse(sshKeyName);
+    const sshKey = JSON.parse(sshKeyName) || [];
 
     const hasCreateVolumes = [];
 
@@ -125,6 +128,7 @@ export default {
     });
 
     return {
+      bbb:                   '',
       baseSpec,
       spec,
       imageName:             '',

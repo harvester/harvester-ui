@@ -251,8 +251,8 @@ export default {
 
 <template>
   <div>
+    <div v-if="isView" class="mb-20"></div>
     <NameNsDescription
-      v-if="!isView"
       v-model="value"
       :mode="mode"
       name-label="vmtemplate.nameNsDescription.name"

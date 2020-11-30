@@ -212,12 +212,8 @@ export default {
 
   created() {
     this.imageName = this.$route.query?.image || '';
-    this.registerAfterHook(() => { // when fetch end, need add type to find correct schema
-      this.$set(this.value, 'type', VM);
+    this.registerAfterHook(async() => { // when fetch end, need add type to find correct schema
 
-      if (!this.isSingle) {
-        this.getClone();
-      }
     });
 
     this.registerBeforeHook(() => {
@@ -227,8 +223,6 @@ export default {
       Object.assign(this.value.metadata.annotations, { [HARVESTER_NETWORK_IPS]: JSON.stringify(this.value.networkIps) });
 
       this.$set(this.value.metadata, 'namespace', 'default');
-
-      // return this.validateBefore();
     }, 'validate');
 
     this.registerFailureHook(() => {
@@ -248,33 +242,25 @@ export default {
 
   methods: {
     saveVM(buttonCb) {
+      if (this.isSingle) {
+        this.saveSingle(buttonCb);
+      } else {
+        this.saveMultiple(buttonCb);
+      }
+    },
+
+    async saveSingle(buttonCb) {
       const url = `v1/${ VM }s`;
 
       this.normalizeSpec();
       const realHostname = this.useCustomHostname ? this.value.spec.template.spec.hostname : this.value.metadata.name;
 
       this.$set(this.value.spec.template.spec, 'hostname', realHostname);
-      const noFetch = !this.isSingle;
 
-      this.save(buttonCb, url, noFetch);
+      await this.save(buttonCb, url);
     },
 
-    validateBefore(buttonCb) {
-      if (!this.memory.match(/[0-9]/)) {
-        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Memory' })];
-
-        return false;
-      }
-      this.$delete(this.value, 'type'); // vm api don't type attribuet, the error will be reported
-
-      return true;
-    },
-
-    getImages() {
-      this.$store.dispatch('cluster/findAll', { type: IMAGE });
-    },
-
-    async getClone() {
+    async saveMultiple(buttonCb) {
       const baseName = this.value.metadata.name;
       const baseHostname = this.useCustomHostname ? this.value.spec.template.spec.hostname : this.value.metadata.name;
       const join = baseName.endsWith('-') ? '' : '-';
@@ -283,20 +269,29 @@ export default {
       //  Object.assign(spec.template.metadata.annotations, { [HARVESTER_DISK_NAMES]: JSON.stringify(diskNameLables) });
 
       for (let i = 1; i <= this.count; i++) {
+        this.$set(this.value, 'type', VM);
+
         const suffix = i?.toString()?.padStart(countLength, '0');
 
         cleanForNew(this.value);
-
         this.value.metadata.name = `${ baseName }${ join }${ suffix }`;
         const hostname = `${ baseHostname }${ join }${ suffix }`;
 
         this.normalizeSpec();
         this.$set(this.value.spec.template.spec, 'hostname', hostname);
-        this.$delete(this.value, 'type');
         this.$delete(this.value.spec.template.metadata.annotations, [HARVESTER_DISK_NAMES]);
-        await this.save({ url: `v1/${ VM }s` });
+
+        try {
+          await this.save(buttonCb);
+        } catch (err) {
+          return Promise.reject(new Error(err));
+        }
       }
       this.value.id = '';
+    },
+
+    getImages() {
+      this.$store.dispatch('cluster/findAll', { type: IMAGE });
     },
 
     validataCount(count) {
