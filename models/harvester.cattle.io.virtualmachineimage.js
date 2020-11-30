@@ -76,4 +76,24 @@ export default {
       errorCount:   error
     };
   },
+  customValidationRules() {
+    return [
+      {
+        nullable:       false,
+        path:           'metadata.name',
+        required:       true,
+        minLength:      1,
+        maxLength:      63,
+        translationKey: 'generic.name'
+      },
+      {
+        nullable:       false,
+        path:           'spec.url',
+        required:       true,
+        translationKey: 'imagePage.url',
+        type:           'string',
+      },
+    ];
+  },
+
 };

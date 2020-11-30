@@ -88,6 +88,14 @@ export default {
     const out = [
       {
         nullable:       false,
+        path:           'metadata.name',
+        required:       true,
+        minLength:      1,
+        maxLength:      63,
+        translationKey: 'generic.name'
+      },
+      {
+        nullable:       false,
         path:           'spec.pvc.resources.requests.storage',
         required:       true,
         translationKey: 'volumePage.size',
@@ -100,6 +108,13 @@ export default {
         translationKey: 'volumePage.source',
         type:           'object',
       },
+      {
+        nullable:       false,
+        path:           'spec.pvc.storageClassName',
+        required:       true,
+        translationKey: 'volumePage.storageClass',
+        type:           'string',
+      }
     ];
 
     if (this.spec.source.http) {
