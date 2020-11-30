@@ -625,7 +625,7 @@ export const getters = {
           }
         }
 
-        if (icon.includes('icons ')) {
+        if (icon && icon.includes('icons ')) {
           label = `<i class="${ icon }"></i>${ label }`;
         } else if ( icon ) {
           label = `<i class="icon icon-fw icon-${ icon }"></i>${ label }`;

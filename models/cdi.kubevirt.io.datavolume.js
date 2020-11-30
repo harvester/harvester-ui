@@ -108,16 +108,9 @@ export default {
         translationKey: 'volumePage.source',
         type:           'object',
       },
-      {
-        nullable:       false,
-        path:           'spec.pvc.storageClassName',
-        required:       true,
-        translationKey: 'volumePage.storageClass',
-        type:           'string',
-      }
     ];
 
-    if (this.spec.source.http) {
+    if (this.spec?.source?.http) {
       out.push({
         nullable:       false,
         path:           'spec.source.http.url',

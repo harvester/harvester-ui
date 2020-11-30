@@ -80,7 +80,7 @@ export default {
     return [
       {
         nullable:       false,
-        path:           'metadata.name',
+        path:           'spec.displayName',
         required:       true,
         minLength:      1,
         maxLength:      63,
