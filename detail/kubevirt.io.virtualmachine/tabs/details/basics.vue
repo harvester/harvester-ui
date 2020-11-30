@@ -2,12 +2,7 @@
 import IPAddress from '@/components/formatter/ipAddress';
 import ConsoleBar from '@/components/form/ConsoleBar';
 import { IMAGE, POD } from '@/config/types';
-
-import { DESCRIPTION } from '@/config/labels-annotations';
 import CreateEditView from '@/mixins/create-edit-view';
-import LabelsModal from '../../labels-modal';
-import AnnotationsModal from '../../annotations-modal';
-import DescriptionModal from '../../description-modal';
 
 const UNDEFINED = 'n/a';
 
@@ -17,9 +12,6 @@ export default {
   components: {
     ConsoleBar,
     IPAddress,
-    LabelsModal,
-    AnnotationsModal,
-    DescriptionModal,
   },
 
   mixins: [CreateEditView],
@@ -43,13 +35,7 @@ export default {
   },
 
   data() {
-    return {
-      allPods: [],
-
-      labelsModalShow:      false,
-      annotationsModalShow: false,
-      descriptionModalShow: false,
-    };
+    return { allPods: [] };
   },
 
   computed: {
@@ -93,31 +79,6 @@ export default {
       });
 
       return pod?.metadata?.name || UNDEFINED;
-    },
-
-    labelsCount() {
-      const count = Object.keys(this.value?.metadata?.labels || {}).length;
-      const unit = count > 1 ? 'Labels' : 'Label';
-
-      return `${ count } ${ unit }`;
-    },
-
-    annotationsCount() {
-      let count = 0;
-
-      Object.keys(this.value?.metadata?.annotations || {}).forEach((key) => {
-        if (key !== DESCRIPTION) {
-          count++;
-        }
-      });
-
-      const unit = count > 1 ? 'Annotations' : 'Annotation';
-
-      return `${ count } ${ unit }`;
-    },
-
-    description() {
-      return this.value?.metadata?.annotations?.[DESCRIPTION];
     },
 
     disks() {
@@ -178,15 +139,6 @@ export default {
       const pods = await this.$store.dispatch('cluster/findAll', { type: POD });
 
       this.allPods = pods || [];
-    },
-    toggleLabelsModal(show) {
-      this.labelsModalShow = show;
-    },
-    toggleAnnotationsModal(show) {
-      this.annotationsModalShow = show;
-    },
-    toggleDescriptionModal(show) {
-      this.descriptionModalShow = show;
     },
     done() {},
     update() {
@@ -307,65 +259,6 @@ export default {
           </div>
           <div v-else>
             {{ t("vm.detail.details.down") }}
-          </div>
-        </div>
-      </div>
-      <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("vm.detail.details.labels") }}
-          </label>
-          <div>
-            <a href="javascript:void(0)" @click="toggleLabelsModal(true)">
-              {{ labelsCount }} <span class="icon icon-edit"></span>
-            </a>
-            <LabelsModal
-              :spec="value"
-              mode="edit"
-              :visible="labelsModalShow"
-              @close="toggleLabelsModal(false)"
-              @update="update"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("vm.detail.details.annotations") }}
-          </label>
-          <div>
-            <a href="javascript:void(0)" @click="toggleAnnotationsModal(true)">
-              {{ annotationsCount }} <span class="icon icon-edit"></span>
-            </a>
-            <AnnotationsModal
-              :spec="value"
-              mode="edit"
-              :visible="annotationsModalShow"
-              @close="toggleAnnotationsModal(false)"
-              @update="update"
-            />
-          </div>
-        </div>
-      </div>
-      <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("vm.detail.details.description") }}
-          </label>
-          <div>
-            <a href="javascript:void(0)" @click="toggleDescriptionModal(true)">
-              {{ description }} <span class="icon icon-edit"></span>
-            </a>
-            <DescriptionModal
-              :spec="value"
-              mode="edit"
-              :visible="descriptionModalShow"
-              @close="toggleDescriptionModal(false)"
-              @update="update"
-            />
           </div>
         </div>
       </div>
