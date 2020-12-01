@@ -73,13 +73,13 @@ export default {
       {
         action:     'stopVM',
         enabled:    !!this.actions?.stop,
-        icon:       'icon icon-pause',
+        icon:       'icons icon-h-stop',
         label:      'stop',
       },
       {
         action:     'pauseVM',
         enabled:    !!this.actions?.pause,
-        icon:       'icon icon-pause',
+        icon:       'icons icon-h-pause',
         label:      'pause',
       },
       {
@@ -91,7 +91,7 @@ export default {
       {
         action:     'restartVM',
         enabled:    !!this.actions?.restart,
-        icon:       'icon icon-spinner',
+        icon:       'icons icon-h-restart',
         label:      'restart',
       },
       {

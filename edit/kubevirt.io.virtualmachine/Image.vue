@@ -18,7 +18,11 @@ export default {
     required: {
       type:    Boolean,
       default: true
-    }
+    },
+    mode: {
+      type:     String,
+      default: 'edit',
+    },
   },
 
   data() {
@@ -61,6 +65,7 @@ export default {
   <LabeledSelect
     v-model="image"
     :disabled="disabled"
+    :mode="mode"
     label="Image"
     :required="required"
     :options="ImageOption"

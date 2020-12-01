@@ -17,19 +17,19 @@ export default {
       {
         action:     'launchFromTemplate',
         enabled:    true,
-        icon:       'icon icon-fw icon-spinner',
+        icon:       'icons icon-h-display',
         label:      'Launch instance from template',
       },
       {
         action:     'cloneTemplate',
         enabled:    true,
-        icon:       'icon icon-fw icon-spinner',
+        icon:       'icon icon-fw icon-edit',
         label:      'Modify template (Create new version)',
       },
       {
         action:     'setDefaultVersion',
         enabled:    true,
-        icon:       'icon icon-fw icon-spinner',
+        icon:       'icon icon-fw icon-checkmark',
         label:      'Set default version',
       },
       ...out
