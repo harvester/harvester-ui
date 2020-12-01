@@ -29,7 +29,9 @@ export default {
       this.localCpu = neu;
     },
     memory(neu) {
-      this.localMemory = neu;
+      if (!neu.includes('null')) {
+        this.localMemory = neu;
+      }
     }
   },
 
