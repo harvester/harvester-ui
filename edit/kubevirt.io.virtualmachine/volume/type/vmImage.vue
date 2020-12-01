@@ -140,7 +140,7 @@ export default {
         />
       </div>
 
-      <div class="col span-6">
+      <!-- <div class="col span-6">
         <LabeledSelect
           v-model="value.volumeMode"
           label="Volume Mode"
@@ -149,7 +149,7 @@ export default {
           :options="volumeModeOption"
           @input="update"
         />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

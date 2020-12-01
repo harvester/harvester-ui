@@ -127,7 +127,7 @@ export default {
         />
       </div>
     </div>
-
+    <!--
     <div class="row">
       <div class="col span-6">
         <LabeledSelect
@@ -161,6 +161,6 @@ export default {
           @input="update"
         />
       </div>
-    </div>
+    </div> -->
   </div>
 </template>

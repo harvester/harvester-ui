@@ -44,7 +44,7 @@ locale:
   none: (None)
 
 nav:
-  title: Dashboard
+  title: Harvester
   backToRancher: Cluster Manager
   shell: Shell
   group:

@@ -83,14 +83,7 @@ export default {
   watch: {
     'value.networkName': {
       handler(neu) {
-        this.errors.splice(0, 1);
-        if (neu === MANAGEMENT_NETWORK && this.value.masquerade) {
-          this.value.type = 'masquerade';
-        } else {
-          // const choices = this.$store.getters['cluster/byId'](NETWORK_ATTACHMENT, `default/${ neu }`);
-          // this.currentRow.isIpamStatic = choices?.isIpamStatic || false;
-          this.value.type = 'bridge';
-        }
+
       },
       immediate: true
     }
@@ -98,6 +91,17 @@ export default {
 
   methods: {
     update() {
+      const networkName = this.value.networkName;
+
+      if (networkName === MANAGEMENT_NETWORK) { //  && this.value.masquerade
+        this.value.type = 'masquerade';
+        this.value.isPod = true;
+      } else {
+        // const choices = this.$store.getters['cluster/byId'](NETWORK_ATTACHMENT, `default/${ neu }`);
+        // this.currentRow.isIpamStatic = choices?.isIpamStatic || false;
+        this.value.type = 'bridge';
+        this.value.isPod = false;
+      }
       this.$emit('update');
     }
   }
@@ -112,17 +116,38 @@ export default {
       </div>
 
       <div class="col span-6">
-        <LabeledSelect v-model="value.model" label="Model" :options="modelOption" :mode="mode" required />
+        <LabeledSelect
+          v-model="value.model"
+          label="Model"
+          :options="modelOption"
+          :mode="mode"
+          required
+          @input="update"
+        />
       </div>
     </div>
 
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledSelect v-model="value.networkName" label="Network" :options="networkOption" :mode="mode" required />
+        <LabeledSelect
+          v-model="value.networkName"
+          label="Network"
+          :options="networkOption"
+          :mode="mode"
+          required
+          @input="update"
+        />
       </div>
 
       <div class="col span-6">
-        <LabeledSelect v-model="value.type" label="Type" :options="typeOpton" :mode="mode" required />
+        <LabeledSelect
+          v-model="value.type"
+          label="Type"
+          :options="typeOpton"
+          :mode="mode"
+          required
+          @input="update"
+        />
       </div>
     </div>
 
