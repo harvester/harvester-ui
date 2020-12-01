@@ -72,11 +72,9 @@ export default {
       templateVersion:    this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
       networkAttachment:  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
     });
-    this.bbb = 'cccc';
   },
 
   data() {
-    // const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
     const type = this.$route.params.resource;
     let pageType = '';
     let spec = null;
