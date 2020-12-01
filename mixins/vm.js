@@ -328,7 +328,6 @@ export default {
           // const netwrokAnnotation = networkAnnotition.find((N) => {
           //   return network?.multus?.networkName === N.name;
           // });
-
           const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
           const isPod = !!network?.pod;
 
@@ -468,11 +467,11 @@ export default {
 
       switch (R.source) {
       case SOURCE_TYPE.NEW:
-        _dataVolumeTemplate.spec.pvc.storageClassName = R.storageClassName;
+        _dataVolumeTemplate.spec.pvc.storageClassName = 'longhorn'; // R.storageClassName
         _dataVolumeTemplate.spec.source = { blank: {} };
         break;
       case SOURCE_TYPE.IMAGE: {
-        _dataVolumeTemplate.spec.pvc.storageClassName = R.storageClassName;
+        _dataVolumeTemplate.spec.pvc.storageClassName = 'longhorn'; // R.storageClassName
         _dataVolumeTemplate.spec.source = { http: { url: this.getUrlFromImage(R.image) } };
 
         const imageResource = this.getImageResource(R.image);

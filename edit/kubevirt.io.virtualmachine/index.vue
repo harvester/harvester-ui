@@ -13,6 +13,7 @@ import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
 import { HARVESTER_CREATOR, HARVESTER_SSH_NAMES, HARVESTER_DISK_NAMES, HARVESTER_NETWORK_IPS } from '@/config/labels-annotations';
 import CreateEditView from '@/mixins/create-edit-view';
 import Tabbed from '@/components/Tabbed';
+import Banner from '@/components/Banner';
 import Tab from '@/components/Tabbed/Tab';
 import VM_MIXIN from '@/mixins/vm';
 import NameNsDescription from '@/components/form/NameNsDescription';
@@ -29,6 +30,7 @@ export default {
   components: {
     Checkbox,
     CruResource,
+    Banner,
     Volume,
     Network,
     Tabbed,
@@ -259,7 +261,6 @@ export default {
       const realHostname = this.useCustomHostname ? this.value.spec.template.spec.hostname : this.value.metadata.name;
 
       this.$set(this.value.spec.template.spec, 'hostname', realHostname);
-
       await this.save(buttonCb, url);
     },
 
@@ -426,33 +427,13 @@ export default {
       <template #extend>
         <div class="mt-20">
           <Checkbox v-model="isRunning" class="check mb-20" type="checkbox" label="Start virtual machine on creation" />
+
+          <Banner v-if="isEdit" color="warning">
+            Saving edits will cause the VM to restart.
+          </Banner>
         </div>
       </template>
     </CruResource>
-
-    <!-- <ChooseImage v-model="imageName" />
-
-    <DiskModal v-model="diskRows" class="vm__disk-modal" :namespace="value.metadata.namespace" />
-
-    <NetworkModal v-model="networkRows" :namespace="value.metadata.namespace" />
-
-    <Collapse :open.sync="showCloudInit" title="Advanced Details">
-      <LabeledInput v-model="hostname" class="labeled-input--tooltip mb-20" required placeholder="default to the virtual machine name.">
-        <template #label>
-          <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-            {{ hostnameLabel }}
-            <i v-tooltip="'Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes.'" class="icon icon-info" style="font-size: 14px" />
-          </label>
-        </template>
-      </LabeledInput>
-
-      <CloudConfig :user-script="userScript" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
-
-      <div class="spacer"></div>
-      <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" label="Enable USB Tablet" />
-    </Collapse>
-
-    <Footer :mode="mode" :errors="errors" @save="saveVM" @done="done" /> -->
   </div>
 </template>
 
