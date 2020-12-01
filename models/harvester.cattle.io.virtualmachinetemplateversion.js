@@ -5,7 +5,7 @@ import { MODE, _CREATE } from '@/config/query-params';
 export default {
   availableActions() {
     let out = this._standardActions;
-    const toFilter = ['cloneYaml', 'goToEditYaml', 'goToViewYaml'];
+    const toFilter = ['goToClone', 'cloneYaml', 'goToEditYaml', 'goToViewYaml'];
 
     out = out.filter((action) => {
       if (!toFilter.includes(action.action)) {
