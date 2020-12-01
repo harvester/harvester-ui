@@ -5,6 +5,7 @@ import Banner from '@/components/Banner';
 import Card from '@/components/Card';
 import { clone } from '@/utils/object';
 import { SSH } from '@/config/types';
+import { _VIEW } from '@/config/query-params';
 
 export default {
   components: {
@@ -20,6 +21,10 @@ export default {
       default: () => {
         return [];
       }
+    },
+    mode: {
+      type:     String,
+      default: 'edit',
     },
   },
 
@@ -47,6 +52,9 @@ export default {
           value: O.metadata.name
         };
       });
+    },
+    isView() {
+      return this.mode === _VIEW;
     }
   },
 
@@ -151,7 +159,7 @@ export default {
           v-model="checkedSsh"
           label="SSHKey"
           :taggable="true"
-          mode="create"
+          :mode="mode"
           :multiple="true"
           :searchable="true"
           :options="sshOption"
@@ -159,7 +167,7 @@ export default {
         />
       </div>
 
-      <span class="btn btn-sm bg-primary mt-20" @click="addSSH">
+      <span v-if="!isView" class="btn btn-sm bg-primary mt-20" @click="addSSH">
         Create SSH Key
       </span>
     </div>

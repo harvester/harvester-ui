@@ -15,13 +15,13 @@ export default {
       {
         action:     'createFromTemplate',
         enabled:    true,
-        icon:       'icon icon-fw icon-spinner',
+        icon:       'icons icon-h-display',
         label:      'Create a Virtual Machine',
       },
       {
         action:     'addVersion',
         enabled:    true,
-        icon:       'icon icon-fw icon-spinner',
+        icon:       'icon icon-fw icon-circle-plus',
         label:      'Add templateVersion',
       },
       ...out

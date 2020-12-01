@@ -14,7 +14,11 @@ export default {
     memory: {
       type:    [Number, String],
       default: null
-    }
+    },
+    mode: {
+      type:     String,
+      default: 'edit',
+    },
   },
 
   data() {
@@ -53,6 +57,7 @@ export default {
         :increment="1"
         :input-exponent="0"
         required
+        :mode="mode"
         class="mb-20"
       />
     </div>
@@ -62,6 +67,7 @@ export default {
         v-model="localMemory"
         label="Memory"
         suffix="iB"
+        :mode="mode"
         :input-exponent="3"
         :output-exponent="3"
         required

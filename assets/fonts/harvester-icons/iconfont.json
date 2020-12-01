@@ -6,6 +6,27 @@
   "description": "Harvester",
   "glyphs": [
     {
+      "icon_id": "8321780",
+      "name": "restart",
+      "font_class": "restart",
+      "unicode": "e646",
+      "unicode_decimal": 58950
+    },
+    {
+      "icon_id": "6166486",
+      "name": "stop",
+      "font_class": "stop",
+      "unicode": "e716",
+      "unicode_decimal": 59158
+    },
+    {
+      "icon_id": "7009763",
+      "name": "stop-暂停",
+      "font_class": "pause",
+      "unicode": "e640",
+      "unicode_decimal": 58944
+    },
+    {
       "icon_id": "587169",
       "name": "warning",
       "font_class": "warning",
@@ -62,25 +83,11 @@
       "unicode_decimal": 58890
     },
     {
-      "icon_id": "9799463",
-      "name": "stop",
-      "font_class": "stop",
-      "unicode": "e62a",
-      "unicode_decimal": 58922
-    },
-    {
       "icon_id": "16609073",
       "name": "user",
       "font_class": "user",
       "unicode": "e60c",
       "unicode_decimal": 58892
-    },
-    {
-      "icon_id": "12154820",
-      "name": "restart",
-      "font_class": "restart",
-      "unicode": "e600",
-      "unicode_decimal": 58880
     },
     {
       "icon_id": "14682396",
