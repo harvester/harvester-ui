@@ -10,8 +10,10 @@ export const state = function() {
     event:            null,
     showPromptRemove: false,
     showAssignTo:     false,
+    showEjectCDROM:   false,
     toRemove:         [],
-    toAssign:         []
+    toAssign:         [],
+    toEject:          [],
   };
 };
 
@@ -86,7 +88,13 @@ export const mutations = {
     }
 
     state.toAssign = resources;
-  }
+  },
+
+  toggleEjectCDROM(state, resources) {
+    state.showEjectCDROM = !state.showEjectCDROM;
+    state.toEject = resources;
+  },
+
 };
 
 export const actions = {
