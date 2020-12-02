@@ -18,10 +18,6 @@ export default {
     col: {
       type:     Object,
       default: () => {}
-    },
-    isList: {
-      type:    Boolean,
-      default: false
     }
   },
 
