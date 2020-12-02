@@ -73,7 +73,7 @@ export default {
       this.value.setLabel('networks.harvester.cattle.io/type', this.type);
       if (!this.vlanId) {
         this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Vlan ID' })];
-        buttonCb(true);
+        buttonCb(false);
 
         return false;
       }
