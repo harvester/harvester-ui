@@ -100,6 +100,12 @@ export default {
         icon:       'icon icon-play',
         label:      'start',
       },
+      {
+        action:     'ejectCDROM',
+        enabled:    !!this.actions.ejectCdRom,
+        icon:       'icon icon-delete',
+        label:      'Eject CDROM',
+      },
       // {
       //   action:     'migrateVM',
       //   enabled:    !!this.actions?.migrate,
@@ -149,6 +155,12 @@ export default {
   migrateVM() {
     return () => {
       this.doAction('migrate', {});
+    };
+  },
+
+  ejectCDROM() {
+    return () => {
+      this.$dispatch('ejectCDROM', this);
     };
   },
 

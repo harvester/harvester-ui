@@ -346,5 +346,10 @@ export default {
 
   assignTo({ commit, state }, resources = []) {
     commit('action-menu/toggleAssignTo', resources, { root: true });
-  }
+  },
+
+  ejectCDROM({ commit, state }, resources = []) {
+    commit('action-menu/toggleEjectCDROM', resources, { root: true });
+  },
+
 };

@@ -7,6 +7,7 @@ import Jump from '@/components/nav/Jump';
 import WindowManager from '@/components/nav/WindowManager';
 import PromptRemove from '@/components/PromptRemove';
 import AssignTo from '@/components/AssignTo';
+import EjectCDROM from '@/components/EjectCDROM/index';
 import Group from '@/components/nav/Group';
 import PureHeader from '@/components/nav/PureHeader';
 import { COUNT, SCHEMA, MANAGEMENT } from '@/config/types';
@@ -21,6 +22,7 @@ export default {
     Jump,
     PromptRemove,
     AssignTo,
+    EjectCDROM,
     PureHeader,
     ActionMenu,
     Group,
@@ -247,6 +249,7 @@ export default {
       <ActionMenu />
       <PromptRemove />
       <AssignTo />
+      <EjectCDROM />
       <button v-if="dev" v-shortkey.once="['shift','l']" class="hide" @shortkey="toggleNoneLocale()" />
       <button v-if="dev" v-shortkey.once="['shift','t']" class="hide" @shortkey="toggleTheme()" />
       <button v-shortkey.once="['f8']" class="hide" @shortkey="wheresMyDebugger()" />
