@@ -20,6 +20,10 @@ export default {
     saveText: {
       type:    String,
       default: 'Save'
+    },
+    width: {
+      type:    [String, Number],
+      default: '50%'
     }
   },
 
@@ -41,7 +45,7 @@ export default {
 <template>
   <modal
     :name="name"
-    width="50%"
+    :width="width"
     :click-to-close="false"
     height="auto"
   >
@@ -58,10 +62,10 @@ export default {
 
       <template #actions>
         <slot name="footer">
-          <button class="btn role-secondary btn-sm mr-20" @click="hide">
+          <button class="btn role-secondary btn-sm mr-20" @click.prevent="hide">
             {{ closeText }}
           </button>
-          <button class="btn role-tertiary bg-primary btn-sm mr-20" @click="save">
+          <button class="btn role-tertiary bg-primary btn-sm mr-20" @click.prevent="save">
             {{ saveText }}
           </button>
         </slot>

@@ -17,6 +17,10 @@ export default {
     mode: {
       type:     String,
       default:  'edit'
+    },
+    disabled: {
+      type:    Boolean,
+      default: false
     }
   },
 
@@ -41,6 +45,9 @@ export default {
     },
     namePlaceholder() {
       return this.isView ? '' : 'e.g. myport';
+    },
+    isDisabled() {
+      return this.isView || this.disabled;
     }
   },
 
@@ -74,11 +81,11 @@ export default {
         v-model="row.name"
         label="Name"
         :placeholder="namePlaceholder"
-        :disabled="isView"
+        :disabled="isDisabled"
         :mode="mode"
       />
 
-      <PortInput :row="row" :mode="mode" />
+      <PortInput :row="row" :mode="mode" :disabled="isDisabled" />
 
       <LabeledSelect
         v-model="row.protocol"
@@ -87,15 +94,15 @@ export default {
         :multiple="false"
         label="Protocol"
         :mode="mode"
-        :disabled="isView"
+        :disabled="isDisabled"
       />
 
-      <button v-if="!isView" type="button" class="btn bg-transparent role-link" @click.prevent="removeRows(index)">
+      <button v-if="!isDisabled" type="button" class="btn bg-transparent role-link" @click.prevent="removeRows(index)">
         REMOVE
       </button>
     </div>
 
-    <button v-if="!isView" class="btn btn-sm role-secondary" @click.prevent="addRows()">
+    <button v-if="!isDisabled" class="btn btn-sm role-secondary" @click.prevent="addRows()">
       Add Port
     </button>
   </div>

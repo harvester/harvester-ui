@@ -213,10 +213,7 @@ export default {
   },
 
   created() {
-    this.imageName = this.$route.query?.image || '';
-    this.registerAfterHook(async() => { // when fetch end, need add type to find correct schema
-
-    });
+    this.imageName = this.$route.query?.image || this.imageName;
 
     this.registerBeforeHook(() => {
       Object.assign(this.value.metadata.labels, { [HARVESTER_CREATOR]: 'harvester' });
