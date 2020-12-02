@@ -113,6 +113,7 @@ export function init(store) {
       params:   { resource: TEMPLATE }
     },
     // icon:       'icons icon-h-copy',
+    icon:       'icon icon-space',
     exact: false,
   });
 
@@ -127,6 +128,7 @@ export function init(store) {
       params:   { resource: NETWORK_ATTACHMENT }
     },
     // icon:       'icons icon-h-network',
+    icon:       'icon icon-space',
     exact: false,
   });
 
@@ -141,6 +143,7 @@ export function init(store) {
       params:   { resource: SSH }
     },
     // icon:       'icons icon-h-key',
+    icon:       'icon icon-space',
     exact: false,
   });
 
@@ -155,6 +158,7 @@ export function init(store) {
       params:   { resource: HARVESTER_USER }
     },
     // icon:       'icons icon-h-user',
+    icon:       'icon icon-space',
     exact: false,
   });
 
@@ -170,6 +174,7 @@ export function init(store) {
       params:   { resource: HARVESTER_SETTING }
     },
     // icon:       'icons icon-h-setting',
+    icon:       'icon icon-space',
     exact: false,
   });
 }
