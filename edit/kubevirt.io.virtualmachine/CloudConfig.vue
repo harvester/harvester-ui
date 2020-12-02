@@ -1,5 +1,6 @@
 <script>
 import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
+import { _CREATE, _EDIT } from '@/config/query-params';
 
 export default {
   components: { YamlEditor },
@@ -12,15 +13,30 @@ export default {
     networkScript: {
       type:    String,
       default: ''
+    },
+    mode: {
+      type:    String,
+      default: 'create'
     }
   },
 
   data() {
     return {
-      editorMode:  EDITOR_MODES.EDIT_CODE,
       userData:    this.userScript,
       networkData: this.networkScript
     };
+  },
+
+  computed: {
+    editorMode() {
+      return (this.isCreate || this.isEdit) ? EDITOR_MODES.EDIT_CODE : EDITOR_MODES.VIEW_CODE;
+    },
+    isCreate() {
+      return this.mode === _CREATE;
+    },
+    isEdit() {
+      return this.mode === _EDIT;
+    }
   },
 
   methods: {

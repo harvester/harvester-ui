@@ -256,10 +256,10 @@ export default {
           label="Advanced Options"
           :weight="-3"
         >
-          <CloudConfig ref="yamlEditor" :user-script="userScript" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
+          <CloudConfig ref="yamlEditor" :user-script="userScript" :mode="mode" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
 
           <div class="spacer"></div>
-          <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" label="Enable USB Tablet" />
+          <Checkbox v-model="isUseMouseEnhancement" :mode="mode" class="check" type="checkbox" label="Enable USB Tablet" />
         </Tab>
       </Tabbed>
     </CruResource>
