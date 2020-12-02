@@ -403,22 +403,22 @@ export default {
 
   resourcesStatus() {
     const vmList = this.$rootGetters['cluster/all'](VM);
-    let Stopped = 0;
-    let Unknown = 0;
+    let warningCount = 0;
+    let errorCount = 0;
 
     vmList.forEach((vm) => {
       const status = vm.actualState;
 
-      if (status === 'Stopped' || status === 'Paused') {
-        Stopped += 1;
-      } else if (status !== 'Running') {
-        Unknown += 1;
+      if (status === VM_ERROR) {
+        errorCount += 1;
+      } else if (status === 'Stopping' || status === 'Waiting' || status === 'Pending' || status === 'Starting') {
+        warningCount += 1;
       }
     });
 
     return {
-      warningCount: Stopped,
-      errorCount:   Unknown
+      warningCount,
+      errorCount
     };
   },
 

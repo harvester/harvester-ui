@@ -91,12 +91,7 @@ export default {
 </script>
 
 <template>
-  <div v-if="isList">
-    <p v-for="(ipValue, index) in ip" :key="ipValue">
-      {{ index+1 }}. <CopyToClipboardText :text="ipValue" />
-    </p>
-  </div>
-  <div v-else>
+  <div>
     <span v-for="(ipValue, index) in ip" :key="index">
       <CopyToClipboardText :text="ipValue" /> <span v-if="index !== ip.length-1">, </span>
     </span>
