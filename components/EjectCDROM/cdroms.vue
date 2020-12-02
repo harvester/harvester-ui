@@ -26,7 +26,8 @@ export default {
       cdrowName:  [],
       nameString: '',
       rows:       [],
-      hasChecked: false
+      hasChecked: false,
+      diskRows:   [],
     };
   },
 
@@ -69,10 +70,12 @@ export default {
       return out;
     },
   },
+
   watch: {
     value: {
       handler(neu) {
         this.$set(this, 'spec', this.value.spec);
+        this.diskRows = this.getDiskRows();
       },
       deep: true
     },
@@ -88,6 +91,10 @@ export default {
       },
       deep: true
     },
+  },
+
+  created() {
+    this.diskRows = this.getDiskRows(this.value.spec);
   },
 
   methods: {
