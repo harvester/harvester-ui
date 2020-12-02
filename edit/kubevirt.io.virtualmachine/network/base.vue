@@ -1,9 +1,10 @@
 <script>
+import _ from 'lodash';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import LabeledInput from '@/components/form/LabeledInput';
 import PortInputGroup from '@/components/form/PortInputGroup';
 import { MODEL } from '@/config/map';
-import { _VIEW } from '@/config/query-params';
+import { _CREATE, _VIEW } from '@/config/query-params';
 
 const MANAGEMENT_NETWORK = 'management Network';
 
@@ -47,8 +48,14 @@ export default {
   },
 
   computed: {
+    isDisabled() {
+      return this.isMasquerade && !this.value.newCreateId && !this.isCreate;
+    },
     isView() {
       return this.mode === _VIEW;
+    },
+    isCreate() {
+      return this.mode === _CREATE;
     },
     modelOption() {
       return MODEL;
@@ -77,13 +84,27 @@ export default {
       }];
 
       return this.isMasquerade ? masquerade : other;
+    },
+    NTOption() {
+      const out = _.cloneDeep(this.networkOption);
+
+      if (this.value.networkName !== MANAGEMENT_NETWORK) {
+        out.push({
+          label: this.value.networkName,
+          value: this.value.networkName
+        });
+      }
+
+      return out;
     }
   },
 
   watch: {
     'value.networkName': {
       handler(neu) {
-
+        if (neu === MANAGEMENT_NETWORK && this.value.masquerade) {
+          this.value.type = 'masquerade';
+        }
       },
       immediate: true
     }
@@ -93,8 +114,7 @@ export default {
     update() {
       const networkName = this.value.networkName;
 
-      if (networkName === MANAGEMENT_NETWORK) { //  && this.value.masquerade
-        this.value.type = 'masquerade';
+      if (networkName === MANAGEMENT_NETWORK) {
         this.value.isPod = true;
       } else {
         // const choices = this.$store.getters['cluster/byId'](NETWORK_ATTACHMENT, `default/${ neu }`);
@@ -112,13 +132,14 @@ export default {
   <div @input="update">
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.name" label="Name" required :mode="mode" />
+        <LabeledInput v-model="value.name" label="Name" required :mode="mode" :disabled="isDisabled" />
       </div>
 
       <div class="col span-6">
         <LabeledSelect
           v-model="value.model"
           label="Model"
+          :disabled="isDisabled"
           :options="modelOption"
           :mode="mode"
           required
@@ -132,9 +153,10 @@ export default {
         <LabeledSelect
           v-model="value.networkName"
           label="Network"
-          :options="networkOption"
+          :options="NTOption"
           :mode="mode"
           required
+          :disabled="isDisabled"
           @input="update"
         />
       </div>
@@ -166,7 +188,7 @@ export default {
 
     <hr v-if="isMasquerade" class="mb-20">
 
-    <PortInputGroup v-if="value.type === 'masquerade'" v-model="value" :mode="mode" />
+    <PortInputGroup v-if="value.type === 'masquerade'" v-model="value" :disabled="isDisabled" :mode="mode" />
     <!-- <LabeledInput
       v-if="value.isIpamStatic"
       v-model="value.cidr"

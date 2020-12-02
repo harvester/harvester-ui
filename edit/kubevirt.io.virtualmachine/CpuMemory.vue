@@ -41,7 +41,14 @@ export default {
 
   methods: {
     change() {
-      this.$emit('updateCpuMemory', this.localCpu, `${ this.localMemory }Gi`);
+      let memory = '';
+
+      if (String(this.localMemory).includes('Gi')) {
+        memory = this.localMemory;
+      } else {
+        memory = `${ this.localMemory }Gi`;
+      }
+      this.$emit('updateCpuMemory', this.localCpu, memory);
     }
   }
 };

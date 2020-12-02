@@ -3,7 +3,7 @@ import UnitInput from '@/components/form/UnitInput';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { IMAGE } from '@/config/types';
-import { _CREATE } from '@/config/query-params';
+import { _CREATE, _EDIT } from '@/config/query-params';
 
 export default {
   name:       'VmImage',
@@ -84,6 +84,9 @@ export default {
         };
       });
     },
+    isDisabled() {
+      return !this.value.newCreateId && this.mode === _EDIT;
+    }
 
   },
 
@@ -99,11 +102,18 @@ export default {
   <div @input="update">
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.name" label="Name" required :mode="mode" />
+        <LabeledInput v-model="value.name" label="Name" required :mode="mode" :disabled="isDisabled" />
       </div>
 
       <div class="col span-6">
-        <LabeledSelect v-model="value.type" label="Type" :options="typeOption" :mode="mode" @input="update" />
+        <LabeledSelect
+          v-model="value.type"
+          label="Type"
+          :options="typeOption"
+          :mode="mode"
+          :disabled="isDisabled"
+          @input="update"
+        />
       </div>
     </div>
 
@@ -111,7 +121,7 @@ export default {
       <div class="col span-6">
         <LabeledSelect
           v-model="value.image"
-          :disabled="disabledImageVolume"
+          :disabled="disabledImageVolume || isDisabled"
           label="Image"
           :options="imagesOption"
           :mode="mode"
@@ -120,13 +130,20 @@ export default {
       </div>
 
       <div class="col span-6">
-        <UnitInput v-model="value.size" label="Size" :mode="mode" suffix="GiB" />
+        <UnitInput v-model="value.size" label="Size" :mode="mode" suffix="GiB" :disabled="isDisabled" />
       </div>
     </div>
 
     <div class="row mb-20">
       <div class="col span-3">
-        <LabeledSelect v-model="value.bus" label="Bus" :mode="mode" :options="interfaceOption" @input="update" />
+        <LabeledSelect
+          v-model="value.bus"
+          label="Bus"
+          :mode="mode"
+          :options="interfaceOption"
+          :disabled="isDisabled"
+          @input="update"
+        />
       </div>
 
       <div class="col span-3">
@@ -134,6 +151,7 @@ export default {
           v-model="value.bootOrder"
           label="Boot Order"
           :mode="mode"
+          :disabled="isDisabled"
           :searchable="false"
           :options="bootOrderOption"
           @input="update"

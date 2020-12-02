@@ -12,6 +12,10 @@ export default {
       type:     String,
       required: false,
       default:  'edit'
+    },
+    disabled: {
+      type:    Boolean,
+      default: false
     }
   },
 
@@ -25,6 +29,9 @@ export default {
   computed: {
     isView() {
       return this.mode === 'view';
+    },
+    isDisabled() {
+      return this.isView || this.disabled;
     }
   },
 
@@ -47,7 +54,7 @@ export default {
     :mode="mode"
     label="Port"
     placeholder="e.g. 8080"
-    :disabled="isView"
+    :disabled="isDisabled"
   >
   </labeledinput>
 </template>

@@ -1,5 +1,6 @@
 <script>
 import _ from 'lodash';
+import randomstring from 'randomstring';
 import { clone } from '@/utils/object';
 import { NETWORK_ATTACHMENT } from '@/config/types';
 import { removeObject } from '@/utils/array.js';
@@ -103,6 +104,7 @@ export default {
         model:       'virtio',
         type:        'bridge',
         networkName: this.networkName,
+        newCreateId:      randomstring.generate(10),
       };
 
       this.rows.push(neu);

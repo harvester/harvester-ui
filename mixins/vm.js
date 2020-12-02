@@ -56,8 +56,10 @@ export default {
 
   props: {
     value: {
-      type:    [String, Number, Object],
-      default: ''
+      type:    [Object],
+      default: () => {
+        return {};
+      }
     },
   },
 
@@ -76,6 +78,7 @@ export default {
 
   data() {
     const type = this.$route.params.resource;
+
     let pageType = '';
     let spec = null;
 
@@ -125,11 +128,13 @@ export default {
       }
     });
 
+    const diskRows = this.getDiskRows(spec);
+    const networkRows = this.getNetworkRows(spec);
+    const imageName = this.getRootImage(spec);
+
     return {
-      bbb:                   '',
       baseSpec,
       spec,
-      imageName:             '',
       sshName:               '',
       publicKey:             '',
       showCloudInit:         false,
@@ -141,6 +146,9 @@ export default {
       userScript,
       sshKey,
       pageType,
+      imageName,
+      diskRows,
+      networkRows
     };
   },
 
@@ -194,165 +202,156 @@ export default {
 
       return defaultValue;
     },
-
-    diskRows: {
-      get() {
-        const _volumes = this.spec?.template?.spec?.volumes || [];
-        const _dataVolumeTemplates = this.spec?.dataVolumeTemplates || [];
-        const _disks = this.spec?.template?.spec?.domain?.devices?.disks || [];
-
-        let out = [];
-
-        if (_disks.length === 0) {
-          out.push({
-            index:            0,
-            source:           SOURCE_TYPE.IMAGE,
-            name:             'disk-0',
-            accessMode:       'ReadWriteOnce',
-            bus:              'virtio',
-            pvcNS:            '',
-            volumeName:       '',
-            size:             '10Gi',
-            type:             'disk',
-            storageClassName: this.defaultStorageClass,
-            image:            this.imageName,
-            volumeMode:       'Filesystem',
-          });
-        } else {
-          out = _disks.map( (DISK, index) => {
-            const volume = _volumes.find( V => V.name === DISK.name );
-
-            let source = '';
-            let volumeName = '';
-            const pvcNS = '';
-            let accessMode = '';
-            let size = '';
-            let volumeMode = '';
-            let storageClassName = '';
-            let image = '';
-            let container = '';
-            let realName = '';
-
-            const type = DISK?.cdrom ? 'cd-rom' : 'disk';
-
-            if (volume?.containerDisk) { // is SOURCE_TYPE.CONTAINER
-              source = SOURCE_TYPE.CONTAINER;
-              container = volume.containerDisk.image;
-            }
-
-            if (volume?.dataVolume && volume?.dataVolume?.name) {
-              volumeName = volume.dataVolume.name;
-              const DVT = _dataVolumeTemplates.find( T => T.metadata.name === volumeName);
-
-              realName = volumeName;
-
-              if (DVT) {
-                if (DVT.spec?.source?.blank) {
-                  source = SOURCE_TYPE.NEW;
-                } else if (DVT.spec?.source?.http) { // url may empty
-                  source = SOURCE_TYPE.IMAGE;
-                  const imageUrl = DVT.spec.source.http.url;
-
-                  image = this.getImageSource(imageUrl);
-                  if (index === 0) {
-                    this.imageName = image;
-                  }
-                }
-
-                accessMode = DVT?.spec?.pvc?.accessModes?.[0];
-                size = DVT?.spec?.pvc?.resources?.requests?.storage || '10Gi';
-                volumeMode = DVT?.spec?.pvc?.volumeMode;
-                storageClassName = DVT?.spec?.pvc?.storageClassName || this.defaultStorageClass;
-              } else { // mayby is SOURCE_TYPE.ATTACH_VOLUME
-                const choices = this.$store.getters['cluster/all'](PVC);
-                const pvcResource = choices.find( O => O.metadata.name === volume?.dataVolume?.name);
-
-                source = SOURCE_TYPE.ATTACH_VOLUME;
-                accessMode = pvcResource?.spec?.accessModes?.[0] || 'ReadWriteOnce';
-                size = pvcResource?.spec?.resources?.requests?.storage || '10Gi';
-                storageClassName = pvcResource?.spec?.storageClassName;
-                volumeMode = pvcResource?.spec?.volumeMode || 'Filesystem';
-                volumeName = pvcResource?.metadata?.name || '';
-              }
-            }
-
-            const bus = DISK?.disk?.bus || DISK?.cdrom?.bus;
-
-            const bootOrder = DISK?.bootOrder;
-
-            return {
-              bootOrder,
-              source,
-              name:          DISK.name,
-              realName,
-              bus,
-              volumeName,
-              pvcNS,
-              container,
-              accessMode,
-              size,
-              volumeMode:    volumeMode || 'Filesystem',
-              image,
-              type,
-              storageClassName,
-            };
-          });
-        }
-
-        return out.filter( (O) => {
-          return O.name !== 'cloudinitdisk';
-        });
-      },
-
-      set(neu) {
-        this.parseDiskRows(neu);
-      }
-    },
-
-    networkRows: {
-      get() {
-        const networks = this.spec?.template?.spec?.networks || [];
-        const interfaces = this.spec?.template?.spec?.domain?.devices?.interfaces || [];
-        // const templateAnnotations = this.spec?.template?.metadata?.annotations;
-        // let networkAnnotition = [];
-
-        // if (templateAnnotations?.[NETWROK_ANNOTATION]) {
-        //   networkAnnotition = JSON.parse(templateAnnotations?.[NETWROK_ANNOTATION]);
-        // }
-
-        const out = interfaces.map( (O, index) => {
-          const network = networks.find( (N) => {
-            return O.name === N.name;
-          });
-
-          // const netwrokAnnotation = networkAnnotition.find((N) => {
-          //   return network?.multus?.networkName === N.name;
-          // });
-          const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
-          const isPod = !!network?.pod;
-
-          return {
-            ...O,
-            type,
-            model:        O.model || 'virtio',
-            networkName:  network?.multus?.networkName || MANAGEMENT_NETWORK,
-            index,
-            // isIpamStatic: !!netwrokAnnotation,
-            // cidr:         netwrokAnnotation?.ips || '',
-            isPod
-          };
-        });
-
-        return out;
-      },
-
-      set(neu) {
-        this.parseNetworkRows(neu);
-      }
-    }
   },
 
   methods: {
+    getDiskRows(spec) {
+      const _volumes = spec?.template?.spec?.volumes || [];
+      const _dataVolumeTemplates = spec?.dataVolumeTemplates || [];
+      const _disks = spec?.template?.spec?.domain?.devices?.disks || [];
+
+      let out = [];
+
+      if (_disks.length === 0) {
+        out.push({
+          source:           SOURCE_TYPE.IMAGE,
+          name:             'disk-0',
+          accessMode:       'ReadWriteOnce',
+          bus:              'virtio',
+          pvcNS:            '',
+          volumeName:       '',
+          size:             '10Gi',
+          type:             'disk',
+          // storageClassName: this.defaultStorageClass,
+          storageClassName: 'longhorn',
+          image:             this.imageName,
+          volumeMode:       'Filesystem',
+        });
+      } else {
+        out = _disks.map( (DISK, index) => {
+          const volume = _volumes.find( V => V.name === DISK.name );
+
+          let source = '';
+          let volumeName = '';
+          const pvcNS = '';
+          let accessMode = '';
+          let size = '';
+          let volumeMode = '';
+          let storageClassName = '';
+          let image = '';
+          let container = '';
+          let realName = '';
+
+          const type = DISK?.cdrom ? 'cd-rom' : 'disk';
+
+          if (volume?.containerDisk) { // is SOURCE_TYPE.CONTAINER
+            source = SOURCE_TYPE.CONTAINER;
+            container = volume.containerDisk.image;
+          }
+
+          if (volume?.dataVolume && volume?.dataVolume?.name) {
+            volumeName = volume.dataVolume.name;
+            const DVT = _dataVolumeTemplates.find( T => T.metadata.name === volumeName);
+
+            realName = volumeName;
+
+            if (DVT) {
+              if (DVT.spec?.source?.blank) {
+                source = SOURCE_TYPE.NEW;
+              } else if (DVT.spec?.source?.http) { // url may empty
+                source = SOURCE_TYPE.IMAGE;
+                const imageUrl = DVT.spec.source.http.url;
+
+                image = this.getImageSource(imageUrl);
+              }
+
+              accessMode = DVT?.spec?.pvc?.accessModes?.[0];
+              size = DVT?.spec?.pvc?.resources?.requests?.storage || '10Gi';
+              volumeMode = DVT?.spec?.pvc?.volumeMode;
+              storageClassName = DVT?.spec?.pvc?.storageClassName || this.defaultStorageClass;
+            } else { // mayby is SOURCE_TYPE.ATTACH_VOLUME
+              const choices = this.$store.getters['cluster/all'](PVC); // should use DV
+              const pvcResource = choices.find( O => O.metadata.name === volume?.dataVolume?.name);
+
+              source = SOURCE_TYPE.ATTACH_VOLUME;
+              accessMode = pvcResource?.spec?.accessModes?.[0] || 'ReadWriteOnce';
+              size = pvcResource?.spec?.resources?.requests?.storage || '10Gi';
+              storageClassName = pvcResource?.spec?.storageClassName;
+              volumeMode = pvcResource?.spec?.volumeMode || 'Filesystem';
+              volumeName = pvcResource?.metadata?.name || '';
+            }
+          }
+
+          const bus = DISK?.disk?.bus || DISK?.cdrom?.bus;
+
+          const bootOrder = DISK?.bootOrder;
+
+          return {
+            bootOrder,
+            source,
+            name:          DISK.name,
+            realName,
+            bus,
+            volumeName,
+            pvcNS,
+            container,
+            accessMode,
+            size,
+            volumeMode:    volumeMode || 'Filesystem',
+            image,
+            type,
+            storageClassName,
+          };
+        });
+      }
+
+      return out.filter( (O) => {
+        return O.name !== 'cloudinitdisk';
+      });
+    },
+    getNetworkRows(spec) {
+      const networks = spec?.template?.spec?.networks || [];
+      const interfaces = spec?.template?.spec?.domain?.devices?.interfaces || [];
+      // const templateAnnotations = spec?.template?.metadata?.annotations;
+      // let networkAnnotition = [];
+
+      // if (templateAnnotations?.[NETWROK_ANNOTATION]) {
+      //   networkAnnotition = JSON.parse(templateAnnotations?.[NETWROK_ANNOTATION]);
+      // }
+
+      const out = interfaces.map( (O, index) => {
+        const network = networks.find( (N) => {
+          return O.name === N.name;
+        });
+
+        // const netwrokAnnotation = networkAnnotition.find((N) => {
+        //   return network?.multus?.networkName === N.name;
+        // });
+        const type = O.sriov ? 'sriov' : O.bridge ? 'bridge' : 'masquerade';
+        const isPod = !!network?.pod;
+
+        return {
+          ...O,
+          type,
+          model:        O.model || 'virtio',
+          networkName:  network?.multus?.networkName || MANAGEMENT_NETWORK,
+          index,
+          // isIpamStatic: !!netwrokAnnotation,
+          // cidr:         netwrokAnnotation?.ips || '',
+          isPod
+        };
+      });
+
+      return out;
+    },
+
+    getRootImage(spec) {
+      const _dataVolumeTemplates = spec?.dataVolumeTemplates || [];
+      const imageUrl = _dataVolumeTemplates?.[0]?.spec?.source?.http?.url || '';
+
+      return this.getImageSource(imageUrl);
+    },
+
     getCloudInit() {
       let out = this.userScript;
 
@@ -365,7 +364,10 @@ export default {
 
         // eslint-disable-next-line camelcase
         if (newInitScript?.ssh_authorized_keys) {
-          newInitScript.ssh_authorized_keys = [...this.getSSHListValue(this.sshKey), ...newInitScript.ssh_authorized_keys];
+          const sshList = [...this.getSSHListValue(this.sshKey), ...newInitScript.ssh_authorized_keys];
+          const value = new Set(sshList);
+
+          newInitScript.ssh_authorized_keys = [...value];
         } else {
           newInitScript.ssh_authorized_keys = this.getSSHListValue(this.sshKey);
         }
@@ -381,9 +383,11 @@ export default {
 
       return hasCloundConfig ? out : `#cloud-config\n${ out }`;
     },
+
     updateSSHKey(neu) {
       this.$set(this, 'sshKey', neu);
     },
+
     normalizeSpec() {
       this.parseNetworkRows(this.networkRows);
 
@@ -394,7 +398,8 @@ export default {
       if (!url) {
         return;
       }
-      const image = this.images.find( I => url === I?.status?.downloadUrl);
+      const images = this.$store.getters['cluster/all'](IMAGE);
+      const image = images.find( I => url === I?.status?.downloadUrl);
 
       return image?.spec?.displayName;
     },
@@ -451,6 +456,10 @@ export default {
 
     parseDateVolumeTemplate(R, dataVolumeName) {
       const accessModel = R.accessMode;
+
+      if (!String(R.size).includes('Gi')) {
+        R.size = `${ R.size }Gi`;
+      }
 
       const _dataVolumeTemplate = {
         apiVersion: 'cdi.kubevirt.io/v1alpha1',
@@ -736,6 +745,6 @@ export default {
           this.$set(this, 'diskRows', _diskRows);
         }
       },
-    },
+    }
   }
 };

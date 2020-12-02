@@ -1,11 +1,13 @@
 <script>
 import _ from 'lodash';
+import randomstring from 'randomstring';
 import { PVC, STORAGE_CLASS } from '@/config/types';
 import { removeObject } from '@/utils/array.js';
 import { clone } from '@/utils/object';
 import { sortBy } from '@/utils/sort';
 import { SOURCE_TYPE, InterfaceOption } from '@/config/map';
-import { _VIEW } from '@/config/query-params';
+import ModalWithCard from '@/components/ModalWithCard';
+import { _VIEW, _EDIT } from '@/config/query-params';
 import InfoBox from '@/components/InfoBox';
 import UnitInput from '@/components/form/UnitInput';
 import LabeledInput from '@/components/form/LabeledInput';
@@ -13,7 +15,7 @@ import LabeledSelect from '@/components/form/LabeledSelect';
 
 export default {
   components: {
-    InfoBox, LabeledInput, UnitInput, LabeledSelect
+    InfoBox, LabeledInput, UnitInput, LabeledSelect, ModalWithCard
   },
 
   props:      {
@@ -43,12 +45,7 @@ export default {
     secrets: {
       type:    Array,
       default: () => []
-    },
-
-    registerBeforeHook: {
-      type:    Function,
-      default: null,
-    },
+    }
   },
 
   async fetch() {
@@ -63,7 +60,8 @@ export default {
       SOURCE_TYPE,
       rows:    clone(this.value),
       pvcs:    [],
-      nameIdx: 1
+      nameIdx: 1,
+      vol:     null
     };
   },
 
@@ -71,24 +69,12 @@ export default {
     isView() {
       return this.mode === _VIEW;
     },
+    isEdit() {
+      return this.mode === _EDIT;
+    },
     isDisableClose() {
       return !this.isView;
     },
-    // isImage() {
-    //   return this.currentRow.source === SOURCE_TYPE.IMAGE;
-    // },
-
-    // isBlank() {
-    //   return this.currentRow.source === SOURCE_TYPE.BLANK;
-    // },
-
-    // isAttachVolume() {
-    //   return this.currentRow.source === SOURCE_TYPE.ATTACH_VOLUME;
-    // },
-
-    // isContainerDisk() {
-    //   return this.currentRow.source === SOURCE_TYPE.CONTAINER;
-    // },
     accessModeOption() {
       return [{
         label: 'Single User(RWO)',
@@ -175,6 +161,7 @@ export default {
         volumeMode:       'Filesystem',
         volumeName:           '',
         bus:              'virtio',
+        newCreateId:      randomstring.generate(10), // judge whether it is a disk that has been created
       };
 
       this.rows.push(neu);
@@ -195,8 +182,13 @@ export default {
     },
 
     removeVolume(vol) {
-      removeObject(this.rows, vol);
-      this.$emit('input', this.rows);
+      this.vol = vol;
+      if (!vol.newCreateId && this.isEdit) { // if volume has been created, There is a prompt when deleting
+        this.$refs.deleteTip.open();
+      } else {
+        removeObject(this.rows, vol);
+        this.update();
+      }
     },
 
     componentFor(type) {
@@ -220,8 +212,19 @@ export default {
         'Container':         'Container', // eslint-disable-line
       }[type];
     },
+
     update() {
       this.$emit('input', this.rows);
+    },
+
+    save() {
+      removeObject(this.rows, this.vol);
+      this.update();
+      this.cancel();
+    },
+
+    cancel() {
+      this.$refs.deleteTip.hide();
     }
   }
 };
@@ -270,6 +273,27 @@ export default {
         Add Container
       </button>
     </div>
+
+    <ModalWithCard ref="deleteTip" name="deleteTip" :width="400">
+      <template #title>
+        Are you sure?
+      </template>
+
+      <template #content>
+        <div>
+          <span>Remove the volume will permanently delete the data, are you sure you want to remove it?</span>
+        </div>
+      </template>
+
+      <template #footer>
+        <button class="btn role-secondary btn-sm mr-20" @click.prevent="cancel">
+          No
+        </button>
+        <button class="btn role-tertiary bg-primary btn-sm mr-20" @click.prevent="save">
+          Yes
+        </button>
+      </template>
+    </ModalWithCard>
   </div>
 </template>
 

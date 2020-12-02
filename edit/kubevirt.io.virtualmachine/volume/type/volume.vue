@@ -2,6 +2,7 @@
 import UnitInput from '@/components/form/UnitInput';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
+import { _EDIT } from '@/config/query-params';
 
 export default {
   name:       'Volume',
@@ -58,11 +59,17 @@ export default {
       default: () => {
         return [];
       }
-    }
+    },
   },
 
   data() {
     return {};
+  },
+
+  computed: {
+    isDisabled() {
+      return !this.value.newCreateId && this.mode === _EDIT;
+    }
   },
 
   methods: {
@@ -80,6 +87,7 @@ export default {
         <LabeledInput
           v-model="value.name"
           label="Name"
+          :disabled="isDisabled"
           :mode="mode"
           required
         />
@@ -91,6 +99,7 @@ export default {
           label="Type"
           :options="typeOption"
           required
+          :disabled="isDisabled"
           :mode="mode"
           @input="update"
         />
@@ -99,7 +108,7 @@ export default {
 
     <div class="row">
       <div class="col span-6">
-        <UnitInput v-model="value.size" :mode="mode" label="Size" suffix="GiB" />
+        <UnitInput v-model="value.size" :mode="mode" label="Size" suffix="GiB" :disabled="isDisabled" />
       </div>
 
       <div class="col span-3">
@@ -109,6 +118,7 @@ export default {
           class="mb-20"
           :mode="mode"
           :options="interfaceOption"
+          :disabled="isDisabled"
           required
           @input="update"
         />
@@ -122,6 +132,7 @@ export default {
           :mode="mode"
           :clearable="true"
           :searchable="false"
+          :disabled="isDisabled"
           :options="bootOrderOption"
           @input="update"
         />
