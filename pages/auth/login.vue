@@ -2,16 +2,16 @@
 import { LOGGED_OUT, _FLAGGED } from '@/config/query-params';
 import AsyncButton from '@/components/AsyncButton';
 import Loading from '@/components/Loading';
-import Card from '@/components/Card';
 import Banner from '@/components/Banner';
 import RadioButton from '@/components/form/RadioButton';
+import ButtonGroup from '@/components/ButtonGroup';
 import LabeledInput from '@/components/form/LabeledInput';
 
 export default {
   name:       'Login',
   layout:     'unauthenticated',
   components: {
-    AsyncButton, Loading, Card, RadioButton, LabeledInput, Banner
+    AsyncButton, Loading, ButtonGroup, RadioButton, LabeledInput, Banner
   },
 
   async asyncData(ctx) {
@@ -23,52 +23,70 @@ export default {
   data({ $cookies }) {
     return {
       loginMode: '',
-      file:        {},
-      toUpload:    null,
-      token:       '',
-      err:         '',
-      loading:     false,
-      form:        {
+      file:      {},
+      toUpload:  null,
+      token:     '',
+      err:       '',
+      loading:   false,
+      form:      {
         username: '',
         password: ''
       },
-      rules:       {
+      rules:     {
         username: [{ required: true, message: this.$store.getters['i18n/t']('validation.required', { key: 'Username' }) }],
         password: [{ required: true, message: this.$store.getters['i18n/t']('validation.required', { key: 'Password' }) }]
-      }
+      },
     };
   },
 
   computed: {
+    groupOptions() {
+      return [
+        { value: 'kubeconfig', label: 'kubeconfig' },
+        { value: 'token', label: 'token' },
+        { value: 'local', label: 'local' },
+
+      ];
+    },
+
     fileMode() {
       return this.loginMode === 'kubeconfig';
     },
+
     tokenMode() {
       return this.loginMode === 'token';
     },
+
     localMode() {
       return this.loginMode === 'local';
     },
+
     fileName() {
       return this.file?.name;
     },
+
     unauthorized() {
       return this.$route.query.unauthorized === _FLAGGED;
     },
+
     loggedOut() {
       return this.$route.query[LOGGED_OUT] === _FLAGGED;
     },
+
     allowKubeCredentials() {
       return (this.authModes || []).includes('kubernetesCredentials');
     },
+
     allowLocalUser() {
       return (this.authModes || []).includes('localUser');
     },
+
     onlyLocalUser() {
       const modes = (this.authModes || []);
 
       return modes.length === 1 && modes.includes('localUser');
     },
+
   },
 
   watch: {
@@ -223,127 +241,81 @@ export default {
 
 <template>
   <main class="login">
-    <Card class="login__box">
-      <div slot="title" class="clearfix">
-        <span>Harvester Dashboard</span>
-      </div>
+    <div class="row mb-20">
+      <div class="col span-6">
+        <p class="text-center">
+          Howdy!
+        </p>
+        <h1 class="text-center">
+          Welcome to Harvester
+        </h1>
+        <div class="login__container">
+          <div v-if="!onlyLocalUser">
+            <div v-if="allowKubeCredentials" class="mt-20">
+              <div>
+                <ButtonGroup v-model="loginMode" :options="groupOptions" />
+                <i v-if="fileMode" v-tooltip="t('loginPage.tips.kubeconfigLimitations', {}, raw=true)" class="icon icon-info" />
+              </div>
+            </div>
+          </div>
 
-      <div slot="body">
-        <div v-if="!onlyLocalUser">
-          <p>Authentication modes:</p>
-          <div v-if="allowKubeCredentials" class="mt-20">
-            <div>
-              <RadioButton
-                v-model="loginMode"
-                name="mode"
-                label="Kubeconfig"
-                val="kubeconfig"
-              >
-                <template #label>
-                  Kubeconfig <i v-tooltip="t('loginPage.tips.kubeconfigLimitations', {}, raw=true)" class="icon icon-info" />
-                </template>
-              </RadioButton>
+          <div v-if="allowKubeCredentials && !localMode" class="mt-20 half">
+            <div v-if="fileMode" class="file">
+              <div class="file__url" @click="mockBtnClicked">
+                {{ fileName }}
+              </div>
+              <button class="btn btn-sm role-primary">
+                <i class="icon icon-upload" />
+                <input
+                  ref="uploader"
+                  type="file"
+                  @change="fileChange"
+                />
+              </button>
             </div>
-            <div>
-              <RadioButton
-                v-model="loginMode"
-                name="mode"
-                label="Token"
-                val="token"
-              />
-            </div>
-            <div>
-              <RadioButton
-                v-if="allowLocalUser"
-                v-model="loginMode"
-                name="mode"
-                label="Local User"
-                val="local"
-              />
+            <div v-else>
+              <LabeledInput v-model="token" type="password" />
             </div>
           </div>
-        </div>
-
-        <div v-if="allowKubeCredentials && !localMode" class="mt-20">
-          <div v-if="fileMode" class="file">
-            <div class="file__url" @click="mockBtnClicked">
-              {{ fileName }}
-            </div>
-            <button class="btn btn-sm role-primary">
-              <i class="icon icon-upload" />
-              <input
-                ref="uploader"
-                type="file"
-                @change="fileChange"
-              />
-            </button>
+          <div v-if="allowLocalUser && localMode" class="mt-20 half">
+            <LabeledInput v-model="form.username" label="Username" required />
+            <LabeledInput
+              v-model="form.password"
+              label="Password"
+              type="password"
+              class="mt-10"
+              required
+            />
           </div>
-          <div v-else>
-            <LabeledInput v-model="token" type="password" />
-          </div>
-        </div>
-        <div v-if="allowLocalUser && localMode" class="mt-20">
-          <LabeledInput v-model="form.username" label="Username" required />
-          <LabeledInput
-            v-model="form.password"
-            label="Password"
-            type="password"
-            class="mt-10"
-            required
+          <Banner v-if="err" class="mt-20 half" color="error" :label="err" />
+          <AsyncButton
+            ref="loginButton"
+            class="login__go mt-20"
+            action-label="SIGN IN"
+            waiting-label="Logging In..."
+            success-label="Logged In!"
+            error-label="Error"
+            v-bind="$attrs"
+            @click="login"
           />
+          <Loading v-if="loading" />
         </div>
       </div>
-      <div slot="actions" style="width: 100%;">
-        <Banner v-if="err" color="error" :label="err" />
-        <AsyncButton
-          ref="loginButton"
-          class="login__go"
-          action-label="SIGN IN"
-          waiting-label="Logging In..."
-          success-label="Logged In!"
-          error-label="Error"
-          v-bind="$attrs"
-          @click="login"
-        />
-      </div>
-    </Card>
-    <Loading v-if="loading" />
+      <div class="col span-6 landscape"></div>
+    </div>
   </main>
 </template>
 
 <style lang="scss">
   .login {
-    display: grid;
-    grid-template-columns: 100%;
-    place-items: center;
+    overflow: hidden;
+
+    .row {
+      align-items: center;
+    }
 
     &__alert {
       width: 450px;
-    }
-
-    &__box {
-      width: 450px;
-      font-size: 14px;
-
-      &__header {
-        background-color: var(--header-bg);
-        font-size: 16px;
-        color: #fff;
-      }
-
-      .el-radio {
-        margin-bottom: 10px;
-        margin-right: 0;
-      }
-
-      .el-radio__input.is-checked+.el-radio__label {
-        color: var(--primary);
-      }
-
-      .el-radio__input.is-checked .el-radio__inner {
-        background-color: var(--primary);
-        color: var(--primary);
-      }
     }
 
     .file {
@@ -382,16 +354,27 @@ export default {
     }
 
     &__go {
-      width: 100%;
+      width: 50%;
       justify-content: center;
     }
 
+    &__container {
+      display: grid;
+      grid-template-columns: 100%;
+      place-items: center;
+    }
+
+    .half {
+      width: 50%;
+    }
+
     .landscape {
-      background-image: url('~assets/images/pl/login-landscape.svg');
+      background-image: url('~assets/images/login-landscape.svg');
       background-repeat: no-repeat;
       background-size: cover;
       background-position: center center;
       height: 100vh;
     }
   }
+
 </style>
