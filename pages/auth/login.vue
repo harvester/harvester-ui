@@ -3,7 +3,6 @@ import { LOGGED_OUT, _FLAGGED } from '@/config/query-params';
 import AsyncButton from '@/components/AsyncButton';
 import Loading from '@/components/Loading';
 import Banner from '@/components/Banner';
-import RadioButton from '@/components/form/RadioButton';
 import ButtonGroup from '@/components/ButtonGroup';
 import LabeledInput from '@/components/form/LabeledInput';
 
@@ -11,7 +10,7 @@ export default {
   name:       'Login',
   layout:     'unauthenticated',
   components: {
-    AsyncButton, Loading, ButtonGroup, RadioButton, LabeledInput, Banner
+    AsyncButton, Loading, ButtonGroup, LabeledInput, Banner
   },
 
   async asyncData(ctx) {
