@@ -461,7 +461,7 @@ export default {
       {
         nullable:       false,
         path:           'spec.template.spec.domain.resources.requests.memory',
-        required:       true,
+        required:       false,
         translationKey: 'vm.fields.memory',
         validators:     ['vmMemoryUnit'],
       },
