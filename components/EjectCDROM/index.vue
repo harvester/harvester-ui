@@ -1,10 +1,13 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 import Card from '@/components/Card';
+import Banner from '@/components/Banner';
 import CDROMS from './cdroms';
 
 export default {
-  components: { Card, CDROMS },
+  components: {
+    Card, CDROMS, Banner
+  },
 
   data() {
     return { diskNames: [] };
@@ -58,7 +61,7 @@ export default {
   <modal
     class="eject-modal"
     name="ejectCDROM"
-    styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 100vh;"
+    width="400"
     height="auto"
     :scrollable="true"
   >
@@ -70,17 +73,23 @@ export default {
       <div slot="body" class="pl-10 pr-10">
         <span class="text-info">Select the volume you want to delete:</span>
         <CDROMS v-model="toEject" class="mt-15" @change="updateNames" />
+
+        <Banner color="info">
+          <span>Eject volume will restart the virtual machine.</span>
+        </Banner>
       </div>
 
-      <div slot="actions">
-        <button class="btn role-secondary" @click="close">
-          Cancel
-        </button>
+      <template slot="actions">
+        <div class="actions">
+          <button class="btn role-secondary" @click="close">
+            Cancel
+          </button>
 
-        <button class="btn bg-error" :disabled="isDeleteDisabled" @click="remove">
-          Delete
-        </button>
-      </div>
+          <button class="btn bg-error" :disabled="isDeleteDisabled" @click="remove">
+            Delete
+          </button>
+        </div>
+      </template>
     </Card>
   </modal>
 </template>
@@ -92,6 +101,10 @@ export default {
     max-height: 100vh;
     & ::-webkit-scrollbar-corner {
       background: rgba(0,0,0,0);
+    }
+
+    .actions {
+      display: flex;
     }
   }
 </style>
