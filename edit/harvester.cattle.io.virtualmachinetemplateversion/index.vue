@@ -160,6 +160,7 @@ export default {
 
   methods: {
     async saveVMT(buttonCb) {
+      this.normalizeSpec();
       if (this.isCreate) { // namespace does not need
         delete this.value.metadata.namespace;
       }
