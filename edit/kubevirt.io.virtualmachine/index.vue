@@ -175,6 +175,13 @@ export default {
       this.$set(this, 'sshKey', sshKey);
       // this.$refs.ssh.updateSSH(sshKey);
       this.$set(this, 'spec', templateSpec?.spec?.vm);
+      const diskRows = this.getDiskRows(templateSpec?.spec?.vm);
+      const networkRows = this.getNetworkRows(templateSpec?.spec?.vm);
+      const imageName = this.getRootImage(templateSpec?.spec?.vm);
+
+      this.$set(this, 'diskRows', diskRows);
+      this.$set(this, 'networkRows', networkRows);
+      this.$set(this, 'imageName', imageName);
     },
 
     async templateName(id) {
