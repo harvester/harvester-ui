@@ -90,6 +90,15 @@ export default {
 
   },
 
+  watch: {
+    'value.type'(neu) {
+      if (neu === 'cd-rom') {
+        this.$set(this.value, 'bus', 'sata');
+        this.update();
+      }
+    },
+  },
+
   methods: {
     update() {
       this.$emit('update');

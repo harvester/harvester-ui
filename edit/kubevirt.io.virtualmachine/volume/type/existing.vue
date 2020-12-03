@@ -117,7 +117,13 @@ export default {
       this.value.size = pvcResource?.spec?.pvc?.resources?.requests?.storage;
       this.value.storageClassName = pvcResource?.spec?.pvc?.storageClassName;
       this.value.volumeMode = pvcResource?.spec?.pvc?.volumeMode;
-    }
+    },
+    'value.type'(neu) {
+      if (neu === 'cd-rom') {
+        this.$set(this.value, 'bus', 'sata');
+        this.update();
+      }
+    },
   },
 
   methods: {
