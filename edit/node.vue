@@ -1,16 +1,21 @@
 <script>
-import Labels from '@/components/form/Labels';
-import Taints from '@/components/form/Taints';
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
 import Footer from '@/components/form/Footer';
-import CreateEditView from '@/mixins/create-edit-view';
-import { DESCRIPTION, HOSTNAME } from '@/config/labels-annotations';
 import NameNsDescription from '@/components/form/NameNsDescription';
+import LabeledInput from '@/components/form/LabeledInput';
+import CreateEditView from '@/mixins/create-edit-view';
+import { HOST_CUSTOM_NAME } from '@/config/labels-annotations';
 
 export default {
   name: 'EditNode',
 
   components: {
-    Footer, Labels, NameNsDescription, Taints
+    Footer,
+    Tabbed,
+    Tab,
+    LabeledInput,
+    NameNsDescription
   },
 
   mixins: [CreateEditView],
@@ -23,12 +28,15 @@ export default {
   },
 
   data() {
-    return {
-      DESCRIPTION,
-      HOSTNAME,
-      metrics: { cpu: 0, memory: 0 }
-    };
+    return { customName: this.value.getAnnotationValue(HOST_CUSTOM_NAME) };
   },
+
+  watch: {
+    customName(neu) {
+      this.value.setAnnotation(HOST_CUSTOM_NAME, neu);
+    }
+  },
+
 };
 </script>
 
@@ -38,14 +46,19 @@ export default {
       :value="value"
       :namespaced="false"
       :mode="mode"
-      label="Name"
     />
-    <div class="row">
-      <Labels :value="value" :mode="mode" :display-side-by-side="true" />
-    </div>
-    <div class="row">
-      <Taints v-model="value.spec.taints" :mode="mode" />
-    </div>
+
+    <Tabbed ref="tabbed" class="mt-15" :side-tabs="true">
+      <Tab name="details" :label="t('vm.detail.tabs.details')">
+        <LabeledInput
+          v-model="customName"
+          :label="t('node.detail.basic.customName')"
+          class="mb-20"
+          :mode="mode"
+          required
+        />
+      </Tab>
+    </Tabbed>
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
   </div>
 </template>

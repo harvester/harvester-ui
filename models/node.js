@@ -33,6 +33,10 @@ export default {
     ];
   },
 
+  canUpdate() {
+    return true;
+  },
+
   showDetailStateBadge() {
     return true;
   },
