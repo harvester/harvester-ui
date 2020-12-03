@@ -22,12 +22,10 @@ export default {
 
   data() {
     return {
-      spec:       this.value.spec,
-      cdrowName:  [],
-      nameString: '',
-      rows:       [],
-      hasChecked: false,
-      diskRows:   [],
+      spec:        this.value.spec,
+      rows:        [],
+      diskRows:    [],
+      checkedList: []
     };
   },
 
@@ -79,18 +77,18 @@ export default {
       },
       deep: true
     },
+
     diskRows: {
       handler(neu) {
         this.rows = neu.filter(d => d.type === 'cd-rom');
       },
       deep: true
     },
-    rows: {
-      handler(neu) {
-        this.$emit('change', this.getCheckCdrow());
-      },
-      deep: true
+
+    checkedList(neu) {
+      this.$emit('change', neu);
     },
+
   },
 
   created() {
@@ -118,20 +116,15 @@ export default {
 </script>
 
 <template>
-  <SortableTable
-    class="mb-20"
-    key-field="id"
-    :rows="rows"
-    :search="false"
-    :headers="headers"
-    :row-actions-width="160"
-    :row-actions="false"
-    :table-actions="false"
-  >
-    <template slot="cell:" slot-scope="scope" class="state-col">
-      <div class="state">
-        <Checkbox v-if="scope.row.type === 'cd-rom'" v-model="scope.row.isEjectCdRow" class="selection-checkbox" type="checkbox" />
-      </div>
-    </template>
-  </SortableTable>
+  <div>
+    <span v-for="row in rows" :key="row.name">
+      <label class="checkbox-container mr-15"><input v-model="checkedList" type="checkbox" :label="row.name" :value="row.name" />
+        <span
+          class="checkbox-custom mr-5"
+          role="checkbox"
+        />
+        {{ row.name }}
+      </label>
+    </span>
+  </div>
 </template>
