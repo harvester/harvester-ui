@@ -1,6 +1,7 @@
 <script>
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
+import Poller from '@/utils/poller';
 import { METRIC, VM, NODE, VMI } from '@/config/types';
 import { HOSTNAME } from '@/config/labels-annotations';
 import { defaultAsyncData } from '@/components/ResourceDetail';
@@ -8,6 +9,9 @@ import { allHash } from '@/utils/promise';
 import Basic from './basic';
 import Instance from './instance';
 // import Monitor from './monitor';
+
+const METRICS_POLL_RATE_MS = 30000;
+const MAX_FAILURES = 2;
 
 export default {
   name: 'DetailNode',
@@ -29,17 +33,12 @@ export default {
 
   async fetch() {
     const hash = {
-      metricNodes: this.$store.dispatch('management/findAll', { type: METRIC.NODE }),
-      nodes:       this.$store.dispatch('management/findAll', { type: NODE }),
-      vms:         this.$store.dispatch('management/findAll', { type: VM }),
+      nodes:   this.$store.dispatch('cluster/findAll', { type: NODE }),
+      vms:     this.$store.dispatch('cluster/findAll', { type: VM }),
     };
 
     const res = await allHash(hash);
     const instanceMap = {};
-
-    this.metrics = res.metricNodes.find((item) => {
-      return item.uid === this.value.uid;
-    });
 
     (this.$store.getters['cluster/all'](VMI) || []).forEach((vmi) => {
       const vmiUID = vmi?.metadata?.ownerReferences?.[0]?.uid;
@@ -74,16 +73,39 @@ export default {
 
   data() {
     return {
+      metricPoller: new Poller(this.loadMetrics, METRICS_POLL_RATE_MS, MAX_FAILURES),
       metrics:      null,
       mode:         'view',
       rows:          []
     };
   },
 
+  mounted() {
+    this.metricPoller.start();
+  },
+
+  beforeDestroy() {
+    this.metricPoller.stop();
+  },
+
   methods: {
     mapToStatus(isOk) {
       return isOk ? 'success' : 'error';
     },
+
+    async loadMetrics() {
+      const schema = this.$store.getters['cluster/schemaFor'](METRIC.NODE);
+
+      if (schema) {
+        this.metrics = await this.$store.dispatch('cluster/find', {
+          type: METRIC.NODE,
+          id:   this.value.id,
+          opt:  { force: true }
+        });
+        this.$forceUpdate();
+      }
+    },
+
   }
 };
 </script>
