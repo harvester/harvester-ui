@@ -27,6 +27,7 @@ export default {
       } else {
         this.$modal.hide('ejectCDROM');
       }
+      this.diskNames = [];
     }
   },
 
