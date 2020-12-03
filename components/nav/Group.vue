@@ -100,7 +100,7 @@ export default {
         <li v-if="child.divider" :key="idx">
           <hr />
         </li>
-        <li v-else-if="child[childrenKey]" :key="child.name">
+        <li v-else-if="child[childrenKey]" :key="child.name" class="pl-10">
           <Group
             :key="id+'_'+child.name+'_children'"
             :id-prefix="id+'_'"

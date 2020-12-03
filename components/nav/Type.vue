@@ -68,6 +68,7 @@ export default {
 <style lang="scss" scoped>
   .child {
     margin: 0 var(--outline) 0 0;
+    padding-left: 10px;
 
     .label {
       grid-area: label;
@@ -117,6 +118,10 @@ export default {
       text-align: right;
       justify-items: center;
       line-height: 20px;
+    }
+
+    &.root {
+      padding-left: 0;
     }
   }
 </style>
