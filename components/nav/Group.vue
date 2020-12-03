@@ -100,7 +100,7 @@ export default {
         <li v-if="child.divider" :key="idx">
           <hr />
         </li>
-        <li v-else-if="child[childrenKey]" :key="child.name" class="pl-10">
+        <li v-else-if="child[childrenKey]" :key="child.name">
           <Group
             :key="id+'_'+child.name+'_children'"
             :id-prefix="id+'_'"
@@ -191,13 +191,20 @@ export default {
     border-left: solid 5px var(--primary);
 
     A {
-      padding-left: 5px;
+      padding-left: 15px;
     }
 
     A, A I {
       color: var(--body-text);
     }
   }
+
+.body ::v-deep > .child.root.nuxt-link-active,
+.header ::v-deep > .child.root.nuxt-link-exact-active {
+  A {
+    padding-left: 5px;
+  }
+}
 
   .body ::v-deep > .child {
     A {

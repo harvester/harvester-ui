@@ -68,7 +68,6 @@ export default {
 <style lang="scss" scoped>
   .child {
     margin: 0 var(--outline) 0 0;
-    padding-left: 10px;
 
     .label {
       grid-area: label;
@@ -93,7 +92,7 @@ export default {
       grid-column-gap: 5px;
       font-size: 14px;
       line-height: 24px;
-      padding: 7.5px 7px 7.5px 10px;
+      padding: 7.5px 7px 7.5px 20px;
       margin: 0 2px 0 -3px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -121,7 +120,9 @@ export default {
     }
 
     &.root {
-      padding-left: 0;
+      A {
+        padding-left: 10px;
+      }
     }
   }
 </style>
