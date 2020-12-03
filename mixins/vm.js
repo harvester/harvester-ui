@@ -7,7 +7,7 @@ import { STORAGE_CLASS_LABEL, HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER
 // import { formatSi, parseSi } from '@/utils/units';
 import { SOURCE_TYPE } from '@/config/map';
 import {
-  NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, STORAGE_CLASS, NETWORK_ATTACHMENT, POD, VM
+  NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, STORAGE_CLASS, NETWORK_ATTACHMENT, POD, VM, DATA_VOLUME
 } from '@/config/types';
 
 const TEMPORARY_VALUE = '$occupancy_url';
@@ -68,6 +68,7 @@ export default {
       pods:               this.$store.dispatch('cluster/findAll', { type: POD }),
       ssh:                this.$store.dispatch('cluster/findAll', { type: SSH }),
       pvcs:               this.$store.dispatch('cluster/findAll', { type: PVC }),
+      dataVolume:         this.$store.dispatch('cluster/findAll', { type: DATA_VOLUME }),
       image:              this.$store.dispatch('cluster/findAll', { type: IMAGE }),
       template:           this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template }),
       storageClass:       this.$store.dispatch('cluster/findAll', { type: STORAGE_CLASS, opt: { url: `${ STORAGE_CLASS }es` } }),
@@ -270,15 +271,15 @@ export default {
               volumeMode = DVT?.spec?.pvc?.volumeMode;
               storageClassName = DVT?.spec?.pvc?.storageClassName || this.defaultStorageClass;
             } else { // mayby is SOURCE_TYPE.ATTACH_VOLUME
-              const choices = this.$store.getters['cluster/all'](PVC); // should use DV
-              const pvcResource = choices.find( O => O.metadata.name === volume?.dataVolume?.name);
+              const choices = this.$store.getters['cluster/all'](DATA_VOLUME);
+              const dvResource = choices.find( O => O.metadata.name === volume?.dataVolume?.name);
 
               source = SOURCE_TYPE.ATTACH_VOLUME;
-              accessMode = pvcResource?.spec?.accessModes?.[0] || 'ReadWriteOnce';
-              size = pvcResource?.spec?.resources?.requests?.storage || '10Gi';
-              storageClassName = pvcResource?.spec?.storageClassName;
-              volumeMode = pvcResource?.spec?.volumeMode || 'Filesystem';
-              volumeName = pvcResource?.metadata?.name || '';
+              accessMode = dvResource?.spec?.pvc?.accessModes?.[0] || 'ReadWriteOnce';
+              size = dvResource?.spec?.pvc?.resources?.requests?.storage || '10Gi';
+              storageClassName = dvResource?.spec?.pvc?.storageClassName;
+              volumeMode = dvResource?.spec?.pvc?.volumeMode || 'Filesystem';
+              volumeName = dvResource?.metadata?.name || '';
             }
           }
 

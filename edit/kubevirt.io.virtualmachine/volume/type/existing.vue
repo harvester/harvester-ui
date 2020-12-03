@@ -4,6 +4,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { DATA_VOLUME } from '@/config/types';
 import { sortBy } from '@/utils/sort';
+import { _EDIT } from '@/config/query-params';
 
 export default {
   name:       'Existing',
@@ -70,6 +71,9 @@ export default {
   },
 
   computed: {
+    isDisabled() {
+      return !this.value.newCreateId && this.mode === _EDIT;
+    },
     volumeOption() {
       const choices = this.$store.getters['cluster/all'](DATA_VOLUME);
 
@@ -128,7 +132,7 @@ export default {
   <div @input="update">
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.name" label="Name" :mode="mode" required />
+        <LabeledInput v-model="value.name" label="Name" :mode="mode" required :disabled="isDisabled" />
       </div>
 
       <div class="col span-6">
@@ -136,6 +140,7 @@ export default {
           v-model="value.type"
           label="Type"
           :mode="mode"
+          :disabled="isDisabled"
           :options="typeOption"
           required
           @input="update"
@@ -149,6 +154,7 @@ export default {
           v-model="value.volumeName"
           label="Volume"
           :mode="mode"
+          :disabled="isDisabled"
           :options="volumeOption"
           required
           @input="update"
