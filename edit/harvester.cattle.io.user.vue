@@ -42,6 +42,7 @@ export default {
     <LabeledInput
       v-model="value.password"
       label="Password"
+      type="password"
       :mode="mode"
       class="mb-20"
       required
