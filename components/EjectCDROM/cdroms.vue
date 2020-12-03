@@ -1,15 +1,8 @@
 <script>
-import SortableTable from '@/components/SortableTable';
 import VM_MIXIN from '@/mixins/vm';
-import Checkbox from '@/components/form/Checkbox';
 
 export default {
   name: 'CDROMS',
-
-  components: {
-    Checkbox,
-    SortableTable,
-  },
 
   mixins: [VM_MIXIN],
 
