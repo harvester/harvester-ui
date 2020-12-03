@@ -105,15 +105,13 @@ export default {
 
 <template>
   <div @input="update">
-    <h3>Cloud Config</h3>
+    <h2>Cloud Config</h2>
     <div class="mb-20">
-      <h4>
-        User Data:
-        <h5>
-          You can specify user data to configure an instance or run a configuration script during launch. If you launch more than one instance at a time, the user data is available to all the instances in that reservation.
-          <a target="_blank" href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html">Learn more</a>
-        </h5>
-      </h4>
+      <h3>User Data: </h3>
+      <h5>
+        You can specify user data to configure an instance or run a configuration script during launch. If you launch more than one instance at a time, the user data is available to all the instances in that reservation.
+        <a target="_blank" href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html">Learn more</a>
+      </h5>
       <div class="resource-yaml">
         <YamlEditor
           ref="yamlUser"
@@ -126,13 +124,11 @@ export default {
     </div>
 
     <div>
-      <h4>
-        Network Data:
-        <h5>
-          The network-data configuration allows you to customize the instance’s networking interfaces by assigning subnet configuration, virtual device creation (bonds, bridges, vlans) routes and DNS configuration.
-          <a target="_blank" href="https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html">Learn more</a>
-        </h5>
-      </h4>
+      <h3>Network Data:</h3>
+      <h5>
+        The network-data configuration allows you to customize the instance’s networking interfaces by assigning subnet configuration, virtual device creation (bonds, bridges, vlans) routes and DNS configuration.
+        <a target="_blank" href="https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html">Learn more</a>
+      </h5>
 
       <div class="resource-yaml">
         <YamlEditor
