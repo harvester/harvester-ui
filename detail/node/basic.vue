@@ -2,6 +2,7 @@
 import LabeledInput from '@/components/form/LabeledInput';
 import ConsumptionGauge from '@/components/ConsumptionGauge';
 import { formatSi, exponentNeeded, UNITS } from '@/utils/units';
+import { HOST_CUSTOM_NAME } from '@/config/labels-annotations';
 
 export default {
   name: 'BasicNode',
@@ -34,6 +35,10 @@ export default {
   },
 
   computed: {
+    customName() {
+      return this.value.getAnnotationValue(HOST_CUSTOM_NAME);
+    },
+
     cpuTotal() {
       let out = 0;
 
@@ -129,13 +134,16 @@ export default {
     <h3>Overview</h3>
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.internalIp" :label="t('node.detail.basic.hostIP')" :mode="mode" />
+        <LabeledInput v-model="customName" :label="t('node.detail.basic.customName')" :mode="mode" />
       </div>
       <div class="col span-6">
-        <LabeledInput v-model="value.status.nodeInfo.osImage" :label="t('node.detail.basic.os')" :mode="mode" />
+        <LabeledInput v-model="value.internalIp" :label="t('node.detail.basic.hostIP')" :mode="mode" />
       </div>
     </div>
     <div class="row mb-20">
+      <div class="col span-6">
+        <LabeledInput v-model="value.status.nodeInfo.osImage" :label="t('node.detail.basic.os')" :mode="mode" />
+      </div>
       <div class="col span-6">
         <LabeledInput v-model="nodeType" :label="t('node.detail.basic.role')" :mode="mode" />
       </div>

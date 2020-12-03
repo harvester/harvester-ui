@@ -920,6 +920,7 @@ node:
       os: Operating System
       create: Creation Time
       update: Last Update Time
+      customName: Custom Name
     more:
       uuid: UUID
     type:
@@ -1256,6 +1257,7 @@ tableHeaders:
   condition: Condition
   configuredProviders: Configured Providers
   cpu: CPU
+  customName: Custom Name
   date: Date
   destination: Target
   download: Download

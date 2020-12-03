@@ -10,7 +10,6 @@ const MAX_FAILURES = 2;
 const HOST_ROLES = {
   name:      'host-roles',
   labelKey:  'tableHeaders.roles',
-  sort:      'host-roles',
   value:     `metadata.labels`,
   formatter: 'HostRoles'
 };
@@ -18,9 +17,14 @@ const HOST_IP = {
   name:      'host-ip',
   labelKey:  'tableHeaders.hostIp',
   search:    ['internalIp'],
-  sort:      ['internalIp'],
   value:     'internalIp',
   formatter: 'HostIp'
+};
+const CUSTOM_NAME = {
+  name:      'host-custom-name',
+  labelKey:  'tableHeaders.customName',
+  value:     `metadata.annotations`,
+  formatter: 'HostCustomName'
 };
 
 export default {
@@ -40,11 +44,13 @@ export default {
   },
 
   data() {
-    return {
-      headers:      [STATE, NAME, HOST_ROLES, HOST_IP, AGE],
-      metricPoller: new Poller(this.loadMetrics, METRICS_POLL_RATE_MS, MAX_FAILURES),
+    return { metricPoller: new Poller(this.loadMetrics, METRICS_POLL_RATE_MS, MAX_FAILURES) };
+  },
 
-    };
+  computed: {
+    headers() {
+      return [STATE, NAME, CUSTOM_NAME, HOST_ROLES, HOST_IP, AGE];
+    },
   },
 
   mounted() {
