@@ -95,6 +95,7 @@ export default {
 
       return sortBy(
         choices
+          .filter(obj => obj.isReady)
           .map((obj) => {
             return {
               label: obj.spec.displayName,
