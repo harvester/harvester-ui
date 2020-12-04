@@ -55,7 +55,6 @@ export default {
           :label="t('node.detail.basic.customName')"
           class="mb-20"
           :mode="mode"
-          required
         />
       </Tab>
     </Tabbed>
