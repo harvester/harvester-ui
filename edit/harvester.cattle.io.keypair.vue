@@ -1,4 +1,6 @@
 <script>
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
 import LabeledInput from '@/components/form/LabeledInput';
 import Footer from '@/components/form/Footer';
 import CreateEditView from '@/mixins/create-edit-view';
@@ -9,6 +11,8 @@ export default {
   name: 'EditSSH',
 
   components: {
+    Tab,
+    Tabbed,
     Footer,
     LabeledInput,
     FileSelector
@@ -67,26 +71,36 @@ export default {
     <div class="header mb-20">
       <FileSelector v-if="isCreate" class="btn btn-sm bg-primary mt-10" label="Read From File" accept=".pub" @selected="onKeySelected" />
     </div>
-    <LabeledInput
-      v-if="mode !== 'view'"
-      v-model="value.metadata.name"
-      label="Name"
-      class="mb-20"
-      :mode="mode"
-      required
-    />
-    <div class="row">
-      <div class="col span-12">
-        <LabeledInput
-          v-model="publicKey"
-          type="multiline"
-          :mode="mode"
-          :min-height="160"
-          label="SSH-Key"
-          required
-        />
-      </div>
-    </div>
+
+    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+      <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
+        <div class="row mb-20">
+          <div class="col span-12">
+            <LabeledInput
+              v-if="mode !== 'view'"
+              v-model="value.metadata.name"
+              label="Name"
+              class="mb-20"
+              :mode="mode"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col span-12">
+            <LabeledInput
+              v-model="publicKey"
+              type="multiline"
+              :mode="mode"
+              :min-height="160"
+              label="SSH-Key"
+              required
+            />
+          </div>
+        </div>
+      </Tab>
+    </Tabbed>
 
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
   </div>

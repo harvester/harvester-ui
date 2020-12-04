@@ -45,7 +45,7 @@ export default {
 
 <template>
   <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-    <Tab name="detail" :label="t('vm.detail.tabs.details')" class="bordered-table">
+    <Tab name="detail" :label="t('vm.detail.tabs.basics')" class="bordered-table">
       <div class="row">
         <div class="col span-12">
           <div>Url</div>
