@@ -64,15 +64,15 @@ export default {
 
   data() {
     return {
-      isSingle:              true,
       count:                 1,
       realHostname:          '',
       templateName:          '',
       templateVersion:       '',
       namespace:             'default',
+      isSingle:              true,
       isRunning:             true,
       useTemplate:           false,
-      isLanuchFromTemplate:  false,
+      isLanuchFromTemplate:  false
     };
   },
 
@@ -102,24 +102,20 @@ export default {
 
     versionOption() {
       const choices = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
-      const templateId = this.templateName;
       const defaultVersionNumber = this.curTemplateResource?.defaultVersionNumber;
 
-      return choices.filter( O => O.spec.templateId === templateId).map( (T) => {
+      return choices.filter( O => O.spec.templateId === this.templateName).map( (T) => {
         const version = T?.status?.version; // versionNumber
         const label = defaultVersionNumber === version ? `${ version } (default)` : version; // ns:name
         const value = T.id;
 
-        return {
-          label,
-          value
-        };
+        return { label, value };
       });
     },
 
     hostname: {
       get() {
-        return this.spec.template.spec.hostname;
+        return this.spec?.template?.spec?.hostname;
       },
       set(neu) {
         try {
@@ -152,6 +148,9 @@ export default {
 
   watch: {
     async templateVersion(version) {
+      if (!version) {
+        return;
+      }
       const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version });
 
       const id = version;
@@ -177,22 +176,17 @@ export default {
       this.$set(this, 'sshKey', sshKey);
       // this.$refs.ssh.updateSSH(sshKey);
       this.$set(this, 'spec', templateSpec?.spec?.vm);
-      const diskRows = this.getDiskRows(templateSpec?.spec?.vm);
-      const networkRows = this.getNetworkRows(templateSpec?.spec?.vm);
-      const imageName = this.getRootImage(templateSpec?.spec?.vm);
-
-      this.$set(this, 'diskRows', diskRows);
-      this.$set(this, 'networkRows', networkRows);
-      this.$set(this, 'imageName', imageName);
+      this.changeSpec(templateSpec?.spec?.vm);
     },
 
     async templateName(id) {
       const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template });
       const template = choices.find( O => O.id === id);
 
-      if (template.spec.defaultVersionId && !this.isLanuchFromTemplate) {
+      if (id && template.spec.defaultVersionId && !this.isLanuchFromTemplate) {
         this.templateVersion = template.spec.defaultVersionId;
       }
+      // this.templateVersion = template.defaultVersionId;
 
       this.isLanuchFromTemplate = false;
     },
@@ -201,10 +195,11 @@ export default {
       if (neu === false) {
         const spec = _.cloneDeep(this.baseSpec);
 
-        this.$set(this, 'spec', spec);
         this.$set(this.value, 'spec', spec);
+        this.$set(this, 'spec', spec);
         this.templateName = '';
         this.templateVersion = '';
+        this.changeSpec(spec);
       }
     },
 
@@ -309,6 +304,16 @@ export default {
       this.value.id = '';
     },
 
+    changeSpec(spec) {
+      const diskRows = this.getDiskRows(spec);
+      const networkRows = this.getNetworkRows(spec);
+      const imageName = this.getRootImage(spec);
+
+      this.$set(this, 'diskRows', diskRows);
+      this.$set(this, 'networkRows', networkRows);
+      this.$set(this, 'imageName', imageName);
+    },
+
     getImages() {
       this.$store.dispatch('cluster/findAll', { type: IMAGE });
     },
@@ -318,10 +323,12 @@ export default {
         this.$set(this, 'count', 10);
       }
     },
+
     updateCpuMemory(cpu, memory) {
       this.$set(this.spec.template.spec.domain.cpu, 'cores', cpu);
       this.$set(this, 'memory', memory);
     },
+
     onTabChanged({ tab }) { // yamlEdit component is lazyload
       if (tab.name === 'advanced' && this.$refs.yamlEditor?.refresh) {
         this.$refs.yamlEditor.refresh();

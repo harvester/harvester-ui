@@ -33,7 +33,7 @@ export default {
       this.localCpu = neu;
     },
     memory(neu) {
-      if (!neu.includes('null')) {
+      if (neu && !neu.includes('null')) {
         this.localMemory = neu;
       }
     }
