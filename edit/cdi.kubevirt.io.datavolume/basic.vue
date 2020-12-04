@@ -4,7 +4,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import UnitInput from '@/components/form/UnitInput';
 import { sortBy } from '@/utils/sort';
 import { formatSi, parseSi } from '@/utils/units';
-import { STORAGE_CLASS, IMAGE } from '@/config/types';
+import { IMAGE } from '@/config/types';
 import { InterfaceOption } from '@/config/map';
 
 export default {
