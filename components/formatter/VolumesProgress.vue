@@ -1,6 +1,4 @@
 <script>
-import { VM, DATA_VOLUME } from '@/config/types';
-
 export default {
   props: {
     value: {
