@@ -62,7 +62,7 @@ export default {
 </script>
 
 <template>
-  <div class="row">
+  <div class="row host-instances">
     <div class="col span-12">
       <SortableTable
         v-bind="$attrs"
@@ -83,6 +83,8 @@ export default {
   </div>
 </template>
 
-<style lang="scss" scoped>
-
+<style lang="scss">
+.bordered-table .host-instances thead th {
+  vertical-align: middle;
+}
 </style>
