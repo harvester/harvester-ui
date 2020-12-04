@@ -1,7 +1,6 @@
 <script>
 import CountGauge from '@/components/CountGauge';
 import { NAME as VIRTUAL } from '@/config/product/virtual';
-import { COUNT } from '@/config/types';
 
 export function colorToCountName(color) {
   switch (color) {
@@ -17,8 +16,8 @@ export function colorToCountName(color) {
 
 export function resourceCounts(store, resource) {
   const inStore = store.getters['currentProduct'].inStore;
-  const clusterCounts = store.getters[`${ inStore }/all`](COUNT)[0].counts;
-  const summary = clusterCounts[resource].summary;
+  // const clusterCounts = store.getters[`${ inStore }/all`](resource)[0].counts;
+  // const summary = clusterCounts[resource].summary;
 
   const resourceAll = store.getters[`${ inStore }/all`](resource);
 
@@ -26,8 +25,8 @@ export function resourceCounts(store, resource) {
   const errorCount = resourceAll?.[0]?.errorCount || 0;
 
   const counts = {
-    total:        summary.count || 0,
-    useful:       summary.count || 0,
+    total:        resourceAll.length || 0,
+    useful:       resourceAll.length || 0,
     warningCount,
     errorCount
   };
