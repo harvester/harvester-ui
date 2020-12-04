@@ -67,6 +67,7 @@ export default {
           type:      'progress',
           value:      'status.progress',
           sort:      'progress',
+          formatter: 'VolumesProgress'
         },
         {
           name:      'phase',
