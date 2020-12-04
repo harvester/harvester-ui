@@ -2,47 +2,49 @@
 import _ from 'lodash';
 import { mapGetters } from 'vuex';
 import { safeLoad } from 'js-yaml';
-import { cleanForNew } from '@/plugins/steve/normalize';
-import { defaultAsyncData } from '@/components/ResourceDetail';
+import Banner from '@/components/Banner';
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
+import Checkbox from '@/components/form/Checkbox';
 import CruResource from '@/components/CruResource';
 import RadioGroup from '@/components/form/RadioGroup';
-import Checkbox from '@/components/form/Checkbox';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
-import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
-import { HARVESTER_CREATOR, HARVESTER_SSH_NAMES, HARVESTER_DISK_NAMES, HARVESTER_NETWORK_IPS } from '@/config/labels-annotations';
-import CreateEditView from '@/mixins/create-edit-view';
-import Tabbed from '@/components/Tabbed';
-import Banner from '@/components/Banner';
-import Tab from '@/components/Tabbed/Tab';
-import VM_MIXIN from '@/mixins/vm';
+import { defaultAsyncData } from '@/components/ResourceDetail';
 import NameNsDescription from '@/components/form/NameNsDescription';
+
+import SSHKey from '@/edit/kubevirt.io.virtualmachine/SSHKey';
 import Volume from '@/edit/kubevirt.io.virtualmachine/volume';
 import Network from '@/edit/kubevirt.io.virtualmachine/network';
+import ImageSelect from '@/edit/kubevirt.io.virtualmachine/Image';
 import CpuMemory from '@/edit/kubevirt.io.virtualmachine/CpuMemory';
 import CloudConfig from '@/edit/kubevirt.io.virtualmachine/CloudConfig';
-import ImageSelect from '@/edit/kubevirt.io.virtualmachine/Image';
-import SSHKey from '@/edit/kubevirt.io.virtualmachine/SSHKey';
+
+import VM_MIXIN from '@/mixins/vm';
+import CreateEditView from '@/mixins/create-edit-view';
+import { cleanForNew } from '@/plugins/steve/normalize';
+import { VM_TEMPLATE, VM, IMAGE } from '@/config/types';
+import { HARVESTER_CREATOR, HARVESTER_SSH_NAMES, HARVESTER_DISK_NAMES, HARVESTER_NETWORK_IPS } from '@/config/labels-annotations';
 
 export default {
   name: 'EditVM',
 
   components: {
-    Checkbox,
-    CruResource,
-    Banner,
-    Volume,
-    Network,
-    Tabbed,
     Tab,
-    CpuMemory,
-    ImageSelect,
+    Tabbed,
+    Banner,
+    Checkbox,
     RadioGroup,
-    SSHKey,
-    CloudConfig,
-    NameNsDescription,
+    CruResource,
     LabeledInput,
     LabeledSelect,
+    NameNsDescription,
+    Volume,
+    SSHKey,
+    Network,
+    CpuMemory,
+    ImageSelect,
+    CloudConfig,
   },
 
   mixins: [CreateEditView, VM_MIXIN],
@@ -70,7 +72,7 @@ export default {
       namespace:             'default',
       isRunning:             true,
       useTemplate:           false,
-      isLanuchFromTemplate:     false,
+      isLanuchFromTemplate:  false,
     };
   },
 
@@ -194,6 +196,7 @@ export default {
 
       this.isLanuchFromTemplate = false;
     },
+
     useTemplate(neu) {
       if (neu === false) {
         const spec = _.cloneDeep(this.baseSpec);
@@ -204,6 +207,7 @@ export default {
         this.templateVersion = '';
       }
     },
+
     isUseMouseEnhancement(neu) {
       if (neu) {
         Object.assign(this.spec.template.spec.domain.devices, {
@@ -229,7 +233,7 @@ export default {
       Object.assign(this.value.metadata.annotations, { [HARVESTER_NETWORK_IPS]: JSON.stringify(this.value.networkIps) });
 
       this.$set(this.value.metadata, 'namespace', 'default');
-    }, 'validate');
+    });
 
     this.registerFailureHook(() => {
       this.$set(this.value, 'type', VM);
@@ -269,12 +273,19 @@ export default {
     },
 
     async saveMultiple(buttonCb) {
-      const baseName = this.value.metadata.name;
+      const baseName = this.value.metadata.name || '';
       const baseHostname = this.useCustomHostname ? this.value.spec.template.spec.hostname : this.value.metadata.name;
       const join = baseName.endsWith('-') ? '' : '-';
       const countLength = this.count.toString().length;
 
       //  Object.assign(spec.template.metadata.annotations, { [HARVESTER_DISK_NAMES]: JSON.stringify(diskNameLables) });
+
+      if (this.count < 1 || this.count === undefined) {
+        this.errors = ['"Count" should be between 1 and 10'];
+        buttonCb(false);
+
+        return;
+      }
 
       for (let i = 1; i <= this.count; i++) {
         this.$set(this.value, 'type', VM);
@@ -322,16 +333,14 @@ export default {
 
 <template>
   <div id="vm">
-    <div v-if="isCreate" class="row mb-20">
-      <div class="col span-12">
-        <RadioGroup
-          v-model="isSingle"
-          name="model"
-          :options="[true,false]"
-          :labels="['Single Instance', 'Multiple Instance']"
-          :mode="mode"
-        />
-      </div>
+    <div v-if="isCreate" class="mb-20">
+      <RadioGroup
+        v-model="isSingle"
+        name="model"
+        :options="[true,false]"
+        :labels="['Single Instance', 'Multiple Instance']"
+        :mode="mode"
+      />
     </div>
 
     <NameNsDescription
@@ -348,7 +357,6 @@ export default {
           v-model.number="count"
           v-int-number
           type="number"
-          min="1"
           label="count"
           required
           @input="validataCount"
