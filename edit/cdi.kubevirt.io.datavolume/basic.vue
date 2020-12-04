@@ -34,7 +34,6 @@ export default {
       return I?.status?.downloadUrl === this.value?.source?.http?.url;
     })?.id : '';
 
-    const storageClassName = this.value?.pvc?.storageClassName;
     const container = this.value?.source?.registry?.url || '';
     const storage = this.getSize(this.value.pvc?.resources?.requests?.storage || null);
     const inter = 'virtio';
@@ -45,7 +44,6 @@ export default {
       image,
       source,
       storage,
-      storageClassName,
     };
   },
 
@@ -90,27 +88,6 @@ export default {
 
     interfaceOption() {
       return InterfaceOption;
-    },
-
-    storageOption() {
-      const choices = this.$store.getters['cluster/all'](STORAGE_CLASS);
-
-      choices.map( (O) => {
-        if (O.metadata?.annotations?.['storageclass.kubernetes.io/is-default-class']) {
-          this.storageClassName = O.metadata.name;
-        }
-      });
-
-      return sortBy(
-        choices
-          .map((obj) => {
-            return {
-              label: obj.metadata.name,
-              value: obj.metadata.name
-            };
-          }),
-        'label'
-      );
     },
 
     ImageOption() {
@@ -161,8 +138,7 @@ export default {
         ...this.value,
         pvc: {
           ...this.value.pvc,
-          resources:        { requests: { storage: this.storage ? `${ this.storage }Gi` : null } },
-          storageClassName: this.storageClassName
+          resources: { requests: { storage: this.storage ? `${ this.storage }Gi` : null } },
         },
         source,
       };
@@ -230,18 +206,6 @@ export default {
       suffix="iB"
       :input-exponent="3"
       :output-exponent="3"
-      :disabled="!isCreate"
-      required
-      class="mb-20"
-      @input="update"
-    />
-
-    <LabeledSelect
-      v-if="!isContainer"
-      v-model="storageClassName"
-      label="Storage Class"
-      :options="storageOption"
-      :mode="mode"
       :disabled="!isCreate"
       required
       class="mb-20"

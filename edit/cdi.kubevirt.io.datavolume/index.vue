@@ -2,15 +2,14 @@
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import NameNsDescription from '@/components/form/NameNsDescription';
+import KeyValue from '@/components/form/KeyValue';
 import Footer from '@/components/form/Footer';
-import LabelsAndAnnosModal from '@/components/form/LabelsAndAnnosModal';
 import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
-import { STORAGE_CLASS, IMAGE } from '@/config/types';
+import { IMAGE } from '@/config/types';
 import { DESCRIPTION } from '@/config/labels-annotations';
 import { defaultAsyncData } from '@/components/ResourceDetail';
 import Basic from './basic';
-import Advanced from './advanced';
 
 export default {
   name: 'Volume',
@@ -20,9 +19,8 @@ export default {
     Tabbed,
     Footer,
     Basic,
-    Advanced,
-    LabelsAndAnnosModal,
-    NameNsDescription
+    NameNsDescription,
+    KeyValue
   },
 
   mixins: [CreateEditView],
@@ -35,10 +33,7 @@ export default {
   },
 
   async fetch() {
-    await allHash({
-      image:         this.$store.dispatch('cluster/findAll', { type: IMAGE }),
-      storageClass:  this.$store.dispatch('cluster/findAll', { type: STORAGE_CLASS }),
-    });
+    await allHash({ image: this.$store.dispatch('cluster/findAll', { type: IMAGE }) });
   },
 
   asyncData(ctx) {
@@ -53,7 +48,14 @@ export default {
     const description = this.value.metadata?.annotations?.[DESCRIPTION];
 
     if (!spec) {
-      spec = { pvc: { resources: { requests: { storage: '' } } }, source: { blank: true } };
+      spec = {
+        pvc: {
+          resources:   { requests: { storage: '' } },
+          volumeMode:  'Filesystem',
+          accessModes: ['ReadWriteOnce']
+        },
+        source: { blank: true }
+      };
       this.value.spec = spec;
     }
 
@@ -109,14 +111,20 @@ export default {
     />
 
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-      <Tab name="basic" label="Basic" :weight="3" class="bordered-table">
+      <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
         <Basic ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnno" />
       </Tab>
-      <Tab name="labels" label="Labels & Annotations" :weight="2" class="bordered-table">
-        <LabelsAndAnnosModal v-model="value" :mode="mode" />
-      </Tab>
-      <Tab name="advanced" label="Advanced Options" :weight="1" class="bordered-table">
-        <Advanced v-model="spec" :mode="mode" class="mb-20" />
+      <Tab name="labels" :label="t('labels.label.title')" :weight="2" class="bordered-table">
+        <KeyValue
+          key="labels"
+          :value="value.labels"
+          :add-label="t('labels.addLabel')"
+          :mode="mode"
+          :title="t('labels.label.title')"
+          :pad-left="false"
+          :read-allowed="false"
+          @input="value.setLabels"
+        />
       </Tab>
     </Tabbed>
 

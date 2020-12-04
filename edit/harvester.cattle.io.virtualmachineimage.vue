@@ -1,7 +1,9 @@
 <script>
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
 import Footer from '@/components/form/Footer';
 import LabeledInput from '@/components/form/LabeledInput';
-import LabelsAndAnnosModal from '@/components/form/LabelsAndAnnosModal';
+import KeyValue from '@/components/form/KeyValue';
 import NameNsDescription from '@/components/form/NameNsDescription';
 import CreateEditView from '@/mixins/create-edit-view';
 import { DESCRIPTION } from '@/config/labels-annotations';
@@ -12,10 +14,12 @@ export default {
   name: 'EditImage',
 
   components: {
+    Tab,
+    Tabbed,
     Footer,
     LabeledInput,
-    LabelsAndAnnosModal,
     NameNsDescription,
+    KeyValue
   },
 
   mixins: [CreateEditView],
@@ -69,65 +73,73 @@ export default {
   },
 
   created() {
-    this.registerBeforeHook(this.validateBefore, 'validate');
     this.registerBeforeHook(this.willSave, 'willSave');
+    this.registerFailureHook(this.handleError, 'save');
   },
 
   methods: {
     willSave() {
       // before save image, save description in annotations.
       this.value.setAnnotation(DESCRIPTION, this.value.spec.description);
-
       this.value.spec.description = undefined;
     },
-    validateBefore() {
-      if (!this.value.spec.url || this.value.spec.url.trim() === '') {
-        this.errors = ['Please input image url!'];
 
-        return false;
-      }
-    }
+    handleError() {
+      this.value.spec.description = this.value.getAnnotationValue(DESCRIPTION);
+    },
+
   }
 };
 </script>
 
 <template>
-  <form>
-    <div class="row">
-      <div class="col span-12">
-        <NameNsDescription
-          ref="nd"
-          v-model="value"
-          :namespaced="false"
+  <div>
+    <NameNsDescription
+      ref="nd"
+      v-model="value"
+      :namespaced="false"
+      :mode="mode"
+      label="Name"
+      name-key="spec.displayName"
+      description-key="spec.description"
+    />
+
+    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+      <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
+        <div class="row mb-20">
+          <div class="col span-12">
+            <LabeledInput
+              v-model="url"
+              :mode="mode"
+              class="labeled-input--tooltip"
+              required
+            >
+              <template #label>
+                <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
+                  Enter URL
+                  <i v-tooltip="t('vmimage.urlTip', {}, raw=true)" class="icon icon-info" style="font-size: 14px" />
+                </label>
+              </template>
+            </LabeledInput>
+          </div>
+        </div>
+      </Tab>
+      <Tab name="labels" :label="t('labels.label.title')" :weight="2" class="bordered-table">
+        <KeyValue
+          key="labels"
+          :value="value.labels"
+          :add-label="t('labels.addLabel')"
           :mode="mode"
-          label="Name"
-          name-key="spec.displayName"
-          description-key="spec.description"
+          :title="t('labels.label.title')"
+          :pad-left="false"
+          :read-allowed="false"
+          @input="value.setLabels"
         />
-      </div>
-    </div>
+      </Tab>
+    </Tabbed>
 
-    <div class="row mb-20">
-      <div class="col span-12">
-        <LabeledInput
-          v-model="url"
-          :mode="mode"
-          class="labeled-input--tooltip"
-          required
-        >
-          <template #label>
-            <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-              Enter URL
-              <i v-tooltip="t('vmimage.urlTip', {}, raw=true)" class="icon icon-info" style="font-size: 14px" />
-            </label>
-          </template>
-        </LabeledInput>
-      </div>
-    </div>
-
-    <LabelsAndAnnosModal v-model="value" :mode="mode" />
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
-  </form>
+  </div>
 </template>
 
 <style lang="scss" scoped>
