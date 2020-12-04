@@ -199,6 +199,7 @@ export default {
     }
   }
 
+// style of nav in harvester
 .body ::v-deep > .child.root.nuxt-link-active,
 .header ::v-deep > .child.root.nuxt-link-exact-active {
   A {
