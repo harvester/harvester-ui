@@ -1,7 +1,7 @@
 <script>
 import IPAddress from '@/components/formatter/ipAddress';
 import ConsoleBar from '@/components/form/ConsoleBar';
-import { IMAGE, POD } from '@/config/types';
+import { IMAGE } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 
 const UNDEFINED = 'n/a';
@@ -35,7 +35,7 @@ export default {
   },
 
   data() {
-    return { allPods: [] };
+    return { };
   },
 
   computed: {
@@ -67,18 +67,6 @@ export default {
       const image = imageList.find( I => imageId === I.id);
 
       return image?.spec?.displayName || '-';
-    },
-
-    pod() {
-      const pod = this.allPods.find((p) => {
-        const ownerReferences = p?.metadata?.ownerReferences || [];
-
-        return !!ownerReferences.find((r) => {
-          return r.kind === 'VirtualMachineInstance' && r.name === this.value.metadata.name;
-        });
-      });
-
-      return pod?.metadata?.name || UNDEFINED;
     },
 
     disks() {
@@ -117,33 +105,12 @@ export default {
       return this.resource?.status?.guestOSInfo?.prettyName;
     },
 
-    isNamespace() {
-      return 'Namespace';
-    },
-
-    isPod() {
-      return 'Pod';
-    },
-
-    isNode() {
-      return 'Node';
-    },
-
     isDown() {
       return this.isEmpty(this.resource);
     },
   },
 
   methods: {
-    async getPods() {
-      const pods = await this.$store.dispatch('cluster/findAll', { type: POD });
-
-      this.allPods = pods || [];
-    },
-    done() {},
-    update() {
-      this.save(() => {});
-    },
     getDeviceType(o) {
       if (o.disk) {
         return 'Disk';
@@ -248,21 +215,6 @@ export default {
 
     <h2>Configurations</h2>
 
-    <div class="row">
-      <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("vm.detail.details.pod") }}
-          </label>
-          <div v-if="!isDown">
-            {{ pod }}
-          </div>
-          <div v-else>
-            {{ t("vm.detail.details.down") }}
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="row">
       <div class="col span-6">
         <div class="labeled-input view">

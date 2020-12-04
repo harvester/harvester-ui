@@ -118,41 +118,6 @@ export default {
           </div>
         </div>
       </div>
-
-      <div class="row">
-        <div class="col span-4">
-          <div class="labeled-input view">
-            <label>
-              StorageClass
-            </label>
-            <div>
-              {{ storageClassName }}
-            </div>
-          </div>
-        </div>
-
-        <!-- <div class="col span-4">
-          <div class="labeled-input view">
-            <label>
-              AccessMode
-            </label>
-            <div>
-              {{ accessMode }}
-            </div>
-          </div>
-        </div> -->
-
-        <div class="col span-4">
-          <div class="labeled-input view">
-            <label>
-              VolumeMode
-            </label>
-            <div>
-              {{ volumeMode }}
-            </div>
-          </div>
-        </div>
-      </div>
     </Tab>
   </Tabbed>
 </template>
