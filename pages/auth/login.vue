@@ -41,9 +41,9 @@ export default {
   computed: {
     groupOptions() {
       return [
+        { value: 'local', label: 'local' },
         { value: 'kubeconfig', label: 'kubeconfig' },
         { value: 'token', label: 'token' },
-        { value: 'local', label: 'local' },
 
       ];
     },
@@ -93,10 +93,10 @@ export default {
       handler(neu) {
         let mode = '';
 
-        if (neu.includes('kubernetesCredentials')) {
-          mode = 'kubeconfig';
-        } else if (neu.includes('localUser')) {
+        if (neu.includes('localUser')) {
           mode = 'local';
+        } else if (neu.includes('kubernetesCredentials')) {
+          mode = 'kubeconfig';
         }
 
         this.loginMode = mode;
