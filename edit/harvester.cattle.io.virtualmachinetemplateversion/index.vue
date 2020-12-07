@@ -166,15 +166,23 @@ export default {
       }
 
       const proxyTemplate = await this.$store.dispatch('cluster/create', this.templateValue);
+      const templates = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template });
+      const template = templates.find( O => O.metadata.name === proxyTemplate.metadata.name);
 
-      await proxyTemplate.save();
+      if (!template) {
+        await proxyTemplate.save();
+      }
+
       cleanForNew(this.value);
       this.customName = randomstring.generate(10);
       this.$set(this.value.metadata, 'annotations', {
         ...this.value.metadata.annotations,
         [HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME]: this.customName
       });
-      this.$set(this.value.spec, 'templateId', `harvester-system/${ proxyTemplate.metadata.name }`);
+
+      const name = proxyTemplate.metadata.name || template.metadata.name;
+
+      this.$set(this.value.spec, 'templateId', `harvester-system/${ name }`);
       this.$set(this.value.spec, 'keyPairIds', this.keyPairIds);
       this.$set(this.value.spec, 'vm', this.spec);
       await this.save(buttonCb);
