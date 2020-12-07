@@ -161,14 +161,14 @@
   cursor: pointer;
 }
 
-.vs--unsearchable .vs__search {
-  background-color: var(--default-text);
-  width: 0px;
-  padding: 0;
-  align-self: center;
-  border: 0;
-  display: none;
-}
+// .vs--unsearchable .vs__search {
+//   background-color: var(--default-text);
+//   width: 0px;
+//   padding: 0;
+//   align-self: center;
+//   border: 0;
+//   display: none;
+// }
 
 .vs--open .vs__dropdown-toggle {
   border-bottom-color: transparent;
