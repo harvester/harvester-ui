@@ -195,17 +195,6 @@ export default {
 
 <template>
   <div id="vm">
-    <div class="row mb-20">
-      <div class="col span-6">
-        <LabeledInput v-model="templateValue.metadata.name" :disabled="isVersionEdit" label="Template Name" required />
-      </div>
-      <div class="col span-6">
-        <LabeledInput v-model="templateValue.spec.description" label="Description" />
-      </div>
-    </div>
-
-    <Checkbox v-if="isVersionEdit" v-model="isDefaultVersion" class="mb-20" label="Default version" type="checkbox" />
-
     <CruResource
       :done-route="doneRoute"
       :resource="value"
@@ -214,6 +203,16 @@ export default {
       @apply-hooks="applyHooks"
       @finish="saveVMT"
     >
+      <div class="row mb-20">
+        <div class="col span-6">
+          <LabeledInput v-model="templateValue.metadata.name" :disabled="isVersionEdit" label="Template Name" required />
+        </div>
+        <div class="col span-6">
+          <LabeledInput v-model="templateValue.spec.description" label="Description" />
+        </div>
+      </div>
+
+      <Checkbox v-if="isVersionEdit" v-model="isDefaultVersion" class="mb-20" label="Default version" type="checkbox" />
       <Tabbed :side-tabs="true" @changed="onTabChanged">
         <Tab name="Basic" label="Basic">
           <CpuMemory :cpu="spec.template.spec.domain.cpu.cores" :memory="memory" @updateCpuMemory="updateCpuMemory" />

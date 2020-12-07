@@ -72,7 +72,6 @@ export default {
       isSingle:              true,
       isRunning:             true,
       useTemplate:           false,
-      isLanuchFromTemplate:  false
     };
   },
 
@@ -106,7 +105,7 @@ export default {
 
       return choices.filter( O => O.spec.templateId === this.templateName).map( (T) => {
         const version = T?.status?.version; // versionNumber
-        const label = defaultVersionNumber === version ? `${ version } (default)` : version; // ns:name
+        const label = defaultVersionNumber === version ? `${ version } (default)` : version;
         const value = T.id;
 
         return { label, value };
@@ -147,19 +146,16 @@ export default {
   },
 
   watch: {
-    async templateVersion(version) {
-      if (!version) {
+    async templateVersion(id) {
+      if (!id) {
         return;
       }
-      const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version });
 
-      const id = version;
-      const templateSpec = choices.find( (V) => {
-        return V.id === id;
-      });
+      const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version });
+      const templateSpec = choices.find( V => V.id === id);
       const sshKey = [];
 
-      if (templateSpec?.spec?.keyPairIds?.length > 0) {
+      if (templateSpec?.spec?.keyPairIds?.length > 0) { // TODO: ssh should use namespace:name
         templateSpec.spec.keyPairIds.map( (O) => {
           const ssh = O.split('/')[1];
 
@@ -169,37 +165,33 @@ export default {
 
       const cloudScript = templateSpec?.spec?.vm?.template?.spec?.volumes?.find( (V) => {
         return V.cloudInitNoCloud !== undefined;
-      })?.cloudInitNoCloud;
+      })?.cloudInitNoCloud; // TODO: use modals
 
       this.$set(this, 'userScript', cloudScript?.userData);
       this.$set(this, 'networkScript', cloudScript?.networkData);
       this.$set(this, 'sshKey', sshKey);
       // this.$refs.ssh.updateSSH(sshKey);
-      this.$set(this, 'spec', templateSpec?.spec?.vm);
       this.changeSpec(templateSpec?.spec?.vm);
     },
 
     async templateName(id) {
+      if (!id) {
+        return;
+      }
+
       const choices = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template });
       const template = choices.find( O => O.id === id);
 
-      if (id && template.spec.defaultVersionId && !this.isLanuchFromTemplate) {
-        this.templateVersion = template.spec.defaultVersionId;
-      }
-      // this.templateVersion = template.defaultVersionId;
-
-      this.isLanuchFromTemplate = false;
+      this.templateVersion = template.defaultVersionId;
     },
 
     useTemplate(neu) {
       if (neu === false) {
         const spec = _.cloneDeep(this.baseSpec);
 
-        this.$set(this.value, 'spec', spec);
-        this.$set(this, 'spec', spec);
+        this.changeSpec(spec);
         this.templateName = '';
         this.templateVersion = '';
-        this.changeSpec(spec);
       }
     },
 
@@ -222,12 +214,22 @@ export default {
     this.imageName = this.$route.query?.image || this.imageName;
 
     this.registerBeforeHook(() => {
-      Object.assign(this.value.metadata.labels, { [HARVESTER_CREATOR]: 'harvester' });
-      Object.assign(this.value.spec.template.metadata.annotations, { [HARVESTER_SSH_NAMES]: JSON.stringify(this.sshKey) });
+      Object.assign(this.value.metadata.labels, {
+        ...this.value.metadata.labels,
+        [HARVESTER_CREATOR]: 'harvester',
+      });
 
-      Object.assign(this.value.metadata.annotations, { [HARVESTER_NETWORK_IPS]: JSON.stringify(this.value.networkIps) });
+      Object.assign(this.value.spec.template.metadata.annotations, {
+        ...this.value.spec.template.metadata.annotations,
+        [HARVESTER_SSH_NAMES]: JSON.stringify(this.sshKey)
+      });
 
-      this.$set(this.value.metadata, 'namespace', 'default');
+      Object.assign(this.value.metadata.annotations, {
+        ...this.value.metadata.annotations,
+        [HARVESTER_NETWORK_IPS]: JSON.stringify(this.value.networkIps)
+      });
+
+      this.$set(this.value.metadata, 'namespace', 'default'); // TODO: set default namespace
     });
 
     this.registerFailureHook(() => {
@@ -243,7 +245,6 @@ export default {
     if (templateName && templateVersion) {
       this.templateName = templateName;
       this.templateVersion = templateVersion;
-      this.isLanuchFromTemplate = true;
       this.useTemplate = true;
     }
   },
@@ -309,6 +310,8 @@ export default {
       const networkRows = this.getNetworkRows(spec);
       const imageName = this.getRootImage(spec);
 
+      this.$set(this.value, 'spec', spec);
+      this.$set(this, 'spec', spec);
       this.$set(this, 'diskRows', diskRows);
       this.$set(this, 'networkRows', networkRows);
       this.$set(this, 'imageName', imageName);
@@ -340,51 +343,6 @@ export default {
 
 <template>
   <div id="vm">
-    <div v-if="isCreate" class="mb-20">
-      <RadioGroup
-        v-model="isSingle"
-        name="model"
-        :options="[true,false]"
-        :labels="['Single Instance', 'Multiple Instance']"
-        :mode="mode"
-      />
-    </div>
-
-    <NameNsDescription
-      v-model="value"
-      :mode="mode"
-      :has-extra="!isSingle"
-      :name-label="nameLabel"
-      :namespaced="false"
-      :extra-columns="isSingle ? [] :['type']"
-    >
-      <template v-slot:type>
-        <LabeledInput
-          v-if="!isSingle"
-          v-model.number="count"
-          v-int-number
-          type="number"
-          label="count"
-          required
-          @input="validataCount"
-        />
-      </template>
-    </NameNsDescription>
-
-    <div class="min-spacer"></div>
-
-    <Checkbox v-if="isCreate" v-model="useTemplate" class="check mb-20" type="checkbox" label="Use VM Template:" />
-
-    <div v-if="useTemplate" class="row mb-20">
-      <div class="col span-6">
-        <LabeledSelect v-model="templateName" label="template" :options="templateOption" />
-      </div>
-
-      <div class="col span-6">
-        <LabeledSelect v-model="templateVersion" label="version" :options="versionOption" />
-      </div>
-    </div>
-
     <CruResource
       :done-route="doneRoute"
       :resource="value"
@@ -393,6 +351,51 @@ export default {
       @apply-hooks="applyHooks"
       @finish="saveVM"
     >
+      <div v-if="isCreate" class="mb-20">
+        <RadioGroup
+          v-model="isSingle"
+          name="model"
+          :options="[true,false]"
+          :labels="['Single Instance', 'Multiple Instance']"
+          :mode="mode"
+        />
+      </div>
+
+      <NameNsDescription
+        v-model="value"
+        :mode="mode"
+        :has-extra="!isSingle"
+        :name-label="nameLabel"
+        :namespaced="false"
+        :extra-columns="isSingle ? [] :['type']"
+      >
+        <template v-slot:type>
+          <LabeledInput
+            v-if="!isSingle"
+            v-model.number="count"
+            v-int-number
+            type="number"
+            label="count"
+            required
+            @input="validataCount"
+          />
+        </template>
+      </NameNsDescription>
+
+      <div class="min-spacer"></div>
+
+      <Checkbox v-if="isCreate" v-model="useTemplate" class="check mb-20" type="checkbox" label="Use VM Template:" />
+
+      <div v-if="useTemplate" class="row mb-20">
+        <div class="col span-6">
+          <LabeledSelect v-model="templateName" label="template" :options="templateOption" />
+        </div>
+
+        <div class="col span-6">
+          <LabeledSelect v-model="templateVersion" label="version" :options="versionOption" />
+        </div>
+      </div>
+
       <Tabbed :side-tabs="true" @changed="onTabChanged">
         <Tab name="Basic" label="Basic">
           <CpuMemory :cpu="spec.template.spec.domain.cpu.cores" :memory="memory" @updateCpuMemory="updateCpuMemory" />
