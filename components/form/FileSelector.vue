@@ -20,6 +20,12 @@ export default {
       default: _EDIT
     },
 
+    accept: {
+      type:     String,
+      required: false,
+      default:  ''
+    },
+
     disabled: {
       type:    Boolean,
       default: false,
@@ -100,6 +106,7 @@ export default {
       ref="uploader"
       type="file"
       class="hide"
+      :accept="accept"
       :multiple="multiple"
       @change="fileChange"
     />
