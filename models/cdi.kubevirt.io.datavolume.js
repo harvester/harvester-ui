@@ -5,11 +5,13 @@ import { DATA_VOLUME_OWNEDBY } from '@/config/labels-annotations';
 export default {
   stateDisplay() {
     const ownedBy = this?.metadata?.annotations?.[DATA_VOLUME_OWNEDBY];
+    const readyCondition = this?.getStatusConditionOfType('Ready');
+    const status = readyCondition?.status === 'True' ? 'Ready' : 'NotReady';
 
     if (ownedBy) {
       return 'In-use';
     } else {
-      return 'Ready';
+      return status;
     }
   },
 
@@ -19,12 +21,6 @@ export default {
     }
 
     return colorForState(this.stateDisplay).replace('text-', 'bg-');
-  },
-
-  statusDisplay() {
-    const readyCondition = this?.getStatusConditionOfType('Ready');
-
-    return readyCondition?.status === 'True' ? 'Ready' : 'NoReady';
   },
 
   phaseStatus() {
@@ -69,11 +65,9 @@ export default {
     let error = 0;
 
     list.forEach((item) => {
-      const status = item.getStatusConditionOfType('Ready')?.status;
-
-      if (status === 'False') {
+      if (item.phaseStatus === 'N/A') {
         error += 1;
-      } else if (status === 'Unknown') {
+      } else if (item.phaseStatus !== 'Succeeded') {
         warning += 1;
       }
     });
