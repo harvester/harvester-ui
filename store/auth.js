@@ -61,8 +61,9 @@ export const actions = {
   async login({ commit }, { data }) {
     try {
       const res = await this.$axios({
-        method: 'post',
-        url:    addPrefix('/v1-public/auth?action=login'),
+        method:  'post',
+        url:     addPrefix('/v1-public/auth?action=login'),
+        timeout: 20000,
         data
       });
 
