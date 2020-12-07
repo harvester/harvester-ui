@@ -83,7 +83,7 @@ export default {
             let isAvailable = true;
 
             this.rows.forEach( (O) => {
-              if ((O.volumeName === obj.metadata.name && O.accessMode === 'ReadWriteOnce')) {
+              if (( O.volumeName !== this.value.volumeName && O.volumeName === obj.metadata.name && O.accessMode === 'ReadWriteOnce')) {
                 isAvailable = false;
               }
             });
