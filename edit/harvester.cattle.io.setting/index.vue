@@ -1,4 +1,7 @@
 <script>
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
+import LabeledInput from '@/components/form/LabeledInput';
 import Footer from '@/components/form/Footer';
 import CreateEditView from '@/mixins/create-edit-view';
 import NetworkSetting from './NetworkSetting';
@@ -6,7 +9,13 @@ import NetworkSetting from './NetworkSetting';
 export default {
   name: 'Networks',
 
-  components: { Footer, NetworkSetting },
+  components: {
+    Footer,
+    NetworkSetting,
+    Tab,
+    Tabbed,
+    LabeledInput
+  },
 
   mixins: [CreateEditView],
 
@@ -39,7 +48,13 @@ export default {
     }
   },
 
-  watch: {},
+  watch: {
+    'value.value'(neu) {
+      if (!neu) {
+        delete this.value.value;
+      }
+    },
+  },
 
   methods: {},
 };
@@ -47,7 +62,33 @@ export default {
 
 <template>
   <div>
-    <NetworkSetting v-if="isNetworkSetting" v-model="value" />
+    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+      <Tab v-if="isNetworkSetting" name="detail" :label="t('vm.detail.tabs.details')" class="bordered-table">
+        <NetworkSetting v-model="value" />
+      </Tab>
+      <Tab v-else name="basic" :label="t('vm.detail.tabs.details')" :weight="3" class="bordered-table">
+        <div class="row mb-20">
+          <div class="col span-12">
+            <LabeledInput
+              v-model="value.default"
+              :label="t('generic.default')"
+              class="mb-20"
+              mode="view"
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col span-12">
+            <LabeledInput
+              v-model="value.value"
+              :mode="mode"
+              :label="t('generic.value')"
+            />
+          </div>
+        </div>
+      </Tab>
+    </Tabbed>
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
   </div>
 </template>
