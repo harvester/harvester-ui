@@ -55,7 +55,9 @@ export default {
       if (splitSSH.length === 3) {
         if (splitSSH[2].includes('@')) {
           if (splitSSH[2].split('@')) {
-            this.value.metadata.name = splitSSH[2].split('@')[0];
+            if (!this.value.metadata.name) {
+              this.value.metadata.name = splitSSH[2].split('@')[0];
+            }
           }
         }
       }
