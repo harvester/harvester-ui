@@ -23,6 +23,11 @@ export default {
   computed: {
     state() {
       return this.col?.state;
+    },
+    tipMessage() {
+      const message = this.row.getStatusConditionOfType('Running')?.message;
+
+      return this.phase !== 'Succeeded' && message;
     }
   },
 
@@ -39,7 +44,7 @@ export default {
 </script>
 
 <template>
-  <span :class="{'badge-state': true, [row.phaseStatusBackgroud]: true}">
+  <span v-tooltip="tipMessage" :class="{'badge-state': true, [row.phaseStatusBackgroud]: true}">
     {{ phase }}
   </span>
 </template>
