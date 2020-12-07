@@ -7,7 +7,7 @@ export default {
     let out = this._standardActions;
 
     if (!hasFormName.includes(this.metadata.name)) {
-      const toFilter = ['goToEdit', 'goToClone', 'promptRemove'];
+      const toFilter = ['goToClone', 'promptRemove'];
 
       out = out.filter((action) => {
         if (!toFilter.includes(action.action)) {
