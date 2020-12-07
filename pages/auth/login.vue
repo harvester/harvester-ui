@@ -214,7 +214,7 @@ export default {
         this.$router.replace('/');
         buttonCb(true);
       } catch (err) {
-        const data = err.data || err.response.data;
+        const data = err.data || err.response?.data;
 
         this.err = data?.errors?.[0] || 'An error occurred logging in.  Please try again.';
         buttonCb(false);
