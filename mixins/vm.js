@@ -79,6 +79,12 @@ export default {
 
   data() {
     const type = this.$route.params.resource;
+    const isClone = this.$route.query.mode;
+
+    if (isClone === 'clone') {
+      this.value.spec.template.metadata.annotations[HARVESTER_DISK_NAMES] = '[]';
+      this.value.spec.template.spec.hostname = '';
+    }
 
     let pageType = '';
     let spec = null;
@@ -134,6 +140,7 @@ export default {
     const imageName = this.getRootImage(spec);
 
     return {
+      isClone,
       baseSpec,
       spec,
       sshName:               '',
@@ -534,7 +541,7 @@ export default {
 
         let dataVolumeName = '';
 
-        if (!this.hasCreateVolumes.includes(R.realName)) {
+        if (this.isClone || !this.hasCreateVolumes.includes(R.realName)) {
           dataVolumeName = `${ prefixName }-${ R.name }-${ randomstring.generate(5).toLowerCase() }`;
         } else if (R.source === SOURCE_TYPE.ATTACH_VOLUME) {
           dataVolumeName = R.volumeName;
