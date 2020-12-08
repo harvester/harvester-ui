@@ -116,6 +116,8 @@ export const actions = {
       type, selector, id, revision, namespace, stop, force
     } = params;
 
+    console.warn('watch stop 1:', params); // eslint-disable-line no-console
+
     type = getters.normalizeType(type);
 
     if ( !stop && !force && !getters.canWatch(params) ) {
@@ -153,6 +155,7 @@ export const actions = {
     if ( selector ) {
       msg.selector = selector;
     }
+    console.warn('watch stop 2:', params); // eslint-disable-line no-console
 
     return dispatch('send', msg);
   },
@@ -328,14 +331,14 @@ export const actions = {
       selector:  msg.selector
     };
 
-    // console.warn('Resource stop:', msg); // eslint-disable-line no-console
+    console.warn('Resource stop:', msg); // eslint-disable-line no-console
 
     if ( getters['schemaFor'](type) && getters['watchStarted'](obj) ) {
       // Try reconnecting once
-
       commit('setWatchStopped', obj);
 
       setTimeout(() => {
+        console.log('reconnect 2', obj); // eslint-disable-line no-console
         // Delay a bit so that immediate start/error/stop causes
         // only a slow infinite loop instead of a tight one.
         dispatch('watch', obj);
