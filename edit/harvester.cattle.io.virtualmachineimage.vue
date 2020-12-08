@@ -1,7 +1,7 @@
 <script>
+import CruResource from '@/components/CruResource';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
-import Footer from '@/components/form/Footer';
 import LabeledInput from '@/components/form/LabeledInput';
 import KeyValue from '@/components/form/KeyValue';
 import NameNsDescription from '@/components/form/NameNsDescription';
@@ -16,7 +16,7 @@ export default {
   components: {
     Tab,
     Tabbed,
-    Footer,
+    CruResource,
     LabeledInput,
     NameNsDescription,
     KeyValue
@@ -94,51 +94,58 @@ export default {
 
 <template>
   <div>
-    <NameNsDescription
-      ref="nd"
-      v-model="value"
-      :namespaced="false"
+    <CruResource
+      :done-route="doneRoute"
+      :resource="value"
       :mode="mode"
-      label="Name"
-      name-key="spec.displayName"
-      description-key="spec.description"
-    />
+      :errors="errors"
+      @apply-hooks="applyHooks"
+      @finish="save"
+    >
+      <NameNsDescription
+        ref="nd"
+        v-model="value"
+        :namespaced="false"
+        :mode="mode"
+        label="Name"
+        name-key="spec.displayName"
+        description-key="spec.description"
+      />
 
-    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-      <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
-        <div class="row mb-20">
-          <div class="col span-12">
-            <LabeledInput
-              v-model="url"
-              :mode="mode"
-              class="labeled-input--tooltip"
-              required
-            >
-              <template #label>
-                <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-                  Enter URL
-                  <i v-tooltip="t('vmimage.urlTip', {}, raw=true)" class="icon icon-info" style="font-size: 14px" />
-                </label>
-              </template>
-            </LabeledInput>
+      <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+        <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
+          <div class="row mb-20">
+            <div class="col span-12">
+              <LabeledInput
+                v-model="url"
+                :mode="mode"
+                class="labeled-input--tooltip"
+                required
+              >
+                <template #label>
+                  <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
+                    Enter URL
+                    <i v-tooltip="t('vmimage.urlTip', {}, raw=true)" class="icon icon-info" style="font-size: 14px" />
+                  </label>
+                </template>
+              </LabeledInput>
+            </div>
           </div>
-        </div>
-      </Tab>
-      <Tab name="labels" :label="t('labels.label.title')" :weight="2" class="bordered-table">
-        <KeyValue
-          key="labels"
-          :value="value.labels"
-          :add-label="t('labels.addLabel')"
-          :mode="mode"
-          :title="t('labels.label.title')"
-          :pad-left="false"
-          :read-allowed="false"
-          @input="value.setLabels"
-        />
-      </Tab>
-    </Tabbed>
-
-    <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
+        </Tab>
+        <Tab name="labels" :label="t('labels.label.title')" :weight="2" class="bordered-table">
+          <KeyValue
+            key="labels"
+            :value="value.labels"
+            :add-label="t('labels.addLabel')"
+            :mode="mode"
+            :title="t('labels.label.title')"
+            :pad-left="false"
+            :read-allowed="false"
+            @input="value.setLabels"
+          />
+        </Tab>
+      </Tabbed>
+    </CruResource>
   </div>
 </template>
 

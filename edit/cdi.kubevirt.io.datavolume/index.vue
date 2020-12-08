@@ -1,9 +1,9 @@
 <script>
+import CruResource from '@/components/CruResource';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import NameNsDescription from '@/components/form/NameNsDescription';
 import KeyValue from '@/components/form/KeyValue';
-import Footer from '@/components/form/Footer';
 import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
 import { IMAGE } from '@/config/types';
@@ -15,9 +15,9 @@ export default {
   name: 'Volume',
 
   components: {
+    CruResource,
     Tab,
     Tabbed,
-    Footer,
     Basic,
     NameNsDescription,
     KeyValue
@@ -103,31 +103,38 @@ export default {
 
 <template>
   <div>
-    <NameNsDescription
-      description-key="spec.description"
-      :value="value"
-      :namespaced="false"
+    <CruResource
+      :done-route="doneRoute"
+      :resource="value"
       :mode="mode"
-    />
+      :errors="errors"
+      @apply-hooks="applyHooks"
+      @finish="save"
+    >
+      <NameNsDescription
+        description-key="spec.description"
+        :value="value"
+        :namespaced="false"
+        :mode="mode"
+      />
 
-    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-      <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
-        <Basic ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnno" />
-      </Tab>
-      <Tab name="labels" :label="t('labels.label.title')" :weight="2" class="bordered-table">
-        <KeyValue
-          key="labels"
-          :value="value.labels"
-          :add-label="t('labels.addLabel')"
-          :mode="mode"
-          :title="t('labels.label.title')"
-          :pad-left="false"
-          :read-allowed="false"
-          @input="value.setLabels"
-        />
-      </Tab>
-    </Tabbed>
-
-    <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
+      <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+        <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
+          <Basic ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnno" />
+        </Tab>
+        <Tab name="labels" :label="t('labels.label.title')" :weight="2" class="bordered-table">
+          <KeyValue
+            key="labels"
+            :value="value.labels"
+            :add-label="t('labels.addLabel')"
+            :mode="mode"
+            :title="t('labels.label.title')"
+            :pad-left="false"
+            :read-allowed="false"
+            @input="value.setLabels"
+          />
+        </Tab>
+      </Tabbed>
+    </CruResource>
   </div>
 </template>

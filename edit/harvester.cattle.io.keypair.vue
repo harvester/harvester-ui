@@ -1,8 +1,8 @@
 <script>
+import CruResource from '@/components/CruResource';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import LabeledInput from '@/components/form/LabeledInput';
-import Footer from '@/components/form/Footer';
 import CreateEditView from '@/mixins/create-edit-view';
 import { defaultAsyncData } from '@/components/ResourceDetail';
 import FileSelector, { createOnSelected } from '@/components/form/FileSelector';
@@ -13,7 +13,7 @@ export default {
   components: {
     Tab,
     Tabbed,
-    Footer,
+    CruResource,
     LabeledInput,
     FileSelector
   },
@@ -70,41 +70,48 @@ export default {
 
 <template>
   <div class="keypair-card">
-    <div class="header mb-20">
-      <FileSelector v-if="isCreate" class="btn btn-sm bg-primary mt-10" label="Read From File" accept=".pub" @selected="onKeySelected" />
-    </div>
+    <CruResource
+      :done-route="doneRoute"
+      :resource="value"
+      :mode="mode"
+      :errors="errors"
+      @apply-hooks="applyHooks"
+      @finish="save"
+    >
+      <div class="header mb-20">
+        <FileSelector v-if="isCreate" class="btn btn-sm bg-primary mt-10" label="Read From File" accept=".pub" @selected="onKeySelected" />
+      </div>
 
-    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-      <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
-        <div class="row mb-20">
-          <div class="col span-12">
-            <LabeledInput
-              v-if="mode !== 'view'"
-              v-model="value.metadata.name"
-              label="Name"
-              class="mb-20"
-              :mode="mode"
-              required
-            />
+      <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+        <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
+          <div class="row mb-20">
+            <div class="col span-12">
+              <LabeledInput
+                v-if="mode !== 'view'"
+                v-model="value.metadata.name"
+                label="Name"
+                class="mb-20"
+                :mode="mode"
+                required
+              />
+            </div>
           </div>
-        </div>
 
-        <div class="row">
-          <div class="col span-12">
-            <LabeledInput
-              v-model="publicKey"
-              type="multiline"
-              :mode="mode"
-              :min-height="160"
-              label="SSH-Key"
-              required
-            />
+          <div class="row">
+            <div class="col span-12">
+              <LabeledInput
+                v-model="publicKey"
+                type="multiline"
+                :mode="mode"
+                :min-height="160"
+                label="SSH-Key"
+                required
+              />
+            </div>
           </div>
-        </div>
-      </Tab>
-    </Tabbed>
-
-    <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
+        </Tab>
+      </Tabbed>
+    </CruResource>
   </div>
 </template>
 
