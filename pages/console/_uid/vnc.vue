@@ -27,6 +27,10 @@ export default {
       this.$refs.console.close();
     });
   },
+
+  head() {
+    return { title: this.vmi.metadata.name };
+  },
 };
 </script>
 
