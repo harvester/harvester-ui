@@ -116,8 +116,6 @@ export const actions = {
       type, selector, id, revision, namespace, stop, force
     } = params;
 
-    console.warn('watch stop 1:', params); // eslint-disable-line no-console
-
     type = getters.normalizeType(type);
 
     if ( !stop && !force && !getters.canWatch(params) ) {
@@ -155,7 +153,6 @@ export const actions = {
     if ( selector ) {
       msg.selector = selector;
     }
-    console.warn('watch stop 2:', params); // eslint-disable-line no-console
 
     return dispatch('send', msg);
   },
@@ -323,7 +320,7 @@ export const actions = {
   },
 
   'ws.resource.stop'({ getters, commit, dispatch }, msg) {
-    const type = msg.resourceType;
+    const type = msg.resourceType?.replace('//', '');
     const obj = {
       type,
       id:        msg.id,
