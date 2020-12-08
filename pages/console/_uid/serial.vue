@@ -27,6 +27,10 @@ export default {
       this.$refs.serialConsole.close();
     });
   },
+
+  head() {
+    return { title: this.vmi.metadata.name };
+  },
 };
 </script>
 
