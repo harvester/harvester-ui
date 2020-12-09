@@ -89,9 +89,7 @@ export default {
       {
         nullable:       false,
         path:           'spec.url',
-        required:       true,
-        translationKey: 'imagePage.url',
-        type:           'string',
+        validators:     ['imageUrl'],
       },
     ];
   },
