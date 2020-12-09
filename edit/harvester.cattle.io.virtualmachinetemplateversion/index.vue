@@ -170,7 +170,14 @@ export default {
       const template = templates.find( O => O.metadata.name === proxyTemplate.metadata.name);
 
       if (!template) {
-        await proxyTemplate.save();
+        if (proxyTemplate?.metadata?.name) {
+          await proxyTemplate.save();
+        } else {
+          this.errors.push('"Name" is required');
+          buttonCb(false);
+
+          return;
+        }
       }
 
       cleanForNew(this.value);
