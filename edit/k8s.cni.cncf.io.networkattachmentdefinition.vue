@@ -11,7 +11,7 @@ export default {
     value: {
       type:     Object,
       required: true,
-    },
+    }
   },
 
   asyncData(ctx) {
@@ -65,7 +65,7 @@ export default {
         value: '',
         label: 'None'
       }];
-    }
+    },
   },
 
   methods: {
@@ -128,6 +128,7 @@ export default {
       v-int-number
       class="mb-20"
       required
+      :disabled="isEdit"
       type="number"
       min="1"
       max="65535"
