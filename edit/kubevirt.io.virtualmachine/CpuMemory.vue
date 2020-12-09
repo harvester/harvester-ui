@@ -59,6 +59,7 @@ export default {
     <div class="col span-6">
       <UnitInput
         v-model="localCpu"
+        v-int-number
         label="CPU"
         suffix="C"
         :increment="1"
@@ -72,6 +73,7 @@ export default {
     <div class="col span-6">
       <UnitInput
         v-model="localMemory"
+        v-int-number
         label="Memory"
         suffix="iB"
         :mode="mode"
