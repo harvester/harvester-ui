@@ -116,10 +116,10 @@ export default {
         </div>
 
         <div v-else>
-          Invalid
+          Physical NIC value in
           <nuxt-link to="harvester.cattle.io.setting/network-setting?mode=edit">
-            network configuration
-          </nuxt-link>, error: {{ statusText }}
+            Setting
+          </nuxt-link> is invalid, error: {{ statusText }}
         </div>
       </Banner>
     </div>
