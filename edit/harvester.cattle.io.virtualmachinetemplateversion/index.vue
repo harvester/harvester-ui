@@ -173,7 +173,7 @@ export default {
         if (proxyTemplate?.metadata?.name) {
           await proxyTemplate.save();
         } else {
-          this.errors.push('"Name" is required');
+          this.errors = ['"Name" is required'];
           buttonCb(false);
 
           return;
