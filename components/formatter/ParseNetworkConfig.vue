@@ -21,7 +21,9 @@ export default {
         console.log('waiting...');
       }
 
-      return config?.[this.col.type] || '';
+      const out = config?.[this.col.type] || '';
+
+      return out === 'bridge' ? 'L2VlanNetwork' : out;
     }
   }
 };
