@@ -65,9 +65,6 @@ export default {
         if (!this.value.spec.displayName) {
           this.$refs.nd.changeNameAndNamespace({ text: suffixName });
         }
-        this.errors = [];
-      } else {
-        this.errors = ['The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats).'];
       }
     },
   },

@@ -94,3 +94,5 @@ export const HARVESTER_NETWORK_STATUS = 'k8s.v1.cni.cncf.io/network-status';
 export const HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME = 'harvester.cattle.io/customName';
 
 export const HOST_CUSTOM_NAME = 'harvester.cattle.io/host-custom-name';
+
+export const HARVESTER_VOLUME_CREATEDBY = 'kubevirt.io/created-by';
