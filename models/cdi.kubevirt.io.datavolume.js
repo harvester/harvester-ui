@@ -95,9 +95,9 @@ export default {
       {
         nullable:       false,
         path:           'spec.pvc.resources.requests.storage',
-        required:       true,
         translationKey: 'volumePage.size',
         type:           'string',
+        validators:     ['dataVolumeSize']
       },
       {
         nullable:       false,
