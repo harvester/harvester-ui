@@ -27,7 +27,7 @@ export default {
 
   data() {
     return {
-      tip:        TIP,
+      tip:        this.disabled ? '' : TIP,
       image:      this.value,
     };
   },
