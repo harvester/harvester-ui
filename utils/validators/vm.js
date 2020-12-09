@@ -12,21 +12,21 @@ export function vmNetworks(spec, getters, errors, validatorArgs) {
     if (I.name.length > 20) {
       const message = getters['i18n/t']('validation.custom.tooLongName', { max: 20 });
 
-      errors.push(`network[${ index }]: ${ message }`);
+      errors.push(`network[${ index + 1 }]: ${ message }`);
     }
 
     if (!I.name || !N.name) {
-      errors.push(`network[${ index }]: name is required`);
+      errors.push(`network[${ index + 1 }]: name is required`);
     }
 
     if (N.multus) {
       if (!N.multus.networkName) {
-        errors.push(`network[${ index }]: Network Name is required`);
+        errors.push(`network[${ index + 1 }]: Network Name is required`);
       }
     }
 
     if (I.macAddress && !isValidMac(I.macAddress)) {
-      errors.push(`network[${ index }]: Invalid MAC address format.`);
+      errors.push(`network[${ index + 1 }]: Invalid MAC address format.`);
     }
 
     const portsName = new Set();
@@ -41,11 +41,11 @@ export function vmNetworks(spec, getters, errors, validatorArgs) {
       });
 
       if (portsName.size !== I.ports.length) {
-        errors.push(`network[${ index }]: Duplicate name of the port.`);
+        errors.push(`network[${ index + 1 }]: Duplicate name of the port.`);
       }
 
       if (portsNumber.size !== I.ports.length) {
-        errors.push(`network[${ index }]: Duplicate number of the port`);
+        errors.push(`network[${ index + 1 }]: Duplicate number of the port`);
       }
     }
 
@@ -78,11 +78,11 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
     if (D.name.length > 20) {
       const message = getters['i18n/t']('validation.custom.tooLongName', { max: 20 });
 
-      errors.push(`volume[${ idx }]: ${ message }`);
+      errors.push(`volume[${ idx + 1 }]: ${ message }`);
     }
 
     if (!D.name) {
-      errors.push(`volume[${ idx }]: name is required!`);
+      errors.push(`volume[${ idx + 1 }]: name is required!`);
     }
 
     allNames.add(D.name);
@@ -98,14 +98,14 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
 
     if (type === SOURCE_TYPE.NEW || type === SOURCE_TYPE.IMAGE) {
       if (!/([1-9]|[1-9][0-9]+)[a-zA-Z]+/.test(typeValue?.spec?.pvc?.resources?.requests?.storage)) {
-        errors.push(`volume[${ idx }]: "Size" is required!`);
+        errors.push(`volume[${ idx + 1 }]: "Size" is required!`);
       }
 
       if (type === SOURCE_TYPE.IMAGE && !typeValue?.spec?.source?.http?.url) { // type === SOURCE_TYPE.IMAGE
         if (idx === 0) {
           errors.push('"Image" is required!');
         } else {
-          errors.push(`volume[${ idx }]: "Image" is required!`);
+          errors.push(`volume[${ idx + 1 }]: "Image" is required!`);
         }
       }
     }
@@ -115,13 +115,13 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
       const hasExistingVolume = dvList.find(DV => DV.metadata.name === V?.dataVolume?.name);
 
       if (!hasExistingVolume) {
-        errors.push(`volume[${ idx }]: "Volume" is required!`);
+        errors.push(`volume[${ idx + 1 }]: "Volume" is required!`);
       }
     }
 
     if (V?.containerDisk) {
       if (!V.containerDisk.image) {
-        errors.push(`volume[${ idx }]: "Docker Image" is required!`);
+        errors.push(`volume[${ idx + 1 }]: "Docker Image" is required!`);
       }
     }
   });
