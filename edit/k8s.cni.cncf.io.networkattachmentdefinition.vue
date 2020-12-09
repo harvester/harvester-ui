@@ -1,11 +1,11 @@
 <script>
-import Footer from '@/components/form/Footer';
+import CruResource from '@/components/CruResource';
 import { defaultAsyncData } from '@/components/ResourceDetail';
 import CreateEditView from '@/mixins/create-edit-view';
 import LabeledInput from '@/components/form/LabeledInput';
 
 export default {
-  components: { LabeledInput, Footer },
+  components: { LabeledInput, CruResource },
   mixins:     [CreateEditView],
   props:      {
     value: {
@@ -112,30 +112,38 @@ export default {
 </script>
 
 <template>
-  <div>
-    <LabeledInput v-model="name" class="mb-20" label="Name" required :disabled="isEdit" />
+  <CruResource
+    :done-route="doneRoute"
+    :resource="value"
+    :mode="mode"
+    :errors="errors"
+    @apply-hooks="applyHooks"
+    @finish="save"
+  >
+    <div>
+      <LabeledInput v-model="name" class="mb-20" label="Name" required :disabled="isEdit" />
 
-    <LabeledInput
-      v-model="type"
-      class="mb-20"
-      label="Type"
-      :disabled="true"
-      required
-    />
+      <LabeledInput
+        v-model="type"
+        class="mb-20"
+        label="Type"
+        :disabled="true"
+        required
+      />
 
-    <LabeledInput
-      v-model.number="vlanId"
-      v-int-number
-      class="mb-20"
-      required
-      :disabled="isEdit"
-      type="number"
-      min="1"
-      max="65535"
-      placeholder="e.g. 1-4094"
-      label="Vlan ID"
-      @input="input"
-    />
+      <LabeledInput
+        v-model.number="vlanId"
+        v-int-number
+        class="mb-20"
+        required
+        :disabled="isEdit"
+        type="number"
+        min="1"
+        max="65535"
+        placeholder="e.g. 1-4094"
+        label="Vlan ID"
+        @input="input"
+      />
 
     <!-- <LabeledSelect
       v-model="ipamType"
@@ -143,7 +151,6 @@ export default {
       label="IPAM"
       :options="IPAMOption"
     /> -->
-
-    <Footer :mode="mode" :errors="errors" @save="beforeSave" @done="done" />
-  </div>
+    </div>
+  </CruResource>
 </template>
