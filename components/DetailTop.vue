@@ -137,7 +137,8 @@ export default {
           </Tag>
         </div>
       </div>
-      <div v-if="hasAnnotations" class="annotations">
+      <!-- hide annotations -->
+      <div v-if="false" class="annotations">
         <span class="label">
           {{ t('resourceDetail.detailTop.annotations') }}:
         </span>
