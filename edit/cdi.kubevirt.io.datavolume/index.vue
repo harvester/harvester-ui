@@ -94,9 +94,6 @@ export default {
 
       this.value.spec.description = undefined;
     },
-    getInvalidMsg(key) {
-      this.errors = [this.$store.getters['i18n/t']('validation.required', { key })];
-    }
   },
 };
 </script>
