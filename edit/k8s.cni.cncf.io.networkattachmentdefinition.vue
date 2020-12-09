@@ -118,7 +118,7 @@ export default {
     :mode="mode"
     :errors="errors"
     @apply-hooks="applyHooks"
-    @finish="save"
+    @finish="beforeSave"
   >
     <div>
       <LabeledInput v-model="name" class="mb-20" label="Name" required :disabled="isEdit" />
