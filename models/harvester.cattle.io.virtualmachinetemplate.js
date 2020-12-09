@@ -61,5 +61,5 @@ export default {
 
   defaultVersionNumber() {
     return this.status?.defaultVersion;
-  }
+  },
 };
