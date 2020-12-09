@@ -1,22 +1,23 @@
 import { findBy } from '@/utils/array';
 
-const hasFormName = ['network-setting']; // It has the function of editing form
-
 export default {
   _availableActions() {
-    let out = this._standardActions;
+    const out = this._standardActions;
 
-    if (!hasFormName.includes(this.metadata.name)) {
-      const toFilter = ['goToClone', 'promptRemove'];
+    const toFilter = ['goToClone', 'promptRemove'];
 
-      out = out.filter((action) => {
-        if (!toFilter.includes(action.action)) {
-          return action;
-        }
-      });
-    }
+    const actions = out.map((O) => {
+      const enabled = toFilter.includes(O.action) ? false : O.enabled;
+      const bulkable = toFilter.includes(O.action) ? false : O?.bulkable;
 
-    return out;
+      return {
+        ...O,
+        enabled,
+        bulkable
+      };
+    });
+
+    return actions;
   },
 
   configuredCondition() {
