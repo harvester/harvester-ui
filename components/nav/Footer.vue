@@ -2,7 +2,7 @@
 import { mapGetters } from 'vuex';
 import { options } from '@/config/footer';
 import { mapPref, DEV } from '@/store/prefs';
-import { MANAGEMENT } from '@/config/types';
+import { HARVESTER_SETTING } from '@/config/types';
 
 const UNKNOWN = 'unknown';
 const UI_VERSION = process.env.VERSION || UNKNOWN;
@@ -10,15 +10,15 @@ const UI_COMMIT = process.env.COMMIT || UNKNOWN;
 
 export default {
   data() {
-    const setting = this.$store.getters['management/byId'](MANAGEMENT.SETTING, 'server-version');
-    const fullVersion = setting?.value || 'unknown';
-    let displayVersion = fullVersion;
+    const setting = this.$store.getters['cluster/byId'](HARVESTER_SETTING, 'server-version');
+    const fullVersion = setting?.value || setting?.default;
+    const displayVersion = fullVersion;
 
-    const match = fullVersion.match(/^(.*)-([0-9a-f]{40})-(.*)$/);
+    // const match = fullVersion.match(/^(.*)-([0-9a-f]{40})-(.*)$/);
 
-    if ( match ) {
-      displayVersion = match[2].substr(0, 7);
-    }
+    // if ( match ) {
+    //   displayVersion = match[2].substr(0, 7);
+    // }
 
     return {
       displayVersion,
