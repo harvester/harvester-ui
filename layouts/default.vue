@@ -9,6 +9,7 @@ import PromptRemove from '@/components/PromptRemove';
 import AssignTo from '@/components/AssignTo';
 import EjectCDROM from '@/components/EjectCDROM/index';
 import Group from '@/components/nav/Group';
+import Footer from '@/components/nav/Footer';
 import PureHeader from '@/components/nav/PureHeader';
 import { COUNT, SCHEMA, MANAGEMENT } from '@/config/types';
 import { BASIC, FAVORITE, USED } from '@/store/type-map';
@@ -24,6 +25,7 @@ export default {
     AssignTo,
     EjectCDROM,
     PureHeader,
+    Footer,
     ActionMenu,
     Group,
     WindowManager
@@ -245,6 +247,7 @@ export default {
 
     <main v-if="clusterReady">
       <nuxt class="outlet" />
+      <Footer />
 
       <ActionMenu />
       <PromptRemove />
