@@ -7,7 +7,6 @@ import KeyValue from '@/components/form/KeyValue';
 import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
 import { IMAGE } from '@/config/types';
-import { DESCRIPTION } from '@/config/labels-annotations';
 import { defaultAsyncData } from '@/components/ResourceDetail';
 import Basic from './basic';
 
@@ -45,7 +44,6 @@ export default {
 
   data() {
     let spec = this.value.spec;
-    const description = this.value.metadata?.annotations?.[DESCRIPTION];
 
     if (!spec) {
       spec = {
@@ -57,12 +55,6 @@ export default {
         source: { blank: true }
       };
       this.value.spec = spec;
-    }
-
-    if (description) {
-      // if description exist, copy it, then remove it from annotations
-      this.$set(this.value.spec, 'description', description);
-      this.value.setAnnotation(DESCRIPTION, null);
     }
 
     return {
@@ -78,23 +70,6 @@ export default {
     }
   },
 
-  created() {
-    this.registerBeforeHook(this.willSave, 'willSave');
-  },
-
-  methods: {
-    updateAnno(neu) {
-      this.$set(this.value.metadata, 'annotations', {
-        ...this.value.metadata.annotations,
-        ...neu
-      });
-    },
-    willSave() {
-      this.value.setAnnotation(DESCRIPTION, this.value.spec.description);
-
-      this.value.spec.description = undefined;
-    },
-  },
 };
 </script>
 
@@ -109,7 +84,6 @@ export default {
       @finish="save"
     >
       <NameNsDescription
-        description-key="spec.description"
         :value="value"
         :namespaced="false"
         :mode="mode"
@@ -117,7 +91,7 @@ export default {
 
       <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
         <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
-          <Basic ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="updateAnno" />
+          <Basic ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="value.setAnnotations" />
         </Tab>
         <Tab name="labels" :label="t('labels.label.title')" :weight="2" class="bordered-table">
           <KeyValue
