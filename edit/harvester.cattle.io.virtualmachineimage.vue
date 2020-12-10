@@ -6,7 +6,6 @@ import LabeledInput from '@/components/form/LabeledInput';
 import KeyValue from '@/components/form/KeyValue';
 import NameNsDescription from '@/components/form/NameNsDescription';
 import CreateEditView from '@/mixins/create-edit-view';
-import { DESCRIPTION } from '@/config/labels-annotations';
 
 const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
 
@@ -33,7 +32,6 @@ export default {
 
   data() {
     let spec = this.value.spec;
-    const description = this.value.metadata?.annotations?.[DESCRIPTION];
 
     if ( !this.value.spec ) {
       spec = {};
@@ -43,12 +41,6 @@ export default {
 
     if ( this.value.metadata ) {
       this.value.metadata.generateName = 'image-'; // back end needs
-    }
-
-    if (description) {
-      // if description exist, copy it, then remove it from annotations
-      this.$set(this.value.spec, 'description', description);
-      this.value.setAnnotation(DESCRIPTION, null);
     }
 
     return { url: this.value.spec.url };
@@ -69,23 +61,6 @@ export default {
     },
   },
 
-  created() {
-    this.registerBeforeHook(this.willSave, 'willSave');
-    this.registerFailureHook(this.handleError, 'save');
-  },
-
-  methods: {
-    willSave() {
-      // before save image, save description in annotations.
-      this.value.setAnnotation(DESCRIPTION, this.value.spec.description);
-      this.value.spec.description = undefined;
-    },
-
-    handleError() {
-      this.value.spec.description = this.value.getAnnotationValue(DESCRIPTION);
-    },
-
-  }
 };
 </script>
 
@@ -106,7 +81,6 @@ export default {
         :mode="mode"
         label="Name"
         name-key="spec.displayName"
-        description-key="spec.description"
       />
 
       <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">

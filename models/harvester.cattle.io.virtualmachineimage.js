@@ -1,5 +1,9 @@
 import { colorForState } from '@/plugins/steve/resource-instance';
 import { VM, IMAGE } from '@/config/types';
+import {
+  DESCRIPTION,
+  ANNOTATIONS_TO_IGNORE_REGEX,
+} from '@/config/labels-annotations';
 
 export default {
   availableActions() {
@@ -76,6 +80,11 @@ export default {
       errorCount:   error
     };
   },
+
+  annotationsToIgnoreRegexes() {
+    return [DESCRIPTION].concat(ANNOTATIONS_TO_IGNORE_REGEX);
+  },
+
   customValidationRules() {
     return [
       {

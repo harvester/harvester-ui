@@ -1,6 +1,12 @@
 import { colorForState } from '@/plugins/steve/resource-instance';
 import { VM, DATA_VOLUME } from '@/config/types';
-import { DATA_VOLUME_OWNEDBY, LABELS_TO_IGNORE_REGEX, HARVESTER_VOLUME_CREATEDBY } from '@/config/labels-annotations';
+import {
+  DESCRIPTION,
+  DATA_VOLUME_OWNEDBY,
+  LABELS_TO_IGNORE_REGEX,
+  ANNOTATIONS_TO_IGNORE_REGEX,
+  HARVESTER_VOLUME_CREATEDBY
+} from '@/config/labels-annotations';
 
 export default {
   stateDisplay() {
@@ -80,6 +86,10 @@ export default {
 
   labelsToIgnoreRegexes() {
     return [HARVESTER_VOLUME_CREATEDBY].concat(LABELS_TO_IGNORE_REGEX);
+  },
+
+  annotationsToIgnoreRegexes() {
+    return [DESCRIPTION].concat(ANNOTATIONS_TO_IGNORE_REGEX);
   },
 
   customValidationRules() {
