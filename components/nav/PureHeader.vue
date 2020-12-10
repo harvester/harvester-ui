@@ -1,5 +1,5 @@
 <script>
-import Md5 from '@/utils/crypto/browserMd5';
+import { md5 } from '@/utils/crypto';
 import Identicon from 'identicon.js';
 
 export default {
@@ -11,10 +11,11 @@ export default {
     },
 
     imgUrl() {
-      const hash = new Md5();
-      const imgData = new Identicon(hash.digest('hex'), 40).toString();
+      const id = this.$store.getters['auth/principalId'];
+      const hash = md5(id || 'Unknown', 'hex');
+      const out = `data:image/png;base64,${ new Identicon(hash, 80, 0.01).toString() }`;
 
-      return `data:image/png;base64,${ imgData }`;
+      return out;
     },
   },
 

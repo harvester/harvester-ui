@@ -40,6 +40,10 @@ export const mutations = {
 
     state.loggedIn = false;
   },
+
+  updatePrincipalId(state, id) {
+    state.principalId = id;
+  }
 };
 
 export const actions = {
@@ -69,6 +73,7 @@ export const actions = {
 
       if (res.data) {
         commit('loggedIn');
+        commit('updatePrincipalId', data.username);
         this.$cookies.set('loggedIn', true);
 
         return true;
