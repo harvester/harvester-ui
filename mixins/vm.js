@@ -79,9 +79,9 @@ export default {
 
   data() {
     const type = this.$route.params.resource;
-    const isClone = this.$route.query.mode;
+    const isClone = this.$route.query.mode === 'clone';
 
-    if (isClone === 'clone') {
+    if (isClone) {
       this.value.spec.template.metadata.annotations[HARVESTER_DISK_NAMES] = '[]';
       this.value.spec.template.spec.hostname = '';
     }
