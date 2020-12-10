@@ -397,7 +397,7 @@ export default {
       </div>
 
       <Tabbed :side-tabs="true" @changed="onTabChanged">
-        <Tab name="Basic" label="Basic">
+        <Tab name="Basics" :label="t('vm.detail.tabs.basics')">
           <CpuMemory :cpu="spec.template.spec.domain.cpu.cores" :memory="memory" @updateCpuMemory="updateCpuMemory" />
 
           <div class="mb-20">

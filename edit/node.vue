@@ -49,7 +49,7 @@ export default {
     />
 
     <Tabbed ref="tabbed" class="mt-15" :side-tabs="true">
-      <Tab name="details" :label="t('vm.detail.tabs.details')">
+      <Tab name="basics" :label="t('vm.detail.tabs.basics')">
         <LabeledInput
           v-model="customName"
           :label="t('node.detail.basic.customName')"

@@ -128,7 +128,7 @@ export default {
     @finish="beforeSave"
   >
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-      <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
+      <Tab name="basics" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
         <LabeledInput v-model="name" class="mb-20" label="Name" required :disabled="isEdit" />
 
         <LabeledInput

@@ -112,7 +112,7 @@ export default {
 
 <template>
   <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-    <Tab name="basic" :label="t('vm.detail.tabs.hostBasic')" :weight="3" class="bordered-table">
+    <Tab name="basics" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
       <Basic v-model="value" :metrics="metrics" :mode="mode" />
     </Tab>
     <Tab name="instance" :label="t('vm.detail.tabs.instance')" :weight="2" class="bordered-table">

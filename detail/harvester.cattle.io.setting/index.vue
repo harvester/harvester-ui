@@ -43,7 +43,7 @@ export default {
       <Tab v-if="isNetworkSetting" name="detail" :label="t('vm.detail.tabs.details')" class="bordered-table">
         <NetworkSetting v-model="value" />
       </Tab>
-      <Tab v-else name="basic" :label="t('vm.detail.tabs.details')" :weight="3" class="bordered-table">
+      <Tab v-else name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
         <div class="row mb-20">
           <div class="col span-12">
             <LabeledInput

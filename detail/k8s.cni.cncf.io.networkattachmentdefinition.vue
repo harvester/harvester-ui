@@ -61,7 +61,7 @@ export default {
 
 <template>
   <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-    <Tab name="detail" :label="t('vm.detail.tabs.details')" class="bordered-table">
+    <Tab name="basics" :label="t('vm.detail.tabs.basics')" class="bordered-table">
       <div class="row mb-15">
         <div class="col span-4">
           <div class="labeled-input view">
