@@ -6,7 +6,7 @@ export function imageUrl(url, getters, errors, validatorArgs) {
   }
 
   const suffixName = url.split('/').pop();
-  const fileSuffiic = suffixName.split('.').pop();
+  const fileSuffiic = suffixName.split('.').pop().toLowerCase();
   const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
 
   if (!filesFormat.includes(fileSuffiic)) {
