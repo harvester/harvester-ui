@@ -50,7 +50,7 @@ export default {
     url(neu) {
       const url = neu.trim();
       const suffixName = url.split('/').pop();
-      const fileSuffiic = suffixName.split('.').pop();
+      const fileSuffiic = suffixName.split('.').pop().toLowerCase();
 
       this.value.spec.url = url;
       if (filesFormat.includes(fileSuffiic)) {
