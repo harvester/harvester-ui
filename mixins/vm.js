@@ -446,7 +446,7 @@ export default {
 
     parseVolume(R, dataVolumeName, isCloudInitDisk = false) {
       if (R.source === SOURCE_TYPE.ATTACH_VOLUME) {
-        dataVolumeName = R.volumeName || R.name;
+        dataVolumeName = R.volumeName || R.name; // TODO
       }
 
       const _volume = { name: R.name };
