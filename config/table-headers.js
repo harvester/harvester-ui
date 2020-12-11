@@ -658,5 +658,5 @@ export const IS_ADMIN = {
 
 export const SETTING_VALUE = {
   name:     'value',
-  value:    'value'
+  value:    'valueOrDefaultValue'
 };
