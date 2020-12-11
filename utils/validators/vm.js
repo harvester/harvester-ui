@@ -148,7 +148,7 @@ export function isValidCidr(value) {
 export function getVolumeType(V, DVTS) {
   let outValue = null;
 
-  if (V.dataVolume && V.dataVolume.name) { // maybe is new or existing or image type, but existing type can’t find DVT
+  if (V.dataVolume) { // maybe is new or existing or image type, but existing type can’t find DVT
     outValue = DVTS.find((DVT) => { // image type
       return V.dataVolume.name === DVT.metadata?.name && DVT.spec?.source?.http;
     });
@@ -162,7 +162,7 @@ export function getVolumeType(V, DVTS) {
 
     // new type
     outValue = DVTS.find((DVT) => {
-      return DVT.spec?.source?.blank;
+      return V.dataVolume.name === DVT.metadata?.name && DVT.spec?.source?.blank;
     });
 
     if (outValue) {
