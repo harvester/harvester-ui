@@ -20,12 +20,6 @@ const HOST_IP = {
   value:     'internalIp',
   formatter: 'HostIp'
 };
-const CUSTOM_NAME = {
-  name:      'host-custom-name',
-  labelKey:  'tableHeaders.customName',
-  value:     `metadata.annotations`,
-  formatter: 'HostCustomName'
-};
 
 export default {
   name:       'ListNode',
@@ -49,7 +43,7 @@ export default {
 
   computed: {
     headers() {
-      return [STATE, NAME, CUSTOM_NAME, HOST_ROLES, HOST_IP, AGE];
+      return [STATE, NAME, HOST_ROLES, HOST_IP, AGE];
     },
   },
 

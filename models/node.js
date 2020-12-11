@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import { formatPercent } from '@/utils/string';
-import { NODE_ROLES, RKE } from '@/config/labels-annotations.js';
+import { NODE_ROLES, RKE, HOST_CUSTOM_NAME } from '@/config/labels-annotations.js';
 import { METRIC, NODE } from '@/config/types';
 import { parseSi } from '@/utils/units';
 import { PRIVATE } from '@/plugins/steve/resource-proxy';
@@ -35,6 +35,10 @@ export default {
 
   canUpdate() {
     return true;
+  },
+
+  nameDisplay() {
+    return this.metadata?.annotations?.[HOST_CUSTOM_NAME] || this.metadata?.name;
   },
 
   showDetailStateBadge() {
