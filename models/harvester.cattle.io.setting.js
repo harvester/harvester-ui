@@ -22,5 +22,8 @@ export default {
 
   configuredCondition() {
     return findBy((this?.status?.conditions || []), 'type', 'configured') || {};
+  },
+  valueOrDefaultValue() {
+    return this.value || this.default;
   }
 };
