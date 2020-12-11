@@ -235,6 +235,12 @@ export default {
     this.registerFailureHook(() => {
       this.$set(this.value, 'type', VM);
     });
+
+    this.registerAfterHook(() => {
+      if ( this.mode === 'edit' && this.value?.hasAction('restart')) {
+        this.value.doAction('restart', {});
+      }
+    });
   },
 
   mounted() {
