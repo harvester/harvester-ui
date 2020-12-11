@@ -75,8 +75,8 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
   const allNames = new Set();
 
   _disks.forEach((D, idx) => {
-    if (D.name.length > 30) {
-      const message = getters['i18n/t']('validation.custom.tooLongName', { max: 30 });
+    if (D.name.length > 63) {
+      const message = getters['i18n/t']('validation.custom.tooLongName', { max: 63 });
 
       errors.push(`volume[${ idx + 1 }]: ${ message }`);
     }
