@@ -44,6 +44,7 @@ nav:
     starred: 已收藏
     storage: 存储
     workload: 工作负载
+    advanced: 高级
   ns:
     all: 全部命名空间 
     clusterLevel: 集群资源 ##doublecheck
@@ -1715,7 +1716,7 @@ typeLabel:
   kubevirt.io.virtualmachine: 虚拟机
   harvester.cattle.io.virtualmachineimage: 镜像
   harvester.cattle.io.keypair: SSH 密钥
-  harvester.cattle.io.virtualmachinetemplateversion: 模板
+  harvester.cattle.io.virtualmachinetemplateversion: VM 模板
   k8s.cni.cncf.io.networkattachmentdefinition: 网络
   cdi.kubevirt.io.datavolume: 卷
   harvester.cattle.io.user: 用户

@@ -126,11 +126,21 @@ export default {
     const schemas = state.types[SCHEMA];
     const keyField = KEY_FIELD_FOR[SCHEMA] || KEY_FIELD_FOR['default'];
 
-    return schemas.list.find((x) => {
+    let schema = schemas.list.find((x) => {
       const thisOne = getters.normalizeType(x[keyField]);
 
-      return thisOne === type || thisOne.endsWith(`.${ type }`);
+      return thisOne === type;
     });
+
+    if (!schema) { // TODO: Maybe we should try our best to find the corresponding type, if not, continue to find the suffix matching
+      schema = schemas.list.find((x) => {
+        const thisOne = getters.normalizeType(x[keyField]);
+
+        return thisOne === thisOne.endsWith(`.${ type }`);
+      });
+    }
+
+    return schema;
   },
 
   // Fuzzy search to find a matching schema name for plugins/lookup

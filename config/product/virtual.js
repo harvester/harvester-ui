@@ -37,12 +37,12 @@ export function init(store) {
 
   basicType([NODE]);
   virtualType({
-    label:       'Hosts',
-    group:      'Root',
-    namespaced:  false,
-    name:        NODE,
-    weight:      399,
-    route:       {
+    label:        'Hosts',
+    group:        'Root',
+    namespaced:   false,
+    name:         NODE,
+    weight:       399,
+    route:        {
       name:   'c-cluster-product-resource',
       params: { resource: NODE }
     },
@@ -101,7 +101,7 @@ export function init(store) {
     SSH,
     HARVESTER_USER,
     HARVESTER_SETTING
-  ], 'Advanced');
+  ], 'advanced');
 
   virtualType({
     label:      'VM Templates',
