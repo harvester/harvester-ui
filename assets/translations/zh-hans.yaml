@@ -84,7 +84,6 @@ assignTo: ##doublecheck
       =1 { 分配集群到&hellip; }
       other { 分配 {count}集群到&hellip; }
     }
-
 asyncButton:
   default:
     action: 操作
@@ -578,7 +577,7 @@ labels:
   addLabel: 添加标签
   addSetLabel: 添加或配置标签
   addAnnotation: 添加注释
-  labels:
+  label:
     title: 标签
   annotations:
     title: 注释
@@ -800,6 +799,7 @@ node:
         cpu: CPU
         memory: 内存
         pods: PODS
+        storage: 存储
       diskPressure: 磁盘压力
       kubelet: kubelet
       memoryPressure: 内存压力
@@ -812,6 +812,19 @@ node:
       images: 镜像
       info: 信息
       taints: 污点 (Taints)
+    basic:
+      hostIP: 节点IP
+      role: 角色
+      os: 操作系统
+      create: 创建时间
+      update: 最近更新时间
+      customName: 自定义名称
+      more: 更多信息
+    more:
+      uuid: UUID
+    type:
+      management: 管理节点
+      compute: 计算节点
 
 persistentVolumeClaim:
   accessModes: 访问模式
@@ -845,9 +858,14 @@ prefs:
     label: 每页显示表格行数
   keymap:
     label: YAML编辑器密钥映射 ## doublecheck，YAML Editor Key Mapping
+    sublime: 'Normal human'
+    emacs: 'Emacs'
+    vim: 'Vim'
   advanced: 高级选项
   dev:
     label: 启用开发者工具
+  hideDesc:
+    label: 隐藏列表页面的顶部描述
 
 promptRemove:
   andOthers: |-
@@ -867,6 +885,7 @@ resourceDetail:
     description: 描述
     labels: 标签
     showAnnotations: "显示{annotations}条注释"
+    ownerReferences: 所有者
   header:
     clone: "从 {type}: {name} 复制"
     create: 创建
@@ -880,6 +899,7 @@ resourceDetail:
     namespace: 命名空间
     overview: 总览
     project: 项目
+    yaml: YAML
     managedWarning: 这个 {type} 由 {managedBy} 应用程序 {appName} 管理；在这里所做的更改可能会在下次更改应用程序时被覆盖。
 
 resourceList:
@@ -919,7 +939,7 @@ rioConfig:
       header: 主机要求
       helpText:
         listItem1: 至少 1核心 CPU 
-        listItem2: 至少 2 GB 内存
+        listItem2: 至少 2 GB 内存
   yaml:
     buttonText: 自定义
 
@@ -962,7 +982,7 @@ servicePorts:
       label: 协议
     target:
       label: 目标端口
-      placeholder: 例如：80 or http
+      placeholder: 例如：80 或 http
 
 serviceTypes:
   clusterip: 集群IP地址
@@ -1055,6 +1075,7 @@ tableHeaders:
   clusterGroups: 集群组
   condition: 状态
   configuredProviders: 配置提供商
+  cpu: CPU
   date: 事情
   destination: 目标
   download: 下载
@@ -1070,6 +1091,7 @@ tableHeaders:
   imageSize: 大小
   ingressTarget: 目标
   internalExternalIp: 外网IP地址或内网IP地址
+  hostIp: 主机IP
   key: 密钥
   keys: 数据
   lastUpdated: 最后更新时间
@@ -1130,6 +1152,23 @@ tableHeaders:
   value: 值
   version: 版本号
   weight: 权重 ## doublecheck，这里的权重有什么特殊意义吗？
+  Capacity: 容量
+  'Access Modes': 访问模式
+  'Reclaim Policy': 重声明策略
+  Status: 状态
+  Claim: 声明
+  StorageClass: 存储类
+  Reason: 原因
+  VolumeMode: 存储卷模式
+  Targets: 目标
+  MinPods: 最小Pod数量
+  MaxPods: 最大Pod数量
+  Replicas: 副本数
+  Provisioner: 提供商
+  ReclaimPolicy: 重声明策略
+  Role: 角色
+  Users: 用户
+  Groups: 用户组
 
 validation:
   arrayLength:
@@ -1658,17 +1697,75 @@ typeLabel:
   namespace: 命名空间
   persistentvolume: 持久卷
   service: 服务
-  node: 节点
+  autoscaling.horizontalpodautoscaler: Pod水平自动伸缩
+  networking.k8s.io.ingress: Ingress
+  networking.k8s.io.networkpolicy: 网络策略
+  persistentvolumeclaim: 持久卷声明
+  storage.k8s.io.storageclass: 存储类
+  secret: 密钥
+  rbac.authorization.k8s.io.clusterrolebinding: 集群角色绑定
+  rbac.authorization.k8s.io.clusterrole: 集群角色
+  rbac.authorization.k8s.io.rolebinding: 角色绑定
+  rbac.authorization.k8s.io.role: 角色
+  kubevirt.io.virtualmachine: |-
+    {count, plural,
+      one { 虚拟机 }
+      other { 虚拟机列表 }
+    }
+  harvester.cattle.io.virtualmachineimage: |-
+    {count, plural,
+      one { 镜像 }
+      other { 镜像列表 }
+    }
+  harvester.cattle.io.keypair: |-
+    {count, plural,
+      one { SSH 密钥 }
+      other { SSH 密钥列表 }
+    }
+  harvester.cattle.io.virtualmachinetemplateversion: |-
+    {count, plural,
+      one { 模板 }
+      other { 模板列表 }
+    }
+  k8s.cni.cncf.io.networkattachmentdefinition: |-
+    {count, plural,
+      one { 网络 }
+      other { 网络列表 }
+    }
+  cdi.kubevirt.io.datavolume: |-
+    {count, plural,
+      one { 卷 }
+      other { 卷列表 }
+    }
+  harvester.cattle.io.user: |-
+    {count, plural,
+      one { 用户 }
+      other { 用户列表 }
+    }
+  harvester.cattle.io.setting: |-
+    {count, plural,
+      one { 设置 }
+      other { 设置列表 }
+    }
+  node: |-
+    {count, plural,
+      one { 主机 }
+      other { 主机列表 }
+    }
 
 action:
   download: 下载YAML
   remove: 删除
-  goToViewYaml: 查看YAML
+  viewYaml: 查看YAML
   refresh: 刷新
-  goToEdit: 以表格的形式编辑
-  goToClone: 以表格的形式复制
+  goToEdit: 以表单的形式编辑
+  goToClone: 以表单的形式复制
   goToEditYaml: 以YAML的形式编辑
   cloneYaml: 以YAML的形式复制
+  viewInApi: 在API中查看
+  edit: 以表格的形式编辑
+  clone: 以表格的形式复制
+  editYaml: 以YAML的形式编辑
   openLogs: 查看日志
 
 unit:
@@ -1684,3 +1781,96 @@ workloadPorts:
 
 podAffinity:
   addLabel: 添加 Pod Selector
+
+keyValue:
+  keyPlaceholder: '例如: foo'
+  valuePlaceholder: '例如: bar'
+
+
+# extension of Harvester
+HarvesterIndexPage:
+  hardwareResourceGauge:
+    consumption: "{useful} of {total} {units} {suffix}"
+    coresReserved: Cores Reserved
+    coresUsed: Cores Used
+    podsReserved: Pods Reserved
+    ramReserved: Memory Reserved
+    ramUsed: Memory Used
+    cpu: CPU
+    memory: 内存
+    storage: 存储
+  header: 仪表盘
+  resourceGauge:
+    totalResources: Total Resources
+  sections:
+    events:
+      label: 事件
+      resource:
+        label: Resource
+      date:
+        label: Date
+    gatekeeper:
+      buttonText: Configure Gatekeeper
+      disabled: OPA Gatekeeper is not configured.
+      label: OPA Gatekeeper Constraint Violations
+      noRows: There are no contraints with violations to show.
+    nodes:
+      label: Unhealthy Nodes
+      noRows: There are no unhealthy nodes to show.
+
+vm:
+  fields:
+    name: 名称
+    cpu: Cpu
+    memory: 内存
+    image: 镜像
+  nameNsDescription:
+    name:
+      singleLabel: 名称
+      multipleLabel: 名称后缀
+  detail:
+    tabs:
+      overview: 概览
+      details: 详情
+      environment: 环境
+      events: 事件
+      migration: Migration
+      console: 控制台
+      networkInterfaces: 网络接口
+      disks: 硬盘
+      networks: 网络
+      basics: 基本信息
+      configurations: 配置
+      instance: 虚拟机实例
+      monitor: 监控数据
+      keypairs: 公共密钥
+      cloudConfig: Cloud Config
+    details:
+      name: 名称
+      namespace: 命名空间
+      created: 创建时间
+      hostname: 节点名称
+      node: 主机
+      ipAddress: IP 地址
+      bootOrder: 启动顺序
+      CDROMs: CD-ROMs
+      operatingSystem: 操作系统
+      timeZone: 时区
+      flavor: 规格
+      down: 虚拟机未启动
+    notAvailable: 不可用
+    GuestAgentNotInstalled: 访客代理未准备就绪
+    console:
+      down: 请启动虚拟机以访问控制台.
+
+vmtemplate:
+  nameNsDescription:
+    name: 模板名称
+
+volumePage:
+    size: 容量
+    source: 资源
+    image: 镜像
+
+imagePage:
+  url: 镜像地址

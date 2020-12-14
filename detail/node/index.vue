@@ -4,7 +4,6 @@ import Tab from '@/components/Tabbed/Tab';
 import Poller from '@/utils/poller';
 import { METRIC, VM, NODE, VMI } from '@/config/types';
 import { HOSTNAME } from '@/config/labels-annotations';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 import { allHash } from '@/utils/promise';
 import Basic from './basic';
 import Instance from './instance';
@@ -51,24 +50,6 @@ export default {
     this.rows = res.vms.filter((row) => {
       return instanceMap[row.metadata?.uid]?.status?.nodeName === this.value?.metadata?.labels?.[HOSTNAME];
     });
-  },
-
-  asyncData(ctx) {
-    let resource;
-    let parentOverride;
-
-    if ( ctx.params.resource === 'node') {
-      parentOverride = {
-        displayName: 'Host',
-        location:    {
-          name:    'c-cluster-product-resource',
-          params:  { resource: 'node' },
-        }
-      };
-      resource = NODE;
-    }
-
-    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {

@@ -4,7 +4,6 @@ import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import LabeledInput from '@/components/form/LabeledInput';
 import CreateEditView from '@/mixins/create-edit-view';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 import FileSelector, { createOnSelected } from '@/components/form/FileSelector';
 
 export default {
@@ -25,13 +24,6 @@ export default {
       type:     Object,
       required: true,
     }
-  },
-
-  asyncData(ctx) {
-    const parentOverride = { displayName: 'SSH Key' };
-    const resource = ctx.params.resource;
-
-    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {

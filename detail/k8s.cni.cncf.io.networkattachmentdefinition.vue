@@ -1,7 +1,6 @@
 <script>
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 
 export default {
   name: 'Detail',
@@ -20,13 +19,6 @@ export default {
       type:     Object,
       required: true,
     }
-  },
-
-  asyncData(ctx) {
-    const parentOverride = { displayName: 'Network' };
-    const resource = ctx.params.resource;
-
-    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {

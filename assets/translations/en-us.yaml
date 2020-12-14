@@ -921,6 +921,7 @@ node:
       create: Creation Time
       update: Last Update Time
       customName: Custom Name
+      more: More Information
     more:
       uuid: UUID
     type:
@@ -2107,6 +2108,51 @@ typeLabel:
     {count, plural,
       one { Route }
       other { Routes }
+    }
+  node: |-
+    {count, plural,
+      one { Host }
+      other { Hosts }
+    }
+  kubevirt.io.virtualmachine: |-
+    {count, plural,
+      one { Virtual Machine }
+      other { Virtual Machines }
+    }
+  harvester.cattle.io.virtualmachineimage: |-
+    {count, plural,
+      one { Image }
+      other { Images }
+    }
+  harvester.cattle.io.keypair: |-
+    {count, plural,
+      one { SSH Key }
+      other { SSH Keys }
+    }
+  k8s.cni.cncf.io.networkattachmentdefinition: |-
+    {count, plural,
+      one { Network }
+      other { Networks }
+    }
+  cdi.kubevirt.io.datavolume: |-
+    {count, plural,
+      one { Volume }
+      other { Volumes }
+    }
+  harvester.cattle.io.user:  |-
+    {count, plural,
+      one { User }
+      other { Users }
+    }
+  harvester.cattle.io.setting:  |-
+    {count, plural,
+      one { Setting }
+      other { Settings }
+    }
+  harvester.cattle.io.virtualmachinetemplateversion: |-
+    {count, plural,
+      one { Template }
+      other { Templates }
     }
 
 action:

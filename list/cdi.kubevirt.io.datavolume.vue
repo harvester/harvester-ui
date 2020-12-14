@@ -83,13 +83,6 @@ export default {
     },
   },
 
-  customCreateFormName() {
-    return 'Volume';
-  },
-
-  typeDisplay() {
-    return 'Volumes';
-  },
 };
 </script>
 

@@ -1,7 +1,6 @@
 <script>
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 import { EVENT, VMI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 import OverviewBasics from './tabs/details/basics';
@@ -36,13 +35,6 @@ export default {
 
   fetch() {
     this.getEvents();
-  },
-
-  asyncData(ctx) {
-    const parentOverride = { displayName: 'Virtual Machine' };
-    const resource = ctx.params.resource;
-
-    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {

@@ -55,13 +55,6 @@ export default {
     },
   },
 
-  customCreateFormName() {
-    return 'Virtual Machine';
-  },
-
-  typeDisplay() {
-    return 'Virtual Machines';
-  },
 };
 </script>
 

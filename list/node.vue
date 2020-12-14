@@ -54,10 +54,6 @@ export default {
     this.metricPoller.stop();
   },
 
-  typeDisplay() {
-    return 'Hosts';
-  },
-
   methods: {
     async loadMetrics() {
       const schema = this.$store.getters['cluster/schemaFor'](METRIC.NODE);

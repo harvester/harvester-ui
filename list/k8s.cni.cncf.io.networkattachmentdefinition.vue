@@ -90,13 +90,6 @@ export default {
     }
   },
 
-  customCreateFormName() {
-    return 'Network';
-  },
-
-  typeDisplay() {
-    return 'Networks';
-  },
 };
 </script>
 

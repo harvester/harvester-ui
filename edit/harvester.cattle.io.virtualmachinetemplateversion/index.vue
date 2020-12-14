@@ -9,7 +9,6 @@ import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import { HARVESTER_SSH_NAMES, HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME } from '@/config/labels-annotations';
 import CreateEditView from '@/mixins/create-edit-view';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 import Volume from '@/edit/kubevirt.io.virtualmachine/volume';
 import LabeledInput from '@/components/form/LabeledInput';
 import Network from '@/edit/kubevirt.io.virtualmachine/network';
@@ -42,13 +41,6 @@ export default {
       type:     Object,
       required: true,
     },
-  },
-
-  asyncData(ctx) {
-    const parentOverride = { displayName: 'Template' };
-    const resource = ctx.params.resource;
-
-    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {
