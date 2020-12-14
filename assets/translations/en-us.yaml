@@ -2231,3 +2231,16 @@ volumePage:
 
 imagePage:
   url: Url
+
+harvester:
+  nav:
+    dashboard: Dashboard
+  hostPage:
+  vmPage:
+  volumePage:
+  imagePage:
+  templatePage:
+  networkPage:
+  keypairPage:
+  userPage:
+  settingPage:

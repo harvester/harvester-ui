@@ -34,7 +34,7 @@ generic:
   value: 值
 
 nav:
-  title: 仪表盘
+  title: Harvester
   backToRancher: 集群管理员
   shell: 命令行
   group:
@@ -844,7 +844,7 @@ prefs:
     light: 浅色
     auto: 自动
     dark: 深色
-    autoDetail: 您可以设置 Rancher UI 的主题。如果您选择自动，Rancher 会在晚上 6：00 将背景颜色转换为深色，次日早上六点将背景颜色转换为浅色，您也可以通过顶部菜单右侧的按键自行切换深色模式/浅色模式
+    autoDetail: 您可以设置 Harvester UI 的主题。如果您选择自动，Harvester 会在晚上 6：00 将背景颜色转换为深色，次日早上六点将背景颜色转换为浅色，您也可以通过顶部菜单右侧的按键自行切换深色模式/浅色模式
   landing:
     label: 登录页面
     vue: 集群浏览器 ## doublecheck，cluster explorer
@@ -1847,6 +1847,8 @@ imagePage:
 
 
 harvester:
+  nav:
+    dashboard: 概览
   hostPage:
     title: 主机
   vmPage:

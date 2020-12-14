@@ -83,7 +83,7 @@ export default {
 
     <div class="space" />
 
-    <!-- <div v-if="showLocale">
+    <div v-if="showLocale">
       <v-popover
         placement="top"
         trigger="click"
@@ -106,7 +106,7 @@ export default {
           </ul>
         </template>
       </v-popover>
-    </div> -->
+    </div>
   </div>
 </template>
 

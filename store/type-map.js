@@ -759,10 +759,20 @@ export const getters = {
           } else if ( mode === FAVORITE && !getters.isFavorite(id) ) {
             continue;
           }
-
           item.mode = mode;
           item.weight = weight;
-          item.label = item.label || item.name;
+          
+          const schema = rootGetters[`${module}/schema`](vt.name);;
+          if (schema) {
+            const count = counts[schema.id];
+            item.label = getters.labelFor(schema, count);
+          } else {
+            if (vt.labelDisplay) {
+              item.label = rootGetters['i18n/t'](vt.labelDisplay);
+            } else {
+              item.label = item.label || item.name;
+            }
+          }
 
           out[id] = item;
         }
