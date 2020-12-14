@@ -762,16 +762,15 @@ export const getters = {
           item.mode = mode;
           item.weight = weight;
           
-          const schema = rootGetters[`${module}/schema`](vt.name);;
-          if (schema) {
+          const schema = rootGetters[`${module}/schema`](vt.name);
+
+          if(vt.labelDisplay) {
+            item.label = rootGetters['i18n/t'](vt.labelDisplay);
+          } else if (schema) {
             const count = counts[schema.id];
             item.label = getters.labelFor(schema, count);
-          } else {
-            if (vt.labelDisplay) {
-              item.label = rootGetters['i18n/t'](vt.labelDisplay);
-            } else {
-              item.label = item.label || item.name;
-            }
+          }  else {
+            item.label = item.label || item.name;
           }
 
           out[id] = item;

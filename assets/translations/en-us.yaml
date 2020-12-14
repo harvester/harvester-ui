@@ -55,6 +55,7 @@ nav:
     starred: Starred
     storage: Storage
     workload: Workload
+    advanced: Advanced
   ns:
     all: All Namespaces
     clusterLevel: Only Cluster Resources
