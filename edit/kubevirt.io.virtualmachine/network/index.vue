@@ -103,12 +103,13 @@ export default {
         name,
         model:       'virtio',
         type:        'bridge',
-        networkName: this.networkName,
+        networkName: '',
         newCreateId:      randomstring.generate(10),
       };
 
       this.rows.push(neu);
       this.$emit('input', this.rows);
+      this.rows[this.rows.length - 1].networkName = this.networkName;
     },
 
     removeRow(vol) {

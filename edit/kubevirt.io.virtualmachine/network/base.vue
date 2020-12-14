@@ -88,7 +88,7 @@ export default {
     NTOption() {
       const out = _.cloneDeep(this.networkOption);
 
-      if (this.value.networkName !== MANAGEMENT_NETWORK) {
+      if ((this.value.networkName !== MANAGEMENT_NETWORK) && this.value.networkName) {
         out.push({
           label: this.value.networkName,
           value: this.value.networkName
