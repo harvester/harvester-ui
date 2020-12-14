@@ -1169,6 +1169,11 @@ tableHeaders:
   Role: 角色
   Users: 用户
   Groups: 用户组
+  size: 大小
+  attachedVM: 被挂载到
+  progress: 进度
+  phase: 阶段
+
 
 validation:
   arrayLength:
@@ -1707,51 +1712,15 @@ typeLabel:
   rbac.authorization.k8s.io.clusterrole: 集群角色
   rbac.authorization.k8s.io.rolebinding: 角色绑定
   rbac.authorization.k8s.io.role: 角色
-  kubevirt.io.virtualmachine: |-
-    {count, plural,
-      one { 虚拟机 }
-      other { 虚拟机列表 }
-    }
-  harvester.cattle.io.virtualmachineimage: |-
-    {count, plural,
-      one { 镜像 }
-      other { 镜像列表 }
-    }
-  harvester.cattle.io.keypair: |-
-    {count, plural,
-      one { SSH 密钥 }
-      other { SSH 密钥列表 }
-    }
-  harvester.cattle.io.virtualmachinetemplateversion: |-
-    {count, plural,
-      one { 模板 }
-      other { 模板列表 }
-    }
-  k8s.cni.cncf.io.networkattachmentdefinition: |-
-    {count, plural,
-      one { 网络 }
-      other { 网络列表 }
-    }
-  cdi.kubevirt.io.datavolume: |-
-    {count, plural,
-      one { 卷 }
-      other { 卷列表 }
-    }
-  harvester.cattle.io.user: |-
-    {count, plural,
-      one { 用户 }
-      other { 用户列表 }
-    }
-  harvester.cattle.io.setting: |-
-    {count, plural,
-      one { 设置 }
-      other { 设置列表 }
-    }
-  node: |-
-    {count, plural,
-      one { 主机 }
-      other { 主机列表 }
-    }
+  kubevirt.io.virtualmachine: 虚拟机
+  harvester.cattle.io.virtualmachineimage: 镜像
+  harvester.cattle.io.keypair: SSH 密钥
+  harvester.cattle.io.virtualmachinetemplateversion: 模板
+  k8s.cni.cncf.io.networkattachmentdefinition: 网络
+  cdi.kubevirt.io.datavolume: 卷
+  harvester.cattle.io.user: 用户
+  harvester.cattle.io.setting: 设置
+  node: 主机
 
 action:
   download: 下载YAML
@@ -1788,6 +1757,7 @@ keyValue:
 
 
 # extension of Harvester
+# need to move
 HarvesterIndexPage:
   hardwareResourceGauge:
     consumption: "{useful} of {total} {units} {suffix}"
@@ -1868,9 +1838,31 @@ vmtemplate:
     name: 模板名称
 
 volumePage:
-    size: 容量
+    size: 大小
     source: 资源
     image: 镜像
 
 imagePage:
   url: 镜像地址
+
+
+harvester:
+  hostPage:
+    title: 主机
+  vmPage:
+    title: 虚拟机
+  volumePage:
+    title: 卷
+  imagePage:
+    title: 镜像
+  templatePage:
+    title: 模板
+  networkPage:
+    title: 网络
+  keypairPage:
+    title: SSH 公钥
+  userPage:
+    title: 用户
+  settingPage:
+    title: 设置
+    
