@@ -51,13 +51,6 @@ export default {
     this.schema.attributes.actuallyKind = 'Image';
   },
 
-  customCreateFormName() {
-    return 'Image';
-  },
-
-  typeDisplay() {
-    return 'Images';
-  },
 };
 </script>
 

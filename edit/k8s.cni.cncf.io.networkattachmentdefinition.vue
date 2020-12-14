@@ -2,7 +2,6 @@
 import CruResource from '@/components/CruResource';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 import CreateEditView from '@/mixins/create-edit-view';
 import LabeledInput from '@/components/form/LabeledInput';
 
@@ -19,13 +18,6 @@ export default {
       type:     Object,
       required: true,
     }
-  },
-
-  asyncData(ctx) {
-    const parentOverride = { displayName: 'Network' };
-    const resource = ctx.params.resource;
-
-    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {

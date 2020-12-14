@@ -4,7 +4,6 @@ import Tab from '@/components/Tabbed/Tab';
 import Checkbox from '@/components/form/Checkbox';
 import CruResource from '@/components/CruResource';
 import NameNsDescription from '@/components/form/NameNsDescription';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 import VM_MIXIN from '@/mixins/vm';
 import { _ADD } from '@/config/query-params';
 import { VM_TEMPLATE } from '@/config/types';
@@ -45,13 +44,6 @@ export default {
       type:     String,
       required: true,
     },
-  },
-
-  asyncData(ctx) {
-    const parentOverride = { displayName: 'Template' };
-    const resource = ctx.params.resource;
-
-    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {

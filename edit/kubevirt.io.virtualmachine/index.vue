@@ -10,7 +10,6 @@ import CruResource from '@/components/CruResource';
 import RadioGroup from '@/components/form/RadioGroup';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 import NameNsDescription from '@/components/form/NameNsDescription';
 
 import SSHKey from '@/edit/kubevirt.io.virtualmachine/SSHKey';
@@ -54,12 +53,6 @@ export default {
       type:     Object,
       required: true,
     },
-  },
-
-  asyncData(ctx) {
-    const resource = ctx.params.resource;
-
-    return defaultAsyncData(ctx, resource, { displayName: 'Virtual Machine' });
   },
 
   data() {

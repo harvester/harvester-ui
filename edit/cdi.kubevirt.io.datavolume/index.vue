@@ -7,7 +7,6 @@ import KeyValue from '@/components/form/KeyValue';
 import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
 import { IMAGE } from '@/config/types';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 import Basic from './basic';
 
 export default {
@@ -33,13 +32,6 @@ export default {
 
   async fetch() {
     await allHash({ image: this.$store.dispatch('cluster/findAll', { type: IMAGE }) });
-  },
-
-  asyncData(ctx) {
-    const parentOverride = { displayName: 'Volume' };
-    const resource = ctx.params.resource;
-
-    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {

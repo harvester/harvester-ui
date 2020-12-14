@@ -89,13 +89,6 @@ export default {
     }
   },
 
-  customCreateFormName() {
-    return 'Template';
-  },
-
-  typeDisplay() {
-    return 'Templates';
-  },
 };
 </script>
 
