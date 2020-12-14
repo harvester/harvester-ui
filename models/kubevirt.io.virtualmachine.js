@@ -2,7 +2,7 @@ import Vue from 'vue';
 import _ from 'lodash';
 import { safeLoad } from 'js-yaml';
 import { colorForState } from '@/plugins/steve/resource-instance';
-import { VMI, POD, VM } from '@/config/types';
+import { VMI, POD, VM, NODE } from '@/config/types';
 
 const VMI_WAITING_MESSAGE =
   'The virtual machine is waiting for resources to become available.';
@@ -126,6 +126,14 @@ export default {
     return () => {
       this.doAction('restart', {});
     };
+  },
+
+  realAttachNodeName() {
+    const vmi = this.$getters['byId'](VMI, this.id);
+    const nodeName = vmi?.status?.nodeName;
+    const node = this.$getters['byId'](NODE, nodeName);
+
+    return node?.nameDisplay || '';
   },
 
   pauseVM() {

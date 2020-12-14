@@ -7,7 +7,7 @@ import { STORAGE_CLASS_LABEL, HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER
 // import { formatSi, parseSi } from '@/utils/units';
 import { SOURCE_TYPE } from '@/config/map';
 import {
-  NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, STORAGE_CLASS, NETWORK_ATTACHMENT, POD, VM, DATA_VOLUME
+  NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, STORAGE_CLASS, NETWORK_ATTACHMENT, POD, VM, DATA_VOLUME, NODE
 } from '@/config/types';
 
 const TEMPORARY_VALUE = '$occupancy_url';
@@ -66,6 +66,7 @@ export default {
   async fetch() {
     await allHash({
       pods:               this.$store.dispatch('cluster/findAll', { type: POD }),
+      nodes:              this.$store.dispatch('cluster/findAll', { type: NODE }),
       ssh:                this.$store.dispatch('cluster/findAll', { type: SSH }),
       pvcs:               this.$store.dispatch('cluster/findAll', { type: PVC }),
       dataVolume:         this.$store.dispatch('cluster/findAll', { type: DATA_VOLUME }),
