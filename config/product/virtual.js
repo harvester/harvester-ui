@@ -24,14 +24,15 @@ export function init(store) {
 
   basicType(['virtual-dashboard']);
   virtualType({
-    label:       'Dashboard',
-    group:      'Root',
-    namespaced:  false,
-    name:        'virtual-dashboard',
-    weight:      500,
-    route:       { name: 'c-cluster-virtual' },
+    label:        'Dashboard',
+    group:        'Root',
+    namespaced:   false,
+    labelDisplay: 'harvester.nav.dashboard',
+    name:         'virtual-dashboard',
+    weight:       500,
+    route:        { name: 'c-cluster-virtual' },
     // icon:        'icons icon-h-home',
-    exact:       true,
+    exact:        true,
   });
 
   basicType([NODE]);
