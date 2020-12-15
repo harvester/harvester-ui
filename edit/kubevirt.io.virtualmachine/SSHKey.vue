@@ -97,7 +97,7 @@ export default {
       }
 
       if (this.sshName.length > 63) {
-        const message = this.$store.getters['i18n/t']('validation.custom.tooLongName', { max: 63 });
+        const message = this.$store.getters['i18n/t']('harvester.validation.custom.tooLongName', { max: 63 });
 
         this.errors.push(message);
 

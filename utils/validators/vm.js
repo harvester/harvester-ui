@@ -10,23 +10,29 @@ export function vmNetworks(spec, getters, errors, validatorArgs) {
     const N = networks.find( N => I.name === N.name);
 
     if (I.name.length > 20) {
-      const message = getters['i18n/t']('validation.custom.tooLongName', { max: 20 });
+      const message = getters['i18n/t']('harvester.validation.custom.tooLongName', { max: 20 });
 
-      errors.push(`network[${ index + 1 }]: ${ message }`);
+      errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
     }
 
     if (!I.name || !N.name) {
-      errors.push(`network[${ index + 1 }]: name is required`);
+      const message = getters['i18n/t']('harvester.validation.vm.name');
+
+      errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
     }
 
     if (N.multus) {
       if (!N.multus.networkName) {
-        errors.push(`network[${ index + 1 }]: Network Name is required`);
+        const message = getters['i18n/t']('harvester.validation.vm.network.name');
+
+        errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
       }
     }
 
     if (I.macAddress && !isValidMac(I.macAddress)) {
-      errors.push(`network[${ index + 1 }]: Invalid MAC address format.`);
+      const message = getters['i18n/t']('harvester.validation.vm.network.macFormat');
+
+      errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
     }
 
     const portsName = new Set();
@@ -41,11 +47,15 @@ export function vmNetworks(spec, getters, errors, validatorArgs) {
       });
 
       if (portsName.size !== I.ports.length) {
-        errors.push(`network[${ index + 1 }]: Duplicate name of the port.`);
+        const message = getters['i18n/t']('harvester.validation.vm.network.duplicatedPortName');
+
+        errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
       }
 
       if (portsNumber.size !== I.ports.length) {
-        errors.push(`network[${ index + 1 }]: Duplicate number of the port`);
+        const message = getters['i18n/t']('harvester.validation.vm.network.duplicatedPortNumber');
+
+        errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
       }
     }
 
@@ -61,7 +71,7 @@ export function vmNetworks(spec, getters, errors, validatorArgs) {
   });
 
   if (allNames.size !== interfaces.length) {
-    errors.push('network with this name already exists!.');
+    errors.push(getters['i18n/t']('harvester.validation.vm.network.duplicatedName'));
   }
 
   return errors;
@@ -76,20 +86,22 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
 
   _disks.forEach((D, idx) => {
     if (D.name.length > 63) {
-      const message = getters['i18n/t']('validation.custom.tooLongName', { max: 63 });
+      const message = getters['i18n/t']('harvester.validation.custom.tooLongName', { max: 63 });
 
-      errors.push(`volume[${ idx + 1 }]: ${ message }`);
+      errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
     }
 
     if (!D.name) {
-      errors.push(`volume[${ idx + 1 }]: name is required!`);
+      const message = getters['i18n/t']('harvester.validation.vm.name');
+
+      errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
     }
 
     allNames.add(D.name);
   });
 
   if (allNames.size !== _disks.length) {
-    errors.push('volume with this name already exists!.');
+    errors.push(getters['i18n/t']('harvester.validation.vm.volume.duplicatedName'));
   }
 
   // volume type logic
@@ -98,14 +110,18 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
 
     if (type === SOURCE_TYPE.NEW || type === SOURCE_TYPE.IMAGE) {
       if (!/([1-9]|[1-9][0-9]+)[a-zA-Z]+/.test(typeValue?.spec?.pvc?.resources?.requests?.storage)) {
-        errors.push(`volume[${ idx + 1 }]: "Size" is required!`);
+        const message = getters['i18n/t']('harvester.validation.vm.volume.size');
+
+        errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
       }
 
       if (type === SOURCE_TYPE.IMAGE && !typeValue?.spec?.source?.http?.url) { // type === SOURCE_TYPE.IMAGE
         if (idx === 0) {
-          errors.push('"Image" is required!');
+          errors.push(getters['i18n/t']('harvester.validation.vm.volume.image'));
         } else {
-          errors.push(`volume[${ idx + 1 }]: "Image" is required!`);
+          const message = getters['i18n/t']('harvester.validation.vm.volume.image');
+
+          errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
         }
       }
     }
@@ -115,13 +131,17 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
       const hasExistingVolume = dvList.find(DV => DV.metadata.name === V?.dataVolume?.name);
 
       if (!hasExistingVolume) {
-        errors.push(`volume[${ idx + 1 }]: "Volume" is required!`);
+        const message = getters['i18n/t']('harvester.validation.vm.volume.volume');
+
+        errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
       }
     }
 
     if (V?.containerDisk) {
       if (!V.containerDisk.image) {
-        errors.push(`volume[${ idx + 1 }]: "Docker Image" is required!`);
+        const message = getters['i18n/t']('harvester.validation.vm.volume.docker');
+
+        errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
       }
     }
   });
@@ -131,7 +151,7 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
 
 export function vmMemoryUnit(spec, getters, errors, validatorArgs) {
   if (!/([1-9]|[1-9][0-9]+)[a-zA-Z]+/.test(spec)) {
-    errors.push(`"Memory" is required!`);
+    errors.push(getters['i18n/t']('harvester.validation.vm.memory'));
   }
 
   return errors;
