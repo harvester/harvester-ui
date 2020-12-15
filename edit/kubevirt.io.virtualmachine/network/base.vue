@@ -95,6 +95,13 @@ export default {
         });
       }
 
+      if (this.value.networkName === MANAGEMENT_NETWORK) {
+        out.push({
+          label: MANAGEMENT_NETWORK,
+          value: MANAGEMENT_NETWORK
+        });
+      }
+
       return out;
     }
   },
