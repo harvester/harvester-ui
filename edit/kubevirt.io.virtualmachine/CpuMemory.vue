@@ -74,7 +74,7 @@ export default {
       <UnitInput
         v-model="localMemory"
         v-int-number
-        label="Memory"
+        :label="t('harvester.vmPage.input.memory')"
         suffix="iB"
         :mode="mode"
         :input-exponent="3"

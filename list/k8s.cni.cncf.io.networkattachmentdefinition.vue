@@ -48,14 +48,16 @@ export default {
           value:     'spec.config',
           sort:      'spec.config',
           type:       'type',
-          formatter: 'ParseNetworkConfig'
+          formatter: 'ParseNetworkConfig',
+          labelKey:  'tableHeaders.network.type'
         },
         {
           name:      'vlan',
           value:     'spec.config',
           sort:      'spec.config',
           type:       'vlan',
-          formatter:  'ParseNetworkConfig'
+          formatter:  'ParseNetworkConfig',
+          labelKey:  'tableHeaders.network.vlan'
         }
       ];
     },

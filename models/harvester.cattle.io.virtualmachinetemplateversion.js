@@ -18,19 +18,19 @@ export default {
         action:     'launchFromTemplate',
         enabled:    true,
         icon:       'icons icon-h-display',
-        label:      'Launch instance from template',
+        label:      this.t('action.launchFormTemplate'),
       },
       {
         action:     'cloneTemplate',
         enabled:    true,
         icon:       'icon icon-fw icon-edit',
-        label:      'Modify template (Create new version)',
+        label:      this.t('action.modifyTemplate'),
       },
       {
         action:     'setDefaultVersion',
         enabled:    true,
         icon:       'icon icon-fw icon-checkmark',
-        label:      'Set default version',
+        label:      this.t('action.setDefaultVersion'),
       },
       ...out
     ];

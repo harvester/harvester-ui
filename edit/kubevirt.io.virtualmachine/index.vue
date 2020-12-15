@@ -132,7 +132,7 @@ export default {
     },
 
     hostnameLabel() {
-      return this.isSingle ? 'Host Name' : 'Host Prefix Name';
+      return this.isSingle ? this.t('harvester.vmPage.hostName.label') : this.t('harvester.vmPage.hostPrefixName.label');
     },
 
     ...mapGetters({ t: 'i18n/t' })
@@ -355,7 +355,7 @@ export default {
           v-model="isSingle"
           name="model"
           :options="[true,false]"
-          :labels="['Single Instance', 'Multiple Instance']"
+          :labels="[t('harvester.vmPage.input.singleInstance'), t('harvester.vmPage.input.multipleInstance')]"
           :mode="mode"
         />
       </div>
@@ -374,7 +374,7 @@ export default {
             v-model.number="count"
             v-int-number
             type="number"
-            label="count"
+            :label="t('harvester.fields.count')"
             required
             @input="validataCount"
           />
@@ -383,15 +383,15 @@ export default {
 
       <div class="min-spacer"></div>
 
-      <Checkbox v-if="isCreate" v-model="useTemplate" class="check mb-20" type="checkbox" label="Use VM Template:" />
+      <Checkbox v-if="isCreate" v-model="useTemplate" class="check mb-20" type="checkbox" :label="t('harvester.vmPage.useTemplate')" />
 
       <div v-if="useTemplate" class="row mb-20">
         <div class="col span-6">
-          <LabeledSelect v-model="templateName" label="template" :options="templateOption" />
+          <LabeledSelect v-model="templateName" :label="t('harvester.vmPage.input.template')" :options="templateOption" />
         </div>
 
         <div class="col span-6">
-          <LabeledSelect v-model="templateVersion" label="version" :options="versionOption" />
+          <LabeledSelect v-model="templateVersion" :label="t('harvester.vmPage.input.version')" :options="versionOption" />
         </div>
       </div>
 
@@ -410,7 +410,7 @@ export default {
 
         <Tab
           name="Volume"
-          label="Volumes"
+          :label="t('harvester.tab.volume')"
           :weight="-1"
         >
           <Volume v-model="diskRows" :mode="mode" />
@@ -418,7 +418,7 @@ export default {
 
         <Tab
           name="Network"
-          label="Networks"
+          :label="t('harvester.tab.network')"
           :weight="-2"
         >
           <Network v-model="networkRows" :mode="mode" />
@@ -426,14 +426,13 @@ export default {
 
         <Tab
           name="advanced"
-          label="Advanced Options"
+          :label="t('harvester.tab.advanced')"
           :weight="-3"
         >
-          <LabeledInput v-model="hostname" class="labeled-input--tooltip mb-20" required placeholder="default to the virtual machine name.">
+          <LabeledInput v-model="hostname" class="labeled-input--tooltip mb-20" required :placeholder="t('harvester.vmPage.hostName.placeholder')">
             <template #label>
               <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
                 {{ hostnameLabel }}
-                <i v-tooltip="'Give an identifying name you will remember them by. Your hostname name can only contain alphanumeric characters, dashes.'" class="icon icon-info" style="font-size: 14px" />
               </label>
             </template>
           </LabeledInput>
@@ -441,16 +440,16 @@ export default {
           <CloudConfig ref="yamlEditor" :user-script="userScript" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
 
           <div class="spacer"></div>
-          <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" label="Enable USB Tablet" />
+          <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" :label="t('harvester.vmPage.enableUsb')" />
         </Tab>
       </Tabbed>
 
       <template #extend>
         <div class="mt-20">
-          <Checkbox v-model="isRunning" class="check mb-20" type="checkbox" label="Start virtual machine on creation" />
+          <Checkbox v-model="isRunning" class="check mb-20" type="checkbox" :label="t('harvester.vmPage.createRunning')" />
 
           <Banner v-if="isEdit" color="warning">
-            Saving edits will cause the VM to restart.
+            {{ t('harvester.vmPage.restartTip') }}
           </Banner>
         </div>
       </template>

@@ -1170,6 +1170,17 @@ tableHeaders:
   Role: 角色
   Users: 用户
   Groups: 用户组
+  size: 大小
+  attachedVM: 被挂载到
+  progress: 进度
+  phase: 阶段
+  vm:
+    ipAddress: IP 地址
+    node: 主机
+    defaultVersion: 默认版本
+  network:
+    type: 类型
+    vlan: Vlan ID
 
 validation:
   arrayLength:
@@ -1733,6 +1744,16 @@ action:
   editYaml: 以YAML的形式编辑
   openLogs: 查看日志
   createVM: 创建虚拟机
+  start: 启动
+  restart: 重启
+  stop: 停止
+  pause: 暂停
+  unpause: 取消暂停
+  ejectCDROM: 弹出 CDROM
+  launchFormTemplate: 从模板启动实例
+  modifyTemplate: 修改模版 (创建新版本)
+  setDefaultVersion: 设置默认版本
+  addTemplateVersion: 添加模版版本
 
 unit:
   sec: 秒
@@ -1794,7 +1815,7 @@ vm:
   nameNsDescription:
     name:
       singleLabel: 名称
-      multipleLabel: 名称后缀
+      multipleLabel: 名称前缀
   detail:
     tabs:
       overview: 概览
@@ -1835,6 +1856,26 @@ vmtemplate:
     name: 模板名称
 
 harvester:
+  buttons:
+    addPort:  添加端口
+  fields:
+    name: 名称
+    type: 类型
+    image: 镜像
+    size: 大小
+    volume: 卷
+    network: 网络
+    model: 模式
+    macAddress: mac地址
+    port: 端口
+    protocol: 协议
+    remove: 删除
+    count: 数量
+  tab:
+    volume: 卷
+    network: 网络
+    advanced: 高级选项
+
   nav:
     dashboard: 概览
   header:
@@ -1850,7 +1891,60 @@ harvester:
     value: 值
 
   hostPage:
+
   vmPage:
+    restartTip: 保存编辑将导致VM重新启动.
+    enableUsb: 鼠标增强
+    sshTitle: 添加SSH公钥
+    imageTip: 外部的URL创建虚拟机的.iso、.img、.qcow2或.raw的外部URL
+    hostName: 
+      label: 主机名
+      placeholder: 默认为虚拟机名称
+    hostPrefixName: 
+      label: 主机名前缀
+      placeholder: 默认为虚拟机名称
+    title: 虚拟机
+    createRunning: 创建时启动虚拟机
+    volume:
+      type: 类型
+      size: 大小
+      bus:  Bus
+      bootOrder: 引导顺序
+      volume: 卷
+      dockerImage: Docker镜像
+      title:
+        vmImage: VM镜像
+        existingVolume: 已存在的卷
+        volume: 卷
+        container: 容器
+    network:
+      title: 网络
+    cloudConfig:
+      title: 云配置
+      userData:
+        title: "用户数据:"
+        tip: 'You can specify user data to configure an instance or run a configuration script during launch. If you launch more than one instance at a time, the user data is available to all the instances in that reservation. <a href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html" target="_blank"> Learn more </a>'
+      networkData:
+        title: "网络数据:"
+        tip: 'The network-data configuration allows you to customize the instance’s networking interfaces by assigning subnet configuration, virtual device creation (bonds, bridges, vlans) routes and DNS configuration. <a href="https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html" target="_blank"> Learn more </a>'
+    input:
+      name: 名称
+      singleInstance: 单个实例
+      multipleInstance: 多个实例
+      template: 模版
+      version: 版本
+      memory: 内存
+      image: 镜像
+      sshKey: SSH 密钥
+      sshKeyValue: SSH 公钥
+    useTemplate: "使用模版:"
+    buttons: 
+      addVolume: 添加卷
+      addExistingVolume: 添加已存在的卷
+      addVmImage: 添加VM镜像
+      addContainer: 添加容器
+      addNetwork: 添加网络
+      createSSHKey: 创建SSH密钥
   volumePage:
     size: 大小
     source: 资源类型
@@ -1866,6 +1960,9 @@ harvester:
     urlTip: '<a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a> 支持 <code>raw</code> and <code>qcow2</code> 镜像格式. 可启动的ISO镜像也可以像 <code>raw</code> 镜像. 镜像可能以 <code>gz</code> 或 <code>xz</code> 格式压缩'
 
   templatePage:
+    name: 模版名称
+    description: 描述
+    defaultVersion: 默认版本
   networkPage:
   keypairPage:
     keypair: SSH 公钥

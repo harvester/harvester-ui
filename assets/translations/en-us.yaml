@@ -1340,6 +1340,13 @@ tableHeaders:
   value: Value
   version: Version
   weight: Weight
+  vm:
+    ipAddress: IP Address
+    node: Node
+    defaultVersion: Default Version
+  network:
+    type: Type
+    vlan: Vlan ID
 
 validation:
   arrayLength:
@@ -2163,6 +2170,16 @@ action:
   viewInApi: View in API
   openLogs: View Logs
   createVM: Create a Virtual Machine
+  start: Start
+  restart: Restart
+  stop: Stop
+  pause: Pause
+  unpause: unpasue
+  ejectCDROM: Eject CDROM
+  launchFormTemplate: Launch instance from template
+  modifyTemplate: Modify template (Create new version)
+  setDefaultVersion: Set default version
+  addTemplateVersion: Add templateVersion
 
 unit:
   sec: secs
@@ -2217,6 +2234,26 @@ HarvesterIndexPage:
       noRows: There are no unhealthy nodes to show.
 
 harvester:
+  buttons:
+    addPort:  Add Port
+  fields:
+    name: Name
+    type: Type
+    image: Image
+    size: Size
+    volume: Volume
+    network: Network
+    model: Model
+    macAddress: Mac Address
+    port: Port
+    protocol: Protocol
+    remove: REMOVE
+    count: count
+  tab:
+    volume: Volumes
+    network: Networks
+    advanced: Advanced Options
+
   nav:
     dashboard: Dashboard
   header:
@@ -2232,7 +2269,60 @@ harvester:
     value: Value
 
   hostPage:
+
   vmPage:
+    enableUsb: Enable USB Tablet
+    restartTip: Saving edits will cause the VM to restart.
+    sshTitle: Add Public SSH Key
+    imageTip: An external URL to the .iso, .img, .qcow2 or .raw that the virtual machine should be created from.
+    hostName: 
+      label: Host Name
+      placeholder: default to the virtual machine name.
+    hostPrefixName:
+      label: Host Prefix Name
+      placeholder: default to the virtual machine name.
+    createRunning: Start virtual machine on creation
+    volume:
+      type: Type
+      size: Size
+      bus:  Bus
+      bootOrder: Boot Order
+      volume: Volume
+      dockerImage: Docker Image
+      title:
+        vmImage: VM Image
+        existingVolume: Existing Volume
+        volume: Volume
+        container: Container
+    network:
+      title: Network
+    cloudConfig:
+      title: Cloud Config
+      userData:
+        title: "User Data:"
+        tip: "You can specify user data to configure an instance or run a configuration script during launch. If you launch more than one instance at a time, the user data is available to all the instances in that reservation. <a href='https://cloudinit.readthedocs.io/en/latest/topics/examples.html' target='_blank'>Learn more</a>"
+      networkData:
+        title: "Network Data:"
+        tip: "The network-data configuration allows you to customize the instance’s networking interfaces by assigning subnet configuration, virtual device creation (bonds, bridges, vlans) routes and DNS configuration. <a href='https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html' target='_blank'>Learn more</a>"
+    input:
+      name: Name
+      singleInstance: Single Instance
+      multipleInstance: Multiple Instance
+      template: template
+      version: version
+      memory: Memory
+      image: Image
+      sshKey: SSHKey
+      sshKeyValue: SSH-Key
+    useTemplate: "Use VM Template:"
+    buttons: 
+      addVolume: Add Volume
+      addExistingVolume: Add Existing Volume
+      addVmImage: Add VM Image
+      addContainer: Add Container
+      addNetwork: Add Network
+      createSSHKey: Create SSH Key
+  
   volumePage:
     size: Size
     source: Source
@@ -2248,6 +2338,9 @@ harvester:
     urlTip: 'supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>. Bootable ISO images can also be used and are treated like <code>raw</code> images. Images may be compressed with either the <code>gz</code> or <code>xz</code> format.'
 
   templatePage:
+    name: Template Name
+    description: Description
+    defaultVersion: Default version
   networkPage:
   keypairPage:
     keypair: SSH Key

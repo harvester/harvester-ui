@@ -79,7 +79,7 @@ export default {
       <LabeledInput
         ref="name"
         v-model="row.name"
-        label="Name"
+        :label="t('harvester.fields.name')"
         :placeholder="namePlaceholder"
         :disabled="isDisabled"
         :mode="mode"
@@ -92,18 +92,18 @@ export default {
         :options="protocolOption"
         :style="{'height':'50px'}"
         :multiple="false"
-        label="Protocol"
+        :label="t('harvester.fields.protocol')"
         :mode="mode"
         :disabled="isDisabled"
       />
 
       <button v-if="!isDisabled" type="button" class="btn bg-transparent role-link" @click.prevent="removeRows(index)">
-        REMOVE
+        {{ t('harvester.fields.remove') }}
       </button>
     </div>
 
     <button v-if="!isDisabled" class="btn btn-sm role-secondary" @click.prevent="addRows()">
-      Add Port
+      {{ t('harvester.buttons.addPort') }}
     </button>
   </div>
 </template>

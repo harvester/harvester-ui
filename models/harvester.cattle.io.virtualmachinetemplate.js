@@ -16,13 +16,13 @@ export default {
         action:     'createFromTemplate',
         enabled:    true,
         icon:       'icons icon-h-display',
-        label:      'Create a Virtual Machine',
+        label:      this.t('action.createVM'),
       },
       {
         action:     'addVersion',
         enabled:    true,
         icon:       'icon icon-fw icon-circle-plus',
-        label:      'Add templateVersion',
+        label:      this.t('action.addTemplateVersion'),
       },
       ...out
     ];
