@@ -48,7 +48,7 @@ export default {
 <template>
   <div class="test">
     <div class="resource-yaml">
-      <h2>User Data</h2>
+      <h3>{{ t('harvester.vmPage.cloudConfig.userData.title') }}</h3>
       <YamlEditor
         v-if="active"
         ref="yamlUser"
@@ -58,7 +58,7 @@ export default {
         @onReady="onReady"
       />
       <hr class="section-divider" />
-      <h2>Network Data</h2>
+      <h3>{{ t('harvester.vmPage.cloudConfig.networkData.title') }}</h3>
       <YamlEditor
         v-if="active"
         ref="yamlUser"
