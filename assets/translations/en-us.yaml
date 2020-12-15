@@ -1357,8 +1357,6 @@ validation:
   chars: '"{key}" contains {count, plural, =1 {an invalid character} other {# invalid characters}}: {chars}'
   custom:
     missing: "No validtor exists for { validatorName }! Does the validtor exist in custom-validtors? Is the name spelled correctly?"
-    tooLongName: '"Name" cannot be more than {max} characters.'
-    cidr: 'CIRD is invalid.'
   dns:
     doubleHyphen: '"{key}" Cannot contain two or more consecutive hyphens'
     hostname:
@@ -2267,6 +2265,28 @@ harvester:
     attachedVM: Attached VM
     fingerprint: Fingerprint
     value: Value
+
+  validation:
+    custom:
+      tooLongName: '"Name" cannot be more than {max} characters.'
+      cidr: 'CIRD is invalid.'
+    vm:
+      name: 'name is required'
+      memory: '"Memory" is required!'
+      network:
+        error: 'network[{index}]: {message}'
+        name: 'Network Name is required'
+        macFormat: 'Invalid MAC address format.'
+        duplicatedName: 'network with this name already exists!.'
+        duplicatedPortName: 'Duplicate name of the port.'
+        duplicatedPortNumber: 'Duplicate number of the port'
+      volume:
+        error: 'volume{index}: {message}'
+        duplicatedName: 'volume with this name already exists!.'
+        size: '"Size" is required!'
+        image: '"Image" is required!'
+        volume: '"Volume" is required!'
+        docker: '"Docker Image" is required!'
 
   hostPage:
 

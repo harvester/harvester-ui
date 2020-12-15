@@ -1738,6 +1738,7 @@ action:
   goToClone: 以表单的形式复制
   goToEditYaml: 以YAML的形式编辑
   cloneYaml: 以YAML的形式复制
+  goToViewYaml: 以YAML的形式查看
   viewInApi: 在API中查看
   edit: 以表格的形式编辑
   clone: 以表格的形式复制
@@ -1889,6 +1890,28 @@ harvester:
     attachedVM: 挂载VM
     fingerprint: 唯一标识
     value: 值
+
+  validation:
+    custom:
+      tooLongName: '"名称" 不能超过 {max} 个字符'
+      cidr: '非法的CIRD'
+    vm:
+      name: '"名称" 是必填项'
+      memory: '"内存" 是必填项'
+      network:
+        error: '网络[{index}]: {message}'
+        name: '"网络名称" 是必填项'
+        macFormat: 'MAC 地址格式不正确'
+        duplicatedName: '网络名称重复'
+        duplicatedPortName: '端口名重复'
+        duplicatedPortNumber: '端口号重复'
+      volume:
+        error: '卷{index}: {message}'
+        duplicatedName: '卷名称重复'
+        size: '"大小" 是必填项'
+        image: '"镜像" 是必填项'
+        volume: '"卷" 是必填项'
+        docker: '"Docker 镜像" 是必填项'
 
   hostPage:
 
