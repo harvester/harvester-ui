@@ -126,10 +126,12 @@ export default {
 
   .list-unstyled {
     li {
+      min-width: 100px;
+
       a {
         display: flex;
         justify-content: space-between;
-        padding: 10px;
+        padding: 10px 20px;
       }
 
       &.user-info {

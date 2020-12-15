@@ -1888,4 +1888,6 @@ harvester:
       local: Local
       kubeconfig: Kubeconfig
       token: Token
+    tips:
+      kubeconfigLimitations: 以 Kubeconfig 方式登录不支持外部供应商的身份认证或基础认证方式
     
