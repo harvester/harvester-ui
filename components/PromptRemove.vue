@@ -252,7 +252,7 @@ export default {
           {{ t('promptRemove.attemptingToRemove', {type}) }} <template v-for="(resource, i) in names">
             <template v-if="i<5">
               <LinkDetail :key="resource" :value="resource" :row="toRemove[i]" @click.native="close" />
-              <span v-if="i===names.length-1" :key="resource.id">{{ plusMore }}</span><span v-else :key="resource.id">{{ i === toRemove.length-2 ? ', and ' : ', ' }}</span>
+              <span v-if="i===names.length-1" :key="resource.id">{{ plusMore }}</span><span v-else :key="resource.id">{{ i === toRemove.length-2 ? `, ${ t('harvester.promptRemove.and') } ` : ', ' }}</span>
             </template>
           </template>
 
