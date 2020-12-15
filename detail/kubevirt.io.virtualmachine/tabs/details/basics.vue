@@ -148,7 +148,7 @@ export default {
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            Image
+            {{ t("vm.fields.image") }}
           </label>
           <div>
             {{ imageName }}
