@@ -253,7 +253,7 @@ export default {
             <div v-if="allowKubeCredentials" class="mt-20">
               <div>
                 <ButtonGroup v-model="loginMode" :options="groupOptions" />
-                <i v-if="fileMode" v-tooltip="t('loginPage.tips.kubeconfigLimitations', {}, raw=true)" class="icon icon-info" />
+                <i v-if="fileMode" v-tooltip="t('harvester.loginPage.tips.kubeconfigLimitations', {}, raw=true)" class="icon icon-info" />
               </div>
             </div>
           </div>
