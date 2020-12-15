@@ -1833,7 +1833,7 @@ vm:
       instance: 虚拟机实例
       monitor: 监控数据
       keypairs: 公共密钥
-      cloudConfig: Cloud Config
+      cloudConfig: Cloud 配置
     details:
       name: 名称
       namespace: 命名空间
@@ -1926,9 +1926,9 @@ harvester:
 
   vmPage:
     restartTip: 保存编辑将导致VM重新启动.
-    enableUsb: 鼠标增强
+    enableUsb: 启动 USB Tablet 增强
     sshTitle: 添加SSH公钥
-    imageTip: 外部的URL创建虚拟机的.iso、.img、.qcow2或.raw的外部URL
+    imageTip: 创建虚拟机所需的.iso，.img，.qcow2或.raw的外部镜像地址
     hostName: 
       label: 主机名
       placeholder: 默认为虚拟机名称
@@ -1952,13 +1952,13 @@ harvester:
     network:
       title: 网络
     cloudConfig:
-      title: 云配置
+      title: Cloud配置
       userData:
-        title: "用户数据:"
-        tip: 'You can specify user data to configure an instance or run a configuration script during launch. If you launch more than one instance at a time, the user data is available to all the instances in that reservation. <a href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html" target="_blank"> Learn more </a>'
+        title: "用户数据配置:"
+        tip: '您可以指定用户数据以在启动期间配置实例或运行配置脚本。 如果一次启动多个实例，则该配置会对所有实例生效。<a href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html" target="_blank"> 点击查看更多 </a>'
       networkData:
-        title: "网络数据:"
-        tip: 'The network-data configuration allows you to customize the instance’s networking interfaces by assigning subnet configuration, virtual device creation (bonds, bridges, vlans) routes and DNS configuration. <a href="https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html" target="_blank"> Learn more </a>'
+        title: "网络设备配置:"
+        tip: '网络设备配置可让您通过分配子网配置，虚拟设备创建（绑定，网桥，VLAN）路由和DNS配置来自定义实例的网络接口。 <a href="https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html" target="_blank"> 点击查看更多 </a>'
     input:
       name: 名称
       singleInstance: 单个实例
@@ -1982,7 +1982,7 @@ harvester:
     source: 资源类型
     sourceOptions:
       new: 空
-      vmImage: 虚拟机镜像
+      vmImage: VM Image
     image: 镜像
 
   imagePage:

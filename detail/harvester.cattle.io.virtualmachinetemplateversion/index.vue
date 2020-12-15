@@ -251,7 +251,7 @@ export default {
           <CloudConfig ref="yamlEditor" :user-script="userScript" :mode="mode" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
 
           <div class="spacer"></div>
-          <Checkbox v-model="isUseMouseEnhancement" :mode="mode" class="check" type="checkbox" label="Enable USB Tablet" />
+          <Checkbox v-model="isUseMouseEnhancement" :mode="mode" class="check" type="checkbox" :label="t('harvester.vmPage.enableUsb')" />
         </Tab>
       </Tabbed>
     </CruResource>
