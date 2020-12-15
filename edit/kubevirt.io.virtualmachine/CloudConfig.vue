@@ -105,12 +105,11 @@ export default {
 
 <template>
   <div @input="update">
-    <h2>Cloud Config</h2>
+    <h2>{{ t('harvester.vmPage.cloudConfig.title') }}</h2>
     <div class="mb-20">
-      <h3>User Data: </h3>
+      <h3>{{ t('harvester.vmPage.cloudConfig.userData.title') }}</h3>
       <h5>
-        You can specify user data to configure an instance or run a configuration script during launch. If you launch more than one instance at a time, the user data is available to all the instances in that reservation.
-        <a target="_blank" href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html">Learn more</a>
+        <t k="harvester.vmPage.cloudConfig.userData.tip" :raw="true" />
       </h5>
       <div class="resource-yaml">
         <YamlEditor
@@ -124,10 +123,9 @@ export default {
     </div>
 
     <div>
-      <h3>Network Data:</h3>
+      <h3>{{ t('harvester.vmPage.cloudConfig.networkData.title') }}</h3>
       <h5>
-        The network-data configuration allows you to customize the instance’s networking interfaces by assigning subnet configuration, virtual device creation (bonds, bridges, vlans) routes and DNS configuration.
-        <a target="_blank" href="https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html">Learn more</a>
+        <t k="harvester.vmPage.cloudConfig.networkData.tip" :raw="true" />
       </h5>
 
       <div class="resource-yaml">

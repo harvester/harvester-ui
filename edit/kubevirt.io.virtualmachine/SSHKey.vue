@@ -159,7 +159,7 @@ export default {
       <div class="keyLisk">
         <LabeledSelect
           v-model="checkedSsh"
-          label="SSHKey"
+          :label="t('harvester.vmPage.input.sshKey')"
           :taggable="true"
           :mode="mode"
           :multiple="true"
@@ -170,7 +170,7 @@ export default {
       </div>
 
       <span v-if="!isView" class="btn btn-sm bg-primary mt-20" @click="addSSH">
-        Create SSH Key
+        {{ t('harvester.vmPage.buttons.createSSHKey') }}
       </span>
     </div>
 
@@ -178,14 +178,14 @@ export default {
       <Card>
         <template #title>
           <h4 slot="title" class="text-default-text">
-            Add Public SSH Key
+            {{ t('harvester.vmPage.sshTitle') }}
           </h4>
         </template>
 
         <template #body>
           <LabeledInput
             v-model="sshName"
-            label="Name"
+            :label="t('harvester.vmPage.input.name')"
             class="mb-20"
             required
           />
@@ -193,7 +193,7 @@ export default {
           <LabeledInput
             v-model="publicKey"
             type="multiline"
-            label="SSH-Key"
+            :label="t('harvester.vmPage.input.sshKeyValue')"
             class="mb-20"
             :min-height="160"
             required
@@ -206,10 +206,10 @@ export default {
 
         <template #actions>
           <button class="btn bg-primary btn-sm mr-20" @click.prevent="cancelKey">
-            Cancel
+            {{ t('generic.cancel') }}
           </button>
           <button class="btn bg-primary btn-sm" @click.prevent="saveKey">
-            Save
+            {{ t('generic.save') }}
           </button>
         </template>
       </Card>

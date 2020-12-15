@@ -212,14 +212,14 @@ export default {
     >
       <div class="row mb-20">
         <div class="col span-6">
-          <LabeledInput v-model="templateValue.metadata.name" :disabled="isVersionEdit" label="Template Name" required />
+          <LabeledInput v-model="templateValue.metadata.name" :disabled="isVersionEdit" :label="t('harvester.templatePage.name')" required />
         </div>
         <div class="col span-6">
-          <LabeledInput v-model="templateValue.spec.description" label="Description" />
+          <LabeledInput v-model="templateValue.spec.description" :label="t('harvester.templatePage.description')" />
         </div>
       </div>
 
-      <Checkbox v-if="isVersionEdit" v-model="isDefaultVersion" class="mb-20" label="Default version" type="checkbox" />
+      <Checkbox v-if="isVersionEdit" v-model="isDefaultVersion" class="mb-20" :label="t('harvester.templatePage.defaultVersion')" type="checkbox" />
       <Tabbed :side-tabs="true" @changed="onTabChanged">
         <Tab name="Basics" :label="t('vm.detail.tabs.basics')">
           <CpuMemory :cpu="spec.template.spec.domain.cpu.cores" :memory="memory" @updateCpuMemory="updateCpuMemory" />
@@ -235,7 +235,7 @@ export default {
 
         <Tab
           name="Volume"
-          label="Volumes"
+          :label="t('harvester.tab.volume')"
           :weight="-1"
         >
           <Volume v-model="diskRows" :mode="mode" />
@@ -243,7 +243,7 @@ export default {
 
         <Tab
           name="Network"
-          label="Networks"
+          :label="t('harvester.tab.network')"
           :weight="-2"
         >
           <Network v-model="networkRows" :mode="mode" />
@@ -251,7 +251,7 @@ export default {
 
         <Tab
           name="advanced"
-          label="Advanced Options"
+          :label="t('harvester.tab.advanced')"
           :weight="-3"
         >
           <CloudConfig ref="yamlEditor" :user-script="userScript" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />

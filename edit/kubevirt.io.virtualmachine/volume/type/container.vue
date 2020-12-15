@@ -65,13 +65,13 @@ export default {
   <div @input="update">
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.name" label="Name" required :mode="mode" />
+        <LabeledInput v-model="value.name" :label="t('harvester.fields.name')" required :mode="mode" />
       </div>
 
       <div class="col span-6">
         <LabeledSelect
           v-model="value.type"
-          label="Type"
+          :label="t('harvester.fields.type')"
           :options="typeOption"
           :mode="mode"
           required
@@ -82,17 +82,17 @@ export default {
 
     <div class="row">
       <div class="col span-6">
-        <LabeledInput v-model="value.container" label="Docker Image" :mode="mode" required @input="update" />
+        <LabeledInput v-model="value.container" :label="t('harvester.vmPage.volume.dockerImage')" :mode="mode" required @input="update" />
       </div>
 
       <div class="col span-3">
-        <LabeledSelect v-model="value.bus" label="Bus" :options="interfaceOption" :mode="mode" @input="update" />
+        <LabeledSelect v-model="value.bus" :label="t('harvester.vmPage.volume.bus')" :options="interfaceOption" :mode="mode" @input="update" />
       </div>
 
       <div class="col span-3">
         <LabeledSelect
           v-model="value.bootOrder"
-          label="Boot Order"
+          :label="t('harvester.vmPage.volume.bootOrder')"
           :searchable="false"
           :mode="mode"
           :options="bootOrderOption"

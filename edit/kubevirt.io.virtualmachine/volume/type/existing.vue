@@ -138,13 +138,13 @@ export default {
   <div @input="update">
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.name" label="Name" :mode="mode" required :disabled="isDisabled" />
+        <LabeledInput v-model="value.name" :label="t('harvester.fields.name')" :mode="mode" required :disabled="isDisabled" />
       </div>
 
       <div class="col span-6">
         <LabeledSelect
           v-model="value.type"
-          label="Type"
+          :label="t('harvester.fields.type')"
           :mode="mode"
           :disabled="isDisabled"
           :options="typeOption"
@@ -158,7 +158,7 @@ export default {
       <div class="col span-6">
         <LabeledSelect
           v-model="value.volumeName"
-          label="Volume"
+          :label="t('harvester.fields.volume')"
           :mode="mode"
           :disabled="isDisabled"
           :options="volumeOption"
@@ -168,7 +168,7 @@ export default {
       </div>
 
       <div class="col span-6">
-        <UnitInput v-model="value.size" label="Size" suffix="GiB" :mode="mode" :disabled="true" />
+        <UnitInput v-model="value.size" :label="t('harvester.fields.size')" suffix="GiB" :mode="mode" :disabled="true" />
       </div>
     </div>
 
@@ -176,7 +176,7 @@ export default {
       <div class="col span-3">
         <LabeledSelect
           v-model="value.bus"
-          label="Bus"
+          :label="t('harvester.vmPage.volume.bus')"
           :mode="mode"
           :options="interfaceOption"
           :disabled="true"
@@ -188,7 +188,7 @@ export default {
       <div class="col span-3">
         <LabeledSelect
           v-model="value.bootOrder"
-          label="Boot Order"
+          :label="t('harvester.vmPage.volume.bootOrder')"
           :mode="mode"
           :searchable="false"
           :options="bootOrderOption"

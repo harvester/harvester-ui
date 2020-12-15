@@ -52,7 +52,7 @@ export default {
     v-model="row.port"
     type="number"
     :mode="mode"
-    label="Port"
+    :label="t('harvester.fields.port')"
     placeholder="e.g. 8080"
     :disabled="isDisabled"
   >

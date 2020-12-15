@@ -58,7 +58,7 @@ export default {
         <div class="col span-4">
           <div class="labeled-input view">
             <label>
-              Name
+              {{ t('harvester.fields.name') }}
             </label>
             <div>
               {{ name }}
@@ -69,7 +69,7 @@ export default {
         <div class="col span-4">
           <div class="labeled-input view">
             <label>
-              Type
+              {{ t('harvester.fields.type') }}
             </label>
             <div>
               {{ type }}

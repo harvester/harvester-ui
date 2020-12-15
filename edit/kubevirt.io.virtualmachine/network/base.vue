@@ -132,13 +132,13 @@ export default {
   <div @input="update">
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.name" label="Name" required :mode="mode" :disabled="isDisabled" />
+        <LabeledInput v-model="value.name" :label="t('harvester.fields.name')" required :mode="mode" :disabled="isDisabled" />
       </div>
 
       <div class="col span-6">
         <LabeledSelect
           v-model="value.model"
-          label="Model"
+          :label="t('harvester.fields.model')"
           :disabled="isDisabled"
           :options="modelOption"
           :mode="mode"
@@ -152,7 +152,7 @@ export default {
       <div class="col span-6">
         <LabeledSelect
           v-model="value.networkName"
-          label="Network"
+          :label="t('harvester.fields.network')"
           :options="NTOption"
           :mode="mode"
           required
@@ -164,7 +164,7 @@ export default {
       <div class="col span-6">
         <LabeledSelect
           v-model="value.type"
-          label="Type"
+          :label="t('harvester.fields.type')"
           :options="typeOpton"
           :mode="mode"
           required
@@ -178,7 +178,7 @@ export default {
         <LabeledInput v-model="value.macAddress" :mode="mode">
           <template #label>
             <label class="has-tooltip">
-              Mac Address
+              {{ t('harvester.fields.macAddress') }}
               <i v-tooltip="'Protip: MAC address as seen inside the guest system.'" class="icon icon-info" style="font-size: 14px" />
             </label>
           </template>

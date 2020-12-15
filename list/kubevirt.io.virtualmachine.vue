@@ -39,13 +39,15 @@ export default {
           name:      'ip',
           label:     'IP Address',
           value:     'id',
-          formatter: 'ipAddress'
+          formatter: 'ipAddress',
+          labelKey:  'tableHeaders.vm.ipAddress'
         },
         {
           name:      'node',
           label:     'Node',
           value:     'id',
-          formatter: 'nodeName'
+          formatter: 'nodeName',
+          labelKey:  'tableHeaders.vm.node'
         },
         {
           ...AGE,

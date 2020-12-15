@@ -121,12 +121,12 @@ export default {
   >
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
       <Tab name="basics" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
-        <LabeledInput v-model="name" class="mb-20" label="Name" required :disabled="isEdit" />
+        <LabeledInput v-model="name" class="mb-20" :label="t('harvester.fields.name')" required :disabled="isEdit" />
 
         <LabeledInput
           v-model="type"
           class="mb-20"
-          label="Type"
+          :label="t('harvester.fields.type')"
           :disabled="true"
           required
         />

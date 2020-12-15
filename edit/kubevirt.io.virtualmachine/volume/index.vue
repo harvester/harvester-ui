@@ -159,7 +159,7 @@ export default {
         type:             'disk',
         accessMode:       'ReadWriteOnce',
         volumeMode:       'Filesystem',
-        volumeName:           '',
+        volumeName:        '',
         bus:              'virtio',
         newCreateId:      randomstring.generate(10), // judge whether it is a disk that has been created
       };
@@ -206,10 +206,10 @@ export default {
 
     headerFor(type) {
       return {
-        'New':               'Volume', // eslint-disable-line
-        'VM Image':          'VM Image',
-        'Existing Volume':   'Existing Volume',
-        'Container':         'Container', // eslint-disable-line
+        'New':               this.$store.getters['i18n/t']('harvester.vmPage.volume.title.volume'), // eslint-disable-line
+        'VM Image':          this.$store.getters['i18n/t']('harvester.vmPage.volume.title.vmImage'),
+        'Existing Volume':   this.$store.getters['i18n/t']('harvester.vmPage.volume.title.existingVolume'),
+        'Container':         this.$store.getters['i18n/t']('harvester.vmPage.volume.title.container'), // eslint-disable-line
       }[type];
     },
 
@@ -258,19 +258,19 @@ export default {
     </div>
     <div v-if="!isView">
       <button type="button" class="btn btn-sm bg-primary mr-15 mb-10" @click="addVolume(SOURCE_TYPE.NEW)">
-        Add Volume
+        {{ t('harvester.vmPage.buttons.addVolume') }}
       </button>
 
       <button type="button" class="btn btn-sm bg-primary mr-15 mb-10" @click="addVolume(SOURCE_TYPE.ATTACH_VOLUME)">
-        Add Existing Volume
+        {{ t('harvester.vmPage.buttons.addExistingVolume') }}
       </button>
 
       <button type="button" class="btn btn-sm bg-primary mr-15 mb-10" @click="addVolume(SOURCE_TYPE.IMAGE)">
-        Add VM Image
+        {{ t('harvester.vmPage.buttons.addVmImage') }}
       </button>
 
       <button type="button" class="btn btn-sm bg-primary mb-10" @click="addVolume(SOURCE_TYPE.CONTAINER)">
-        Add Container
+        {{ t('harvester.vmPage.buttons.addContainer') }}
       </button>
     </div>
 

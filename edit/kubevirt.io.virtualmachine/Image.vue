@@ -1,7 +1,6 @@
 <script>
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { IMAGE } from '@/config/types';
-const TIP = 'An external URL to the .iso, .img, .qcow2 or .raw that the virtual machine should be created from.';
 
 export default {
   components: { LabeledSelect },
@@ -26,8 +25,10 @@ export default {
   },
 
   data() {
+    const tip = this.t('harvester.vmPage.imageTip');
+
     return {
-      tip:        this.disabled ? '' : TIP,
+      tip:        this.disabled ? '' : tip,
       image:      this.value,
     };
   },
@@ -44,7 +45,7 @@ export default {
             value: I.spec.displayName
           };
         });
-    },
+    }
   },
 
   watch: {
@@ -66,7 +67,7 @@ export default {
     v-model="image"
     :disabled="disabled"
     :mode="mode"
-    label="Image"
+    :label="t('harvester.vmPage.input.image')"
     :required="required"
     :options="ImageOption"
     :tooltip="tip"

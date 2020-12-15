@@ -144,7 +144,9 @@ export default {
         <button v-if="!isView" type="button" class="role-link btn btn-lg remove-vol" @click="removeRow(row)">
           <i class="icon icon-2x icon-x" />
         </button>
-        <h3>Network</h3>
+        <h3>
+          {{ t('harvester.vmPage.network.title') }}
+        </h3>
         <div>
           <Base
             v-model="rows[i]"
@@ -159,7 +161,7 @@ export default {
     <div v-if="!isView" class="row">
       <div class="col span-6">
         <button type="button" class="btn btn-sm bg-primary mr-15" @click="addRow">
-          Add Network
+          {{ t('harvester.vmPage.buttons.addNetwork') }}
         </button>
       </div>
     </div>
