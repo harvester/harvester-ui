@@ -1920,11 +1920,6 @@ vmtemplate:
   nameNsDescription:
     name: Template Name
 
-vmimage:
-  ruleTip: 'The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats).'
-  urlTip: 'supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>. Bootable ISO images can also be used and are treated like <code>raw</code> images. Images may be compressed with either the <code>gz</code> or <code>xz</code> format.'
-
-
 ##############################
 # Model Properties
 ##############################
@@ -2225,18 +2220,12 @@ HarvesterIndexPage:
       label: Unhealthy Nodes
       noRows: There are no unhealthy nodes to show.
 
-volumePage:
-    size: Size
-    source: Source
-    image: Image
-    storage: Storage
-
-imagePage:
-  url: Url
-
 harvester:
   nav:
     dashboard: Dashboard
+  header:
+    preference: Preferences
+    logout: Log Out
 
   tableHeaders:
     size: Size
@@ -2251,11 +2240,16 @@ harvester:
   volumePage:
     size: Size
     source: Source
+    sourceOptions:
+      new: New
+      vmImage: VM Image
     image: Select an Image
 
   imagePage:
     url: URL
     size: Size
+    ruleTip: 'The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats.'
+    urlTip: 'supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>. Bootable ISO images can also be used and are treated like <code>raw</code> images. Images may be compressed with either the <code>gz</code> or <code>xz</code> format.'
 
   templatePage:
   networkPage:

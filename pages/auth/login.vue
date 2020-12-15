@@ -190,13 +190,13 @@ export default {
 
       if (this.localMode) {
         if (!this.form.username || this.form.username === '') {
-          this.err = this.getInvalidMsg('Username');
+          this.err = this.getInvalidMsg(this.t('harvester.loginPage.username'));
 
           return buttonCb(false);
         }
 
         if (!this.form.password || this.form.password === '') {
-          this.err = this.getInvalidMsg('Password');
+          this.err = this.getInvalidMsg(this.t('harvester.loginPage.password'));
 
           return buttonCb(false);
         }
