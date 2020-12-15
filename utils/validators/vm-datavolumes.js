@@ -1,8 +1,12 @@
 import { formatSi, parseSi } from '@/utils/units';
 
 export function dataVolumeSize(storage, getters, errors, validatorArgs) {
+  const t = getters['i18n/t'];
+
   if (!storage || storage === '') {
-    errors.push(getters['i18n/t']('validation.required', { key: 'Size' }));
+    const key = t('harvester.volumePage.size');
+
+    errors.push(t('validation.required', { key }));
 
     return errors;
   }
@@ -12,7 +16,7 @@ export function dataVolumeSize(storage, getters, errors, validatorArgs) {
   const integerRegex = /^[1-9]\d*$/;
 
   if (!integerRegex.test(size) || size > max) {
-    errors.push('Size must be integer and between 1 and 999999');
+    errors.push(t('harvester.validation.sizeRange'));
   }
 
   return errors;
