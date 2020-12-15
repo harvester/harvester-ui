@@ -2288,6 +2288,12 @@ harvester:
         volume: '"Volume" is required!'
         docker: '"Docker Image" is required!'
 
+    image:
+      ruleTip: 'The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats.'
+    
+    volume:
+      sizeRange: Size must be integer and between 1 and 999999
+
   hostPage:
 
   vmPage:
@@ -2354,7 +2360,6 @@ harvester:
   imagePage:
     url: URL
     size: Size
-    ruleTip: 'The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats.'
     urlTip: 'supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>. Bootable ISO images can also be used and are treated like <code>raw</code> images. Images may be compressed with either the <code>gz</code> or <code>xz</code> format.'
 
   templatePage:

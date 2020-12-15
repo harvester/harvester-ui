@@ -1913,6 +1913,12 @@ harvester:
         volume: '"卷" 是必填项'
         docker: '"Docker 镜像" 是必填项'
 
+    image:
+      ruleTip: '仅支持镜像后缀为 .img, .iso, .qcow2, .raw, 以及上述镜像的压缩格式(.tar, .gz, .xz)'
+
+    volume:
+      sizeRange: '"大小" 必须是介于 1 和 999999 之间的整数'
+
   hostPage:
 
   vmPage:
@@ -1979,7 +1985,6 @@ harvester:
   imagePage:
     url: 镜像地址
     size: 大小
-    ruleTip: '仅支持镜像后缀为 .img, .iso, .qcow2, .raw, 以及上述镜像的压缩格式(.tar, .gz, .xz)'
     urlTip: '<a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a> 支持 <code>raw</code> and <code>qcow2</code> 镜像格式. 可启动的ISO镜像也可以像 <code>raw</code> 镜像. 镜像可能以 <code>gz</code> 或 <code>xz</code> 格式压缩'
 
   templatePage:

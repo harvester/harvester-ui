@@ -105,7 +105,7 @@ export default {
       {
         nullable:       false,
         path:           'spec.pvc.resources.requests.storage',
-        translationKey: 'volumePage.size',
+        translationKey: 'harvester.volumePage.size',
         type:           'string',
         validators:     ['dataVolumeSize']
       },
@@ -113,7 +113,7 @@ export default {
         nullable:       false,
         path:           'spec.source',
         required:       true,
-        translationKey: 'volumePage.source',
+        translationKey: 'harvester.volumePage.source',
         type:           'object',
       },
     ];
@@ -123,7 +123,7 @@ export default {
         nullable:       false,
         path:           'spec.source.http.url',
         required:       true,
-        translationKey: 'volumePage.image',
+        translationKey: 'harvester.volumePage.image',
         type:           'string',
       });
     }

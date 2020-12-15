@@ -1,6 +1,10 @@
 export function imageUrl(url, getters, errors, validatorArgs) {
+  const t = getters['i18n/t'];
+
   if (!url || url === '') {
-    errors.push(getters['i18n/t']('validation.required', { key: 'Url' }));
+    const key = t('harvester.imagePage.url');
+
+    errors.push(t('validation.required', { key }));
 
     return errors;
   }
@@ -10,7 +14,7 @@ export function imageUrl(url, getters, errors, validatorArgs) {
   const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
 
   if (!filesFormat.includes(fileSuffiic)) {
-    errors.push(getters['i18n/t']('harvester.imagePage.ruleTip'));
+    errors.push(t('harvester.validation.image.ruleTip'));
   }
 
   return errors;
