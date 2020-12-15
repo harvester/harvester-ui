@@ -229,7 +229,7 @@ export default {
 
         <Tab
           name="Volume"
-          label="Volumes"
+          :label="t('harvester.tab.volume')"
           :weight="-1"
         >
           <Volume v-model="diskRows" :mode="mode" />
@@ -237,7 +237,7 @@ export default {
 
         <Tab
           name="Network"
-          label="Networks"
+          :label="t('harvester.tab.network')"
           :weight="-2"
         >
           <Network v-model="networkRows" :mode="mode" />
@@ -245,7 +245,7 @@ export default {
 
         <Tab
           name="advanced"
-          label="Advanced Options"
+          :label="t('harvester.tab.advanced')"
           :weight="-3"
         >
           <CloudConfig ref="yamlEditor" :user-script="userScript" :mode="mode" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
