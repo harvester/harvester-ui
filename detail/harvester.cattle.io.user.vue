@@ -40,7 +40,7 @@ export default {
         <div class="col span-4">
           <div class="labeled-input view">
             <label>
-              Username
+              {{ t('harvester.userPage.username') }}
             </label>
             <div>
               {{ username }}

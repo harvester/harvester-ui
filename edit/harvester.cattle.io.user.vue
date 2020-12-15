@@ -45,7 +45,7 @@ export default {
       <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
         <LabeledInput
           v-model="value.username"
-          label="Username"
+          :label="t('harvester.userPage.username')"
           :disabled="isEdit"
           :mode="mode"
           class="mb-20"
@@ -54,7 +54,7 @@ export default {
 
         <LabeledInput
           v-model="value.password"
-          label="Password"
+          :label="t('harvester.userPage.password')"
           type="password"
           :mode="mode"
           class="mb-20"

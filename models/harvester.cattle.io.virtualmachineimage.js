@@ -15,7 +15,7 @@ export default {
         action:     'createFromImage',
         enabled:    b,
         icon:       'icon icon-fw icon-spinner',
-        label:      'Create a Virtual Machine',
+        label:      this.t('action.createVM'),
       },
       ...out
     ];

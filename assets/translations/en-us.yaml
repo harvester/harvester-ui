@@ -2167,6 +2167,7 @@ action:
   cloneYaml: Clone as YAML
   viewInApi: View in API
   openLogs: View Logs
+  createVM: Create a Virtual Machine
 
 unit:
   sec: secs
@@ -2228,7 +2229,7 @@ volumePage:
     size: Size
     source: Source
     image: Image
-    storageClass: Storage Class
+    storage: Storage
 
 imagePage:
   url: Url
@@ -2236,12 +2237,46 @@ imagePage:
 harvester:
   nav:
     dashboard: Dashboard
+
+  tableHeaders:
+    size: Size
+    progress: Progress
+    phase: Phase
+    attachedVM: Attached VM
+    fingerprint: Fingerprint
+    value: Value
+
   hostPage:
   vmPage:
   volumePage:
+    size: Size
+    source: Source
+    image: Select an Image
+
   imagePage:
+    url: URL
+    size: Size
+
   templatePage:
   networkPage:
   keypairPage:
+    keypair: SSH Key
+
   userPage:
+    username: Username
+    password: Password
+
   settingPage:
+  loginPage:
+    howdy: Howdy!
+    welcome: Welcome to Harvester
+    username: Username
+    password: Password
+    signIn: SIGN IN
+    loggingIn: Logging In...
+    loggedIn: Logged In
+    error: Error
+    mode:
+      local: Local
+      kubeconfig: Kubeconfig
+      token: Token

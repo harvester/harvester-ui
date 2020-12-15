@@ -71,7 +71,7 @@ export default {
       @finish="save"
     >
       <div class="header mb-20">
-        <FileSelector v-if="isCreate" class="btn btn-sm bg-primary mt-10" label="Read From File" accept=".pub" @selected="onKeySelected" />
+        <FileSelector v-if="isCreate" class="btn btn-sm bg-primary mt-10" :label="t('generic.readFromFile')" accept=".pub" @selected="onKeySelected" />
       </div>
 
       <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
@@ -81,7 +81,7 @@ export default {
               <LabeledInput
                 v-if="mode !== 'view'"
                 v-model="value.metadata.name"
-                label="Name"
+                :label="t('nameNsDescription.name.label')"
                 class="mb-20"
                 :mode="mode"
                 required
@@ -96,7 +96,7 @@ export default {
                 type="multiline"
                 :mode="mode"
                 :min-height="160"
-                label="SSH-Key"
+                :label="t('harvester.keypairPage.keypair')"
                 required
               />
             </div>

@@ -29,14 +29,14 @@ export default {
         },
         {
           name:      'Uploaded',
-          label:     'Progress',
+          labelKey:  'harvester.tableHeaders.progress',
           value:     'status.progress',
           sort:      'status.progress',
           formatter: 'ImagePercentageBar',
         },
         {
           name:      'downloadedBytes',
-          label:     'Size',
+          labelKey:  'harvester.tableHeaders.size',
           value:     'status.downloadedBytes',
           sort:      'status.downloadedBytes',
           formatter: 'ByteFormat',

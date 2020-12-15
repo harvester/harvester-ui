@@ -1170,11 +1170,6 @@ tableHeaders:
   Role: 角色
   Users: 用户
   Groups: 用户组
-  size: 大小
-  attachedVM: 被挂载到
-  progress: 进度
-  phase: 阶段
-
 
 validation:
   arrayLength:
@@ -1737,6 +1732,7 @@ action:
   clone: 以表格的形式复制
   editYaml: 以YAML的形式编辑
   openLogs: 查看日志
+  createVM: 创建虚拟机
 
 unit:
   sec: 秒
@@ -1838,34 +1834,50 @@ vmtemplate:
   nameNsDescription:
     name: 模板名称
 
-volumePage:
+harvester:
+  nav:
+    dashboard: 概览
+
+  tableHeaders:
+    size: 大小
+    progress: 进度
+    phase: 阶段
+    attachedVM: 挂载VM
+    fingerprint: 唯一标识
+    value: 值
+
+  hostPage:
+  vmPage:
+  volumePage:
     size: 大小
     source: 资源
     image: 镜像
 
-imagePage:
-  url: 镜像地址
-
-
-harvester:
-  nav:
-    dashboard: 概览
-  hostPage:
-    title: 主机
-  vmPage:
-    title: 虚拟机
-  volumePage:
-    title: 卷
   imagePage:
-    title: 镜像
+    url: 镜像地址
+    size: 大小
+
   templatePage:
-    title: 模板
   networkPage:
-    title: 网络
   keypairPage:
-    title: SSH 公钥
+    keypair: SSH 公钥
+
   userPage:
-    title: 用户
+    username: 用户名
+    password: 密码
+    
   settingPage:
-    title: 设置
+  loginPage:
+    howdy: 您好!
+    welcome: 欢迎使用 Harvester
+    username: 用户名
+    password: 密码
+    signIn: 登录
+    loggingIn: 登录中...
+    loggedIn: 登录成功
+    error: 错误
+    mode:
+      local: Local
+      kubeconfig: Kubeconfig
+      token: Token
     

@@ -171,7 +171,7 @@ export default {
   <div @input="update">
     <LabeledSelect
       v-model="source"
-      label="Source"
+      :label="t('harvester.volumePage.source')"
       :options="sourceOption"
       :disabled="!isCreate"
       required
@@ -183,7 +183,7 @@ export default {
     <LabeledInput
       v-if="isContainer"
       v-model="container"
-      label="Container Image"
+      label="containerImage"
       class="mb-20"
       :mode="mode"
       required
@@ -192,7 +192,7 @@ export default {
     <LabeledSelect
       v-if="isVmImage"
       v-model="image"
-      label="Select an Image"
+      :label="t('harvester.volumePage.image')"
       :options="ImageOption"
       :disabled="!isCreate"
       required
@@ -203,7 +203,7 @@ export default {
 
     <UnitInput
       v-model="storage"
-      label="Size"
+      :label="t('harvester.volumePage.size')"
       suffix="iB"
       :input-exponent="3"
       :output-exponent="3"

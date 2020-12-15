@@ -41,9 +41,9 @@ export default {
   computed: {
     groupOptions() {
       return [
-        { value: 'local', label: 'local' },
-        { value: 'kubeconfig', label: 'kubeconfig' },
-        { value: 'token', label: 'token' },
+        { value: 'local', label: this.t('harvester.loginPage.mode.local') },
+        { value: 'kubeconfig', label: this.t('harvester.loginPage.mode.kubeconfig') },
+        { value: 'token', label: this.t('harvester.loginPage.mode.token') },
 
       ];
     },
@@ -243,10 +243,10 @@ export default {
     <div class="row mb-20">
       <div class="col span-6">
         <p class="text-center">
-          Howdy!
+          {{ t('harvester.loginPage.howdy') }}
         </p>
         <h1 class="text-center">
-          Welcome to Harvester
+          {{ t('harvester.loginPage.welcome') }}
         </h1>
         <div class="login__container">
           <div v-if="!onlyLocalUser">
@@ -277,10 +277,10 @@ export default {
             </div>
           </div>
           <div v-if="allowLocalUser && localMode" class="mt-20 half">
-            <LabeledInput v-model="form.username" label="Username" required />
+            <LabeledInput v-model="form.username" :label="t('harvester.loginPage.username')" required />
             <LabeledInput
               v-model="form.password"
-              label="Password"
+              :label="t('harvester.loginPage.password')"
               type="password"
               class="mt-10"
               required
@@ -290,10 +290,10 @@ export default {
           <AsyncButton
             ref="loginButton"
             class="login__go mt-20"
-            action-label="SIGN IN"
-            waiting-label="Logging In..."
-            success-label="Logged In!"
-            error-label="Error"
+            :action-label="t('harvester.loginPage.signIn')"
+            :waiting-label="t('harvester.loginPage.loggingIn')"
+            :success-label="t('harvester.loginPage.loggedIn')"
+            :error-label="t('harvester.loginPage.error')"
             v-bind="$attrs"
             @click="login"
           />
