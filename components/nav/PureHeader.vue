@@ -55,10 +55,10 @@ export default {
         <template slot="popover">
           <ul class="list-unstyled dropdown">
             <nuxt-link tag="li" :to="{name: 'prefs'}" class="hand">
-              <a>Preferences <i class="icon icon-fw icon-gear" /></a>
+              <a>{{ t('harvester.header.preference') }} <i class="icon icon-fw icon-gear" /></a>
             </nuxt-link>
             <nuxt-link v-if="authEnabled" tag="li" :to="{name: 'auth-logout'}" class="pt-5 pb-5 hand">
-              <a>Log Out <i class="icon icon-fw icon-close" /></a>
+              <a>{{ t('harvester.header.logout') }} <i class="icon icon-fw icon-close" /></a>
             </nuxt-link>
           </ul>
         </template>

@@ -10,7 +10,7 @@ export function imageUrl(url, getters, errors, validatorArgs) {
   const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
 
   if (!filesFormat.includes(fileSuffiic)) {
-    errors.push('The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats).');
+    errors.push(getters['i18n/t']('harvester.imagePage.ruleTip'));
   }
 
   return errors;

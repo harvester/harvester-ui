@@ -67,10 +67,10 @@ export default {
     sourceOption() {
       return [{
         value: 'blank',
-        label: 'New'
+        label: this.t('harvester.volumePage.sourceOptions.new')
       }, {
         value: 'url',
-        label: 'VM Image'
+        label: this.t('harvester.volumePage.sourceOptions.vmImage')
       }
       // , {
       //   value: 'container',

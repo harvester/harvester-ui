@@ -96,7 +96,7 @@ export default {
                 <template #label>
                   <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
                     {{ t('harvester.imagePage.url') }}
-                    <i v-tooltip="t('vmimage.urlTip', {}, raw=true)" class="icon icon-info" style="font-size: 14px" />
+                    <i v-tooltip="t('harvester.imagePage.urlTip', {}, raw=true)" class="icon icon-info" style="font-size: 14px" />
                   </label>
                 </template>
               </LabeledInput>

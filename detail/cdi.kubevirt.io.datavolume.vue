@@ -80,7 +80,7 @@ export default {
         <div class="col span-4">
           <div class="labeled-input view">
             <label>
-              {{ t('volumePage.source') }}
+              {{ t('harvester.volumePage.source') }}
             </label>
             <div>
               {{ source }}
@@ -91,7 +91,7 @@ export default {
         <div v-if="source !== 'blank'" class="col span-4">
           <div class="labeled-input view">
             <label>
-              {{ t('volumePage.image') }}
+              {{ t('harvester.volumePage.image') }}
             </label>
             <div>
               {{ image }}
@@ -102,7 +102,7 @@ export default {
         <div class="col span-4">
           <div class="labeled-input view">
             <label>
-              {{ t('volumePage.size') }}
+              {{ t('harvester.volumePage.size') }}
             </label>
             <div>
               {{ storage }}
