@@ -48,21 +48,21 @@ export default {
     <Tab name="detail" :label="t('vm.detail.tabs.basics')" class="bordered-table">
       <div class="row">
         <div class="col span-12">
-          <div>Url</div>
+          <div>{{ t('harvester.imagePage.url') }}</div>
           <div><CopyToClipboardText v-model="value.spec.url" /></div>
         </div>
       </div>
 
       <div class="row">
         <div class="col span-12">
-          <div>Size</div>
+          <div>{{ t('harvester.imagePage.size') }}</div>
           <div>{{ formattedValue }}</div>
         </div>
       </div>
 
       <div class="row">
         <div class="col span-12">
-          <div>Description</div>
+          <div>{{ t('nameNsDescription.description.label') }}</div>
           <div>{{ description }}</div>
         </div>
       </div>

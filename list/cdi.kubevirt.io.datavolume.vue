@@ -43,7 +43,7 @@ export default {
         },
         {
           name:      'size',
-          label:     'Size',
+          labelKey:  'harvester.tableHeaders.size',
           value:     'spec.pvc.resources.requests.storage',
           sort:      'spec.pvc.resources.requests.storage',
         },
@@ -55,7 +55,7 @@ export default {
         // },
         {
           name:      'AttachedVM',
-          label:     'Attached VM',
+          labelKey:  'harvester.tableHeaders.attachedVM',
           type:      'attached',
           value:      'spec.claimRef',
           sort:      'name',
@@ -63,14 +63,14 @@ export default {
         },
         {
           name:      'progress',
-          label:     'Progress',
+          labelKey:  'harvester.tableHeaders.progress',
           type:      'progress',
           value:      'status.progress',
           sort:      'progress',
         },
         {
           name:      'phase',
-          label:     'Phase',
+          labelKey:  'harvester.tableHeaders.phase',
           value:     'phaseStatus',
           sort:      ['stateSort', 'nameSort'],
           width:     130,

@@ -658,5 +658,6 @@ export const IS_ADMIN = {
 
 export const SETTING_VALUE = {
   name:     'value',
+  labelKey: 'harvester.tableHeaders.value',
   value:    'valueOrDefaultValue'
 };

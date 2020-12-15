@@ -28,7 +28,7 @@ export default {
         },
         {
           name:      'Fingerprint',
-          label:     'Fingerprint',
+          labelKey:  'harvester.tableHeaders.fingerprint',
           value:     'status.fingerPrint',
         },
         AGE
