@@ -42,7 +42,7 @@ export default {
       <div class="col span-4">
         <div class="labeled-input view">
           <label>
-            Type
+            {{ t('harvester.fields.type') }}
           </label>
           <div>
             {{ type }}
@@ -53,7 +53,7 @@ export default {
       <div class="col span-4">
         <div class="labeled-input view">
           <label>
-            Physical NIC
+            {{ t('harvester.fields.PhysicalNic') }}
           </label>
           <div>
             {{ parseDefaultValue.NIC }}

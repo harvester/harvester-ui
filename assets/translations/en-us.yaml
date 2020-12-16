@@ -2247,6 +2247,7 @@ harvester:
     protocol: Protocol
     remove: REMOVE
     count: count
+    PhysicalNic: Physical NIC
   tab:
     volume: Volumes
     network: Networks

@@ -1872,6 +1872,7 @@ harvester:
     protocol: 协议
     remove: 删除
     count: 数量
+    PhysicalNic: 物理网卡
   tab:
     volume: 卷
     network: 网络
