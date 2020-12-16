@@ -44,7 +44,7 @@ nav:
     starred: 已收藏
     storage: 存储
     workload: 工作负载
-    advanced: 高级
+    advanced: 高级选项
   ns:
     all: 全部命名空间 
     clusterLevel: 集群资源 ##doublecheck
@@ -445,11 +445,11 @@ fleet:
           other {现有集群 {total, number} 个，与其中的 {matched, number} 匹配，包括 "{sample}"}
         }
 footer:
-  docs: Rancher 官方文档
+  docs: Rancher 文档
   download: 下载 CLI
   forums: 论坛
   issue: 提交 GitHub Issue
-  slack: Slack讨论群
+  slack: Slack
 
 gatekeeperConstraint:
 
@@ -839,7 +839,7 @@ persistentVolumeClaim:
       new: 使用新的存储类启动持久卷
       existing: 使用已有的存储类启动持久卷
 prefs:
-  title: 用户偏好设置
+  title: 用户配置
   theme:
     label: 主题
     light: 浅色
@@ -1880,7 +1880,7 @@ harvester:
   nav:
     dashboard: 概览
   header:
-    preference: 偏好
+    preference: 用户配置
     logout: 登出
 
   tableHeaders:
@@ -1948,17 +1948,17 @@ harvester:
         vmImage: VM镜像
         existingVolume: 已存在的卷
         volume: 卷
-        container: 容器
+        container: 容器镜像
     network:
       title: 网络
     cloudConfig:
       title: Cloud配置
       userData:
         title: "User Data:"
-        tip: '您可以指定用户数据以在启动期间配置实例或运行配置脚本。 如果一次启动多个实例，则该配置会对所有实例生效。<a href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html" target="_blank"> 点击查看更多 </a>'
+        tip: '您可以指定Cloud-init相关的用户数据以在启动期间配置实例或运行配置脚本。 如果一次启动多个实例，则该配置会对所有实例生效。<a href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html" target="_blank"> 查看更多 </a>'
       networkData:
         title: "Network Data:"
-        tip: '网络设备配置可让您通过分配子网配置，虚拟设备创建（绑定，网桥，VLAN）路由和DNS配置来自定义实例的网络接口。 <a href="https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html" target="_blank"> 点击查看更多 </a>'
+        tip: '网络设备配置可让您自定义实例的网络接口,例如管理子网分配，虚拟设备创建（bonds，bridges，Vlan）路由和DNS配置。 <a href="https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html" target="_blank"> 查看更多 </a>'
     input:
       name: 名称
       singleInstance: 单个实例
@@ -1974,7 +1974,7 @@ harvester:
       addVolume: 添加卷
       addExistingVolume: 添加已存在的卷
       addVmImage: 添加VM镜像
-      addContainer: 添加容器
+      addContainer: 添加容器镜像
       addNetwork: 添加网络
       createSSHKey: 创建SSH密钥
 
@@ -1996,6 +1996,15 @@ harvester:
     description: 描述
     defaultVersion: 默认版本
   networkPage:
+    message:
+      premise: 
+        prefix: '您必须先配置网络'
+        middle: '设置'
+        suffic: ',然后才能创建新网络。'
+      errorTip:
+        prefix: 非法的网络
+        middle: 配置
+        suffic: ",错误信息： "
   keypairPage:
     keypair: SSH 公钥
 

@@ -103,18 +103,18 @@ export default {
         color="error"
       >
         <div v-if="!statusText">
-          You must configure a network in
+          {{ t('harvester.networkPage.message.premise.prefix') }}
           <nuxt-link to="harvester.cattle.io.setting/network-setting?mode=edit">
-            Settings
+            {{ t('harvester.networkPage.message.premise.middle') }}
           </nuxt-link>
-          before you can create a new network.
+          {{ t('harvester.networkPage.message.premise.suffic') }}
         </div>
 
         <div v-else>
-          Physical NIC value in
+          {{ t('harvester.networkPage.message.errorTip.prefix') }}
           <nuxt-link to="harvester.cattle.io.setting/network-setting?mode=edit">
-            Setting
-          </nuxt-link> is invalid, error: {{ statusText }}
+            {{ t('harvester.networkPage.message.errorTip.middle') }}
+          </nuxt-link> {{ t('harvester.networkPage.message.errorTip.suffic') }} {{ statusText }}
         </div>
       </Banner>
     </div>
