@@ -796,7 +796,7 @@ node:
       version: 版本号
     glance:
       consumptionGauge:
-        amount: "已使用 {total} {unit} 中的 {used} {unit} "
+        amount: "已使用 {total} {unit} 中的 {used} "
         cpu: CPU
         memory: 内存
         pods: PODS
@@ -1857,6 +1857,7 @@ vmtemplate:
     name: 模板名称
 
 harvester:
+  loading: 加载中...
   buttons:
     addPort:  添加端口
   fields:
@@ -1877,13 +1878,11 @@ harvester:
     volume: 卷
     network: 网络
     advanced: 高级选项
-
   nav:
     dashboard: 概览
   header:
     preference: 用户配置
     logout: 登出
-
   tableHeaders:
     size: 大小
     progress: 进度
@@ -1891,7 +1890,6 @@ harvester:
     attachedVM: 挂载VM
     fingerprint: 唯一标识
     value: 值
-
   validation:
     custom:
       tooLongName: '"名称" 不能超过 {max} 个字符'
@@ -1916,15 +1914,11 @@ harvester:
 
     image:
       ruleTip: '仅支持镜像后缀为 .img, .iso, .qcow2, .raw, 以及上述镜像的压缩格式(例如: .tar, .gz, .xz)'
-
     volume:
       sizeRange: '"大小" 必须是介于 1 和 999999 之间的整数'
-
   promptRemove:
     and: 和
-
   hostPage:
-
   vmPage:
     restartTip: 保存编辑将导致VM重新启动.
     enableUsb: 启动 USB Tablet 增强
@@ -1978,7 +1972,6 @@ harvester:
       addContainer: 添加容器镜像
       addNetwork: 添加网络
       createSSHKey: 创建SSH密钥
-
   volumePage:
     size: 大小
     source: 资源类型
@@ -1986,12 +1979,10 @@ harvester:
       new: New
       vmImage: VM Image
     image: 镜像
-
   imagePage:
     url: 镜像地址
     size: 大小
     urlTip: '<a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a> 支持 <code>raw</code> 和 <code>qcow2</code> 镜像格式. 可启动的ISO镜像也可以是类似 <code>raw</code> 格式的镜像. 镜像可能以 <code>gz</code> 或 <code>xz</code> 格式压缩'
-
   templatePage:
     name: 模版名称
     description: 描述
@@ -2008,11 +1999,9 @@ harvester:
         suffic: ",错误信息： "
   keypairPage:
     keypair: SSH 公钥
-
   userPage:
     username: 用户名
     password: 密码
-    
   settingPage:
   loginPage:
     howdy: 您好!

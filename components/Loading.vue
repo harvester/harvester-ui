@@ -13,7 +13,7 @@ export default {
   <div v-if="loading">
     <div class="overlay"></div>
     <div class="content">
-      Loading...
+      {{ t('harvester.loading') }}
     </div>
   </div>
   <div v-else>

@@ -99,6 +99,10 @@ export default {
       return out;
     },
 
+    cpuUnits() {
+      return 'C';
+    },
+
     memoryUnits() {
       const exponent = exponentNeeded(this.memoryTotal, 1024);
 
@@ -160,7 +164,7 @@ export default {
     <h3>{{ t('vm.detail.tabs.monitor') }}</h3>
     <div class="row mb-20">
       <div class="col span-4">
-        <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.cpu')" :capacity="cpuTotal" :used="cpuUsage" />
+        <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.cpu')" :capacity="cpuTotal" :used="cpuUsage" :units="cpuUnits" />
       </div>
       <div class="col span-4">
         <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.memory')" :capacity="memoryTotal" :used="memoryUsage" :units="memoryUnits" :number-formatter="memoryFormatter" />
