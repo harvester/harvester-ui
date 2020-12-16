@@ -57,9 +57,9 @@ export default {
 
 <template>
   <div @input="update">
-    <LabeledSelect v-model="type" class="mb-20" label="Type" :options="typeOption" :disabled="true" />
+    <LabeledSelect v-model="type" class="mb-20" :label="t('harvester.fields.type')" :options="typeOption" :disabled="true" />
 
-    <LabeledInput v-model="parseDefaultValue.NIC" label="Physical NIC" />
+    <LabeledInput v-model="parseDefaultValue.NIC" :label="t('harvester.fields.PhysicalNic')" />
 
     <Banner
       v-if="statusText"
