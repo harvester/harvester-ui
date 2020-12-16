@@ -2369,7 +2369,17 @@ harvester:
     name: Template Name
     description: Description
     defaultVersion: Default version
+
   networkPage:
+    message:
+      premise: 
+        prefix: 'You must configure a network in'
+        middle: 'Settings'
+        suffic: 'before you can create a new network.'
+      errorTip:
+        prefix: Physical NIC value in
+        middle: Setting
+        suffic: "is invalid, error: "
   keypairPage:
     keypair: SSH Key
 
