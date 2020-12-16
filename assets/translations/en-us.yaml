@@ -2232,6 +2232,7 @@ HarvesterIndexPage:
       noRows: There are no unhealthy nodes to show.
 
 harvester:
+  loading: Loading...
   buttons:
     addPort:  Add Port
   fields:
@@ -2252,13 +2253,11 @@ harvester:
     volume: Volumes
     network: Networks
     advanced: Advanced Options
-
   nav:
     dashboard: Dashboard
   header:
     preference: Preferences
     logout: Log Out
-
   tableHeaders:
     size: Size
     progress: Progress
@@ -2266,7 +2265,6 @@ harvester:
     attachedVM: Attached VM
     fingerprint: Fingerprint
     value: Value
-
   validation:
     custom:
       tooLongName: '"Name" cannot be more than {max} characters.'
@@ -2288,18 +2286,13 @@ harvester:
         image: '"Image" is required!'
         volume: '"Volume" is required!'
         docker: '"Docker Image" is required!'
-
     image:
       ruleTip: 'The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw, and compressed (.tar, .gz, .xz) of the above formats.'
-    
     volume:
       sizeRange: Size must be integer and between 1 and 999999
-
   promptRemove:
     and: and
-
   hostPage:
-
   vmPage:
     enableUsb: Enable USB Tablet
     restartTip: Saving edits will cause the VM to restart.
@@ -2352,7 +2345,6 @@ harvester:
       addContainer: Add Container
       addNetwork: Add Network
       createSSHKey: Create SSH Key
-  
   volumePage:
     size: Size
     source: Source
@@ -2360,12 +2352,10 @@ harvester:
       new: New
       vmImage: VM Image
     image: Select an Image
-
   imagePage:
     url: URL
     size: Size
     urlTip: 'supports the <code>raw</code> and <code>qcow2</code> image formats which are supported by <a href="https://www.qemu.org/docs/master/system/images.html#disk-image-file-formats" target="_blank">qemu</a>. Bootable ISO images can also be used and are treated like <code>raw</code> images. Images may be compressed with either the <code>gz</code> or <code>xz</code> format.'
-
   templatePage:
     name: Template Name
     description: Description
@@ -2383,11 +2373,9 @@ harvester:
         suffic: "is invalid, error: "
   keypairPage:
     keypair: SSH Key
-
   userPage:
     username: Username
     password: Password
-
   settingPage:
   loginPage:
     howdy: Howdy!
