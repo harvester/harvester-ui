@@ -1,4 +1,6 @@
 <script>
+import { mapGetters } from 'vuex';
+import { mapPref, DEV } from '@/store/prefs';
 import { LOGGED_OUT, _FLAGGED } from '@/config/query-params';
 import AsyncButton from '@/components/AsyncButton';
 import Loading from '@/components/Loading';
@@ -39,6 +41,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters('i18n', ['selectedLocaleLabel', 'availableLocales']),
+
     groupOptions() {
       return [
         { value: 'local', label: this.t('harvester.loginPage.mode.local') },
@@ -84,6 +88,16 @@ export default {
       const modes = (this.authModes || []);
 
       return modes.length === 1 && modes.includes('localUser');
+    },
+
+    dev: mapPref(DEV),
+
+    showNone() {
+      return this.dev;
+    },
+
+    showLocale() {
+      return Object.keys(this.availableLocales).length > 1 || this.dev;
     },
 
   },
@@ -234,6 +248,11 @@ export default {
         this.$refs.loginButton.$el.click();
       }
     },
+
+    switchLocale(locale) {
+      this.$store.dispatch('i18n/switchTo', locale);
+      this.$refs.popover.isOpen = false;
+    }
   }
 };
 </script>
@@ -249,6 +268,32 @@ export default {
           {{ t('harvester.loginPage.welcome') }}
         </h1>
         <div class="login__container">
+          <div v-if="showLocale" class="locale">
+            <v-popover
+              ref="popover"
+              placement="bottom"
+              trigger="click"
+            >
+              <a>
+                <i class="icon icon-globe"></i> {{ selectedLocaleLabel }}
+              </a>
+
+              <template slot="popover">
+                <ul class="list-unstyled dropdown" style="margin: -1px;">
+                  <li v-if="showNone" v-t="'locale.none'" class="p-10 hand" @click="switchLocale('none')" />
+                  <li
+                    v-for="(value, name) in availableLocales"
+                    :key="name"
+                    class="p-10 hand"
+                    @click="switchLocale(name)"
+                  >
+                    {{ value }}
+                  </li>
+                </ul>
+              </template>
+            </v-popover>
+          </div>
+
           <div v-if="!onlyLocalUser">
             <div v-if="allowKubeCredentials" class="mt-20">
               <div>
@@ -308,6 +353,12 @@ export default {
 <style lang="scss">
   .login {
     overflow: hidden;
+
+    .locale {
+      a {
+        cursor: pointer;
+      }
+    }
 
     .row {
       align-items: center;

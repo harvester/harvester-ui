@@ -67,6 +67,7 @@ export default {
   methods: {
     switchLocale(locale) {
       this.$store.dispatch('i18n/switchTo', locale);
+      this.$refs.popover.isOpen = false;
     }
   }
 };
@@ -85,10 +86,11 @@ export default {
 
     <div v-if="showLocale">
       <v-popover
+        ref="popover"
         placement="top"
         trigger="click"
       >
-        <a>
+        <a style="cursor: pointer;">
           {{ selectedLocaleLabel }}
         </a>
 
