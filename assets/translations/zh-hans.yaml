@@ -1954,10 +1954,10 @@ harvester:
     cloudConfig:
       title: Cloud配置
       userData:
-        title: "用户数据配置:"
+        title: "User Data:"
         tip: '您可以指定用户数据以在启动期间配置实例或运行配置脚本。 如果一次启动多个实例，则该配置会对所有实例生效。<a href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html" target="_blank"> 点击查看更多 </a>'
       networkData:
-        title: "网络设备配置:"
+        title: "Network Data:"
         tip: '网络设备配置可让您通过分配子网配置，虚拟设备创建（绑定，网桥，VLAN）路由和DNS配置来自定义实例的网络接口。 <a href="https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v1.html" target="_blank"> 点击查看更多 </a>'
     input:
       name: 名称
