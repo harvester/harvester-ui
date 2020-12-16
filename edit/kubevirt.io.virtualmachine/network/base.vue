@@ -186,7 +186,7 @@ export default {
           <template #label>
             <label class="has-tooltip">
               {{ t('harvester.fields.macAddress') }}
-              <i v-tooltip="'Protip: MAC address as seen inside the guest system.'" class="icon icon-info" style="font-size: 14px" />
+              <i v-tooltip="t('harvester.vmPage.volume.macTip')" class="icon icon-info" style="font-size: 14px" />
             </label>
           </template>
         </LabeledInput>

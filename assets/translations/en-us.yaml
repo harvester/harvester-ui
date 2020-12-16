@@ -2306,6 +2306,7 @@ harvester:
       placeholder: default to the virtual machine name.
     createRunning: Start virtual machine on creation
     volume:
+      macTip: "Protip: MAC address as seen inside the guest system."
       type: Type
       size: Size
       bus:  Bus
