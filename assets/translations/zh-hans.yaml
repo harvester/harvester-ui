@@ -1858,6 +1858,8 @@ vmtemplate:
 
 harvester:
   loading: 加载中...
+  copyed: 已复制!
+  clickToCopy: 点击复制
   buttons:
     addPort:  添加端口
   fields:

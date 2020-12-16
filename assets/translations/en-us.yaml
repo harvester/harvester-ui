@@ -2233,6 +2233,8 @@ HarvesterIndexPage:
 
 harvester:
   loading: Loading...
+  copyed: Copied!
+  clickToCopy: Click to Copy
   buttons:
     addPort:  Add Port
   fields:

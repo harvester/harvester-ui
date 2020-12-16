@@ -22,7 +22,7 @@ export default {
 </script>
 
 <template>
-  <code v-tooltip="{'content': copied ? 'Copied!' : 'Click to Copy', hideOnTargetClick: false}" class="copy" @click.stop.prevent="clicked"><slot /></code>
+  <code v-tooltip="{'content': copied ? t('harvester.copyed') : t('harvester.clickToCopy'), hideOnTargetClick: false}" class="copy" @click.stop.prevent="clicked"><slot /></code>
 </template>
 
 <style lang="scss" scoped>
