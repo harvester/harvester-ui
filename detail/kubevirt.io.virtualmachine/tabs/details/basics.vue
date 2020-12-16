@@ -127,7 +127,7 @@ export default {
 
 <template>
   <div class="overview-basics">
-    <h2>Basics</h2>
+    <h2>{{ t('vm.detail.tabs.basics') }}</h2>
 
     <div class="row">
       <div class="col span-6">
@@ -213,7 +213,7 @@ export default {
 
     <hr class="section-divider" />
 
-    <h2>Configurations</h2>
+    <h2>{{ t('vm.detail.tabs.configurations') }}</h2>
 
     <div class="row">
       <div class="col span-6">
