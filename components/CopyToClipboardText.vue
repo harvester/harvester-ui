@@ -25,7 +25,7 @@ export default {
 </script>
 
 <template>
-  <span v-tooltip="{'content': copied ? 'Copied!' : 'Click to Copy', hideOnTargetClick: false}" href="#" class="copy" @click.stop.prevent="clicked">
+  <span v-tooltip="{'content': copied ? t('harvester.copyed') : t('harvester.clickToCopy'), hideOnTargetClick: false}" href="#" class="copy" @click.stop.prevent="clicked">
     {{ text }} <i class="icon icon-copy" />
   </span>
 </template>
