@@ -8,6 +8,7 @@ export default function({
   $axios.defaults.xsrfCookieName = 'CSRF';
   $axios.defaults.xsrfHeaderName = 'X-Api-Csrf';
   $axios.defaults.withCredentials = true;
+  $axios.defaults.timeout = 20000;
 
   if ( process.server ) {
     $axios.defaults.headers.common['user-agent'] = `Dashboard v${ pkg.version }`;
