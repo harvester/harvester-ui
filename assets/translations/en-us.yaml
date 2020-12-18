@@ -2294,6 +2294,8 @@ harvester:
       sizeRange: Size must be integer and between 1 and 999999
   promptRemove:
     and: and
+  axios:
+    timeoutErrorMessage: timeout of {timeout}s exceeded
   hostPage:
   vmPage:
     enableUsb: Enable USB Tablet

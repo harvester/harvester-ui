@@ -2,7 +2,7 @@ import https from 'https';
 import pkg from '../package.json';
 
 export default function({
-  $axios, isDev, route, redirect, req
+  $axios, isDev, route, redirect, req, store
 }) {
   $axios.defaults.headers.common['Accept'] = 'application/json';
   $axios.defaults.xsrfCookieName = 'CSRF';
@@ -45,6 +45,10 @@ export default function({
         redirect(401, '/auth/logout');
 
         return new Promise(() => {});
+      }
+
+      if (error.code === 'ECONNABORTED') {
+        error.message = store.getters['i18n/t']('harvester.axios.timeoutErrorMessage', { timeout: 20 });
       }
 
       return Promise.reject(error);
