@@ -1920,6 +1920,8 @@ harvester:
       sizeRange: '"大小" 必须是介于 1 和 999999 之间的整数'
   promptRemove:
     and: 和
+  axios:
+    timeoutErrorMessage: 已超时, 超过{timeout}秒无响应, 请重试
   hostPage:
   vmPage:
     restartTip: 保存编辑将导致VM重新启动.
