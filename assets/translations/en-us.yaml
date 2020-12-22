@@ -2275,15 +2275,16 @@ harvester:
       name: 'name is required'
       memory: '"Memory" is required!'
       network:
-        error: 'network[{index}]: {message}'
+        error: 'network {prefix}: {message}'
         name: 'Network Name is required'
         macFormat: 'Invalid MAC address format.'
         duplicatedName: 'network with this name already exists!.'
         duplicatedPortName: 'Duplicate name of the port.'
         duplicatedPortNumber: 'Duplicate number of the port'
       volume:
-        error: 'volume{index}: {message}'
+        error: 'volume {prefix}: {message}'
         duplicatedName: 'volume with this name already exists!.'
+        type: '"Type" is required!'
         size: '"Size" is required!'
         image: '"Image" is required!'
         volume: '"Volume" is required!'

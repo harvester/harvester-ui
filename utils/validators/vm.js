@@ -2,37 +2,37 @@ import { SOURCE_TYPE } from '@/config/map';
 import { DATA_VOLUME } from '@/config/types';
 export function vmNetworks(spec, getters, errors, validatorArgs) {
   const { domain: { devices: { interfaces } }, networks } = spec;
-
   const allNames = new Set();
 
   interfaces.map( (I, index) => {
     allNames.add(I.name);
     const N = networks.find( N => I.name === N.name);
+    const prefix = (I.name || N.name) || index + 1;
 
     if (I.name.length > 20) {
       const message = getters['i18n/t']('harvester.validation.custom.tooLongName', { max: 20 });
 
-      errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
+      errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { prefix, message }));
     }
 
     if (!I.name || !N.name) {
       const message = getters['i18n/t']('harvester.validation.vm.name');
 
-      errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
+      errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { prefix, message }));
     }
 
     if (N.multus) {
       if (!N.multus.networkName) {
         const message = getters['i18n/t']('harvester.validation.vm.network.name');
 
-        errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
+        errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { prefix, message }));
       }
     }
 
     if (I.macAddress && !isValidMac(I.macAddress)) {
       const message = getters['i18n/t']('harvester.validation.vm.network.macFormat');
 
-      errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
+      errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { prefix, message }));
     }
 
     const portsName = new Set();
@@ -49,13 +49,13 @@ export function vmNetworks(spec, getters, errors, validatorArgs) {
       if (portsName.size !== I.ports.length) {
         const message = getters['i18n/t']('harvester.validation.vm.network.duplicatedPortName');
 
-        errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
+        errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { prefix, message }));
       }
 
       if (portsNumber.size !== I.ports.length) {
         const message = getters['i18n/t']('harvester.validation.vm.network.duplicatedPortNumber');
 
-        errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { index: index + 1, message }));
+        errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { prefix, message }));
       }
     }
 
@@ -85,16 +85,26 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
   const allNames = new Set();
 
   _disks.forEach((D, idx) => {
-    if (D.name.length > 63) {
+    const prefix = D.name || idx + 1;
+
+    if (!D.disk && !D.cdrom) {
+      const message = getters['i18n/t']('harvester.validation.vm.volume.type');
+
+      errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { prefix, message }));
+
+      return allNames.add(D.name);
+    }
+
+    if (D.name?.length > 63) {
       const message = getters['i18n/t']('harvester.validation.custom.tooLongName', { max: 63 });
 
-      errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
+      errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { prefix, message }));
     }
 
     if (!D.name) {
       const message = getters['i18n/t']('harvester.validation.vm.name');
 
-      errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
+      errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { prefix, message }));
     }
 
     allNames.add(D.name);
@@ -107,12 +117,13 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
   // volume type logic
   _volumes.forEach((V, idx) => {
     const { type, typeValue } = getVolumeType(V, _dataVolumeTemplates);
+    const prefix = V.name || idx + 1;
 
     if (type === SOURCE_TYPE.NEW || type === SOURCE_TYPE.IMAGE) {
       if (!/([1-9]|[1-9][0-9]+)[a-zA-Z]+/.test(typeValue?.spec?.pvc?.resources?.requests?.storage)) {
         const message = getters['i18n/t']('harvester.validation.vm.volume.size');
 
-        errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
+        errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { prefix, message }));
       }
 
       if (type === SOURCE_TYPE.IMAGE && !typeValue?.spec?.source?.http?.url) { // type === SOURCE_TYPE.IMAGE
@@ -121,7 +132,7 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
         } else {
           const message = getters['i18n/t']('harvester.validation.vm.volume.image');
 
-          errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
+          errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { prefix, message }));
         }
       }
     }
@@ -133,7 +144,7 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
       if (!hasExistingVolume) {
         const message = getters['i18n/t']('harvester.validation.vm.volume.volume');
 
-        errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
+        errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { prefix, message }));
       }
     }
 
@@ -141,7 +152,7 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
       if (!V.containerDisk.image) {
         const message = getters['i18n/t']('harvester.validation.vm.volume.docker');
 
-        errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { index: idx + 1, message }));
+        errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { prefix, message }));
       }
     }
   });
