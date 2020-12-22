@@ -1900,14 +1900,15 @@ harvester:
       name: '"名称" 是必填项'
       memory: '"内存" 是必填项'
       network:
-        error: '网络[{index}]: {message}'
+        error: '网络 {prefix}: {message}'
         name: '"网络名称" 是必填项'
         macFormat: 'MAC 地址格式不正确'
         duplicatedName: '网络名称重复'
         duplicatedPortName: '端口名重复'
         duplicatedPortNumber: '端口号重复'
       volume:
-        error: '卷{index}: {message}'
+        error: '卷 {prefix}: {message}'
+        type: '"类型" 是必填项'
         duplicatedName: '卷名称重复'
         size: '"大小" 是必填项'
         image: '"镜像" 是必填项'
