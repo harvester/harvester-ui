@@ -34,7 +34,6 @@ export default {
   methods: {
     handleDropdown(c) {
       this.show(c);
-      this.$refs.dropdown.togglePopover();
     },
     show(type) {
       const prefix = getPrefix();
@@ -79,7 +78,7 @@ export default {
       </el-dropdown-menu>
     </el-dropdown> -->
 
-    <ButtonDropdown ref="dropdown" :disable-button="!isRunning" size="xs">
+    <ButtonDropdown :disable-button="!isRunning" size="xs">
       <template #button-content="{ buttonSize }">
         <button :disabled="!isRunning" :class="buttonSize" @click="show('vnc')">
           &nbsp;Console
@@ -87,11 +86,11 @@ export default {
       </template>
       <template #popover-content>
         <ul class="list-unstyled menu" style="margin: -1px;">
-          <li class="hand" @click="handleDropdown('vnc')">
+          <li v-close-popover class="hand" @click="handleDropdown('vnc')">
             Open in Web VNC
           </li>
 
-          <li class="hand" @click="handleDropdown('serial')">
+          <li v-close-popover class="hand" @click="handleDropdown('serial')">
             Open in Serial Console
           </li>
         </ul>
