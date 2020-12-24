@@ -96,10 +96,14 @@ export default {
       }
 
       if (this.value.networkName === MANAGEMENT_NETWORK) {
-        out.push({
-          label: MANAGEMENT_NETWORK,
-          value: MANAGEMENT_NETWORK
-        });
+        const mangment = out.find( O => O.value === MANAGEMENT_NETWORK);
+
+        if (!mangment) {
+          out.push({
+            label: MANAGEMENT_NETWORK,
+            value: MANAGEMENT_NETWORK
+          });
+        }
       }
 
       return out;
