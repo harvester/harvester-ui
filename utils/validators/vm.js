@@ -85,7 +85,7 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
   const allNames = new Set();
 
   _disks.forEach((D, idx) => {
-    const prefix = D.name || idx + 1;
+    const prefix = D.name || _volumes[idx]?.name || idx + 1;
 
     if (!D.disk && !D.cdrom) {
       const message = getters['i18n/t']('harvester.validation.vm.volume.type');
