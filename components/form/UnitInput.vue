@@ -57,7 +57,7 @@ export default {
     userValue() {
       let userValue = '';
 
-      if ( this.value !== null && this.value !== undefined ) {
+      if ( this.value !== null && this.value !== undefined && this.value !== '' && !String(this.value).includes('null')) {
         userValue = parseSi(`${ this.value } ${ this.unit || '' }`, {
           addSuffix:   false,
           increment:   this.increment,
