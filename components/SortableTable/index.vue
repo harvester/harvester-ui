@@ -2,8 +2,9 @@
 import { mapState } from 'vuex';
 import { dasherize, ucFirst } from '@/utils/string';
 import { get, clone } from '@/utils/object';
-import { removeObject } from '@/utils/array';
+import { removeObject, filterBy } from '@/utils/array';
 import Checkbox from '@/components/form/Checkbox';
+import ButtonDropdown from '@/components/ButtonDropdown';
 import $ from 'jquery';
 import throttle from 'lodash/throttle';
 import THead from './THead';
@@ -25,8 +26,12 @@ import grouping from './grouping';
 
 export default {
   name:       'SortableTable',
-  components: { THead, Checkbox },
-  mixins:     [filtering, sorting, paging, grouping, selection],
+  components: {
+    THead,
+    Checkbox,
+    ButtonDropdown
+  },
+  mixins: [filtering, sorting, paging, grouping, selection],
 
   props: {
     headers: {
@@ -320,7 +325,17 @@ export default {
     },
 
     availableActions() {
-      return this.$store.getters[`${ this.storeName }/forTable`];
+      return this.$store.getters[`${ this.storeName }/forTable`].filter(act => !act.external);
+    },
+
+    hasExternalActions() {
+      return filterBy(this.$store.getters[`${ this.storeName }/forTable`], 'external', true).length > 0;
+    },
+
+    externalActions() {
+      return this.$store.getters[`${ this.storeName }/forTable`].filter((act) => {
+        return act.external && act.enabled;
+      });
     },
 
     actionAvailability() {
@@ -476,6 +491,30 @@ export default {
             <i v-if="act.icon" :class="act.icon" />
             <span v-html="act.label" />
           </button>
+          <ButtonDropdown v-if="hasExternalActions" size="xs" style="display:inline-block">
+            <template #button-content>
+              <button type="button" class="btn btn-sm">
+                <i class="icon icon-gear" />
+                <span>Other</span>
+              </button>
+            </template>
+            <template #popover-content>
+              <ul class="list-unstyled menu">
+                <li
+                  v-for="act in externalActions"
+                  :key="act.action"
+                  v-close-popover
+                  @click="applyTableAction(act, null, $event)"
+                  @mouseover="setBulkActionOfInterest(act)"
+                  @mouseleave="setBulkActionOfInterest(null)"
+                >
+                  <i v-if="act.icon" :class="act.icon" />
+                  <span v-html="act.label" />
+                </li>
+              </ul>
+            </template>
+          </ButtonDropdown>
+
           <span />
           <label v-if="actionAvailability" class="action-availability">
             {{ actionAvailability }}
