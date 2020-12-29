@@ -75,6 +75,8 @@ export default {
         enabled:    !!this.actions?.stop,
         icon:       'icons icon-h-stop',
         label:      this.t('action.stop'),
+        bulkable:   true,
+        external:   true,
       },
       {
         action:     'pauseVM',
@@ -93,12 +95,16 @@ export default {
         enabled:    !!this.actions?.restart,
         icon:       'icons icon-h-restart',
         label:      this.t('action.restart'),
+        bulkable:   true,
+        external:   true,
       },
       {
         action:     'startVM',
         enabled:    !!this.actions?.start,
         icon:       'icon icon-play',
         label:      this.t('action.start'),
+        bulkable:   true,
+        external:   true,
       },
       {
         action:     'ejectCDROM',
