@@ -135,7 +135,7 @@ export default {
 
 <template>
   <div class="host-detail">
-    <h3>{{ t('vm.detail.tabs.overview') }}</h3>
+    <h3>{{ t('harvester.vmPage.detail.tabs.overview') }}</h3>
     <div class="row mb-20">
       <div class="col span-6">
         <LabeledInput v-model="customName" :label="t('node.detail.basic.customName')" :mode="mode" />
@@ -161,7 +161,7 @@ export default {
       </div>
     </div>
     <hr class="divider" />
-    <h3>{{ t('vm.detail.tabs.monitor') }}</h3>
+    <h3>{{ t('harvester.vmPage.detail.tabs.monitor') }}</h3>
     <div class="row mb-20">
       <div class="col span-4">
         <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.cpu')" :capacity="cpuTotal" :used="cpuUsage" :units="cpuUnits" />

@@ -221,7 +221,7 @@ export default {
 
       <Checkbox v-if="isVersionEdit" v-model="isDefaultVersion" class="mb-20" :label="t('harvester.templatePage.defaultVersion')" type="checkbox" />
       <Tabbed :side-tabs="true" @changed="onTabChanged">
-        <Tab name="Basics" :label="t('vm.detail.tabs.basics')">
+        <Tab name="Basics" :label="t('harvester.vmPage.detail.tabs.basics')">
           <CpuMemory :cpu="spec.template.spec.domain.cpu.cores" :memory="memory" @updateCpuMemory="updateCpuMemory" />
 
           <div class="mb-20">

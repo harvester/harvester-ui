@@ -202,7 +202,7 @@ export default {
       v-if="!isView"
       v-model="value"
       :mode="mode"
-      name-label="vmtemplate.nameNsDescription.name"
+      name-label="harvester.vmtemplatePage.nameNsDescription.name"
       :namespaced="false"
     />
 
@@ -215,7 +215,7 @@ export default {
       @finish="saveVMT"
     >
       <Tabbed :side-tabs="true" @changed="onTabChanged">
-        <Tab name="Basics" :label="t('vm.detail.tabs.basics')">
+        <Tab name="Basics" :label="t('harvester.vmPage.detail.tabs.basics')">
           <CpuMemory :cpu="spec.template.spec.domain.cpu.cores" :mode="mode" :memory="memory" @updateCpuMemory="updateCpuMemory" />
 
           <div class="mb-20">

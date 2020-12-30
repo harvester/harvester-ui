@@ -462,7 +462,7 @@ export default {
         required:       true,
         minLength:      1,
         maxLength:      63,
-        translationKey: 'vm.fields.name'
+        translationKey: 'harvester.vmPage.fields.name'
       },
       {
         nullable:       false,
@@ -470,13 +470,13 @@ export default {
         min:            1,
         max:            100,
         required:       true,
-        translationKey: 'vm.fields.cpu',
+        translationKey: 'harvester.vmPage.fields.cpu',
       },
       {
         nullable:       false,
         path:           'spec.template.spec.domain.resources.requests.memory',
         required:       false,
-        translationKey: 'vm.fields.memory',
+        translationKey: 'harvester.vmPage.fields.memory',
         validators:     ['vmMemoryUnit'],
       },
       {

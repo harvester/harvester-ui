@@ -127,13 +127,13 @@ export default {
 
 <template>
   <div class="overview-basics">
-    <h2>{{ t('vm.detail.tabs.basics') }}</h2>
+    <h2>{{ t('harvester.vmPage.detail.tabs.basics') }}</h2>
 
     <div class="row">
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.detail.details.name") }}
+            {{ t("harvester.vmPage.detail.details.name") }}
           </label>
           <div>
             <div class="smart-row">
@@ -148,7 +148,7 @@ export default {
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.fields.image") }}
+            {{ t("harvester.vmPage.fields.image") }}
           </label>
           <div>
             {{ imageName }}
@@ -161,13 +161,13 @@ export default {
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.detail.details.hostname") }}
+            {{ t("harvester.vmPage.detail.details.hostname") }}
           </label>
           <div v-if="!isDown">
-            {{ hostname || t("vm.detail.GuestAgentNotInstalled") }}
+            {{ hostname || t("harvester.vmPage.detail.GuestAgentNotInstalled") }}
           </div>
           <div v-else>
-            {{ t("vm.detail.details.down") }}
+            {{ t("harvester.vmPage.detail.details.down") }}
           </div>
         </div>
       </div>
@@ -175,13 +175,13 @@ export default {
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.detail.details.node") }}
+            {{ t("harvester.vmPage.detail.details.node") }}
           </label>
           <div v-if="!isDown">
             <span>{{ node }}</span>
           </div>
           <div v-else>
-            {{ t("vm.detail.details.down") }}
+            {{ t("harvester.vmPage.detail.details.down") }}
           </div>
         </div>
       </div>
@@ -191,7 +191,7 @@ export default {
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.detail.details.ipAddress") }}
+            {{ t("harvester.vmPage.detail.details.ipAddress") }}
           </label>
           <div>
             <IPAddress v-model="value.id" :row="value" />
@@ -202,7 +202,7 @@ export default {
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.detail.details.created") }}
+            {{ t("harvester.vmPage.detail.details.created") }}
           </label>
           <div>
             {{ creationTimestamp }}
@@ -213,13 +213,13 @@ export default {
 
     <hr class="section-divider" />
 
-    <h2>{{ t('vm.detail.tabs.configurations') }}</h2>
+    <h2>{{ t('harvester.vmPage.detail.tabs.configurations') }}</h2>
 
     <div class="row">
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.detail.details.bootOrder") }}
+            {{ t("harvester.vmPage.detail.details.bootOrder") }}
           </label>
           <div>
             <ul>
@@ -233,7 +233,7 @@ export default {
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.detail.details.CDROMs") }}
+            {{ t("harvester.vmPage.detail.details.CDROMs") }}
           </label>
           <div>
             <div>
@@ -243,7 +243,7 @@ export default {
                 </li>
               </ul>
               <span v-else>
-                {{ t("vm.detail.notAvailable") }}
+                {{ t("harvester.vmPage.detail.notAvailable") }}
               </span>
             </div>
           </div>
@@ -254,16 +254,16 @@ export default {
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.detail.details.operatingSystem") }}
+            {{ t("harvester.vmPage.detail.details.operatingSystem") }}
           </label>
           <div>
-            {{ operatingSystem || t("vm.detail.GuestAgentNotInstalled") }}
+            {{ operatingSystem || t("harvester.vmPage.detail.GuestAgentNotInstalled") }}
           </div>
         </div>
       </div>
       <div class="labeled-input view">
         <label>
-          {{ t("vm.detail.details.flavor") }}
+          {{ t("harvester.vmPage.detail.details.flavor") }}
         </label>
         <div>
           {{ flavor }}
@@ -274,10 +274,10 @@ export default {
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("vm.detail.details.timeZone") }}
+            {{ t("harvester.vmPage.detail.details.timeZone") }}
           </label>
           <div>
-            {{ timeZone || t("vm.detail.GuestAgentNotInstalled") }}
+            {{ timeZone || t("harvester.vmPage.detail.GuestAgentNotInstalled") }}
           </div>
         </div>
       </div>

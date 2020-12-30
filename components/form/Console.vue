@@ -44,7 +44,7 @@ export default {
     <div class="vm-console">
       <NovncConsole v-if="url && !isDown" ref="novncConsole" :url="url" />
       <p v-if="isDown">
-        {{ t("vm.detail.console.down") }}
+        {{ t("harvester.vmPage.detail.console.down") }}
       </p>
     </div>
   </div>

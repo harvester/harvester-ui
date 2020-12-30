@@ -1774,88 +1774,6 @@ keyValue:
   keyPlaceholder: '例如: foo'
   valuePlaceholder: '例如: bar'
 
-
-# extension of Harvester
-# need to move
-HarvesterIndexPage:
-  hardwareResourceGauge:
-    consumption: "{useful} of {total} {units} {suffix}"
-    coresReserved: Cores Reserved
-    coresUsed: Cores Used
-    podsReserved: Pods Reserved
-    ramReserved: Memory Reserved
-    ramUsed: Memory Used
-    cpu: CPU
-    memory: 内存
-    storage: 存储
-  header: 仪表盘
-  resourceGauge:
-    totalResources: Total Resources
-  sections:
-    events:
-      label: 事件
-      resource:
-        label: Resource
-      date:
-        label: Date
-    gatekeeper:
-      buttonText: Configure Gatekeeper
-      disabled: OPA Gatekeeper is not configured.
-      label: OPA Gatekeeper Constraint Violations
-      noRows: There are no contraints with violations to show.
-    nodes:
-      label: Unhealthy Nodes
-      noRows: There are no unhealthy nodes to show.
-
-vm:
-  fields:
-    name: 名称
-    cpu: Cpu
-    memory: 内存
-    image: 镜像
-  nameNsDescription:
-    name:
-      singleLabel: 名称
-      multipleLabel: 名称前缀
-  detail:
-    tabs:
-      overview: 概览
-      details: 详情
-      environment: 环境
-      events: 事件
-      migration: Migration
-      console: 控制台
-      networkInterfaces: 网络接口
-      disks: 硬盘
-      networks: 网络
-      basics: 基本信息
-      configurations: 配置
-      instance: 虚拟机实例
-      monitor: 监控数据
-      keypairs: 公共密钥
-      cloudConfig: Cloud 配置
-    details:
-      name: 名称
-      namespace: 命名空间
-      created: 创建时间
-      hostname: 节点名称
-      node: 主机
-      ipAddress: IP 地址
-      bootOrder: 启动顺序
-      CDROMs: CD-ROMs
-      operatingSystem: 操作系统
-      timeZone: 时区
-      flavor: 规格
-      down: 虚拟机未启动
-    notAvailable: 不可用
-    GuestAgentNotInstalled: 访客代理未准备就绪
-    console:
-      down: 请启动虚拟机以访问控制台.
-
-vmtemplate:
-  nameNsDescription:
-    name: 模板名称
-
 harvester:
   loading: 加载中...
   copyed: 已复制!
@@ -1923,6 +1841,15 @@ harvester:
     and: 和
   axios:
     timeoutErrorMessage: 已超时, 超过{timeout}秒无响应, 请重试
+  homePage:
+    header: 仪表盘
+    hardwareResourceGauge:
+      cpu: CPU
+      memory: 内存
+      storage: 存储
+    sections:
+      events:
+        label: 事件
   hostPage:
   vmPage:
     restartTip: 保存编辑将导致VM重新启动.
@@ -1978,6 +1905,52 @@ harvester:
       addContainer: 添加容器镜像
       addNetwork: 添加网络
       createSSHKey: 创建SSH密钥
+    nameNsDescription:
+      name:
+        singleLabel: 名称
+        multipleLabel: 名称前缀
+    fields:
+      name: 名称
+      cpu: Cpu
+      memory: 内存
+      image: 镜像
+    detail:
+      details:
+        name: 名称
+        namespace: 命名空间
+        created: 创建时间
+        hostname: 节点名称
+        node: 主机
+        ipAddress: IP 地址
+        bootOrder: 启动顺序
+        CDROMs: CD-ROMs
+        operatingSystem: 操作系统
+        timeZone: 时区
+        flavor: 规格
+        down: 虚拟机未启动
+      notAvailable: 不可用
+      GuestAgentNotInstalled: 访客代理未准备就绪
+      tabs:
+        overview: 概览
+        details: 详情
+        environment: 环境
+        events: 事件
+        migration: Migration
+        console: 控制台
+        networkInterfaces: 网络接口
+        disks: 硬盘
+        networks: 网络
+        basics: 基本信息
+        configurations: 配置
+        instance: 虚拟机实例
+        monitor: 监控数据
+        keypairs: 公共密钥
+        cloudConfig: Cloud 配置
+      console:
+        down: 请启动虚拟机以访问控制台.
+  vmtemplatePage:
+    nameNsDescription:
+      name: 模板名称
   volumePage:
     size: 大小
     source: 资源类型
