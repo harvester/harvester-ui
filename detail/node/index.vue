@@ -93,13 +93,13 @@ export default {
 
 <template>
   <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-    <Tab name="basics" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
+    <Tab name="basics" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
       <Basic v-model="value" :metrics="metrics" :mode="mode" />
     </Tab>
-    <Tab name="instance" :label="t('vm.detail.tabs.instance')" :weight="2" class="bordered-table">
+    <Tab name="instance" :label="t('harvester.vmPage.detail.tabs.instance')" :weight="2" class="bordered-table">
       <Instance :rows="rows" />
     </Tab>
-    <!-- <Tab name="monitor" :label="t('vm.detail.tabs.monitor')" :weight="1" class="bordered-table">
+    <!-- <Tab name="monitor" :label="t('harvester.vmPage.detail.tabs.monitor')" :weight="1" class="bordered-table">
       <Monitor v-model="value" />
     </Tab> -->
   </Tabbed>

@@ -128,7 +128,7 @@ export default {
     },
 
     nameLabel() {
-      return this.isSingle ? 'vm.nameNsDescription.name.singleLabel' : 'vm.nameNsDescription.name.multipleLabel';
+      return this.isSingle ? 'harvester.vmPage.nameNsDescription.name.singleLabel' : 'harvester.vmPage.nameNsDescription.name.multipleLabel';
     },
 
     hostnameLabel() {
@@ -396,7 +396,7 @@ export default {
       </div>
 
       <Tabbed :side-tabs="true" @changed="onTabChanged">
-        <Tab name="Basics" :label="t('vm.detail.tabs.basics')">
+        <Tab name="Basics" :label="t('harvester.vmPage.detail.tabs.basics')">
           <CpuMemory :cpu="spec.template.spec.domain.cpu.cores" :memory="memory" @updateCpuMemory="updateCpuMemory" />
 
           <div class="mb-20">

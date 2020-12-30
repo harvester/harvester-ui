@@ -42,7 +42,7 @@ export default {
     @finish="save"
   >
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-      <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
+      <Tab name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
         <LabeledInput
           v-model="value.username"
           :label="t('harvester.userPage.username')"

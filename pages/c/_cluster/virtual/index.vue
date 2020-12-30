@@ -306,7 +306,7 @@ export default {
   <section v-else>
     <header>
       <h1>
-        <t k="HarvesterIndexPage.header" />
+        <t k="harvester.homePage.header" />
       </h1>
     </header>
 
@@ -320,12 +320,12 @@ export default {
     </div>
 
     <div class="hardware-resource-gauges">
-      <HardwareResourceGauge :name="t('HarvesterIndexPage.hardwareResourceGauge.cpu')" :total="cpuUsed.total" :useful="cpuUsed.useful" />
-      <HardwareResourceGauge :name="t('HarvesterIndexPage.hardwareResourceGauge.memory')" :total="memoryUsed.total" :useful="memoryUsed.useful" :units="memoryUsed.units" />
-      <HardwareResourceGauge :name="t('HarvesterIndexPage.hardwareResourceGauge.storage')" :total="storageUsed.total" :useful="storageUsed.useful" :units="storageUsed.units" />
+      <HardwareResourceGauge :name="t('harvester.homePage.hardwareResourceGauge.cpu')" :total="cpuUsed.total" :useful="cpuUsed.useful" />
+      <HardwareResourceGauge :name="t('harvester.homePage.hardwareResourceGauge.memory')" :total="memoryUsed.total" :useful="memoryUsed.useful" :units="memoryUsed.units" />
+      <HardwareResourceGauge :name="t('harvester.homePage.hardwareResourceGauge.storage')" :total="storageUsed.total" :useful="storageUsed.useful" :units="storageUsed.units" />
     </div>
 
-    <SimpleBox class="events" :title="t('HarvesterIndexPage.sections.events.label')">
+    <SimpleBox class="events" :title="t('harvester.homePage.sections.events.label')">
       <SortableTable
         :rows="filterEvents"
         :headers="eventHeaders"

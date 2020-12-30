@@ -75,7 +75,7 @@ export default {
       </div>
 
       <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-        <Tab name="basic" :label="t('vm.detail.tabs.basics')" :weight="3" class="bordered-table">
+        <Tab name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
           <div class="row mb-20">
             <div class="col span-12">
               <LabeledInput

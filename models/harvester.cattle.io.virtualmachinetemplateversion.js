@@ -99,13 +99,13 @@ export default {
         min:            1,
         max:            100,
         required:       true,
-        translationKey: 'vm.fields.cpu',
+        translationKey: 'harvester.vmPage.fields.cpu',
       },
       {
         nullable:       false,
         path:           'spec.vm.template.spec.domain.resources.requests.memory',
         required:       false,
-        translationKey: 'vm.fields.memory',
+        translationKey: 'harvester.vmPage.fields.memory',
         validators:     ['vmMemoryUnit'],
       },
       {

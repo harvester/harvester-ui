@@ -63,10 +63,10 @@ export default {
 <template>
   <div>
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-      <Tab v-if="isNetworkSetting" name="detail" :label="t('vm.detail.tabs.details')" class="bordered-table">
+      <Tab v-if="isNetworkSetting" name="detail" :label="t('harvester.vmPage.detail.tabs.details')" class="bordered-table">
         <NetworkSetting v-model="value" />
       </Tab>
-      <Tab v-else name="basic" :label="t('vm.detail.tabs.details')" :weight="3" class="bordered-table">
+      <Tab v-else name="basic" :label="t('harvester.vmPage.detail.tabs.details')" :weight="3" class="bordered-table">
         <div class="row mb-20">
           <div class="col span-12">
             <LabeledInput

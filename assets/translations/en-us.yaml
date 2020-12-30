@@ -1853,78 +1853,6 @@ workload:
       tip: The duration the pod needs to terminate successfully.
     title: upgrading
 
-vm:
-  fields:
-    name: Name
-    cpu: Cpu
-    memory: Memory
-    image: Image
-  nameNsDescription:
-    name:
-      singleLabel: Name
-      multipleLabel: Prefix Name
-  detail:
-    tabs:
-      overview: Overview
-      details: Details
-      environment: Environment
-      events: Events
-      migration: Migration
-      console: Console
-      networkInterfaces: Network Interfaces
-      disks: Disks
-      networks: Networks
-      basics: Basics
-      configurations: Configurations
-      inventory: Inventory
-      hostBasic: Basic Attributes
-      instance: VM Instance
-      monitor: Monitor Data
-      keypairs: SSH Keys
-      cloudConfig: Cloud Config
-    details:
-      title:
-        vmDetails: Virtual Machine Details
-        requirements: Scheduling and resources requirements
-        services: Services
-        users: Logged in users
-      name: Name
-      namespace: Namespace
-      created: Created
-      hostname: Hostname
-      node: Node
-      ipAddress: IP Address
-      status: Status
-      pod: Pod
-      labels: Labels
-      bootOrder: Boot Order
-      annotations: Annotations
-      CDROMs: CD-ROMs
-      description: Description
-      operatingSystem: Operating System
-      template: Template
-      timeZone: Time Zone
-      owner: Owner
-      workloadProfile: Workload Profile
-      nodeSelector: Node Selector
-      flavor: Flavor
-      tolerations: Tolerations
-      dedicatedResources: Dedicated Resources
-      down: VM not running
-      affinityRules: Affinity Rules
-    notAvailable: Not available
-    GuestAgentNotInstalled: Guest agent required
-    noOwner: No Owner
-    events:
-      from: Generated from
-      down: No events in the past hour
-    console:
-      down: This Virtual Machine is down. Please start it to access its console.
-
-vmtemplate:
-  nameNsDescription:
-    name: Template Name
-
 ##############################
 # Model Properties
 ##############################
@@ -2201,36 +2129,6 @@ workloadPorts:
 podAffinity:
   addLabel: Add Pod Selector
 
-HarvesterIndexPage:
-  hardwareResourceGauge:
-    consumption: "{useful} of {total} {units} {suffix}"
-    coresReserved: Cores Reserved
-    coresUsed: Cores Used
-    podsReserved: Pods Reserved
-    ramReserved: Memory Reserved
-    ramUsed: Memory Used
-    cpu: CPU
-    memory: Memory
-    storage: Storage Size
-  header: Dashboard
-  resourceGauge:
-    totalResources: Total Resources
-  sections:
-    events:
-      label: Events
-      resource:
-        label: Resource
-      date:
-        label: Date
-    gatekeeper:
-      buttonText: Configure Gatekeeper
-      disabled: OPA Gatekeeper is not configured.
-      label: OPA Gatekeeper Constraint Violations
-      noRows: There are no contraints with violations to show.
-    nodes:
-      label: Unhealthy Nodes
-      noRows: There are no unhealthy nodes to show.
-
 harvester:
   loading: Loading...
   copyed: Copied!
@@ -2298,6 +2196,15 @@ harvester:
   axios:
     timeoutErrorMessage: timeout of {timeout}s exceeded
   hostPage:
+  homePage:
+    hardwareResourceGauge:
+      cpu: CPU
+      memory: Memory
+      storage: Storage Size
+    header: Dashboard
+    sections:
+      events:
+        label: Events
   vmPage:
     enableUsb: Enable USB Tablet
     restartTip: Saving edits will cause the VM to restart.
@@ -2351,6 +2258,75 @@ harvester:
       addContainer: Add Container
       addNetwork: Add Network
       createSSHKey: Create SSH Key
+    fields:
+      name: Name
+      cpu: Cpu
+      memory: Memory
+      image: Image
+    nameNsDescription:
+      name:
+        singleLabel: Name
+        multipleLabel: Prefix Name
+    detail:
+      tabs:
+        overview: Overview
+        details: Details
+        environment: Environment
+        events: Events
+        migration: Migration
+        console: Console
+        networkInterfaces: Network Interfaces
+        disks: Disks
+        networks: Networks
+        basics: Basics
+        configurations: Configurations
+        inventory: Inventory
+        hostBasic: Basic Attributes
+        instance: VM Instance
+        monitor: Monitor Data
+        keypairs: SSH Keys
+        cloudConfig: Cloud Config
+      details:
+        title:
+          vmDetails: Virtual Machine Details
+          requirements: Scheduling and resources requirements
+          services: Services
+          users: Logged in users
+        name: Name
+        namespace: Namespace
+        created: Created
+        hostname: Hostname
+        node: Node
+        ipAddress: IP Address
+        status: Status
+        pod: Pod
+        labels: Labels
+        bootOrder: Boot Order
+        annotations: Annotations
+        CDROMs: CD-ROMs
+        description: Description
+        operatingSystem: Operating System
+        template: Template
+        timeZone: Time Zone
+        owner: Owner
+        workloadProfile: Workload Profile
+        nodeSelector: Node Selector
+        flavor: Flavor
+        tolerations: Tolerations
+        dedicatedResources: Dedicated Resources
+        down: VM not running
+        affinityRules: Affinity Rules
+      notAvailable: Not available
+      GuestAgentNotInstalled: Guest agent required
+      noOwner: No Owner
+      events:
+        from: Generated from
+        down: No events in the past hour
+      console:
+        down: This Virtual Machine is down. Please start it to access its console.
+  vmtemplatePage:
+    nameNsDescription:
+      name: Template Name
   volumePage:
     size: Size
     source: Source

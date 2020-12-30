@@ -85,7 +85,7 @@ export default {
 <template>
   <div>
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true" @changed="tabChanged">
-      <Tab name="basics" :label="t('vm.detail.tabs.basics')" class="bordered-table" :weight="7">
+      <Tab name="basics" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table" :weight="7">
         <OverviewBasics v-model="value" :resource="vmi" mode="view" />
       </Tab>
 
@@ -93,23 +93,23 @@ export default {
         <OverviewDisks v-model="value" />
       </Tab>
 
-      <Tab name="networks" :label="t('vm.detail.tabs.networks')" class="bordered-table" :weight="4">
+      <Tab name="networks" :label="t('harvester.vmPage.detail.tabs.networks')" class="bordered-table" :weight="4">
         <OverviewNetworks v-model="value" />
       </Tab>
 
-      <Tab name="keypairs" :label="t('vm.detail.tabs.keypairs')" class="bordered-table" :weight="3">
+      <Tab name="keypairs" :label="t('harvester.vmPage.detail.tabs.keypairs')" class="bordered-table" :weight="3">
         <OverviewKeypairs v-model="value" />
       </Tab>
 
-      <Tab name="cloudConfig" :label="t('vm.detail.tabs.cloudConfig')" class="bordered-table" :weight="2">
+      <Tab name="cloudConfig" :label="t('harvester.vmPage.detail.tabs.cloudConfig')" class="bordered-table" :weight="2">
         <OverviewCloudConfigs v-model="value" :active="switchToCloud" />
       </Tab>
 
-      <Tab name="event" :label="t('vm.detail.tabs.events')" :weight="1">
+      <Tab name="event" :label="t('harvester.vmPage.detail.tabs.events')" :weight="1">
         <Events :resource="vmi" :events="events" />
       </Tab>
 
-      <!-- <Tab name="migration" :label="t('vm.detail.tabs.migration')">
+      <!-- <Tab name="migration" :label="t('harvester.vmPage.detail.tabs.migration')">
         <Migration v-model="value" :vmi-resource="vmi" />
       </Tab> -->
     </Tabbed>
