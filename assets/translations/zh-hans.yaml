@@ -1810,6 +1810,7 @@ harvester:
     attachedVM: 挂载VM
     fingerprint: 唯一标识
     value: 值
+    actions: 操作
   validation:
     custom:
       tooLongName: '"名称" 不能超过 {max} 个字符'

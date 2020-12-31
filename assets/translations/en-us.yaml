@@ -2165,6 +2165,7 @@ harvester:
     attachedVM: Attached VM
     fingerprint: Fingerprint
     value: Value
+    actions: Actions
   validation:
     custom:
       tooLongName: '"Name" cannot be more than {max} characters.'

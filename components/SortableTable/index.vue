@@ -495,7 +495,7 @@ export default {
             <template #button-content>
               <button type="button" class="btn btn-sm mr-0" :disabled="externalActions.length === 0">
                 <i class="icon icon-gear" />
-                <span>Other</span>
+                <span>{{ t('harvester.tableHeaders.actions') }}</span>
               </button>
             </template>
             <template #popover-content>
