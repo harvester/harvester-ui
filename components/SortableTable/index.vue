@@ -491,7 +491,7 @@ export default {
             <i v-if="act.icon" :class="act.icon" />
             <span v-html="act.label" />
           </button>
-          <ButtonDropdown v-if="hasExternalActions" class="external-actions" :disable-button="externalActions.length === 0" size="xs" style="display:inline-block">
+          <ButtonDropdown v-if="hasExternalActions" class="external-actions" :disable-button="externalActions.length === 0" size="xs">
             <template #button-content>
               <button type="button" class="btn btn-sm mr-0" :disabled="externalActions.length === 0">
                 <i class="icon icon-gear" />
@@ -894,6 +894,8 @@ $spacing: 10px;
   }
 
   .external-actions {
+    display:inline-block;
+
     .dropdown-button {
       background-color: var(--primary);
 
