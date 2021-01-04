@@ -491,7 +491,7 @@ export default {
             <i v-if="act.icon" :class="act.icon" />
             <span v-html="act.label" />
           </button>
-          <ButtonDropdown v-if="hasExternalActions" :disable-button="externalActions.length === 0" size="xs" style="display:inline-block">
+          <ButtonDropdown v-if="hasExternalActions" class="external-actions" :disable-button="externalActions.length === 0" size="xs" style="display:inline-block">
             <template #button-content>
               <button type="button" class="btn btn-sm mr-0" :disabled="externalActions.length === 0">
                 <i class="icon icon-gear" />
@@ -891,6 +891,36 @@ $spacing: 10px;
 
   .search {
     grid-area: search;
+  }
+
+  .external-actions {
+    .dropdown-button {
+      background-color: var(--primary);
+
+      &:hover {
+        background-color: var(--primary-hover-bg);
+      }
+
+      > *, .icon-chevron-down {
+        color: var(--primary-text);
+      }
+
+      .button-divider {
+        border-color: var(--primary-text);
+      }
+
+      &.disabled {
+        border-color: var(--disabled-bg);
+
+        .icon-chevron-down {
+          color: var(--disabled-text) !important;
+        }
+
+        .button-divider {
+          border-color: var(--disabled-text);
+        }
+      }
+    }
   }
 }
 
