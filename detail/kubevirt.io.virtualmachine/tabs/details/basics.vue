@@ -148,7 +148,7 @@ export default {
       <div class="col span-6">
         <div class="labeled-input view">
           <label>
-            {{ t("harvester.vmPage.fields.image") }}
+            {{ t("harvester.fields.image") }}
           </label>
           <div>
             {{ imageName }}

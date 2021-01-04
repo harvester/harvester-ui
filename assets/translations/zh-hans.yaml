@@ -1794,6 +1794,8 @@ harvester:
     remove: 删除
     count: 数量
     PhysicalNic: 物理网卡
+    cpu: Cpu
+    memory: 内存
   tab:
     volume: 卷
     network: 网络
@@ -1910,11 +1912,6 @@ harvester:
       name:
         singleLabel: 名称
         multipleLabel: 名称前缀
-    fields:
-      name: 名称
-      cpu: Cpu
-      memory: 内存
-      image: 镜像
     detail:
       details:
         name: 名称

@@ -2149,6 +2149,8 @@ harvester:
     remove: REMOVE
     count: count
     PhysicalNic: Physical NIC
+    cpu: Cpu
+    memory: Memory
   tab:
     volume: Volumes
     network: Networks
@@ -2259,11 +2261,6 @@ harvester:
       addContainer: Add Container
       addNetwork: Add Network
       createSSHKey: Create SSH Key
-    fields:
-      name: Name
-      cpu: Cpu
-      memory: Memory
-      image: Image
     nameNsDescription:
       name:
         singleLabel: Name
@@ -2343,7 +2340,6 @@ harvester:
     name: Template Name
     description: Description
     defaultVersion: Default version
-
   networkPage:
     message:
       premise: 
