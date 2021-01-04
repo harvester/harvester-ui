@@ -58,7 +58,7 @@ export default {
   <div class="dropdown-button-group">
     <div
       class="dropdown-button bg-primary"
-      :class="{'one-action':!dualAction, [buttonSize]:true}"
+      :class="{'one-action':!dualAction, [buttonSize]:true, 'disabled': disableButton}"
     >
       <slot v-if="dualAction" name="button-content" :buttonSize="buttonSize">
         <button
