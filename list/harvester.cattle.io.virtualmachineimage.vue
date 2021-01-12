@@ -77,18 +77,22 @@ export default {
 
   methods: {
     async loadMinioStatus() {
-      const resources = await this.$store.dispatch('cluster/request', {
-        url:           '/api/v1/namespaces/harvester-system/services/minio:http/proxy/minio/health/cluster',
-        method:        'GET',
-        headers:       { 'Content-Type': 'application/json' }
-      });
+      try {
+        const resources = await this.$store.dispatch('cluster/request', {
+          url:           '/api/v1/namespaces/harvester-system/services/minio:http/proxy/minio/health/cluster',
+          method:        'GET',
+          headers:       { 'Content-Type': 'application/json' }
+        });
 
-      if (resources._status === 200) {
-        this.minioPoller.pollRateMs = 60000;
-        this.isAbnormal = false;
-      } else {
+        if (resources._status === 200) {
+          this.minioPoller.pollRateMs = 60000;
+          this.isAbnormal = false;
+        } else {
+          this.isAbnormal = true;
+          this.minioPoller.pollRateMs = 5000;
+        }
+      } catch (err) {
         this.isAbnormal = true;
-        this.minioPoller.pollRateMs = 5000;
       }
     },
   }
