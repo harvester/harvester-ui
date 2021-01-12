@@ -93,6 +93,7 @@ export default {
         }
       } catch (err) {
         this.isAbnormal = true;
+        this.minioPoller.pollRateMs = 5000;
       }
     },
   }
