@@ -5,16 +5,19 @@ export default class Poller {
     intervalId;
     tryCount = 0;
 
-    constructor(fn, pollRateMs, maxRetries = Number.POSITIVE_INFINITY) {
+    constructor(fn, pollRateMs, maxRetries = Number.POSITIVE_INFINITY, immediatelyFetch = true) {
       this.fn = fn || (() => {});
       this.pollRateMs = pollRateMs;
       this.maxRetries = maxRetries;
+      this.immediatelyFetch = immediatelyFetch;
     }
 
     start() {
       // Ensure only one is running
       this.stop();
-      this._intervalMethod();
+      if (this.immediatelyFetch) {
+        this._intervalMethod();
+      }
       this.intervalId = setInterval(() => this._intervalMethod(), this.pollRateMs);
     }
 
