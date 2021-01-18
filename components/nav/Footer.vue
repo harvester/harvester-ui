@@ -38,7 +38,7 @@ export default {
     },
 
     showNone() {
-      return this.dev;
+      return this.dev && process.env.dev;
     },
 
     pl() {
