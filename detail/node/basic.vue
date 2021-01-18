@@ -109,6 +109,12 @@ export default {
       return `${ UNITS[exponent] }iB`;
     },
 
+    storageUnits() {
+      const exponent = exponentNeeded(this.storageTotal, 1024);
+
+      return `${ UNITS[exponent] }iB`;
+    },
+
     nodeType() {
       const isMaster = this.value.metadata?.labels?.['node-role.kubernetes.io/master'] === 'true';
 
@@ -121,10 +127,11 @@ export default {
   },
 
   methods: {
-    memoryFormatter(value) {
+    memoryFormatter(value, exponent) {
       const formatOptions = {
-        addSuffix:  false,
-        increment:  1024,
+        addSuffix:   false,
+        increment:   1024,
+        minExponent: exponent
       };
 
       return formatSi(value, formatOptions);
@@ -170,7 +177,7 @@ export default {
         <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.memory')" :capacity="memoryTotal" :used="memoryUsage" :units="memoryUnits" :number-formatter="memoryFormatter" />
       </div>
       <div class="col span-4">
-        <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.storage')" :capacity="storageTotal" :used="storageUsage" :units="memoryUnits" :number-formatter="memoryFormatter" />
+        <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.storage')" :capacity="storageTotal" :used="storageUsage" :units="storageUnits" :number-formatter="memoryFormatter" />
       </div>
     </div>
     <hr class="divider" />

@@ -93,7 +93,7 @@ export default {
     dev: mapPref(DEV),
 
     showNone() {
-      return this.dev;
+      return this.dev && process.env.dev;
     },
 
     showLocale() {

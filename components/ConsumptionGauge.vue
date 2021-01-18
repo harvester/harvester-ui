@@ -1,4 +1,5 @@
 <script>
+import { exponentNeeded } from '@/utils/units';
 import PercentageBar from '@/components/PercentageBar';
 import VStack from '@/components/Layout/Stack/VStack';
 
@@ -63,9 +64,11 @@ export default {
       return (this.used * 100) / this.capacity;
     },
     amountTemplateValues() {
+      const exponent = exponentNeeded(this.capacity || 0, 1024);
+
       return {
-        used:  this.numberFormatter(this.used || 0),
-        total: this.numberFormatter(this.capacity || 0),
+        used:  this.numberFormatter(this.used || 0, exponent),
+        total: this.numberFormatter(this.capacity || 0, exponent),
         unit:  this.displayUnits
       };
     }
