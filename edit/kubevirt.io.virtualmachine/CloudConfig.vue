@@ -39,6 +39,15 @@ export default {
     }
   },
 
+  watch: {
+    userScript(neu) {
+      this.userData = neu;
+    },
+    networkData(neu) {
+      this.networkData = neu;
+    }
+  },
+
   methods: {
     update() {
       this.$emit('updateCloudConfig', this.userData, this.networkData);
@@ -98,7 +107,7 @@ export default {
     refresh() {
       this.$refs.yamlUser.refresh();
       this.$refs.yamlNetwork.refresh();
-    }
+    },
   }
 };
 </script>
