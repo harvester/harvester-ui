@@ -48,6 +48,7 @@ export default {
     :width="width"
     :click-to-close="false"
     height="auto"
+    styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 100vh;"
   >
     <Card>
       <template #title>

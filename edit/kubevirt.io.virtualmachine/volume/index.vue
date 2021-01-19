@@ -281,7 +281,7 @@ export default {
 
       <template #content>
         <div>
-          <span>Remove the volume will permanently delete the data, are you sure you want to remove it?</span>
+          <span>Are you sure you want to unmount this volume?</span>
         </div>
       </template>
 
