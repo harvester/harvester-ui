@@ -40,7 +40,7 @@ export default {
       return this.row.stateDisplay;
     },
     completed() {
-      return Number.parseFloat(this.value) === 100;
+      return Number.parseFloat(this.value) === 100 && !this.failed;
     },
     failed() {
       return this.state === 'Failed';
