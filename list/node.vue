@@ -7,12 +7,6 @@ import { METRIC } from '@/config/types';
 const METRICS_POLL_RATE_MS = 30000;
 const MAX_FAILURES = 2;
 
-const HOST_ROLES = {
-  name:      'host-roles',
-  labelKey:  'tableHeaders.roles',
-  value:     `metadata.labels`,
-  formatter: 'HostRoles'
-};
 const HOST_IP = {
   name:      'host-ip',
   labelKey:  'tableHeaders.hostIp',
@@ -43,7 +37,7 @@ export default {
 
   computed: {
     headers() {
-      return [STATE, NAME, HOST_ROLES, HOST_IP, AGE];
+      return [STATE, NAME, HOST_IP, AGE];
     },
   },
 
