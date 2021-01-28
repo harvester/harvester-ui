@@ -56,6 +56,8 @@ export default {
   },
 
   data() {
+    const MachineType = this.value?.spec?.template?.spec?.domain?.machine?.type || '';
+
     return {
       count:                 1,
       realHostname:          '',
@@ -65,7 +67,7 @@ export default {
       isSingle:              true,
       isRunning:             true,
       useTemplate:           false,
-      MachineType:          ''
+      MachineType
     };
   },
 
@@ -434,27 +436,33 @@ export default {
           :label="t('harvester.tab.advanced')"
           :weight="-3"
         >
-          <LabeledInput v-model="hostname" class="labeled-input--tooltip mb-20" required :placeholder="t('harvester.vmPage.hostName.placeholder')">
-            <template #label>
-              <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-                {{ hostnameLabel }}
-              </label>
-            </template>
-          </LabeledInput>
+          <div class="row mb-20">
+            <div class="col span-6">
+              <LabeledInput v-model="hostname" class="labeled-input--tooltip" required :placeholder="t('harvester.vmPage.hostName.placeholder')">
+                <template #label>
+                  <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
+                    {{ hostnameLabel }}
+                  </label>
+                </template>
+              </LabeledInput>
+            </div>
+
+            <div class="col span-6">
+              <LabeledInput v-model="MachineType" class="labeled-input--tooltip">
+                <template #label>
+                  <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
+                    {{ t('harvester.vmPage.input.MachineType') }}
+                    <i v-tooltip="t('harvester.vmPage.machineTypeTip')" class="icon icon-info" style="font-size: 14px" />
+                  </label>
+                </template>
+              </LabeledInput>
+            </div>
+          </div>
 
           <CloudConfig ref="yamlEditor" :user-script="userScript" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
 
           <div class="spacer"></div>
           <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" :label="t('harvester.vmPage.enableUsb')" />
-
-          <LabeledInput v-model="MachineType" class="mt-20 labeled-input--tooltip">
-            <template #label>
-              <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-                {{ t('harvester.vmPage.input.MachineType') }}
-                <i v-tooltip="t('harvester.vmPage.machineTypeTip')" class="icon icon-info" style="font-size: 14px" />
-              </label>
-            </template>
-          </LabeledInput>
         </Tab>
       </Tabbed>
 
