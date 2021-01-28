@@ -2253,6 +2253,7 @@ harvester:
       image: Image
       sshKey: SSHKey
       sshKeyValue: SSH-Key
+      MachineType: MachineType
     useTemplate: "Use VM Template:"
     buttons: 
       addVolume: Add Volume
@@ -2265,6 +2266,7 @@ harvester:
       name:
         singleLabel: Name
         multipleLabel: Prefix Name
+    machineTypeTip: 'Specify a processor architecture to emulate. To see a list of supported architectures, run: qemu-system-x86_64 -cpu ?'
     detail:
       tabs:
         overview: Overview
