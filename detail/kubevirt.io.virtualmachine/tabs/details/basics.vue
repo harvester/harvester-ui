@@ -108,6 +108,10 @@ export default {
     isDown() {
       return this.isEmpty(this.resource);
     },
+
+    machineType() {
+      return this.value?.spec?.template?.spec?.domain?.machine?.type || undefined;
+    }
   },
 
   methods: {
@@ -278,6 +282,17 @@ export default {
           </label>
           <div>
             {{ timeZone || t("harvester.vmPage.detail.GuestAgentNotInstalled") }}
+          </div>
+        </div>
+      </div>
+
+      <div class="col span-6">
+        <div class="labeled-input view">
+          <label>
+            {{ t("harvester.vmPage.input.MachineType") }}
+          </label>
+          <div>
+            {{ machineType }}
           </div>
         </div>
       </div>
