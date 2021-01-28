@@ -65,6 +65,7 @@ export default {
       isSingle:              true,
       isRunning:             true,
       useTemplate:           false,
+      MachineType:          ''
     };
   },
 
@@ -200,6 +201,9 @@ export default {
       } else {
         this.$delete(this.spec.template.spec.domain.devices, 'inputs');
       }
+    },
+    MachineType(neu) {
+      this.$set(this.spec.template.spec.domain.machine, 'type', neu);
     }
   },
 
@@ -442,6 +446,15 @@ export default {
 
           <div class="spacer"></div>
           <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" :label="t('harvester.vmPage.enableUsb')" />
+
+          <LabeledInput v-model="MachineType" class="mt-20 labeled-input--tooltip">
+            <template #label>
+              <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
+                {{ t('harvester.vmPage.input.MachineType') }}
+                <i v-tooltip="t('harvester.vmPage.machineTypeTip')" class="icon icon-info" style="font-size: 14px" />
+              </label>
+            </template>
+          </LabeledInput>
         </Tab>
       </Tabbed>
 

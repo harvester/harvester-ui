@@ -21,7 +21,8 @@ const baseSpec = {
     metadata: { annotations: {} },
     spec:     {
       domain: {
-        cpu: {
+        machine: { type: '' },
+        cpu:     {
           cores:   null,
           sockets: 1,
           threads: 1

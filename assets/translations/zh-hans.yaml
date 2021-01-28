@@ -1900,6 +1900,7 @@ harvester:
       image: 镜像
       sshKey: SSH 密钥
       sshKeyValue: SSH 公钥
+      MachineType: 机器类型
     useTemplate: "使用模版:"
     buttons: 
       addVolume: 添加卷
@@ -1912,6 +1913,7 @@ harvester:
       name:
         singleLabel: 名称
         multipleLabel: 名称前缀
+    machineTypeTip: '指定一个处理器架构来模拟。 要查看支持的体系结构列表，请运行：qemu-system-x86_64 -cpu？'
     detail:
       details:
         name: 名称
