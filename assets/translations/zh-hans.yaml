@@ -2438,6 +2438,8 @@ action:
   modifyTemplate: 修改模版 (创建新版本)
   setDefaultVersion: 设置默认版本
   addTemplateVersion: 添加模版版本
+  backup: 备份
+  restore: 恢复
 
 unit:
   sec: secs
@@ -2467,10 +2469,16 @@ keyValue:
 harvester:
   loading: 加载中...
   copyed: 已复制!
+  close: 关闭
+  open: 打开
   clickToCopy: 点击复制
   buttons:
     addPort:  添加端口
+  options: 
+    no: 否
+    yes: 是
   fields:
+    version: 版本
     name: 名称
     type: 类型
     image: 镜像
@@ -2544,6 +2552,14 @@ harvester:
       events:
         label: 事件
   hostPage:
+  upgradePage:
+    upgradeApp: 升级软件
+    upgrade: 升级
+    upgradeTip: 请选中要升级到的版本
+    currentVersion: 当前版本
+    versionLabel: 可用的兼容版本
+    upgradeNode: 升级节点
+    upgradeSysService: 升级系统服务
   vmPage:
     restartTip: 保存编辑将导致VM重新启动.
     enableUsb: 启动 USB Tablet 增强

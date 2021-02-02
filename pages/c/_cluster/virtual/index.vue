@@ -13,6 +13,7 @@ import {
 import SimpleBox from '@/components/SimpleBox';
 import ResourceGauge from '@/components/ResourceGauge';
 import HardwareResourceGauge from './HardwareResourceGauge';
+import Upgrade from './Upgrade';
 
 const PARSE_RULES = {
   memory: {
@@ -40,7 +41,8 @@ export default {
     HardwareResourceGauge,
     ResourceGauge,
     SimpleBox,
-    SortableTable
+    SortableTable,
+    Upgrade
   },
 
   async fetch() {
@@ -304,11 +306,7 @@ export default {
 <template>
   <Loading v-if="$fetchState.pending" />
   <section v-else>
-    <header>
-      <h1>
-        <t k="harvester.homePage.header" />
-      </h1>
-    </header>
+    <Upgrade />
 
     <div class="resource-gauges">
       <ResourceGauge

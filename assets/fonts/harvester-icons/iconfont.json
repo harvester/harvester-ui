@@ -6,6 +6,13 @@
   "description": "Harvester",
   "glyphs": [
     {
+      "icon_id": "19903826",
+      "name": "持续升级",
+      "font_class": "upgrade",
+      "unicode": "e837",
+      "unicode_decimal": 59447
+    },
+    {
       "icon_id": "8321780",
       "name": "restart",
       "font_class": "restart",

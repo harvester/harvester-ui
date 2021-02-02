@@ -1,5 +1,6 @@
 import {
-  IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME, HARVESTER_USER, NODE, HARVESTER_SETTING, NETWORK_ATTACHMENT
+  IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME, HARVESTER_USER, NODE,
+  HARVESTER_SETTING, NETWORK_ATTACHMENT
 } from '@/config/types';
 import { DSL } from '@/store/type-map';
 
@@ -30,7 +31,6 @@ export function init(store) {
     name:         'virtual-dashboard',
     weight:       500,
     route:        { name: 'c-cluster-virtual' },
-    // icon:        'icons icon-h-home',
     exact:        true,
   });
 
@@ -45,7 +45,6 @@ export function init(store) {
       name:   'c-cluster-product-resource',
       params: { resource: NODE }
     },
-    // icon:        'icons icon-h-host',
     exact: false,
   });
 
@@ -60,7 +59,6 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: VM }
     },
-    // icon:       'icons icon-h-display',
     exact: false,
   });
 
@@ -75,7 +73,6 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: DATA_VOLUME }
     },
-    // icon:       'icons icon-h-database',
     exact: false,
   });
 
@@ -90,7 +87,6 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: IMAGE }
     },
-    // icon:       'icons icon-h-drawer',
     exact: false,
   });
 
@@ -112,7 +108,6 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: TEMPLATE }
     },
-    // icon:       'icons icon-h-copy',
     exact: false,
   });
 
@@ -126,7 +121,6 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: NETWORK_ATTACHMENT }
     },
-    // icon:       'icons icon-h-network',
     exact: false,
   });
 
@@ -135,26 +129,24 @@ export function init(store) {
     group:      'root',
     namespaced: true,
     name:       SSH,
-    weight:     89,
+    weight:     180,
     route:      {
       name:     'c-cluster-product-resource',
       params:   { resource: SSH }
     },
-    // icon:       'icons icon-h-key',
     exact: false,
   });
 
   virtualType({
     label:      'Users',
     group:      'root',
-    namespaced:  true,
+    namespaced:  false,
     name:       HARVESTER_USER,
     weight:     87,
     route:      {
       name:     'c-cluster-product-resource',
       params:   { resource: HARVESTER_USER }
     },
-    // icon:       'icons icon-h-user',
     exact: false,
   });
 
@@ -168,7 +160,6 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: HARVESTER_SETTING }
     },
-    // icon:       'icons icon-h-setting',
     exact: false,
   });
 }
