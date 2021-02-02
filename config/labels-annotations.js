@@ -108,3 +108,5 @@ export const HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME = 'harvester.cattle.io/custo
 export const HOST_CUSTOM_NAME = 'harvester.cattle.io/host-custom-name';
 
 export const HARVESTER_VOLUME_CREATEDBY = 'kubevirt.io/created-by';
+
+export const HARVESTER_UPGRADESTATE = 'harvester.cattle.io/upgradeState';

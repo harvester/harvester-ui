@@ -1,9 +1,10 @@
 <script>
 import { md5 } from '@/utils/crypto';
 import Identicon from 'identicon.js';
+import UpgradeInfo from './UpgradeInfo';
 
 export default {
-  components: {},
+  components: { UpgradeInfo },
 
   computed: {
     authEnabled() {
@@ -38,7 +39,9 @@ export default {
       </div>
     </div>
 
-    <div class="top"></div>
+    <div class="top">
+      <UpgradeInfo />
+    </div>
 
     <div class="user">
       <v-popover
@@ -106,6 +109,8 @@ export default {
     > .top {
       grid-area: top;
       background-color: var(--header-bg);
+      display: flex;
+      // flex-direction: row-reverse;
     }
 
     > .user {

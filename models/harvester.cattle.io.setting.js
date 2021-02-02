@@ -23,7 +23,29 @@ export default {
   configuredCondition() {
     return findBy((this?.status?.conditions || []), 'type', 'configured') || {};
   },
+
   valueOrDefaultValue() {
     return this.value || this.default;
+  },
+
+  upgradeableVersion() {
+    const value = this.value || '';
+
+    if (!value) {
+      return [];
+    }
+
+    return value.split(',').sort((a, b) => {
+      return a > b ? -1 : 1;
+    }).map( (V) => {
+      return {
+        label: V,
+        value: V
+      };
+    });
+  },
+
+  currentVersion() {
+    return this.value || '';
   }
 };

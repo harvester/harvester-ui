@@ -107,6 +107,14 @@ export default {
         external:   true,
       },
       {
+        action:     'backupVM',
+        enabled:    !!this.actions?.backup,
+        icon:       'icon icon-play',
+        label:      this.t('action.backup'),
+        bulkable:   true,
+        external:   true,
+      },
+      {
         action:     'ejectCDROM',
         enabled:    !!this.actions.ejectCdRom,
         icon:       'icon icon-delete',
@@ -131,6 +139,12 @@ export default {
   restartVM() {
     return () => {
       this.doAction('restart', {});
+    };
+  },
+
+  backupVM() {
+    return () => {
+      this.doAction('backup', {});
     };
   },
 

@@ -10,6 +10,7 @@ export default {
       default: 'Advanced Configuration'
     }
   },
+
   methods: {
     showAdvanced() {
       this.$emit('update:open', !this.open);
@@ -20,11 +21,13 @@ export default {
 
 <template>
   <div class="collapse">
-    <div class="advanced" @click="showAdvanced">
-      <i v-if="open" class="el-icon-arrow-down"></i>
-      <i v-else class="el-icon-arrow-right"></i>
-      {{ title }}
-    </div>
+    <slot name="title">
+      <div class="advanced" @click="showAdvanced">
+        <i v-if="open" class="icon icon-chevron-down"></i>
+        <i v-else class="icon icon-chevron-right"></i>
+        {{ title }}
+      </div>
+    </slot>
 
     <div v-if="open" class="content">
       <slot></slot>
@@ -34,10 +37,11 @@ export default {
 
 <style lang="scss" scoped>
 .collapse {
-  border: 1px solid #ecf0f1;
+  // border: 1px solid #ecf0f1;
 }
 
 .advanced {
+  user-select: none;
   padding: 0 5px;
   color: #004080;
   cursor: pointer;
@@ -48,6 +52,10 @@ export default {
 }
 
 .content {
+  background: var(--nav-active);
   padding: 10px;
+
+  margin-top: 6px;
+  border-radius: 4px;
 }
 </style>

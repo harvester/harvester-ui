@@ -2990,6 +2990,8 @@ action:
   show: Show
   hide: Hide
   copy: Copy
+  backup: Backup
+  restore: Restore
 
 unit:
   sec: secs
@@ -3019,10 +3021,16 @@ keyValue:
 harvester:
   loading: Loading...
   copyed: Copied!
+  close: Close
+  open: Open
   clickToCopy: Click to Copy
   buttons:
     addPort:  Add Port
+  options: 
+    no: No
+    yes: Yes
   fields:
+    version: Version
     name: Name
     type: Type
     image: Image
@@ -3095,6 +3103,14 @@ harvester:
     sections:
       events:
         label: Events
+  upgradePage:
+    upgradeApp: Upgrade Software
+    upgrade: Upgrade
+    upgradeTip: Please select the version you want to upgrade to
+    currentVersion: CURRENT VERSION
+    versionLabel: AVAILABLE COMPATIBLE VERSIONS
+    upgradeNode: Upgrading Node
+    upgradeSysService: Upgrading system service
   vmPage:
     enableUsb: Enable USB Tablet
     restartTip: Saving edits will cause the VM to restart.

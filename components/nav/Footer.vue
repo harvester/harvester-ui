@@ -10,10 +10,6 @@ const UI_COMMIT = process.env.COMMIT || UNKNOWN;
 
 export default {
   data() {
-    const setting = this.$store.getters['cluster/byId'](HARVESTER_SETTING, 'server-version');
-    const fullVersion = setting?.value || setting?.default;
-    const displayVersion = fullVersion;
-
     // const match = fullVersion.match(/^(.*)-([0-9a-f]{40})-(.*)$/);
 
     // if ( match ) {
@@ -21,8 +17,6 @@ export default {
     // }
 
     return {
-      displayVersion,
-      fullVersion,
       uiCommit:       UI_COMMIT,
       uiVersion:      UI_VERSION
     };
@@ -32,6 +26,13 @@ export default {
     ...mapGetters('i18n', ['selectedLocaleLabel', 'availableLocales']),
 
     dev: mapPref(DEV),
+
+    fullVersion() {
+      const settings = this.$store.getters['cluster/all'](HARVESTER_SETTING);
+      const setting = settings.find( S => S.id === 'server-version');
+
+      return setting?.value || setting?.default;
+    },
 
     showLocale() {
       return Object.keys(this.availableLocales).length > 1 || this.dev;
@@ -49,19 +50,6 @@ export default {
     options() {
       return options(this.pl);
     },
-
-    versionTooltip() {
-      const out = [
-        // `Dashboard: ${ this.uiVersion } (${ this.uiCommit })`,
-      ];
-
-      if ( this.fullVersion !== this.displayVersion ) {
-        // out.push(`Server: ${ this.fullVersion }`);
-        out.push(this.fullVersion);
-      }
-
-      return out.join('<br/>\n');
-    }
   },
 
   methods: {
@@ -76,7 +64,7 @@ export default {
 
 <template>
   <div class="footer">
-    <div v-tooltip="versionTooltip" v-html="displayVersion" />
+    <div> {{ fullVersion }}</div>
 
     <div v-for="(value, name) in options" :key="name">
       <a v-t="name" :href="value" target="_blank" />

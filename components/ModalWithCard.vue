@@ -24,6 +24,10 @@ export default {
     width: {
       type:    [String, Number],
       default: '50%'
+    },
+    height: {
+      type:    [String, Number],
+      default: 'auto'
     }
   },
 
@@ -47,7 +51,7 @@ export default {
     :name="name"
     :width="width"
     :click-to-close="false"
-    height="auto"
+    :height="height"
     styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 100vh;"
   >
     <Card>

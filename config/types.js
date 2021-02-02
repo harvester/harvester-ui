@@ -240,3 +240,6 @@ export const NETWORK_ATTACHMENT = 'k8s.cni.cncf.io.networkattachmentdefinition';
 export const DATA_VOLUME = 'cdi.kubevirt.io.datavolume';
 export const HARVESTER_USER = 'harvester.cattle.io.user';
 export const HARVESTER_SETTING = 'harvester.cattle.io.setting';
+export const HARVESTER_UPGRADE = 'harvester.cattle.io.upgrade';
+export const HARVESTER_BACKUP = 'harvester.cattle.io.virtualmachinebackup';
+export const HARVESTER_RESTORE = 'harvester.cattle.io.virtualmachinerestore';
