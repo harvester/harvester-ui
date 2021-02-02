@@ -95,11 +95,6 @@ export default {
         maxLength:      63,
         translationKey: 'generic.name'
       },
-      {
-        nullable:       false,
-        path:           'spec.url',
-        validators:     ['imageUrl'],
-      },
     ];
   },
 

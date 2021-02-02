@@ -86,6 +86,7 @@
     "vue-resize": "^0.4.5",
     "vue-select": "^3.9.1",
     "vue-shortkey": "^3.1.7",
+    "vue-upload-component": "^2.8.22",
     "vue2-transitions": "^0.3.0",
     "xterm": "^4.7.0",
     "xterm-addon-fit": "^0.4.0",

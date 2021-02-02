@@ -843,6 +843,8 @@ export default {
 
   save() {
     return async(opt = {}) => {
+      const optClone = _.cloneDeep(opt);
+
       delete this.__rehydrate;
       const forNew = !this.id;
       const errors = await this.validationErrors(this);
@@ -890,6 +892,10 @@ export default {
         opt.data.type = opt.data._type;
       }
 
+      if (opt.extend) {
+        delete opt.extend;
+      }
+
       try {
         const res = await this.$dispatch('request', opt);
 
@@ -899,6 +905,10 @@ export default {
         if ( res && res.kind !== 'Table') {
           // await this.$dispatch('load', { data: res, existing: (forNew ? this : undefined ) }); // TODO:  The real error is not here. It may be in the load action, but no solution is found, reslove multipus resource create
           // TODO why row duplication
+        }
+
+        if (optClone?.extend?.isRes) {
+          return res;
         }
       } catch (e) {
         if ( this.type && this.id && e?._status === 409) {
