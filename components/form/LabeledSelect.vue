@@ -4,65 +4,79 @@ import LabeledFormElement from '@/mixins/labeled-form-element';
 import { findBy } from '@/utils/array';
 import { get } from '@/utils/object';
 import LabeledTooltip from '@/components/form/LabeledTooltip';
+import VueSelectOverrides from '@/mixins/vue-select-overrides';
+import $ from 'jquery';
 
 export default {
   components: { LabeledTooltip },
-  mixins:     [LabeledFormElement],
+  mixins:     [LabeledFormElement, VueSelectOverrides],
 
   props: {
-    value: {
-      type:    [String, Object, Number, Array, Boolean],
-      default: null,
-    },
-    options: {
-      type:    Array,
-      default: null,
-    },
-    grouped: {
+    appendToBody: {
+      default: true,
       type:    Boolean,
-      default: false,
     },
     disabled: {
-      type:    Boolean,
-      default: false
+      default: false,
+      type:    Boolean
     },
-    optionKey: {
-      type:    String,
-      default: null
-    },
-    optionLabel: {
-      type:    String,
-      default: 'label'
-    },
-    placement: {
-      type:    String,
-      default: null,
-    },
-    tooltip: {
-      type:    String,
-      default: null
+    grouped: {
+      default: false,
+      type:    Boolean
     },
     hoverTooltip: {
-      type:    Boolean,
-      default: false
+      default: false,
+      type:    Boolean
     },
     localizedLabel: {
-      type:    Boolean,
-      default: false
+      default: false,
+      type:    Boolean
     },
-    status: {
-      type:      String,
-      default:   null
+    optionKey: {
+      default: null,
+      type:    String
+    },
+    optionLabel: {
+      default: 'label',
+      type:    String
+    },
+    options: {
+      default: null,
+      type:    Array
+    },
+    placement: {
+      default: null,
+      type:    String
     },
     reduce: {
-      type:     Function,
       default: (e) => {
-        if ( e && typeof e === 'object' && e.value !== undefined ) {
+        if (e && typeof e === 'object' && e.value !== undefined) {
           return e.value;
         }
 
         return e;
-      }
+      },
+      type: Function
+    },
+    searchable: {
+      default: false,
+      type:    Boolean
+    },
+    selectable: {
+      default: undefined,
+      type:    Function
+    },
+    status: {
+      default: null,
+      type:    String
+    },
+    tooltip: {
+      default: null,
+      type:    [String, Object]
+    },
+    value: {
+      default: null,
+      type:    [String, Object, Number, Array, Boolean]
     }
   },
 
@@ -74,15 +88,15 @@ export default {
     currentLabel() {
       let entry;
 
-      if ( this.grouped ) {
-        for ( let i = 0 ; i < this.options.length && !entry ; i++ ) {
+      if (this.grouped) {
+        for (let i = 0; i < this.options.length && !entry; i++) {
           entry = findBy(this.options[i].items || [], 'value', this.value);
         }
       } else {
         entry = findBy(this.options || [], 'value', this.value);
       }
 
-      if ( entry ) {
+      if (entry) {
         return entry.label;
       }
 
@@ -91,6 +105,16 @@ export default {
   },
 
   methods: {
+    // resizeHandler = in mixin
+    focusSearch() {
+      this.$nextTick(() => {
+        const el = this.$refs.input?.searchEl;
+
+        if (el) {
+          el.focus();
+        }
+      });
+    },
     onFocus() {
       this.selectedVisibility = 'hidden';
       this.onFocusLabeled();
@@ -102,12 +126,17 @@ export default {
     },
 
     getOptionLabel(option) {
+      if (!option) {
+        return;
+      }
       if (this.$attrs['get-option-label']) {
         return this.$attrs['get-option-label'](option);
       }
       if (get(option, this.optionLabel)) {
         if (this.localizedLabel) {
-          return this.$store.getters['i18n/t'](get(option, this.optionLabel));
+          const label = get(option, this.optionLabel);
+
+          return this.$store.getters['i18n/t'](label) || label;
         } else {
           return get(option, this.optionLabel);
         }
@@ -121,7 +150,10 @@ export default {
        * We need to explicitly define the dropdown width since
        * it is usually inherited from the parent with CSS.
        */
-      dropdownList.style.width = width;
+      const componentWidth = $(component.$parent.$el).width();
+
+      dropdownList.style['min-width'] = `${ componentWidth }px`;
+      dropdownList.style.width = 'min-content';
 
       /**
        * Here we position the dropdownList relative to the $refs.toggle Element.
@@ -134,11 +166,19 @@ export default {
        * above.
        */
       const popper = createPopper(component.$refs.toggle, dropdownList, {
-        placement: this.placement,
+        placement: this.placement || 'bottom-start',
         modifiers: [
           {
             name:    'offset',
-            options: { offset: [0, -1] }
+            options: {
+              offset: ({ placement, reference, popper }) => {
+                if (placement.includes('top')) {
+                  return [0, 27];
+                } else {
+                  return [0, 2];
+                }
+              },
+            },
           },
           {
             name:    'toggleClass',
@@ -147,7 +187,8 @@ export default {
             fn({ state }) {
               component.$el.setAttribute('x-placement', state.placement);
             },
-          }]
+          }
+        ],
       });
 
       /**
@@ -156,159 +197,142 @@ export default {
        */
       return () => popper.destroy();
     },
-    open() {
-      const input = this.$refs.input;
-
-      if (input) {
-        input.open = true;
-      }
-    },
-    get
+    get,
   },
 };
 </script>
 
 <template>
-  <div class="labeled-select labeled-input" :class="{disabled: disabled && !isView, focused, [mode]: true, [status]: status, taggable: $attrs.taggable, hoverable: hoverTooltip }">
-    <div :class="{'labeled-container': true, raised, empty, [mode]: true}" :style="{border:'none'}">
-      <label v-if="label">
-        {{ label }}
-        <span v-if="required && !value" class="required">*</span>
+  <div
+    ref="select"
+    class="labeled-select"
+    :class="{
+      disabled: isView || disabled,
+      focused,
+      [mode]: true,
+      [status]: status,
+      taggable: $attrs.taggable,
+      taggable: $attrs.multiple,
+      hoverable: hoverTooltip,
+    }"
+    @click="focusSearch"
+    @focus="focusSearch"
+  >
+    <div
+      :class="{ 'labeled-container': true, raised, empty, [mode]: true }"
+      :style="{ border: 'none' }"
+    >
+      <label>
+        <t v-if="labelKey" :k="labelKey" />
+        <template v-else-if="label">{{ label }}</template>
+
+        <span v-if="required" class="required">*</span>
       </label>
-      <label v-if="label" class="corner">
-        <slot name="corner" />
-      </label>
-      <div v-if="isView" :class="{'no-label':!(label||'').length}" class="selected">
-        <span v-if="!currentLabel" class="text-muted">—</span>{{ currentLabel }}&nbsp;
-      </div>
-      <div v-else-if="!$attrs.multiple" :class="{'no-label':!(label||'').length}" class="selected" :style="{visibility:selectedVisibility}">
-        {{ currentLabel }}&nbsp;
-      </div>
     </div>
     <v-select
-      v-if="!isView"
       ref="input"
       v-bind="$attrs"
       class="inline"
-      :append-to-body="!!placement"
-      :calculate-position="placement ? withPopper : undefined"
-      :class="{'no-label':!(label||'').length}"
+      :append-to-body="appendToBody"
+      :calculate-position="withPopper"
+      :class="{ 'no-label': !(label || '').length }"
       :disabled="isView || disabled"
-      :get-option-key="opt=>optionKey ? get(opt, optionKey) : getOptionLabel(opt)"
-      :get-option-label="opt=>getOptionLabel(opt)"
+      :get-option-key="
+        (opt) => (optionKey ? get(opt, optionKey) : getOptionLabel(opt))
+      "
+      :get-option-label="(opt) => getOptionLabel(opt)"
       :label="optionLabel"
       :options="options"
+      :map-keydown="mappedKeys"
       :placeholder="placeholder"
-      :reduce="x => reduce(x)"
+      :reduce="(x) => reduce(x)"
+      :searchable="isSearchable"
+      :selectable="selectable"
       :value="value != null ? value : ''"
-      @input="e=>$emit('input', e)"
+      @input="(e) => $emit('input', e)"
+      v-on="$listeners"
       @search:blur="onBlur"
       @search:focus="onFocus"
+      @open="resizeHandler"
     >
-      <template v-if="!$attrs.multiple" v-slot:selected-option-container>
-        <span style="display: none"></span>
-      </template>
-
       <!-- Pass down templates provided by the caller -->
-      <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+      <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
         <slot :name="slot" v-bind="scope" />
       </template>
     </v-select>
-    <LabeledTooltip v-if="tooltip && !focused" :hover="hoverTooltip" :value="tooltip" :status="status" />
+    <LabeledTooltip
+      v-if="tooltip && !focused"
+      :hover="hoverTooltip"
+      :value="tooltip"
+      :status="status"
+    />
   </div>
 </template>
 
-<style lang='scss'>
+<style lang='scss' scoped>
 .labeled-select {
-  &.hoverable .v-select *{
-    z-index: z-index('hoverOverContent')
-  }
-  .labeled-container .selected {
-    background-color: transparent;
+  .labeled-container {
+    padding: 8px 0 0 8px;
+
+    label {
+      margin: 0;
+    }
+
+    .selected {
+      background-color: transparent;
+    }
   }
 
-  &.view.labeled-input .labeled-container {
-    padding: 0;
+  &.view {
+    &.labeled-input {
+      .labeled-container {
+        padding: 0;
+      }
+    }
+  }
+  ::v-deep .vs__selected-options {
+    margin-top: -4px;
   }
 
-  &.disabled {
-    .labeled-container, .vs__dropdown-toggle, input, label  {
+  ::v-deep .v-select:not(.vs--single) {
+    .vs__selected-options {
+      padding: 5px 0;
+    }
+  }
+
+  ::v-deep .vs__actions {
+    &:after {
+      line-height: 1.85rem;
+      position: relative;
+      right: 3px;
+      top: -10px;
+    }
+  }
+
+  ::v-deep &.disabled {
+    .labeled-container,
+    .vs__dropdown-toggle,
+    input,
+    label {
       cursor: not-allowed;
     }
   }
 
-  .selected {
-    padding-top: 17px;
-  }
-
-  .selected, .vs__selected-options {
-    .vs__search, .vs__search:hover {
-      background-color: transparent;
-      padding: 2px 0 0 0;
-      flex: 1;
-    }
-  }
-
-  .no-label {
+  .no-label ::v-deep {
     &.v-select:not(.vs--single) {
       min-height: 33px;
     }
 
     &.selected {
-      padding-top:8px;
+      padding-top: 8px;
       padding-bottom: 9px;
       position: relative;
-      max-height:2.3em;
-      overflow:hidden;
+      max-height: 2.3em;
+      overflow: hidden;
     }
 
     .vs__selected-options {
-      padding:8px 0 7px 0;
-    }
-  }
-
-  &.focused .vs__dropdown-menu {
-    outline: none;
-    border: var(--outline-width) solid var(--outline);
-    border-top: none;
-  }
-
-  &.taggable {
-    .vs__selected-options {
-      margin: 14px 0px 2px 0px;
-    }
-  }
-
-  .v-select.inline {
-    position: initial;
-
-    &.vs--single {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-
-      .vs__search {
-        background-color: transparent;
-        padding: 18px 0 0 10px;
-      }
-    }
-
-    &, .vs__dropdown-toggle, .vs__dropdown-toggle > * {
-      background-color: transparent;
-      border:transparent;
-    }
-
-    .vs__dropdown-menu {
-      top: calc(100% - 2px);
-      left: -3px;
-      width: calc(100% + 6px);
-    }
-
-    .selected{
-      position:relative;
-      top: 1.4em;
+      padding: 8px 0 7px 0;
     }
   }
 }

@@ -11,8 +11,9 @@
 */
 
 import LabeledInput from '@/components/form/LabeledInput';
+import Select from '@/components/form/Select';
 export default {
-  components: { LabeledInput },
+  components: { LabeledInput, Select },
   props:      {
     spec: {
       type:    Object,
@@ -38,7 +39,10 @@ export default {
       });
     }
 
-    return { all };
+    return {
+      all,
+      ruleOperatorOptions: ['add', 'set', 'remove']
+    };
   },
   methods: {
     format() {
@@ -84,7 +88,7 @@ export default {
       </tr>
       <tr v-for="(rule, i) in all" :key="i">
         <td>
-          <v-select v-model="rule.op" :disabled="!enabled" :serachable="false" class="inline" :options="['add', 'set', 'remove']" />
+          <Select v-model="rule.op" :disabled="!enabled" :serachable="false" class="inline" :options="ruleOperatorOptions" />
         </td>
         <td>
           <LabeledInput v-model="rule.name" />
@@ -100,7 +104,7 @@ export default {
       </tr>
     </table>
 
-    <button :disabled="!enabled" type="button" :class="{disabled: !enabled}" class="btn role-tertiary add mt-10" @click="addRule">
+    <button :disabled="!enabled" type="button" :class="{disabled: !enabled}" class="btn role-tertiary add" @click="addRule">
       Add Header Operation
     </button>
   </div>

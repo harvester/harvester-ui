@@ -1,6 +1,6 @@
 import { DSL } from '@/store/type-map';
 import { CIS } from '@/config/types';
-import { STATE, NAME as NAME_HEADER } from '@/config/table-headers';
+import { STATE, NAME as NAME_HEADER, AGE } from '@/config/table-headers';
 
 export const NAME = 'cis';
 export const CHART_NAME = 'rancher-cis-benchmark';
@@ -10,7 +10,7 @@ export function init(store) {
     product,
     basicType,
     weightType,
-    formOnlyType,
+    configureType,
     headers
   } = DSL(store, NAME);
 
@@ -29,7 +29,7 @@ export function init(store) {
     'cis.cattle.io.clusterscanbenchmark',
   ]);
 
-  formOnlyType(CIS.CLUSTER_SCAN);
+  configureType(CIS.CLUSTER_SCAN, { canYaml: false, showAge: false });
 
   headers(CIS.CLUSTER_SCAN, [
     STATE,
@@ -43,29 +43,56 @@ export function init(store) {
       sort:          ['status.lastRunScanProfileName'],
     },
     {
-      name:   'total',
-      label:  'Total',
-      value:  'status.summary.total',
+      name:        'total',
+      labelKey:    'cis.scan.total',
+      value:       'status.summary.total',
+      formatter: 'ScanResult'
+
     },
     {
-      name:   'pass',
-      label:  'Pass',
-      value:  'status.summary.pass',
+      name:        'pass',
+      value:       'status.summary.pass',
+      labelKey:    'cis.scan.pass',
+      formatter: 'ScanResult'
+
     },
     {
-      name:   'fail',
-      label:  'Fail',
-      value:  'status.summary.fail',
+      name:        'fail',
+      labelKey:    'cis.scan.fail',
+      value:       'status.summary.fail',
+      formatter: 'ScanResult'
+
     },
     {
-      name:   'skip',
-      label:  'Skip',
-      value:  'status.summary.skip',
+      name:        'warn',
+      labelKey:    'cis.scan.warn',
+      value:       'status.summary.warn',
+      formatter: 'ScanResult'
+
     },
     {
-      name:   'notApplicable',
-      label:  'N/A',
-      value:  'status.summary.notApplicable',
+      name:        'skip',
+      labelKey:    'cis.scan.skip',
+      value:       'status.summary.skip',
+      formatter: 'ScanResult'
+
+    },
+    {
+      name:        'notApplicable',
+      labelKey:    'cis.scan.notApplicable',
+      value:       'status.summary.notApplicable',
+      formatter: 'ScanResult'
+
+    },
+    {
+      name:          'nextScanAt',
+      label:         'Next Scan',
+      value:         'status.NextScanAt',
+      formatter:     'LiveDate',
+      formatterOpts: { addPrefix: false },
+      sort:          'status.nextScanAt:desc',
+      width:         150,
+      align:         'right',
     },
     {
       name:          'lastRunTimestamp',
@@ -78,5 +105,53 @@ export function init(store) {
       align:         'right',
       defaultSort:   true,
     },
+  ]);
+
+  headers(CIS.CLUSTER_SCAN_PROFILE, [
+    STATE,
+    NAME_HEADER,
+    {
+      name:          'benchmarkVersion',
+      labelKey:      'cis.benchmarkVersion',
+      value:         'spec.benchmarkVersion',
+      formatter:     'Link',
+      formatterOpts: { options: { internal: true }, to: { name: 'c-cluster-product-resource-id', params: { resource: CIS.BENCHMARK } } },
+    },
+    {
+      name:     'skippedTests',
+      labelKey: 'cis.testsSkipped',
+      value:    'numberTestsSkipped',
+      sort:     ['numberTestsSkipped']
+    }
+  ]);
+
+  headers(CIS.BENCHMARK, [
+    STATE,
+    NAME_HEADER,
+    {
+      name:          'clusterProvider',
+      labelKey:      'cis.clusterProvider',
+      value:         'spec.clusterProvider',
+    },
+    {
+      name:        'minKubernetesVersion',
+      labelKey:    'tableHeaders.minKubernetesVersion',
+      value:       'spec.minKubernetesVersion',
+      dashIfEmpty: true,
+
+    },
+    {
+      name:        'maxKubernetesVersion',
+      labelKey:    'tableHeaders.maxKubernetesVersion',
+      value:       'spec.maxKubernetesVersion',
+      dashIfEmpty: true,
+    },
+    {
+      name:          'isDefault',
+      labelKey:      'tableHeaders.builtIn',
+      formatter:     'Checked',
+      value:     'isDefault'
+    },
+    AGE
   ]);
 }

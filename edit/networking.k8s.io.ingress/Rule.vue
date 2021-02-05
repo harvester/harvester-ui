@@ -46,6 +46,13 @@ export default {
     addPath(ev) {
       ev.preventDefault();
       this.paths = [...this.paths, { id: random32(1) }];
+      this.$nextTick(() => {
+        if (this.$refs.paths && this.$refs.paths.length > 0) {
+          const path = this.$refs.paths[this.$refs.paths.length - 1];
+
+          path.focus();
+        }
+      });
     },
     removePath(idx) {
       const neu = [...this.paths];
@@ -56,26 +63,26 @@ export default {
     removeRule() {
       this.$emit('remove');
     },
+    focus() {
+      this.$refs.host.focus();
+    }
   },
 };
 </script>
 
 <template>
-  <div class="rule" @input="update">
+  <div class="rule">
     <div class="row mb-20">
       <div id="host" class="col span-6">
         <LabeledInput
+          ref="host"
           v-model="host"
           :label="t('ingress.rules.requestHost.label')"
           :placeholder="t('ingress.rules.requestHost.placeholder')"
+          @input="update"
         />
       </div>
       <div id="host" class="col span-5"></div>
-      <div class="col span-1">
-        <button class="btn role-link close" @click="removeRule">
-          <i class="icon icon-2x icon-x" />
-        </button>
-      </div>
     </div>
     <div class="rule-path-headings row">
       <div class="col" :class="{'span-6': ingress.showPathType, 'span-4': !ingress.showPathType}">
@@ -91,6 +98,7 @@ export default {
     </div>
     <template v-for="(_, i) in paths">
       <RulePath
+        ref="paths"
         :key="i"
         v-model="paths[i]"
         class="row mb-10"
@@ -98,6 +106,7 @@ export default {
         :service-targets="serviceTargets"
         :ingress="ingress"
         @remove="(e) => removePath(i)"
+        @input="update"
       />
     </template>
     <button
@@ -111,13 +120,6 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-.rule {
-  background: var(--tabbed-container-bg);
-  border: 1px solid var(--tabbed-border);
-  border-radius: var(--border-radius);
-  padding: 20px;
-  margin-top: 20px;
-}
 #host {
   align-self: center;
 }

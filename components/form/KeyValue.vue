@@ -1,28 +1,18 @@
 <script>
 import debounce from 'lodash/debounce';
 import { typeOf } from '@/utils/sort';
-import { _EDIT, _VIEW } from '@/config/query-params';
 import { removeAt } from '@/utils/array';
-import { asciiLike, escapeHtml } from '@/utils/string';
+import { asciiLike } from '@/utils/string';
 import { base64Encode, base64Decode } from '@/utils/crypto';
 import { downloadFile } from '@/utils/download';
 import TextAreaAutoGrow from '@/components/form/TextAreaAutoGrow';
-import ClickExpand from '@/components/formatter/ClickExpand';
 import { get } from '@/utils/object';
-import CodeMirror from '@/components/CodeMirror';
-import { mapGetters } from 'vuex';
-import ButtonDropdown from '@/components/ButtonDropdown';
 import FileSelector from '@/components/form/FileSelector';
-import { HIDE_SENSITIVE } from '@/store/prefs';
-
-const LARGE_LIMIT = 2 * 1024;
+import { _EDIT, _VIEW } from '@/config/query-params';
 
 export default {
   components: {
     TextAreaAutoGrow,
-    ClickExpand,
-    CodeMirror,
-    ButtonDropdown,
     FileSelector
   },
 
@@ -31,14 +21,17 @@ export default {
       type:     [Array, Object],
       default: null,
     },
+
     mode: {
       type:    String,
       default: _EDIT,
     },
+
     asMap: {
       type:    Boolean,
       default: true,
     },
+
     initialEmptyRow: {
       type:    Boolean,
       default: false,
@@ -48,18 +41,9 @@ export default {
       type:    String,
       default: ''
     },
-    titleAdd: {
-      type:    Boolean,
-      default: false,
-    },
     protip: {
       type:    [String, Boolean],
-      default: 'ProTip: Paste lines of <code>key=value</code> or <code>key: value</code> into any key field for easy bulk entry',
-    },
-
-    padLeft: {
-      type:    Boolean,
-      default: false,
+      default: 'Paste lines of <em>key=value</em> or <em>key: value</em> into any key field for easy bulk entry',
     },
 
     // For asMap=false, the name of the field that goes into the row objects
@@ -67,15 +51,19 @@ export default {
       type:    String,
       default: 'key',
     },
+
     keyLabel: {
       type: String,
       default() {
         return this.$store.getters['i18n/t']('generic.key');
       },
     },
+
     keyPlaceholder: {
-      type:    String,
-      default: 'e.g. foo'
+      type: String,
+      default() {
+        return this.$store.getters['i18n/t']('keyValue.valuePlaceholder');
+      },
     },
 
     separatorLabel: {
@@ -88,20 +76,26 @@ export default {
       type:    String,
       default: 'value',
     },
+
     valueLabel: {
       type: String,
       default() {
         return this.$store.getters['i18n/t']('generic.value');
       },
     },
+
     valuePlaceholder: {
-      type:    String,
-      default: 'e.g. bar'
+      type: String,
+      default() {
+        return this.$store.getters['i18n/t']('keyValue.valuePlaceholder');
+      },
     },
+
     valueCanBeEmpty: {
       type:    Boolean,
       default: false,
     },
+
     valueBinary: {
       type:    Boolean,
       default: false,
@@ -169,6 +163,7 @@ export default {
       type:    Boolean,
       default: true,
     },
+
     fileModifier: {
       type:    Function,
       default: (name, value) => ({ name, value })
@@ -185,7 +180,7 @@ export default {
       const rows = (this.value || []).slice() ;
 
       rows.map((row) => {
-        row._display = this.displayProps(row[this.valueName]);
+        row.binary = !asciiLike(row[this.valueName]);
       });
 
       return { rows };
@@ -203,11 +198,11 @@ export default {
       rows.push({
         key,
         value,
-        _display: this.displayProps(value)
+        binary: !asciiLike(value),
       });
     });
 
-    if ( !rows.length && this.initialEmptyRow && this.mode !== _VIEW ) {
+    if ( !rows.length && this.initialEmptyRow ) {
       rows.push({ [this.keyName]: '', [this.valueName]: '' });
     }
 
@@ -218,35 +213,9 @@ export default {
       return this.mode === _VIEW;
     },
 
-    hideSensitive() {
-      return this.$store.getters['prefs/get'](HIDE_SENSITIVE);
-    },
-
-    showAdd() {
-      return !this.isView && this.addAllowed;
-    },
-
-    showRead() {
-      return !this.isView && this.readAllowed;
-    },
-
-    showRemove() {
-      return !this.isView && this.removeAllowed;
-    },
-
     threeColumns() {
-      return this.showRemove;
+      return this.removeAllowed;
     },
-
-    hasSomeBinary() {
-      return !!(this.rows.filter(row => !!get(row, '_display.binary')) || []).length;
-    },
-
-    largeLimit() {
-      return LARGE_LIMIT;
-    },
-
-    ...mapGetters({ t: 'i18n/t' })
   },
 
   created() {
@@ -259,7 +228,7 @@ export default {
       this.rows.push({
         [this.keyName]:   key,
         [this.valueName]: value,
-        _display:         this.displayProps(value)
+        binary:           !asciiLike(value),
       });
       this.queueUpdate();
       this.$nextTick(() => {
@@ -298,15 +267,23 @@ export default {
     },
 
     update() {
-      if ( this.isView ) {
-        return;
-      }
-
       if ( !this.asMap ) {
-        this.$emit('input', this.rows.slice());
+        this.$emit('input', this.rows.map((row) => {
+          let value = row.value;
+
+          if ( this.base64Encode ) {
+            value = base64Encode(value);
+          }
+
+          return {
+            [this.keyName]:   row.key,
+            [this.valueName]: value,
+          };
+        }));
 
         return;
       }
+
       const out = {};
       const keyName = this.keyName;
       const valueName = this.valueName;
@@ -314,6 +291,7 @@ export default {
       if (!this.rows.length) {
         this.$emit('input', out);
       }
+
       for ( const row of this.rows ) {
         let value = (row[valueName] || '');
         const key = (row[keyName] || '').trim();
@@ -326,37 +304,12 @@ export default {
           if ( value && this.valueBase64 ) {
             value = base64Encode(value);
           }
-
           if ( key && (value || this.valueCanBeEmpty) ) {
             out[key] = value;
           }
         }
         this.$emit('input', out);
       }
-    },
-
-    displayProps(value) {
-      const binary = typeof value === 'string' && !asciiLike(value);
-      const withBreaks = escapeHtml(value || '').replace(/(\r\n|\r|\n)/g, '<br/>\n');
-      const byteSize = (withBreaks.length || 0) * 2; // Blobs don't exist in node/ssr
-      const isLarge = byteSize > LARGE_LIMIT;
-      let parsed;
-
-      if ( value && ( value.startsWith('{') || value.startsWith('[') ) ) {
-        try {
-          parsed = JSON.parse(value);
-          parsed = JSON.stringify(parsed, null, 2);
-        } catch {
-        }
-      }
-
-      return {
-        binary,
-        withBreaks,
-        isLarge,
-        parsed,
-        byteSize
-      };
     },
 
     onPaste(index, event, pastedValue) {
@@ -378,7 +331,7 @@ export default {
       const keyValues = splits.map(split => ({
         [this.keyName]:   (split[0] || '').trim(),
         [this.valueName]: (split[1] || '').trim(),
-        _display:         this.displayProps(split[1])
+        binary:           !asciiLike(split[1])
       }));
 
       this.rows.splice(index, 1, ...keyValues);
@@ -392,41 +345,26 @@ export default {
 </script>
 
 <template>
-  <div class="key-value" :class="mode">
+  <div class="key-value">
     <div v-if="title" class="clearfix">
       <slot name="title">
         <h3>
           {{ title }}
-          <button v-if="titleAdd && showAdd" type="button" class="btn btn-xs role-tertiary p-5 ml-10" style="position: relative; top: -3px;" @click="add()">
-            <i class="icon icon-plus icon-lg icon-fw" />
-          </button>
         </h3>
       </slot>
     </div>
 
-    <div class="kv-container" :class="{'extra-column':threeColumns, 'view':isView}">
-      <template v-if="rows.length || isView">
-        <label class="text-label" :class="{'view':isView}">
+    <div class="kv-container" :class="{'extra-column':threeColumns}">
+      <template v-if="rows.length">
+        <label class="text-label">
           {{ keyLabel }}
-          <i v-if="protip && !isView" v-tooltip="protip" class="icon icon-info" style="font-size: 14px" />
+          <i v-if="protip" v-tooltip="protip" class="icon icon-info" />
         </label>
-        <label class="text-label" :class="{'view':isView}">
+        <label class="text-label">
           {{ valueLabel }}
         </label>
-        <span v-if="threeColumns" :class="{'view':isView}" />
+        <span v-if="threeColumns" />
       </template>
-
-      <div v-if="isView && !rows.length" class="kv-row last" :class="{'extra-column':threeColumns}">
-        <div class="text-muted">
-          &mdash;
-        </div>
-        <div class="text-muted">
-          &mdash;
-        </div>
-        <div v-if="threeColumns" class="text-muted">
-          &mdash;
-        </div>
-      </div>
 
       <template v-for="(row,i) in rows">
         <div :key="i+'key'" class="kv-item key">
@@ -436,15 +374,11 @@ export default {
             :mode="mode"
             :keyName="keyName"
             :valueName="valueName"
-            :isView="isView"
           >
-            <div v-if="isView" class="view force-wrap">
-              {{ row[keyName] }}
-            </div>
             <input
-              v-else
               ref="key"
               v-model="row[keyName]"
+              :disabled="isView"
               :placeholder="keyPlaceholder"
               @input="queueUpdate"
               @paste="onPaste(i, $event)"
@@ -459,50 +393,26 @@ export default {
             :mode="mode"
             :keyName="keyName"
             :valueName="valueName"
-            :isView="isView"
             :queueUpdate="queueUpdate"
           >
-            <div v-if="isView" class="view force-wrap">
-              <span>
-                <template v-if="get(row, '_display.parsed') && !hideSensitive">
-                  <CodeMirror
-                    :options="{mode:{name:'javascript', json:true}, lineNumbers:false, foldGutter:false, readOnly:true}"
-                    :value="get(row, '_display.parsed')"
-                    :class="{'conceal':valueConcealed && hideSensitive}"
-                  />
-                </template>
-                <ClickExpand
-                  v-else-if="row._display.binary || row._display.isLarge"
-                  :value-binary="row._display.binary"
-                  :max-length="largeLimit/2"
-                  :value-concealed="!!valueConcealed && !!hideSensitive"
-                  :value="row[valueName]"
-                  :size="row._display.isLarge ? get(row, '_display.byteSize') : null"
-                />
-                <span v-else-if="get(row, '_display.withBreaks')" class="text-monospace" :class="{'conceal': hideSensitive}" v-html="get(row, '_display.withBreaks')" />
-                <span v-else class="text-muted">&mdash;</span>
-              </span>
-
-              <template v-if="!!row[valueName]">
-                <span v-if="row._display.binary" class="ml-10">
-                  <a @click="download(i, $event)">Download</a>
-                </span>
-                <button v-else class="btn role-link copy-value" @click="$copyText(row[valueName])">
-                  <i class="icon icon-copy" />
-                </button>
-              </template>
+            <div v-if="row.binary">
+              {{ t('detailText.binary', {n: row.value.length || 0}, true) }}
             </div>
             <TextAreaAutoGrow
               v-else-if="valueMultiline"
               v-model="row[valueName]"
+              :class="{'conceal': valueConcealed}"
+              :mode="mode"
               :placeholder="valuePlaceholder"
-              :min-height="50"
+              :min-height="54"
               :spellcheck="false"
               @input="queueUpdate"
             />
             <input
               v-else
               v-model="row[valueName]"
+              :disabled="isView"
+              :type="valueConcealed ? 'password' : 'text'"
               :placeholder="valuePlaceholder"
               autocorrect="off"
               autocapitalize="off"
@@ -512,9 +422,9 @@ export default {
           </slot>
         </div>
 
-        <div v-if="showRemove" :key="i" class="kv-item remove">
+        <div v-if="removeAllowed" :key="i" class="kv-item remove">
           <slot name="removeButton" :remove="remove" :row="row">
-            <button type="button" class="btn bg-transparent role-link" @click="remove(i)">
+            <button type="button" :disabled="isView" class="btn bg-transparent role-link" @click="remove(i)">
               {{ removeLabel || t('generic.remove') }}
             </button>
           </slot>
@@ -522,30 +432,25 @@ export default {
       </template>
     </div>
 
-    <div v-if="!titleAdd && (showAdd || showRead)" class="footer">
+    <div v-if="addAllowed || readAllowed" class="footer">
       <slot name="add" :add="add">
-        <ButtonDropdown size="sm">
-          <template #button-content>
-            <button v-if="showAdd" type="button" class="btn btn-sm add" @click="add()">
-              {{ addLabel }}
-            </button>
-            <FileSelector v-else class="btn-sm" :label="t('generic.readFromFile')" :include-file-name="true" @selected="onFileSelected" />
-          </template>
-          <template v-if="showRead && showAdd" #popover-content>
-            <ul class="list-unstyled">
-              <li>
-                <FileSelector class="btn-sm role-link" :label="readLabel" :include-file-name="true" @selected="onFileSelected" />
-              </li>
-            </ul>
-          </template>
-        </ButtonDropdown>
+        <button v-if="addAllowed" :disabled="isView" type="button" class="btn btn-sm role-tertiary add" @click="add()">
+          {{ addLabel }}
+        </button>
+        <FileSelector
+          v-if="readAllowed"
+          :disabled="isView"
+          class="btn-sm role-tertiary"
+          :label="t('generic.readFromFile')"
+          :include-file-name="true"
+          @selected="onFileSelected"
+        />
       </slot>
     </div>
   </div>
 </template>
 
 <style lang="scss">
-
 .key-value {
   width: 100%;
 
@@ -558,30 +463,21 @@ export default {
     display: grid;
     align-items: center;
     grid-template-columns: auto 1fr;
-    column-gap: $column-gutter;
+    column-gap: 20px;
 
-    .view{
-      overflow-wrap: break-word;
-      word-wrap: break-word;
-      -ms-word-break: break-all;
-      word-break: break-word;
-      display:flex;
-      align-items:start;
+    label {
+      margin-bottom: 0;
     }
 
     &.extra-column {
        grid-template-columns: 1fr 1fr 100px;
-       &.view{
-       grid-template-columns: auto 1fr 100px;
-
-       }
     }
 
     & .kv-item {
       width: 100%;
       margin: 10px 0px 10px 0px;
       &.key {
-        align-self: start;
+        align-self: flex-start;
       }
 
       .text-monospace:not(.conceal) {
@@ -592,7 +488,7 @@ export default {
   }
 
   .remove {
-    text-align: right;
+    text-align: center;
 
     BUTTON{
       padding: 0px;
@@ -608,7 +504,7 @@ export default {
   }
 
   input {
-    height: 50px;
+    height: $input-height;
   }
 
   .footer {

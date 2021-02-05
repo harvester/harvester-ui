@@ -27,9 +27,10 @@ export default {
       default: 'create'
     }
   },
+
   data() {
     const {
-      failedJobsHistoryLimit, successfulJobsHistoryLimit, suspend = false, schedule
+      failedJobsHistoryLimit, successfulJobsHistoryLimit, suspend = false, schedule,
     } = this.value;
 
     if (this.type === WORKLOAD_TYPES.CRON_JOB) {
@@ -38,28 +39,33 @@ export default {
       }
       const { concurrencyPolicy = 'Allow', startingDeadlineSeconds } = this.value;
       const {
-        completions, parallelism, backoffLimit, activeDeadlineSeconds
+        completions, parallelism, backoffLimit, activeDeadlineSeconds,
+        template:{ spec: { terminationGracePeriodSeconds } }
+
       } = this.value.jobTemplate.spec;
 
       return {
-        completions, parallelism, backoffLimit, activeDeadlineSeconds, failedJobsHistoryLimit, successfulJobsHistoryLimit, suspend, schedule, concurrencyPolicy, startingDeadlineSeconds
+        completions, parallelism, backoffLimit, activeDeadlineSeconds, failedJobsHistoryLimit, successfulJobsHistoryLimit, suspend, schedule, concurrencyPolicy, startingDeadlineSeconds, terminationGracePeriodSeconds
       };
     } else {
       const {
-        completions, parallelism, backoffLimit, activeDeadlineSeconds
+        completions, parallelism, backoffLimit, activeDeadlineSeconds,
+        template:{ spec: { terminationGracePeriodSeconds } }
       } = this.value;
 
       return {
-        completions, parallelism, backoffLimit, activeDeadlineSeconds, failedJobsHistoryLimit, successfulJobsHistoryLimit, suspend, schedule
+        completions, parallelism, backoffLimit, activeDeadlineSeconds, failedJobsHistoryLimit, successfulJobsHistoryLimit, suspend, schedule, terminationGracePeriodSeconds
       };
     }
   },
+
   computed: {
     isCronJob() {
       return this.type === WORKLOAD_TYPES.CRON_JOB;
     },
     ...mapGetters({ t: 'i18n/t' })
   },
+
   methods: {
     update() {
       if (this.type === WORKLOAD_TYPES.JOB) {
@@ -73,6 +79,8 @@ export default {
           activeDeadlineSeconds: this.activeDeadlineSeconds,
         };
 
+        spec.template.spec.terminationGracePeriodSeconds = this.terminationGracePeriodSeconds;
+
         this.$emit('input', spec);
       } else {
         const spec = {
@@ -82,18 +90,23 @@ export default {
           suspend:                    this.suspend,
           concurrencyPolicy:          this.concurrencyPolicy,
           startingDeadlineSeconds:    this.startingDeadlineSeconds,
-          jobTemplate:                {
-            ...this.value.jobTemplate,
-            completions:           this.completions,
-            parallelism:           this.parallelism,
-            backoffLimit:          this.backoffLimit,
-            activeDeadlineSeconds: this.activeDeadlineSeconds
-          }
+          jobTemplate:                { ...this.value.jobTemplate }
         };
+        const jobSpec = {
+          completions:           this.completions,
+          parallelism:           this.parallelism,
+          backoffLimit:          this.backoffLimit,
+          activeDeadlineSeconds: this.activeDeadlineSeconds
+        };
+
+        Object.assign(spec.jobTemplate.spec, jobSpec );
+
+        spec.jobTemplate.spec.template.spec.terminationGracePeriodSeconds = this.terminationGracePeriodSeconds;
 
         this.$emit('input', spec);
       }
-    }
+    },
+
   }
 };
 </script>
@@ -102,92 +115,83 @@ export default {
   <form @input="update">
     <div class="row mb-20">
       <div class="col span-6">
-        <UnitInput v-model="completions" :mode="mode" :suffix="t('suffix.times', {count: completions})">
-          <template #label>
-            <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-              {{ t('workload.job.completions.label') }}
-              <i v-tooltip="t('workload.job.completions.tip')" class="icon icon-info" style="font-size: 14px" />
-            </label>
-          </template>
-        </UnitInput>
+        <UnitInput
+          v-model="completions"
+          :mode="mode"
+          :suffix="t('suffix.times', {count: completions})"
+          label-key="workload.job.completions.label"
+          tooltip-key="workload.job.completions.tip"
+        />
       </div>
       <div class="col span-6">
-        <UnitInput v-model="parallelism" :mode="mode" class="col span-6" :suffix="t('suffix.times', {count: parallelism})">
-          <template #label>
-            <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-              {{ t('workload.job.parallelism.label') }}
-              <i v-tooltip="t('workload.job.parallelism.tip')" class="icon icon-info" style="font-size: 14px" />
-            </label>
-          </template>
-        </UnitInput>
+        <UnitInput
+          v-model="parallelism"
+          :mode="mode"
+          :suffix="t('suffix.times', {count: parallelism})"
+          label-key="workload.job.parallelism.label"
+          tooltip-key="workload.job.parallelism.tip"
+        />
       </div>
     </div>
     <div class="row mb-20">
       <div class="col span-6">
-        <UnitInput v-model="backoffLimit" :mode="mode" :suffix="t('suffix.times', {count: backoffLimit})">
-          <template #label>
-            <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-              {{ t('workload.job.backoffLimit.label') }}
-              <i v-tooltip="t('workload.job.backoffLimit.tip')" class="icon icon-info" style="font-size: 14px" />
-            </label>
-          </template>
-        </UnitInput>
+        <UnitInput
+          v-model="backoffLimit"
+          :mode="mode"
+          :suffix="t('suffix.times', {count: backoffLimit})"
+          label-key="workload.job.backoffLimit.label"
+          tooltip-key="workload.job.backoffLimit.tip"
+        />
       </div>
       <div class="col span-6">
-        <UnitInput v-model="activeDeadlineSeconds" :mode="mode" :suffix="t('suffix.seconds', {count: activeDeadlineSeconds})">
-          <template #label>
-            <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-              {{ t('workload.job.activeDeadlineSeconds.label') }}
-              <i v-tooltip="t('workload.job.activeDeadlineSeconds.tip')" class="icon icon-info" style="font-size: 14px" />
-            </label>
-          </template>
-        </UnitInput>
+        <UnitInput
+          v-model="activeDeadlineSeconds"
+          :mode="mode"
+          :suffix="t('suffix.seconds', {count: activeDeadlineSeconds})"
+          label-key="workload.job.activeDeadlineSeconds.label"
+          tooltip-key="workload.job.activeDeadlineSeconds.tip"
+        />
       </div>
     </div>
+
     <template v-if="isCronJob">
-      <div class="row mb-20">
+      <div class="row  mb-20">
         <div class="col span-6">
-          <LabeledInput v-model.number="successfulJobsHistoryLimit" :mode="mode">
-            <template #label>
-              <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-                {{ t('workload.job.successfulJobsHistoryLimit.label') }}
-                <i v-tooltip="t('workload.job.successfulJobsHistoryLimit.tip')" class="icon icon-info" style="font-size: 14px" />
-              </label>
-            </template>
-          </LabeledInput>
+          <LabeledInput
+            v-model.number="successfulJobsHistoryLimit"
+            :mode="mode"
+            label-key="workload.job.successfulJobsHistoryLimit.label"
+            tooltip-key="workload.job.successfulJobsHistoryLimit.tip"
+          />
         </div>
         <div class="col span-6">
-          <LabeledInput v-model.number="failedJobsHistoryLimit" :mode="mode">
-            <template #label>
-              <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-                {{ t('workload.job.failedJobsHistoryLimit.label') }}
-                <i v-tooltip="t('workload.job.failedJobsHistoryLimit.tip')" class="icon icon-info" style="font-size: 14px" />
-              </label>
-            </template>
-          </LabeledInput>
+          <LabeledInput
+            v-model.number="failedJobsHistoryLimit"
+            :mode="mode"
+            label-key="workload.job.failedJobsHistoryLimit.label"
+            tooltip-key="workload.job.failedJobsHistoryLimit.tip"
+          />
         </div>
       </div>
       <div class="row mb-20">
         <div class="col span-6">
-          <UnitInput v-model="startingDeadlineSeconds" :mode="mode" :suffix="t('suffix.seconds', {count: startingDeadlineSeconds})">
+          <UnitInput
+            v-model="startingDeadlineSeconds"
+            :mode="mode"
+            :suffix="t('suffix.seconds', {count: startingDeadlineSeconds})"
+            label-key="workload.job.startingDeadlineSeconds.label"
+            tooltip-key="workload.job.startingDeadlineSeconds.tip"
+          />
+        </div>
+        <div class="col span-6">
+          <UnitInput v-model="terminationGracePeriodSeconds" :suffix="terminationGracePeriodSeconds == 1 ? 'Second' : 'Seconds'" :label="t('workload.upgrading.activeDeadlineSeconds.label')" :mode="mode">
             <template #label>
               <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
-                {{ t('workload.job.startingDeadlineSeconds.label') }}
-                <i v-tooltip="t('workload.job.startingDeadlineSeconds.tip')" class="icon icon-info" style="font-size: 14px" />
+                {{ t('workload.upgrading.terminationGracePeriodSeconds.label') }}
+                <i v-tooltip="t('workload.upgrading.terminationGracePeriodSeconds.tip')" class="icon icon-info" />
               </label>
             </template>
           </UnitInput>
-        </div>
-        <div class="col span-6">
-          <RadioGroup
-            v-model="suspend"
-            :mode="mode"
-            :label="t('workload.job.suspend')"
-            name="suspend"
-            :options="[true, false]"
-            :labels="['Yes', 'No']"
-            @input="update"
-          />
         </div>
       </div>
       <div class="row">
@@ -202,7 +206,30 @@ export default {
             @input="update"
           />
         </div>
+        <div class="col span-6">
+          <RadioGroup
+            v-model="suspend"
+            :mode="mode"
+            :label="t('workload.job.suspend')"
+            name="suspend"
+            :options="[true, false]"
+            :labels="['Yes', 'No']"
+            @input="update"
+          />
+        </div>
       </div>
     </template>
+    <div v-else class="row">
+      <div class="col span-6">
+        <UnitInput v-model="terminationGracePeriodSeconds" :suffix="terminationGracePeriodSeconds == 1 ? 'Second' : 'Seconds'" :label="t('workload.upgrading.activeDeadlineSeconds.label')" :mode="mode">
+          <template #label>
+            <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
+              {{ t('workload.upgrading.terminationGracePeriodSeconds.label') }}
+              <i v-tooltip="t('workload.upgrading.terminationGracePeriodSeconds.tip')" class="icon icon-info" />
+            </label>
+          </template>
+        </UnitInput>
+      </div>
+    </div>
   </form>
 </template>

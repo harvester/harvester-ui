@@ -2,6 +2,7 @@ import r from 'jsrsasign';
 import { CERTMANAGER, KUBERNETES } from '@/config/labels-annotations';
 import { base64Decode } from '@/utils/crypto';
 import { removeObjects } from '@/utils/array';
+import { SERVICE_ACCOUNT } from '@/config/types';
 
 export const TYPES = {
   OPAQUE:        'Opaque',
@@ -15,20 +16,6 @@ export const TYPES = {
   ISTIO_TLS:     'istio.io/key-and-cert',
   HELM_RELEASE:  'helm.sh/release.v1',
   FLEET_CLUSTER:  'fleet.cattle.io/cluster-registration-values',
-};
-
-export const DISPLAY_TYPES = {
-  [TYPES.OPAQUE]:        'Opaque',
-  [TYPES.SERVICE_ACCT]:  'Svc Acct Token',
-  [TYPES.DOCKER]:        'Registry',
-  [TYPES.DOCKER_JSON]:   'Registry',
-  [TYPES.BASIC]:         'Basic Auth',
-  [TYPES.SSH]:           'SSH',
-  [TYPES.TLS]:           'Certificate',
-  [TYPES.BOOTSTRAP]:     'Bootstrap Token',
-  [TYPES.ISTIO_TLS]:     'Certificate (Istio)',
-  [TYPES.HELM_RELEASE]:  'Helm Release',
-  [TYPES.FLEET_CLUSTER]: 'Fleet Cluster'
 };
 
 export default {
@@ -101,29 +88,46 @@ export default {
   },
 
   details() {
-    const columns = [
+    const out = [
       {
         label:   this.t('secret.type'),
         content: this.typeDisplay
       }
     ];
 
+    if ( this._type === TYPES.SERVICE_ACCT ) {
+      const name = this.metadata?.annotations?.[KUBERNETES.SERVICE_ACCOUNT_NAME];
+
+      if ( name ) {
+        out.push({
+          label:         'Service Account',
+          formatter:     'LinkName',
+          formatterOpts: {
+            value:     name,
+            type:      SERVICE_ACCOUNT,
+            namespace: this.namespace,
+          },
+          content: name,
+        });
+      }
+    }
+
     if (this.cn) {
-      columns.push({
+      out.push({
         label:   this.t('secret.certificate.cn'),
         content: this.plusMoreNames ? `${ this.cn } ${ this.t('secret.certificate.plusMore', { n: this.plusMoreNames }) }` : this.cn
       });
     }
 
     if (this.issuer) {
-      columns.push({
+      out.push({
         label:   this.t('secret.certificate.issuer'),
         content: this.issuer
       });
     }
 
     if (this.notAfter) {
-      columns.push({
+      out.push({
         label:         'Expires',
         formatter:     'Date',
         formatterOpts: { class: this.dateClass },
@@ -131,11 +135,19 @@ export default {
       });
     }
 
-    return columns;
+    return out;
   },
 
   canUpdate() {
-    return this.hasLink('update') && this.$rootGetters['type-map/isEditable'](this.type) && this.secretType !== TYPES.SERVICE_ACCT;
+    if ( !this.hasLink('update') ) {
+      return false;
+    }
+
+    if ( this.secretType === TYPES.SERVICE_ACCT ) {
+      return false;
+    }
+
+    return this.$rootGetters['type-map/optionsFor'](this.type).isEditable;
   },
 
   keysDisplay() {
@@ -222,37 +234,10 @@ export default {
   },
 
   typeDisplay() {
-    const mapped = DISPLAY_TYPES[this._type];
+    const type = this._type || '';
+    const fallback = type.replace(/^kubernetes.io\//, '');
 
-    if ( mapped ) {
-      return mapped;
-    }
-
-    return (this._type || '').replace(/^kubernetes.io\//, '');
-  },
-
-  tableTypeDisplay() {
-    if (this._type === TYPES.SERVICE_ACCT) {
-      return { typeDisplay: this.typeDisplay, serviceAccountID: this.serviceAccountID };
-    } else {
-      return this.typeDisplay;
-    }
-  },
-
-  serviceAccountID() {
-    if (this.secretType === TYPES.SERVICE_ACCT) {
-      const name = this.metadata.annotations[KUBERNETES.SERVICE_ACCOUNT_NAME];
-      const namespace = this.namespace;
-      let fqid = name;
-
-      if (namespace ) {
-        fqid = `${ namespace }/${ name }`;
-      }
-
-      return fqid;
-    }
-
-    return null;
+    return this.$rootGetters['i18n/withFallback'](`secret.types."${ type }"`, null, fallback);
   },
 
   // parse TLS certs and return issuer, notAfter, cn, sans

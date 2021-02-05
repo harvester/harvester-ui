@@ -2,7 +2,7 @@
 import isEqual from 'lodash/isEqual';
 import jsyaml from 'js-yaml';
 import merge from 'lodash/merge';
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 
 import AsyncButton from '@/components/AsyncButton';
 import Banner from '@/components/Banner';
@@ -21,13 +21,14 @@ import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
 
 import { CATALOG, MANAGEMENT } from '@/config/types';
 import {
-  REPO_TYPE, REPO, CHART, VERSION, NAMESPACE, NAME, DESCRIPTION as DESCRIPTION_QUERY, _CREATE, _EDIT,
+  REPO_TYPE, REPO, CHART, VERSION, NAMESPACE, NAME, DESCRIPTION as DESCRIPTION_QUERY, _CREATE, _EDIT, _FLAGGED,
 } from '@/config/query-params';
 import { CATALOG as CATALOG_ANNOTATIONS, DESCRIPTION as DESCRIPTION_ANNOTATION } from '@/config/labels-annotations';
 import { exceptionToErrorsArray, stringify } from '@/utils/error';
 import { clone, diff, get, set } from '@/utils/object';
-import { findBy } from '@/utils/array';
+import { findBy, insertAt } from '@/utils/array';
 import ChildHook, { BEFORE_SAVE_HOOKS, AFTER_SAVE_HOOKS } from '@/mixins/child-hook';
+import sortBy from 'lodash/sortBy';
 
 export default {
   name: 'Install',
@@ -57,6 +58,9 @@ export default {
     this.errors = [];
 
     const query = this.$route.query;
+
+    this.showDeprecated = query['deprecated'] === _FLAGGED;
+    this.showHidden = query['hidden'] === _FLAGGED;
 
     await this.$store.dispatch('catalog/load');
 
@@ -170,14 +174,14 @@ export default {
       });
     } catch (e) {
       console.error(e); // eslint-disable-line no-console
-      throw e;
+      this.versionInfo = null;
     }
 
     if ( this.version && process.client ) {
       await this.loadValuesComponent();
     }
 
-    const required = (this.version.annotations?.[CATALOG_ANNOTATIONS.REQUIRES_GVK] || '').split(/\s*,\s*/).filter(x => !!x).reverse();
+    const required = (this.version?.annotations?.[CATALOG_ANNOTATIONS.REQUIRES_GVK] || '').split(/\s*,\s*/).filter(x => !!x).reverse();
 
     if ( required.length ) {
       for ( const gvr of required ) {
@@ -238,7 +242,7 @@ export default {
       }
 
       this.removeGlobalValuesFrom(userValues);
-      this.chartValues = merge(merge({}, this.versionInfo.values), userValues);
+      this.chartValues = merge(merge({}, this.versionInfo?.values || {}), userValues);
       this.valuesYaml = jsyaml.safeDump(this.chartValues || {});
 
       if ( this.valuesYaml === '{}\n' ) {
@@ -250,13 +254,15 @@ export default {
         this.originalYamlValues = this.valuesYaml;
       }
 
-      this.loadedVersionValues = this.versionInfo.values;
-      this.loadedVersion = this.version.key;
+      this.loadedVersionValues = this.versionInfo?.values || {};
+      this.loadedVersion = this.version?.key;
     }
   },
 
   data() {
     return {
+      showHidden:             false,
+      showDeprecated:         false,
       defaultRegistrySetting: null,
       chart:                  null,
       chartValues:            null,
@@ -294,10 +300,13 @@ export default {
 
       historyMax: 5,
       timeout:    600,
+
+      catalogOSAnnotation: CATALOG_ANNOTATIONS.SUPPORTED_OS,
     };
   },
 
   computed: {
+    ...mapGetters(['currentCluster']),
     ...mapState(['isMultiCluster']),
 
     namespaceIsNew() {
@@ -343,15 +352,39 @@ export default {
     },
 
     charts() {
-      const currentKey = this.existing?.matchingChart(true)?.key;
+      const current = this.existing?.matchingChart(true);
 
-      return this.$store.getters['catalog/charts'].filter((x) => {
-        if ( x.key === currentKey ) {
+      const out = this.$store.getters['catalog/charts'].filter((x) => {
+        if ( x.key === current?.key || x.chartName === current?.chartName ) {
           return true;
         }
 
-        return !x.deprecated && !x.hidden;
+        if ( x.hidden && !this.showHidden ) {
+          return false;
+        }
+
+        if ( x.deprecated && !this.showDeprecated ) {
+          return false;
+        }
+
+        return true;
       });
+
+      let last = '';
+
+      for ( let i = 0 ; i < out.length ; i++ ) {
+        if ( out[i].repoName !== last ) {
+          last = out[i].repoName;
+          insertAt(out, i, {
+            kind:     'label',
+            label:    out[i].repoNameDisplay,
+            disabled: true
+          });
+          i++;
+        }
+      }
+
+      return out;
     },
 
     repo() {
@@ -398,6 +431,49 @@ export default {
 
     showingYaml() {
       return this.showPreview || ( !this.valuesComponent && !this.hasQuestions );
+    },
+
+    filteredVersions() {
+      const {
+        currentCluster,
+        catalogOSAnnotation,
+      } = this;
+      const versions = this.chart?.versions || [];
+      const selectedVersion = this.version?.version;
+      const clusterProvider = currentCluster.status.provider || 'other';
+      const out = [];
+
+      versions.forEach((version) => {
+        const nue = {
+          label:    version.version,
+          id:       version.version,
+          disabled: false,
+        };
+
+        if ( version?.annotations?.[catalogOSAnnotation] === 'windows' ) {
+          nue.label = this.t('catalog.install.versions.windows', { ver: version.version });
+
+          if (clusterProvider !== 'rke.windows') {
+            nue.disabled = true;
+          }
+        } else if ( version?.annotations?.[catalogOSAnnotation] === 'linux' ) {
+          nue.label = this.t('catalog.install.versions.linux', { ver: version.version });
+
+          if (clusterProvider === 'rke.windows') {
+            nue.disabled = true;
+          }
+        }
+
+        out.push(nue);
+      });
+
+      const selectedMatch = out.find(v => v.id === selectedVersion);
+
+      if (!selectedMatch) {
+        out.push({ value: selectedVersion, label: this.t('catalog.install.versions.current', { ver: selectedVersion }) });
+      }
+
+      return sortBy(out, 'id');
     },
   },
 
@@ -461,7 +537,7 @@ export default {
       });
     },
 
-    selectVersion(version) {
+    selectVersion({ id: version }) {
       this.$router.applyQuery({ [VERSION]: version });
     },
 
@@ -803,23 +879,31 @@ export default {
       <div class="row mb-20">
         <div class="col span-6">
           <LabeledSelect
-            label="Chart"
+            :label="t('catalog.install.chart')"
             :value="chart"
             :options="charts"
+            :selectable="option => !option.disabled"
             :get-option-label="opt => getOptionLabel(opt)"
             option-key="key"
             @input="selectChart($event)"
-          />
+          >
+            <template v-slot:option="opt">
+              <template v-if="opt.kind === 'divider'">
+                <hr />
+              </template>
+              <template v-else-if="opt.kind === 'label'">
+                <b style="position: relative; left: -10px;">{{ opt.label }}</b>
+              </template>
+            </template>
+          </LabeledSelect>
         </div>
         <div v-if="chart" class="col span-6">
           <LabeledSelect
-            label="Version"
+            :label="t('catalog.install.version')"
             :value="$route.query.version"
-            option-label="version"
-            option-key="version"
-            :reduce="opt=>opt.version"
-            :options="chart.versions"
-            @input="selectVersion($event)"
+            :options="filteredVersions"
+            :selectable="version => !version.disabled"
+            @input="selectVersion"
           />
         </div>
       </div>
@@ -828,6 +912,7 @@ export default {
           v-model="value"
           :mode="mode"
           :name-disabled="nameDisabled"
+          :name-required="false"
           :name-ns-hidden="!showNameEditor"
           :force-namespace="forceNamespace"
           :namespace-new-allowed="!existing && !forceNamespace"

@@ -10,6 +10,8 @@ import { sortBy } from '@/utils/sort';
 import { filterBy, findBy } from '@/utils/array';
 import { BOTH, CLUSTER_LEVEL, NAMESPACED } from '@/store/type-map';
 import { NAME as EXPLORER } from '@/config/product/explorer';
+import { TIMED_OUT } from '@/config/query-params';
+
 // Disables strict mode for all store instances to prevent warning about changing state outside of mutations
 // becaues it's more efficient to do that sometimes.
 export const strict = false;
@@ -112,11 +114,15 @@ export const getters = {
       return true;
     }
 
-    return state.namespaceFilters.filter(x => !x.startsWith('namespaced://')).length === 0;
+    return state.namespaceFilters.filter(x => !`${ x }`.startsWith('namespaced://')).length === 0;
   },
 
   isMultipleNamespaces(state, getters) {
     const product = getters['currentProduct'];
+
+    if ( !product ) {
+      return true;
+    }
 
     if ( product.showWorkspaceSwitcher ) {
       return false;
@@ -171,6 +177,10 @@ export const getters = {
       const product = getters['currentProduct'];
       const workspace = state.workspace;
 
+      if ( !product ) {
+        return out;
+      }
+
       if ( product.showWorkspaceSwitcher ) {
         return { [workspace]: true };
       }
@@ -183,7 +193,7 @@ export const getters = {
       }
 
       const namespaces = getters[`${ inStore }/all`](NAMESPACE);
-      const filters = state.namespaceFilters.filter(x => !x.startsWith('namespaced://'));
+      const filters = state.namespaceFilters.filter(x => !!x && !`${ x }`.startsWith('namespaced://'));
       const includeAll = getters.isAllNamespaces;
       const includeSystem = filters.includes('all://system');
       const includeUser = filters.includes('all://user');
@@ -231,7 +241,13 @@ export const getters = {
   },
 
   defaultNamespace(state, getters, rootState, rootGetters) {
-    const inStore = getters['currentProduct'].inStore;
+    const product = getters['currentProduct'];
+
+    if ( !product ) {
+      return 'default';
+    }
+
+    const inStore = product.inStore;
     const filteredMap = getters['namespaces']();
     const isAll = getters['isAllNamespaces'];
     const all = getters[`${ inStore }/all`](NAMESPACE).map(x => x.id);
@@ -313,7 +329,7 @@ export const mutations = {
   },
 
   updateNamespaces(state, { filters, all }) {
-    state.namespaceFilters = filters.slice();
+    state.namespaceFilters = filters.filter(x => !!x);
 
     if ( all ) {
       state.allNamespaces = all;
@@ -385,6 +401,7 @@ export const actions = {
     });
 
     const isMultiCluster = !!getters['management/schemaFor'](MANAGEMENT.PROJECT);
+
     const promises = {
       // Clusters guaranteed always available or your money back
       // clusters: dispatch('management/findAll', {
@@ -392,6 +409,11 @@ export const actions = {
       //   opt:  { url: MANAGEMENT.CLUSTER }
       // }),
     };
+
+    if ( isMultiCluster ) {
+      promises['rancherSubscribe'] = dispatch('rancher/subscribe');
+      promises['rancherSchema'] = dispatch('rancher/loadSchemas', true);
+    }
 
     if ( getters['management/schemaFor'](COUNT) ) {
       promises['counts'] = dispatch('management/findAll', { type: COUNT });
@@ -535,7 +557,7 @@ export const actions = {
     commit('updateNamespaces', { filters: value });
   },
 
-  async onLogout({ dispatch, commit }) {
+  async onLogout({ dispatch, commit, state }) {
     await dispatch('management/unsubscribe');
     commit('managementChanged', { ready: false });
     commit('management/reset');
@@ -547,6 +569,15 @@ export const actions = {
     await dispatch('clusterExternal/unsubscribe');
     commit('rancher/reset');
     commit('catalog/reset');
+
+    const router = state.$router;
+    const route = router.currentRoute;
+
+    if ( route.name === 'index' ) {
+      router.replace('/auth/login');
+    } else {
+      router.replace(`/auth/login?${ TIMED_OUT }`);
+    }
   },
 
   nuxtServerInit({ dispatch, rootState }, nuxt) {
@@ -559,14 +590,21 @@ export const actions = {
   nuxtClientInit({ dispatch, rootState }, nuxt) {
     Object.defineProperty(rootState, '$router', { value: nuxt.app.router });
     Object.defineProperty(rootState, '$route', { value: nuxt.route });
+
     dispatch('management/rehydrateSubscribe');
     dispatch('cluster/rehydrateSubscribe');
+    if ( rootState.isMultiCluster ) {
+      dispatch('rancher/rehydrateSubscribe');
+    }
+
     dispatch('prefs/loadCookies');
     dispatch('prefs/loadTheme');
   },
 
-  loadingError({ commit, redirect }, err) {
+  loadingError({ commit, state }, err) {
     commit('setError', err);
-    redirect('/fail-whale');
+    const router = state.$router;
+
+    router.replace('/fail-whale');
   }
 };

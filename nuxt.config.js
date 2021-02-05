@@ -182,6 +182,16 @@ module.exports = {
         options: { name: '[path][name].[ext]' },
       });
 
+      config.module.rules.unshift({
+        test:    /\.csv$/i,
+        loader:  'csv-loader',
+        options: {
+          dynamicTyping:  true,
+          header:         true,
+          skipEmptyLines: true
+        },
+      });
+
       // Run ESLint on save
       if (isDev && isClient) {
         config.module.rules.push({
@@ -295,6 +305,7 @@ module.exports = {
     '/v3-public': proxyOpts(api), // Rancher Unauthed API
     '/api-ui':    proxyOpts(api), // Browser API UI
     '/meta':      proxyOpts(api), // Browser API UI
+    '/v1-saml':    proxyOpts(api)
   },
 
   // Nuxt server

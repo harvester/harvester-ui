@@ -21,6 +21,7 @@ function SteveFactory(namespace, baseUrl) {
         },
         types:        {},
         socket:       null,
+        queue:        [],
         wantSocket:   false,
         pendingSends: [],
         started:      [],
@@ -98,6 +99,10 @@ export default (config = {}) => {
     // Turn all the objects in data from the server into the object from the store;
     if ( state && fromServer?.data ) {
       fromServer.data = recurse(fromServer.data);
+    }
+
+    if ( state && fromServer?.fetch ) {
+      fromServer.fetch = recurse(fromServer.fetch);
     }
 
     function recurse(obj, parent, key) {

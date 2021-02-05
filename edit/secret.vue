@@ -7,12 +7,13 @@ import KeyValue from '@/components/form/KeyValue';
 import LabeledInput from '@/components/form/LabeledInput';
 import RadioGroup from '@/components/form/RadioGroup';
 import NameNsDescription from '@/components/form/NameNsDescription';
-import ResourceTabs from '@/components/form/ResourceTabs';
 import FileSelector, { createOnSelected } from '@/components/form/FileSelector';
 import CruResource from '@/components/CruResource';
 import { _CREATE } from '@/config/query-params';
+import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import Labels from '@/components/form/Labels';
+import { HIDE_SENSITIVE } from '@/store/prefs';
 
 const types = [
   TYPES.OPAQUE,
@@ -22,7 +23,7 @@ const types = [
   TYPES.BASIC,
 ];
 const registryAddresses = [
-  'DockerHub', 'Quay.io', 'Artifactory', 'Custom'
+  'Custom', 'DockerHub', 'Quay.io', 'Artifactory',
 ];
 
 const VALID_DATA_KEY = /^[-._a-zA-Z0-9]*$/;
@@ -36,8 +37,8 @@ export default {
     LabeledInput,
     RadioGroup,
     NameNsDescription,
-    ResourceTabs,
     CruResource,
+    Tabbed,
     Tab,
     Labels
   },
@@ -174,6 +175,23 @@ export default {
 
     needsDockerServer() {
       return this.registryProvider === 'Artifactory' || this.registryProvider === 'Custom';
+    },
+
+    hideSensitiveData() {
+      return this.$store.getters['prefs/get'](HIDE_SENSITIVE);
+    },
+
+    dataLabel() {
+      switch (this.value._type) {
+      case TYPES.TLS:
+        return this.t('secret.certificate.certificate');
+      case TYPES.SSH:
+        return this.t('secret.ssh.keys');
+      case TYPES.BASIC:
+        return this.t('secret.authentication');
+      default:
+        return this.t('secret.data');
+      }
     }
   },
 
@@ -227,6 +245,7 @@ export default {
 
     selectType(type) {
       this.$set(this.value, '_type', type);
+      this.$emit('set-subtype', DISPLAY_TYPES[type]);
     },
 
     // TODO icons for secret types?
@@ -261,14 +280,11 @@ export default {
       <NameNsDescription v-model="value" :mode="mode" />
 
       <div class="spacer"></div>
-      <ResourceTabs v-if="!isView" v-model="value" :side-tabs="true" :mode="mode">
-        <Tab name="data" label="Data">
+      <Tabbed :side-tabs="true" default-tab="data">
+        <Tab name="data" :label="dataLabel">
           <template v-if="isRegistry">
             <div id="registry-type" class="row mb-10">
               <div class="col span-12">
-                <h3>
-                  {{ t('secret.registry.address') }}
-                </h3>
                 <RadioGroup
                   v-model="registryProvider"
                   name="registryProvider"
@@ -278,7 +294,7 @@ export default {
               </div>
             </div>
             <div v-if="needsDockerServer" class="row mb-20">
-              <LabeledInput v-model="registryURL" :label="t('secret.registry.domainName')" placeholder="e.g. index.docker.io" :mode="mode" />
+              <LabeledInput v-model="registryURL" required :label="t('secret.registry.domainName')" placeholder="e.g. index.docker.io" :mode="mode" />
             </div>
             <div class="row mb-20">
               <div class="col span-6">
@@ -290,27 +306,37 @@ export default {
             </div>
           </template>
 
-          <div v-else-if="isCertificate" class="row mb-20">
-            <div class="col span-6">
-              <LabeledInput
-                v-model="key"
-                type="multiline"
-                :label="t('secret.certificate.privateKey')"
-                :mode="mode"
-                placeholder="Paste in the private key, typically starting with -----BEGIN RSA PRIVATE KEY-----"
-              />
-              <FileSelector class="btn btn-sm bg-primary mt-10" :label="t('generic.readFromFile')" @selected="onKeySelected" />
+          <template v-else-if="isCertificate">
+            <div class="row mb-20">
+              <div class="col span-6">
+                <LabeledInput
+                  v-model="key"
+                  required
+                  type="multiline"
+                  :label="t('secret.certificate.privateKey')"
+                  :mode="mode"
+                  placeholder="Paste in the private key, typically starting with -----BEGIN RSA PRIVATE KEY-----"
+                />
+                <FileSelector class="btn btn-sm bg-primary mt-10" :label="t('generic.readFromFile')" @selected="onKeySelected" />
+              </div>
+              <div class="col span-6">
+                <LabeledInput
+                  v-model="crt"
+                  required
+                  type="multiline"
+                  :label="t('secret.certificate.certificate')"
+                  :mode="mode"
+                  placeholder="Paste in the CA certificate, starting with -----BEGIN CERTIFICATE----"
+                />
+                <FileSelector class="btn btn-sm bg-primary mt-10" :label="t('generic.readFromFile')" @selected="onCrtSelected" />
+              </div>
             </div>
-            <div class="col span-6">
-              <LabeledInput v-model="crt" type="multiline" :label="t('secret.certificate.caCertificate')" :mode="mode" placeholder="Paste in the CA certificate, starting with -----BEGIN CERTIFICATE----" />
-              <FileSelector class="btn btn-sm bg-primary mt-10" :label="t('generic.readFromFile')" @selected="onCrtSelected" />
-            </div>
-          </div>
+          </template>
 
           <template v-else-if="isBasicAuth">
             <div class="row mb-20">
               <div class="col span-6">
-                <LabeledInput v-model="username" :label="t('secret.basic.username')" :mode="mode" />
+                <LabeledInput v-model="username" required :label="t('secret.basic.username')" :mode="mode" />
               </div>
               <div class="col span-6">
                 <LabeledInput v-model="password" :label="t('secret.basic.password')" :mode="mode" type="password" />
@@ -326,6 +352,7 @@ export default {
                   type="multiline"
                   :label="t('secret.ssh.public')"
                   :mode="mode"
+                  required
                   placeholder="Paste in your public key"
                 />
                 <FileSelector class="btn btn-sm bg-primary mt-10" :label="t('generic.readFromFile')" @selected="onUsernameSelected" />
@@ -336,6 +363,7 @@ export default {
                   type="multiline"
                   :label="t('secret.ssh.private')"
                   :mode="mode"
+                  required
                   placeholder="Paste in your private key"
                 />
                 <FileSelector class="btn btn-sm bg-primary mt-10" :label="t('generic.readFromFile')" @selected="onPasswordSelected" />
@@ -348,9 +376,9 @@ export default {
               key="data"
               v-model="value.data"
               :mode="mode"
-              title="Data"
               :initial-empty-row="true"
               :value-base64="true"
+              :value-concealed="isView && hideSensitiveData"
               :file-modifier="fileModifier"
               read-icon=""
               add-icon=""
@@ -360,7 +388,7 @@ export default {
         <Tab name="labels" :label="t('generic.labelsAndAnnotations')">
           <Labels v-model="value" :mode="mode" />
         </Tab>
-      </ResourceTabs>
+      </Tabbed>
     </CruResource>
   </form>
 </template>

@@ -3,6 +3,7 @@ import { mapState } from 'vuex';
 import debounce from 'lodash/debounce';
 import { findBy } from '@/utils/array';
 import { EXTENDED_SCOPES } from '@/store/github';
+import LabeledSelect from '@/components/form/LabeledSelect';
 
 export const FILE_PATTERNS = {
   dockerfile: /^Dockerfile(\..*)?$/i,
@@ -11,7 +12,8 @@ export const FILE_PATTERNS = {
 };
 
 export default {
-  props: {
+  components: { LabeledSelect },
+  props:      {
     value: {
       type:     Object,
       required: true,
@@ -168,9 +170,10 @@ export default {
 
     async expandScope() {
       await this.$store.dispatch('github/forgetCache');
-      this.$store.dispatch('auth/redirectToGithub', {
-        scopes: EXTENDED_SCOPES,
-        backTo: this.$route.fullPath
+      this.$store.dispatch('auth/redirectTo', {
+        provider: 'github',
+        scopes:   EXTENDED_SCOPES,
+        backTo:   this.$route.fullPath
       });
     },
 
@@ -280,7 +283,7 @@ export default {
     </div>
     <div class="row">
       <div class="col span-4">
-        <v-select
+        <LabeledSelect
           :placeholder="repoPlaceholder"
           :disabled="loadingRecentRepos"
           :options="repos"
@@ -310,10 +313,10 @@ export default {
               {{ option.full_name }}
             </div>
           </template>
-        </v-select>
+        </LabeledSelect>
       </div>
       <div class="col span-4">
-        <v-select
+        <LabeledSelect
           :disabled="!selectedRepo || loadingBranches"
           :placeholder="branchPlaceholder"
           :options="branches"
@@ -322,10 +325,10 @@ export default {
           :clearable="false"
           @input="selectBranch"
         >
-        </v-select>
+        </LabeledSelect>
       </div>
       <div class="col span-4">
-        <v-select
+        <LabeledSelect
           :disabled="!selectedBranch"
           :placeholder="filePlaceholder"
           :options="files"
@@ -334,7 +337,7 @@ export default {
           :clearable="false"
           @input="selectFile"
         >
-        </v-select>
+        </LabeledSelect>
       </div>
     </div>
   </div>

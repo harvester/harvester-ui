@@ -1,7 +1,6 @@
 <script>
 import omitBy from 'lodash/omitBy';
 import { cleanUp } from '@/utils/object';
-import cronstrue from 'cronstrue';
 import {
   CONFIG_MAP, SECRET, WORKLOAD_TYPES, NODE, SERVICE, PVC
 } from '@/config/types';
@@ -14,27 +13,29 @@ import LabeledInput from '@/components/form/LabeledInput';
 import HealthCheck from '@/components/form/HealthCheck';
 import Security from '@/components/form/Security';
 import Upgrading from '@/edit/workload/Upgrading';
+import Loading from '@/components/Loading';
 import Networking from '@/components/form/Networking';
 import VolumeClaimTemplate from '@/edit/workload/VolumeClaimTemplate';
 import Job from '@/edit/workload/Job';
-import { defaultAsyncData } from '@/components/ResourceDetail';
-import { _EDIT } from '@/config/query-params';
+import { _EDIT, _CREATE } from '@/config/query-params';
 import WorkloadPorts from '@/components/form/WorkloadPorts';
 import ContainerResourceLimit from '@/components/ContainerResourceLimit';
 import KeyValue from '@/components/form/KeyValue';
 import Tabbed from '@/components/Tabbed';
 import { mapGetters } from 'vuex';
 import NodeScheduling from '@/components/form/NodeScheduling';
-import PodScheduling from '@/components/form/PodScheduling';
+import PodAffinity from '@/components/form/PodAffinity';
 import Tolerations from '@/components/form/Tolerations';
 import CruResource from '@/components/CruResource';
 import Command from '@/components/form/Command';
 import Storage from '@/edit/workload/storage';
 import Labels from '@/components/form/Labels';
+import { UI_MANAGED } from '@/config/labels-annotations';
 
 export default {
   name:       'CruWorkload',
   components: {
+    Loading,
     NameNsDescription,
     LabeledSelect,
     LabeledInput,
@@ -48,14 +49,14 @@ export default {
     Security,
     WorkloadPorts,
     ContainerResourceLimit,
-    PodScheduling,
+    PodAffinity,
     NodeScheduling,
     Tolerations,
     CruResource,
     Command,
     Storage,
     VolumeClaimTemplate,
-    Labels
+    Labels,
   },
 
   mixins: [CreateEditView],
@@ -86,29 +87,13 @@ export default {
 
     const hash = await allHash(requests);
 
+    this.servicesOwned = await this.value.getServicesOwned();
+
     this.allSecrets = hash.secrets || [];
     this.allConfigMaps = hash.configMaps;
     this.allNodes = hash.nodes.map(node => node.id);
-    this.allServices = hash.services.filter(service => service.spec.clusterIP === 'None');
+    this.allServices = hash.services;
     this.pvcs = hash.pvcs;
-  },
-
-  asyncData(ctx) {
-    let resource;
-    let parentOverride;
-
-    if ( ctx.params.resource === 'workload') {
-      parentOverride = {
-        displayName: 'Workload',
-        location:    {
-          name:    'c-cluster-product-resource',
-          params:  { resource: 'workload' },
-        }
-      };
-      resource = WORKLOAD_TYPES.DEPLOYMENT;
-    }
-
-    return defaultAsyncData(ctx, resource, parentOverride);
   },
 
   data() {
@@ -124,33 +109,19 @@ export default {
 
     const spec = this.value.spec;
 
-    if (type === WORKLOAD_TYPES.CRON_JOB) {
-      if (!spec.jobTemplate) {
-        spec.jobTemplate = { spec: { template: { spec: { restartPolicy: 'Never' } } } };
-      }
-    } else {
-      if (!spec.replicas) {
-        spec.replicas = 1;
-      }
-
-      if (!spec.template) {
-        spec.template = { spec: { restartPolicy: type === WORKLOAD_TYPES.JOB ? 'Never' : 'Always' } };
-      }
-      if (!spec.selector) {
-        spec.selector = {};
-      }
-    }
-
     return {
-      name:             this.value?.metadata?.name || null,
+      allConfigMaps:     [],
+      allNodes:          null,
+      allSecrets:        [],
+      allServices:       [],
+      name:              this.value?.metadata?.name || null,
+      pvcs:              [],
+      showTabs:          false,
+      pullPolicyOptions: ['Always', 'IfNotPresent', 'Never'],
       spec,
       type,
-      allConfigMaps:    [],
-      allSecrets:       [],
-      allServices:   [],
-      pvcs:             [],
-      allNodes:         null,
-      showTabs:         false,
+      servicesOwned:     [],
+      servicesToRemove:    []
     };
   },
 
@@ -248,7 +219,7 @@ export default {
       get() {
         if (!this.podTemplateSpec.containers) {
           this.$set(this.podTemplateSpec, 'containers', [
-            { name: this.value?.metadata?.name, imagePullPolicy: 'Always' }
+            { imagePullPolicy: 'Always' }
           ]);
         }
 
@@ -323,23 +294,6 @@ export default {
 
     schema() {
       return this.$store.getters['cluster/schemaFor'](this.type);
-    },
-
-    // show cron schedule in human-readable format
-    cronLabel() {
-      const { schedule } = this.spec;
-
-      if (!this.isCronJob || !schedule) {
-        return null;
-      }
-
-      try {
-        const hint = cronstrue.toString(schedule);
-
-        return hint;
-      } catch (e) {
-        return 'invalid cron expression';
-      }
     },
 
     namespacedSecrets() {
@@ -450,10 +404,20 @@ export default {
       this.$set(this.value, 'type', neu);
       delete this.value.apiVersion;
     },
+
+    errors(neu, old) {
+      // svc creation happened before workload, so if something went wrong with workload creation, svc should be deleted
+      if (neu && neu.length) {
+        this.cleanUpServices();
+      }
+    }
   },
 
   created() {
     this.registerBeforeHook(this.saveWorkload, 'willSaveWorkload');
+    this.registerBeforeHook(this.saveService, 'saveService');
+    this.registerAfterHook(this.setOwnerRef, 'setOwnerRef');
+    this.registerAfterHook(this.removeService, 'removeService');
   },
 
   methods: {
@@ -473,6 +437,64 @@ export default {
 
     cancel() {
       this.done();
+    },
+
+    async saveService() {
+      const { toSave = [], toRemove = [] } = await this.value.servicesFromContainerPorts(this.mode);
+
+      this.servicesOwned = toSave;
+      this.servicesToRemove = toRemove;
+
+      if (!toSave.length) {
+        return;
+      }
+
+      return Promise.all(toSave.map(svc => svc.save()));
+    },
+
+    removeService() {
+      if (!this.servicesToRemove) {
+        return;
+      }
+
+      return Promise.all(this.servicesToRemove.map((svc) => {
+        const ui = svc?.metadata?.annotations[UI_MANAGED];
+
+        if (ui) {
+          svc.remove();
+        }
+      }));
+    },
+
+    setOwnerRef() {
+      if (!this.servicesOwned.length ) {
+        return;
+      }
+
+      const ownerRef = {
+        apiVersion: this.value.apiVersion,
+        controller: true,
+        kind:       this.value.kind,
+        name:       this.value.metadata.name,
+        uid:        this.value.metadata.uid
+      };
+
+      this.servicesOwned.forEach((svc) => {
+        const id = `${ svc.metadata.namespace }/${ svc.metadata.name }`;
+
+        try {
+          this.$store.dispatch('cluster/find', {
+            type:     SERVICE,
+            id,
+            opt:  { force: true }
+          }).then((svc) => {
+            if (!svc.metadata.ownerReferences) {
+              svc.metadata.ownerReferences = [ownerRef];
+            }
+            svc.save();
+          });
+        } catch {}
+      });
     },
 
     saveWorkload() {
@@ -504,9 +526,9 @@ export default {
       this.fixPodAffinity(podAffinity);
       this.fixPodAffinity(podAntiAffinity);
 
-      delete this.value.kind;
+      // delete this.value.kind;
 
-      if (!this.container.name) {
+      if (!this.container.name || this.mode === _CREATE) {
         this.$set(this.container, 'name', this.value.metadata.name);
       }
 
@@ -578,6 +600,20 @@ export default {
       } else {
         this.type = type;
       }
+    },
+
+    cleanUpServices() {
+      (this.servicesOwned || []).forEach((svc) => {
+        try {
+          this.$store.dispatch('cluster/find', { type: SERVICE, id: `${ svc.metadata.namespace }/${ svc.metadata.name }` }).then((svc) => {
+            const ui = svc?.metadata?.annotations[UI_MANAGED];
+
+            if (ui) {
+              svc.remove();
+            }
+          });
+        } catch {}
+      });
     }
   }
 };
@@ -604,11 +640,17 @@ export default {
         <div class="col span-12">
           <NameNsDescription :value="value" :extra-columns="nameNsColumns" :mode="mode" @change="name=value.metadata.name">
             <template #schedule>
-              <LabeledInput v-model="spec.schedule" required :mode="mode" :label="t('workload.cronSchedule')" placeholder="0 * * * *" />
-              <span class="cron-hint text-small">{{ cronLabel }}</span>
+              <LabeledInput
+                v-model="spec.schedule"
+                type="cron"
+                required
+                :mode="mode"
+                :label="t('workload.cronSchedule')"
+                placeholder="0 * * * *"
+              />
             </template>
             <template #replicas>
-              <LabeledInput v-model="spec.replicas" type="number" required :mode="mode" :label="t('workload.replicas')" />
+              <LabeledInput v-model.number="spec.replicas" type="number" required :mode="mode" :label="t('workload.replicas')" />
             </template>
             <template #service>
               <LabeledSelect
@@ -623,6 +665,7 @@ export default {
           </NameNsDescription>
         </div>
       </div>
+
       <Tabbed :side-tabs="true">
         <Tab :label="t('workload.container.titles.container')" name="container">
           <div>
@@ -631,8 +674,9 @@ export default {
               <div class="col span-6">
                 <LabeledInput
                   v-model="container.image"
+                  :mode="mode"
                   :label="t('workload.container.image')"
-                  placeholder="eg nginx:latest"
+                  placeholder="e.g. nginx:latest"
                   required
                 />
               </div>
@@ -640,7 +684,7 @@ export default {
                 <LabeledSelect
                   v-model="container.imagePullPolicy"
                   :label="t('workload.container.imagePullPolicy')"
-                  :options="['Always', 'IfNotPresent', 'Never']"
+                  :options="pullPolicyOptions"
                   :mode="mode"
                 />
               </div>
@@ -661,20 +705,20 @@ export default {
             </div>
           </div>
 
-          <hr class="section-divider" />
+          <div class="spacer"></div>
           <div>
             <h3>{{ t('workload.container.titles.ports') }}</h3>
             <div class="row">
-              <WorkloadPorts v-model="container.ports" :mode="mode" />
+              <WorkloadPorts v-model="container.ports" :name="value.metadata.name" :services="servicesOwned" :mode="mode" />
             </div>
           </div>
 
-          <hr class="section-divider" />
+          <div class="spacer"></div>
           <div>
             <h3>{{ t('workload.container.titles.command') }}</h3>
             <Command v-model="container" :secrets="namespacedSecrets" :config-maps="namespacedConfigMaps" :mode="mode" />
           </div>
-          <hr class="section-divider" />
+          <div class="spacer"></div>
           <div>
             <h3>{{ t('workload.container.titles.podLabels') }}</h3>
             <div class="row mb-20">
@@ -683,11 +727,11 @@ export default {
                 v-model="podLabels"
                 :add-label="t('labels.addLabel')"
                 :mode="mode"
-                :pad-left="false"
                 :read-allowed="false"
                 :protip="false"
               />
             </div>
+            <div class="spacer"></div>
             <h3>{{ t('workload.container.titles.podAnnotations') }}</h3>
             <div class="row">
               <KeyValue
@@ -695,7 +739,6 @@ export default {
                 v-model="podAnnotations"
                 :add-label="t('labels.addAnnotation')"
                 :mode="mode"
-                :pad-left="false"
                 :read-allowed="false"
                 :protip="false"
               />
@@ -713,8 +756,11 @@ export default {
           />
         </Tab>
         <Tab :label="t('workload.container.titles.resources')" name="resources">
+          <h3 class="mb-10">
+            <t k="workload.scheduling.titles.limits" />
+          </h3>
           <ContainerResourceLimit v-model="flatResources" :mode="mode" :show-tip="false" />
-          <hr class="section-divider" />
+          <div class="spacer"></div>
           <div>
             <h3 class="mb-10">
               <t k="workload.scheduling.titles.tolerations" />
@@ -725,7 +771,7 @@ export default {
           </div>
 
           <div>
-            <hr class="section-divider" />
+            <div class="spacer"></div>
             <h3 class="mb-10">
               <t k="workload.scheduling.titles.priority" />
             </h3>
@@ -740,7 +786,7 @@ export default {
           </div>
         </Tab>
         <Tab :label="t('workload.container.titles.podScheduling')" name="podScheduling">
-          <PodScheduling :mode="mode" :value="podTemplateSpec" />
+          <PodAffinity :mode="mode" :value="podTemplateSpec" />
         </Tab>
         <Tab :label="t('workload.container.titles.nodeScheduling')" name="nodeScheduling">
           <NodeScheduling :mode="mode" :value="podTemplateSpec" :nodes="allNodes" />
@@ -789,11 +835,6 @@ export default {
 
 .type-description{
   color: var(--input-label)
-}
-
-.cron-hint {
-  color: var(--disabled-text);
-  padding: 3px;
 }
 
 .next-dropdown{

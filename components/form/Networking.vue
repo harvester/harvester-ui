@@ -18,6 +18,7 @@ export default {
       type:     Object,
       required: true,
     },
+
     mode: {
       type:     String,
       required: true,
@@ -37,7 +38,7 @@ export default {
 
     const out = {
       dnsPolicy:   this.value.dnsPolicy || 'ClusterFirst',
-      networkMode: this.value.hostNetwork ? { label: t('workload.networking.networkMode.options.normal'), value: false } : { label: t('workload.networking.networkMode.options.hostNetwork'), value: true },
+      networkMode: this.value.hostNetwork ? { label: t('workload.networking.networkMode.options.hostNetwork'), value: true } : { label: t('workload.networking.networkMode.options.normal'), value: false },
       hostAliases,
       nameservers,
       searches,
@@ -190,7 +191,7 @@ export default {
         </div>
       </div>
     </div>
-    <hr class="section-divider" />
+    <div class="spacer"></div>
 
     <div>
       <h3>{{ t('workload.networking.dns') }}</h3>
@@ -203,7 +204,6 @@ export default {
             :value-placeholder="t('workload.networking.nameservers.placeholder')"
             :add-label="t('workload.networking.nameservers.add')"
             :mode="mode"
-            :pad-left="false"
             :protip="false"
             @input="update"
           />
@@ -216,14 +216,13 @@ export default {
             :value-placeholder="t('workload.networking.searches.placeholder')"
             :add-label="t('workload.networking.searches.add')"
             :mode="mode"
-            :pad-left="false"
             :protip="false"
             @input="update"
           />
         </div>
       </div>
     </div>
-    <hr class="section-divider" />
+    <div class="spacer"></div>
 
     <div class="mt-20">
       <div class="row">
@@ -241,7 +240,7 @@ export default {
         />
       </div>
     </div>
-    <hr class="section-divider" />
+    <div class="spacer"></div>
 
     <div class="row mt-20">
       <div class="col span-12">
@@ -259,7 +258,6 @@ export default {
           value-name="hostnames"
           :value-label="t('workload.networking.hostAliases.valueLabel')"
           :value-placeholder="t('workload.networking.hostAliases.valuePlaceholder')"
-          :pad-left="false"
           :add-label="t('workload.networking.hostAliases.add')"
           @input="updateHostAliases"
         >

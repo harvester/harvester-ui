@@ -32,22 +32,24 @@ const ALWAYS_ADD = [
 ];
 
 const NEVER_ADD = [
-  'status',
+  'metadata.clusterName',
   'metadata.clusterName',
   'metadata.creationTimestamp',
-  'metadata.clusterName',
   'metadata.deletionGracePeriodSeconds',
-  'metadata.managedFields',
-  'metadata.generateName',
-  'metadata.generation',
   'metadata.deletionTimestamp',
   'metadata.finalizers',
+  'metadata.generateName',
+  'metadata.generation',
   'metadata.initializers',
+  'metadata.managedFields',
   'metadata.ownerReferences',
   'metadata.resourceVersion',
   'metadata.selfLink',
   'metadata.uid',
-  'stringData'
+  // CRD -> Schema describes the schema used for validation, pruning, and defaulting of this version of the custom resource. If we allow processing we fall into inf loop on openAPIV3Schema.allOf which contains a cyclical ref of allOf props.
+  'spec.versions.schema',
+  'status',
+  'stringData',
 ];
 
 const INDENT = 2;
@@ -57,7 +59,6 @@ export function createYaml(schemas, type, data, processAlwaysAdd = true, depth =
 
   if ( !schema ) {
     return `Error loading schema for ${ type }`;
-    // throw new Error('Unknown schema for', type);
   }
 
   data = data || {};
@@ -235,11 +236,11 @@ export function createYaml(schemas, type, data, processAlwaysAdd = true, depth =
 
     if ( SIMPLE_TYPES.includes(type) ) {
       if (key === '_type' && typeof data[key] === 'undefined' && typeof data['type'] !== 'undefined') {
-        out += ` ${ data['type'] }`;
+        out += ` ${ serializeSimpleValue(data['type']) }`;
       } else if ( typeof data[key] === 'undefined' ) {
-        out += ` #${ type }`;
+        out += ` #${ serializeSimpleValue(type) }`;
       } else {
-        out += ` ${ data[key] }`;
+        out += ` ${ serializeSimpleValue(data[key]) }`;
       }
 
       return out;
@@ -284,4 +285,8 @@ function comment(lines) {
 
 function indent(lines, depth = 1) {
   return _indent(lines, depth * INDENT, ' ', /^#/);
+}
+
+function serializeSimpleValue(data) {
+  return jsyaml.safeDump(data).trim();
 }

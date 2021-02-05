@@ -16,6 +16,7 @@ import { matchRuleIsPopulated } from '@/models/logging.banzaicloud.io.flow';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { clone, set } from '@/utils/object';
 import isEmpty from 'lodash/isEmpty';
+import ArrayListGrouped from '@/components/form/ArrayListGrouped';
 import Match from './Match';
 
 function emptyMatch(include = true) {
@@ -40,7 +41,8 @@ export default {
     Tab,
     Tabbed,
     YamlEditor,
-    Match
+    Match,
+    ArrayListGrouped
   },
 
   mixins: [CreateEditView],
@@ -71,30 +73,23 @@ export default {
     const schemas = this.$store.getters['cluster/all'](SCHEMA);
     let filtersYaml;
 
-    if ( this.value.spec?.filters?.length ) {
+    set(this.value, 'spec', this.value.spec || {});
+
+    if ( this.value.spec.filters?.length ) {
       filtersYaml = jsyaml.safeDump(this.value.spec.filters);
     } else {
-      filtersYaml = createYaml(schemas, LOGGING.FLOW, {});
-      filtersYaml = `# @TODO Get the right schema once it exists
-# - stdout:
-#   parser:
-#   tag_normaliser:
-#   dedot:
-#   record_transformer:
-#   record_modifier:
-#   geoip:
-#   concat:
-#   detectExceptions:
-#   grep:
-#   prometheus:
-#   throttl:
-`;
+      filtersYaml = createYaml(schemas, LOGGING.SPOOFED.FILTERS, []);
+      // createYaml doesn't support passing reference types (array, map) as the first type. As such
+      // I'm manipulating the output since I'm not sure it's something we want to actually support
+      // seeing as it's really createResourceYaml and this here is a gray area between spoofed types
+      // and just a field within a spec.
+      filtersYaml = filtersYaml.substring(filtersYaml.indexOf('\n') + 1).replaceAll('#  ', '#');
     }
 
     const matches = [];
     let formSupported = !this.value.id || this.value.canCustomEdit;
 
-    if ( this.value.spec?.match?.length ) {
+    if ( this.value.spec.match?.length ) {
       for ( const match of this.value.spec.match ) {
         if ( matchRuleIsPopulated(match.select) && matchRuleIsPopulated(match.exclude) ) {
           formSupported = false;
@@ -108,8 +103,8 @@ export default {
       matches.push(emptyMatch(true));
     }
 
-    const globalOutputRefs = this.value.spec?.globalOutputRefs || [];
-    const localOutputRefs = this.value.spec?.localOutputRefs || [];
+    const globalOutputRefs = (this.value.spec.globalOutputRefs || []).map(ref => ({ label: ref, value: ref }));
+    const localOutputRefs = (this.value.spec.localOutputRefs || []).map(ref => ({ label: ref, value: ref }));
 
     return {
       formSupported,
@@ -148,9 +143,13 @@ export default {
     },
 
     clusterOutputChoices() {
-      return this.allClusterOutputs.map((clusterOutput) => {
-        return { label: clusterOutput.metadata.name, value: clusterOutput.metadata.name };
-      });
+      return this.allClusterOutputs
+        .filter((clusterOutput) => {
+          return clusterOutput.namespace === this.value.namespace;
+        })
+        .map((clusterOutput) => {
+          return { label: clusterOutput.metadata.name, value: clusterOutput.metadata.name };
+        });
     },
 
     nodeChoices() {
@@ -275,6 +274,14 @@ export default {
       if (this.value.spec.match && this.isMatchEmpty(this.value.spec.match)) {
         this.$delete(this.value.spec, 'match');
       }
+    },
+    onYamlEditorReady(cm) {
+      cm.getMode().fold = 'yamlcomments';
+      cm.execCommand('foldAll');
+      cm.execCommand('unfold');
+    },
+    isTag(options, option) {
+      return !options.find(o => o.value === option.value);
     }
   }
 };
@@ -296,46 +303,35 @@ export default {
     @cancel="done"
     @apply-hooks="applyHooks"
   >
-    <NameNsDescription v-if="!isView" v-model="value" :mode="mode" :namespaced="isNamespaced" />
+    <NameNsDescription v-if="!isView" v-model="value" :mode="mode" :namespaced="value.type !== LOGGING.CLUSTER_FLOW" />
 
     <Tabbed :side-tabs="true" @changed="tabChanged($event)">
       <Tab name="match" :label="t('logging.flow.matches.label')" :weight="3">
-        <Banner color="info" class="mt-0" label="Configure which container logs will be pulled from" />
-        <Match
-          v-for="(match, i) in matches"
-          :key="i"
-          class="rule mb-20"
-          :value="match"
-          :mode="mode"
-          :nodes="nodeChoices"
-          :containers="containerChoices"
-          @remove="e=>removeMatch(i)"
-          @input="e=>updateMatch(e,i)"
-        />
-        <button class="btn role-tertiary add mt-10" type="button" @click="addMatch(true)">
-          <i class="icon icon-plus" />
-          {{ t('logging.flow.matches.addSelect') }}
-        </button>
-        <button class="btn role-tertiary add mt-10" type="button" @click="addMatch(false)">
-          <i class="icon icon-plus" />
-          {{ t('logging.flow.matches.addExclude') }}
-        </button>
+        <ArrayListGrouped v-model="matches">
+          <template #default="props">
+            <Match
+              class="rule mb-20"
+              :value="props.row.value"
+              :mode="mode"
+              :nodes="nodeChoices"
+              :containers="containerChoices"
+              @remove="e=>removeMatch(props.row.i)"
+              @input="e=>updateMatch(e,props.row.i)"
+            />
+          </template>
+          <template #add>
+            <button class="btn role-tertiary add" type="button" @click="addMatch(true)">
+              {{ t('logging.flow.matches.addSelect') }}
+            </button>
+            <button class="btn role-tertiary add" type="button" @click="addMatch(false)">
+              {{ t('logging.flow.matches.addExclude') }}
+            </button>
+          </template>
+        </ArrayListGrouped>
       </Tab>
 
-      <Tab name="filters" :label="t('logging.flow.filters.label')" :weight="2">
-        <Banner color="info" class="mt-0" label="Filter or modify the data before it is sent to the output" />
-
-        <YamlEditor
-          ref="yaml"
-          v-model="filtersYaml"
-          :scrolling="false"
-          :initial-yaml-values="initialFiltersYaml"
-          :editor-mode="isView ? EDITOR_MODES.VIEW_CODE : EDITOR_MODES.EDIT_CODE"
-        />
-      </Tab>
-
-      <Tab name="outputs" :label="t('logging.flow.outputs.label')" :weight="1">
-        <Banner color="info" class="mt-0" label="Choose one or more outputs to send the matching logs to" />
+      <Tab name="outputs" :label="t('logging.flow.outputs.label')" :weight="2">
+        <Banner label="Output must reside in same namespace as the flow." color="info" />
         <LabeledSelect
           v-model="globalOutputRefs"
           :label="t('logging.flow.clusterOutputs.label')"
@@ -345,7 +341,12 @@ export default {
           :clearable="true"
           :close-on-select="false"
           :reduce="opt=>opt.value"
-        />
+        >
+          <template #selected-option="option">
+            <i v-if="isTag(clusterOutputChoices, option)" v-tooltip="t('logging.flow.clusterOutputs.doesntExistTooltip')" class="icon icon-info status-icon text-warning" />
+            {{ option.label }}
+          </template>
+        </LabeledSelect>
         <LabeledSelect
           v-if="value.type === LOGGING.FLOW"
           v-model="localOutputRefs"
@@ -357,9 +358,34 @@ export default {
           :clearable="true"
           :close-on-select="false"
           :reduce="opt=>opt.value"
+        >
+          <template #selected-option="option">
+            <i v-if="isTag(outputChoices, option)" v-tooltip="t('logging.flow.outputs.doesntExistTooltip')" class="icon icon-info status-icon text-warning" />
+            {{ option.label }}
+          </template>
+        </LabeledSelect>
+      </Tab>
+
+      <Tab name="filters" :label="t('logging.flow.filters.label')" :weight="1">
+        <YamlEditor
+          ref="yaml"
+          v-model="filtersYaml"
+          :scrolling="false"
+          :initial-yaml-values="initialFiltersYaml"
+          :editor-mode="isView ? EDITOR_MODES.VIEW_CODE : EDITOR_MODES.EDIT_CODE"
+          @onReady="onYamlEditorReady"
         />
       </Tab>
     </Tabbed>
   </CruResource>
   <Banner v-else label="This resource contains a match configuration that the form editor does not support.  Please use YAML edit." color="error" />
 </template>
+
+<style lang="scss" scoped>
+::v-deep {
+  .icon-info {
+    margin-top: -3px;
+    margin-right: 4px;
+  }
+}
+</style>

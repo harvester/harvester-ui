@@ -48,7 +48,6 @@ export default {
       limitsMemory:   limitsMemory ? parseSi(limitsMemory) : null,
       requestsCpu:    requestsCpu ? parseSi(requestsCpu) : null,
       requestsMemory: requestsMemory ? parseSi(requestsMemory) : null,
-      viewMode:       _VIEW,
     };
 
     const formatted = {
@@ -64,6 +63,7 @@ export default {
       requestsMemory: formatSi(parsed.requestsMemory, {
         minExponent: 2, maxExponent: 2, addSuffix: false, increment: 1024,
       }),
+      viewMode: _VIEW,
     };
 
     return { ...formatted };
@@ -158,7 +158,7 @@ export default {
 
 <template>
   <div>
-    <div class="row mb-5 pl-10">
+    <div class="row">
       <div v-if="showTip" class="col span-12">
         <p class="helper-text mb-10">
           <t v-if="mode === viewMode" k="containerResourceLimit.helpTextDetail" />

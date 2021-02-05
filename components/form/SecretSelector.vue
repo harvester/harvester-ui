@@ -3,6 +3,9 @@ import LabeledSelect from '@/components/form/LabeledSelect';
 import { SECRET } from '@/config/types';
 import { _EDIT, _VIEW } from '@/config/query-params';
 import { TYPES } from '@/models/secret';
+import sortBy from 'lodash/sortBy';
+
+const NONE = '__[[NONE]]__';
 
 export default {
   components: { LabeledSelect },
@@ -12,6 +15,10 @@ export default {
       type:     [String, Object],
       required: false,
       default:  undefined
+    },
+    namespace: {
+      type:     String,
+      required: true
     },
     types: {
       type:    Array,
@@ -33,9 +40,13 @@ export default {
       type:    Boolean,
       default: false
     },
-    label: {
+    secretNameLabel: {
       type:    String,
-      default: null
+      default: 'Secret Name'
+    },
+    keyNameLabel: {
+      type:    String,
+      default: 'Key'
     },
     mode: {
       type:     String,
@@ -48,13 +59,16 @@ export default {
       get() {
         const name = this.showKeySelector ? this.value?.valueFrom?.secretKeyRef?.[this.nameKey] : this.value;
 
-        return name || '';
+        return name || NONE;
       },
       set(name) {
+        const isNone = name === NONE;
+        const correctedName = isNone ? undefined : name;
+
         if (this.showKeySelector) {
-          this.$emit('input', { valueFrom: { secretKeyRef: { [this.nameKey]: name, [this.keyKey]: this.key } } });
+          this.$emit('input', { valueFrom: { secretKeyRef: { [this.nameKey]: correctedName, [this.keyKey]: '' } } });
         } else {
-          this.$emit('input', name);
+          this.$emit('input', correctedName);
         }
       }
     },
@@ -71,22 +85,30 @@ export default {
       const allSecrets = this.$store.getters['cluster/all'](SECRET);
 
       return allSecrets
-        .filter(secret => this.types.includes(secret._type));
+        .filter(secret => this.types.includes(secret._type) && secret.namespace === this.namespace);
     },
     secretNames() {
-      return this.secrets.map(secret => secret.name);
+      const mappedSecrets = this.secrets.map(secret => ({
+        label: secret.name,
+        value: secret.name
+      })).sort();
+
+      return [{ label: 'None', value: NONE }, ...sortBy(mappedSecrets, 'label')];
     },
     keys() {
       const secret = this.secrets.find(secret => secret.name === this.name) || {};
 
-      return Object.keys(secret.data || {});
-    },
-    secretNameLabel() {
-      return this.showKeySelector ? 'Secret Name' : this.label;
+      return Object.keys(secret.data || {}).map(key => ({
+        label: key,
+        value: key
+      }));
     },
     isView() {
       return this.mode === _VIEW;
     },
+    isKeyDisabled() {
+      return !this.isView && (!this.name || this.name === NONE || this.disabled);
+    }
   },
 
 };
@@ -94,7 +116,6 @@ export default {
 
 <template>
   <div class="secret-selector" :class="{'show-key-selector': showKeySelector}">
-    <label v-if="label && showKeySelector">{{ label }}</label>
     <div class="input-container">
       <LabeledSelect
         v-model="name"
@@ -107,9 +128,9 @@ export default {
         v-if="showKeySelector"
         v-model="key"
         class="col span-6"
-        :disabled="!isView && (!name || disabled)"
+        :disabled="isKeyDisabled"
         :options="keys"
-        label="Key"
+        :label="keyNameLabel"
         :mode="mode"
       />
     </div>
@@ -133,12 +154,12 @@ export default {
       }
 
       &:first-child {
-          border-radius: calc(var(--border-radius) * 2) 0 0  calc(var(--border-radius) * 2);
+          border-radius: var(--border-radius) 0 0 var(--border-radius);
           margin-right: 0;
       }
 
       &:last-child {
-          border-radius: 0 calc(var(--border-radius) * 2) calc(var(--border-radius) * 2) 0;
+          border-radius: 0 var(--border-radius) var(--border-radius) 0;
           border-left: none;
           float: right;
       }

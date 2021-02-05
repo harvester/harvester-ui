@@ -1,6 +1,7 @@
 <script>
 import jsyaml from 'js-yaml';
 import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
+import FileSelector from '@/components/form/FileSelector';
 import Footer from '@/components/form/Footer';
 import { ANNOTATIONS_TO_FOLD } from '@/config/labels-annotations';
 import { ensureRegex } from '@/utils/string';
@@ -19,6 +20,7 @@ import { exceptionToErrorsArray } from '../utils/error';
 export default {
   components: {
     Footer,
+    FileSelector,
     YamlEditor
   },
 
@@ -31,6 +33,11 @@ export default {
     value: {
       type:     Object,
       required: true,
+    },
+
+    initialYamlForDiff: {
+      type:    String,
+      default: null,
     },
 
     yaml: {
@@ -62,11 +69,6 @@ export default {
       type:    Boolean,
       default: true
     },
-
-    saveOverride: {
-      type:    Function,
-      default: null
-    }
   },
 
   data() {
@@ -74,9 +76,11 @@ export default {
     this.$router.applyQuery({ [PREVIEW]: _UNFLAG });
 
     return {
+      initialYaml: this.initialYamlForDiff || this.yaml,
       currentYaml:  this.yaml,
       showPreview:  false,
-      errors:       null
+      errors:       null,
+      cm:          null,
     };
   },
 
@@ -108,9 +112,19 @@ export default {
 
       return EDITOR_MODES.EDIT_CODE;
     },
+
+    canDiff() {
+      return this.initialYaml !== this.currentYaml;
+    },
   },
 
   watch: {
+    yaml(neu) {
+      if ( this.mode === _VIEW ) {
+        this.currentYaml = neu;
+      }
+    },
+
     mode(neu, old) {
       // if this component is changing from viewing a resource to 'creating' that resource, it must actually be cloning
       // clean yaml accordingly
@@ -123,9 +137,12 @@ export default {
   methods: {
     onInput(yaml) {
       this.currentYaml = yaml;
+      this.onReady(this.cm);
     },
 
     onReady(cm) {
+      this.cm = cm;
+
       if ( this.isEdit ) {
         cm.foldLinesMatching(/^status:\s*$/);
       }
@@ -232,57 +249,15 @@ export default {
     },
 
     async save(buttonDone) {
-      const inStore = this.$store.getters['currentProduct'].inStore;
       const yaml = this.value.yamlForSave(this.currentYaml) || this.currentYaml;
-      let parsed, res;
 
       try {
         await this.$emit('apply-hooks', BEFORE_SAVE_HOOKS);
 
-        if (this._isBeingDestroyed || this._isDestroyed) {
-          return;
-        }
-
         try {
-          parsed = jsyaml.safeLoad(yaml);
+          await this.value.saveYaml(yaml);
         } catch (err) {
           return onError.call(this, err);
-        }
-
-        if (this.saveOverride) {
-          await this.saveOverride(parsed, this.value);
-        } else {
-          if ( this.schema?.attributes?.namespaced && !parsed.metadata.namespace ) {
-            const err = this.$store.getters['i18n/t']('resourceYaml.errors.namespaceRequired');
-
-            return onError.call(this, err);
-          }
-
-          if ( this.isCreate ) {
-            res = await this.schema.followLink('collection', {
-              method:  'POST',
-              headers: {
-                'content-type': 'application/yaml',
-                accept:         'application/json',
-              },
-              data: yaml
-            });
-          } else {
-            const link = this.value.hasLink('rioupdate') ? 'rioupdate' : 'update';
-
-            res = await this.value.followLink(link, {
-              method:  'PUT',
-              headers: {
-                'content-type': 'application/yaml',
-                accept:         'application/json',
-              },
-              data: yaml
-            });
-          }
-
-          if ( res && res.kind !== 'Table') {
-            await this.$store.dispatch(`${ inStore }/load`, { data: res, existing: (this.isCreate ? this.value : undefined) });
-          }
         }
 
         await this.$emit('apply-hooks', AFTER_SAVE_HOOKS);
@@ -322,7 +297,16 @@ export default {
         name:   this.doneRoute,
         params: { resource: this.value.type }
       });
-    }
+    },
+
+    onFileSelected(value) {
+      const component = this.$refs.yamleditor;
+
+      if (component) {
+        component.updateValue(value);
+      }
+    },
+
   }
 };
 </script>
@@ -332,6 +316,7 @@ export default {
     <YamlEditor
       ref="yamleditor"
       v-model="currentYaml"
+      :initial-yaml-values="initialYaml"
       class="yaml-editor"
       :editor-mode="editorMode"
       @onInput="onInput"
@@ -353,6 +338,13 @@ export default {
         @save="save"
         @done="done"
       >
+        <template v-if="!isView" #left>
+          <FileSelector
+            class="btn role-secondary"
+            :label="t('generic.readFromFile')"
+            @selected="onFileSelected"
+          />
+        </template>
         <template v-if="!isView" #middle>
           <button
             v-if="showPreview"
@@ -364,7 +356,7 @@ export default {
           </button>
           <button
             v-else-if="offerPreview"
-            :disabled="yaml === currentYaml"
+            :disabled="!canDiff"
             type="button"
             class="btn role-secondary"
             @click="preview"

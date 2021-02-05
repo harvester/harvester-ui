@@ -1,5 +1,5 @@
 <script>
-import CopyToClipboardText from '@/components/formatter/CopyToClipboardText';
+import CopyToClipboardText from '@/components/CopyToClipboardText';
 import { getFileSize } from '@/utils/units';
 import { DESCRIPTION } from '@/config/labels-annotations';
 import Tabbed from '@/components/Tabbed';

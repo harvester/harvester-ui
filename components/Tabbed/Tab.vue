@@ -1,29 +1,47 @@
 <script>
 export default {
-  inject: ['addTab', 'removeTab'],
+  inject: ['addTab', 'removeTab', 'sideTabs'],
 
   props: {
     label: {
-      type:     String,
-      required: true,
+      default: null,
+      type:    String
+    },
+    labelKey: {
+      default: null,
+      type:    String
     },
     name: {
-      type:     String,
       required: true,
+      type:     String
+    },
+    tooltip: {
+      default: null,
+      type:    [String, Object]
     },
     weight: {
-      type:     Number,
       default:  0,
       required: false,
-    },
-    canToggle: {
-      type:    Boolean,
-      default: false
+      type:     Number
     }
   },
 
   data() {
     return { active: null };
+  },
+
+  computed: {
+    labelDisplay() {
+      if ( this.labelKey ) {
+        return this.$store.getters['i18n/t'](this.labelKey);
+      }
+
+      if ( this.label ) {
+        return this.label;
+      }
+
+      return this.name;
+    },
   },
 
   watch: {
@@ -51,6 +69,10 @@ export default {
     :aria-hidden="!active"
     role="tabpanel"
   >
+    <h2 v-if="sideTabs">
+      {{ label }}
+      <i v-if="tooltip" v-tooltip="tooltip" class="icon icon-info icon-lg" />
+    </h2>
     <slot />
   </section>
 </template>

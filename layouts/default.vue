@@ -51,13 +51,25 @@ export default {
     favoriteTypes:  mapPref(FAVORITE_TYPES),
 
     allSchemas() {
-      const inStore = this.$store.getters['currentProduct'].inStore;
+      const managementReady = this.$store.getters['managementReady'];
+      const product = this.$store.getters['currentProduct'];
 
-      return this.$store.getters[`${ inStore }/all`](SCHEMA);
+      if ( !managementReady || !product ) {
+        return [];
+      }
+
+      return this.$store.getters[`${ product.inStore }/all`](SCHEMA);
     },
 
     counts() {
-      const inStore = this.$store.getters['currentProduct'].inStore;
+      const managementReady = this.$store.getters['managementReady'];
+      const product = this.$store.getters['currentProduct'];
+
+      if ( !managementReady || !product ) {
+        return {};
+      }
+
+      const inStore = product.inStore;
 
       // So that there's something to watch for updates
       if ( this.$store.getters[`${ inStore }/haveAll`](COUNT) ) {
@@ -339,14 +351,10 @@ export default {
       grid-template-areas:  "type-banner type-banner"
                             "title actions"
                             "state-banner state-banner";
-      grid-template-columns: auto min-content;
+      grid-template-columns: auto auto;
       margin-bottom: 20px;
-      align-items: center;
-
-      H1 {
-        grid-area: title;
-        margin: 0;
-      }
+      align-content: center;
+      min-height: 48px;
 
       .type-banner {
         grid-area: type-banner;
@@ -358,10 +366,13 @@ export default {
 
       .title {
         grid-area: title;
+        align-self: center;
       }
 
-      .actions {
+      .actions-container {
         grid-area: actions;
+        margin-left: 8px;
+        align-self: center;
         text-align: right;
       }
     }

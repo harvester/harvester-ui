@@ -217,13 +217,13 @@ export default {
             </div>
           </div>
         </Tab>
-        <Tab name="labels" :label="t('labels.label.title')" :weight="2" class="bordered-table">
+        <Tab name="labels" :label="t('labels.labels.title')" :weight="2" class="bordered-table">
           <KeyValue
             key="labels"
             :value="value.labels"
             :add-label="t('labels.addLabel')"
             :mode="mode"
-            :title="t('labels.label.title')"
+            :title="t('labels.labels.title')"
             :pad-left="false"
             :read-allowed="false"
             @input="value.setLabels"

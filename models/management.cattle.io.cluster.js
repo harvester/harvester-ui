@@ -3,10 +3,6 @@ import { FLEET } from '@/config/types';
 import { insertAt } from '@/utils/array';
 
 export default {
-  scope() {
-    return this.id === 'local' ? CATALOG._MANAGEMENT : CATALOG._DOWNSTREAM;
-  },
-
   _availableActions() {
     const out = this._standardActions;
 
@@ -18,6 +14,33 @@ export default {
     });
 
     return out;
+  },
+
+  canDelete() {
+    return this.hasLink('remove') && !this?.spec?.internal;
+  },
+
+  configName() {
+    const allKeys = Object.keys(this.spec);
+    const configKey = allKeys.find( kee => kee.includes('Config'));
+
+    return configKey;
+  },
+
+  groupByLabel() {
+    return this.$rootGetters['i18n/t']('resourceTable.groupLabel.notInAWorkspace');
+  },
+
+  isReady() {
+    return this.hasCondition('Ready');
+  },
+
+  kubernetesVersion() {
+    if ( this?.status?.version?.gitVersion ) {
+      return this.status.version.gitVersion;
+    } else {
+      return this.$rootGetters['i18n/t']('generic.unknown');
+    }
   },
 
   openShell() {
@@ -35,31 +58,20 @@ export default {
     };
   },
 
-  isReady() {
-    return this.hasCondition('Ready');
-  },
-
-  configName() {
-    const allKeys = Object.keys(this.spec);
-    const configKey = allKeys.find( kee => kee.includes('Config'));
-
-    return configKey;
-  },
-
-  kubernetesVersion() {
-    if ( this?.status?.version?.gitVersion ) {
-      return this.status.version.gitVersion;
-    } else {
-      return this.$rootGetters['i18n/t']('generic.unknown');
+  providerOs() {
+    if ( this.status?.provider === 'rke.windows' ) {
+      return 'windows';
     }
+
+    return 'linux';
   },
 
-  canDelete() {
-    return this.hasLink('remove') && !this?.spec?.internal;
+  providerOsLogo() {
+    return require(`~/assets/images/vendor/${ this.providerOs }.svg`);
   },
 
-  groupByLabel() {
-    return this.$rootGetters['i18n/t']('resourceTable.groupLabel.notInAWorkspace');
+  scope() {
+    return this.id === 'local' ? CATALOG._MANAGEMENT : CATALOG._DOWNSTREAM;
   },
 
   setClusterNameLabel() {

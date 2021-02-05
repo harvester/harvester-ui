@@ -5,7 +5,6 @@ import KeyValue from '@/components/form/KeyValue';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import CreateEditView from '@/mixins/create-edit-view';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import { MONITORING } from '@/config/types';
@@ -15,9 +14,19 @@ import Loading from '@/components/Loading';
 
 export default {
   components: {
-    ArrayList, Banner, CruResource, KeyValue, LabeledInput, LabeledSelect, Loading, Tab, Tabbed
+    ArrayList,
+    Banner,
+    CruResource,
+    KeyValue,
+    LabeledInput,
+    LabeledSelect,
+    Loading,
+    Tab,
+    Tabbed
   },
+
   mixins: [CreateEditView],
+
   async fetch() {
     const receivers = this.$store.dispatch('cluster/findAll', { type: MONITORING.SPOOFED.RECEIVER });
     const routes = this.$store.dispatch('cluster/findAll', { type: MONITORING.SPOOFED.ROUTE });
@@ -30,15 +39,7 @@ export default {
       this.$set(this.value.spec, 'name', createDefaultRouteName(nonRootRoutes.length));
     }
   },
-  asyncData(ctx) {
-    function yamlSave(value, originalValue) {
-      originalValue.yamlSaveOverride(value, originalValue);
-    }
 
-    return defaultAsyncData(ctx, null, {
-      hideBanner: true, hideAge: true, hideBadgeState: true, yamlSave
-    });
-  },
   data() {
     this.$set(this.value.spec, 'group_by', this.value.spec.group_by || []);
 
@@ -67,13 +68,13 @@ export default {
       </div>
     </div>
     <Banner v-if="value.isRoot" color="info">
-      This is the top-level Route used by Alertmanager as the default destination for any Alerts that do not match any other Routes. This Route must exist and cannot be deleted.
+      {{ t("monitoringRoute.info") }}
     </Banner>
     <Tabbed ref="tabbed" :side-tabs="true" default-tab="overview">
       <Tab label="Receiver" :weight="2" name="receiver">
         <div class="row">
           <div class="col span-6">
-            <LabeledSelect v-model="value.spec.receiver" :options="receiverOptions" label="Receiver" :mode="mode" />
+            <LabeledSelect v-model="value.spec.receiver" :options="receiverOptions" :label="t('monitoringRoute.receiver.label')" :mode="mode" />
           </div>
         </div>
       </Tab>
@@ -81,9 +82,9 @@ export default {
         <div class="row mb-20">
           <div class="col span-6">
             <span class="label">
-              Group By:
+              {{ t("monitoringRoute.groups.label") }}:
             </span>
-            <ArrayList v-if="!isView || value.spec.group_by.length > 0" v-model="value.spec.group_by" label="Group By" :mode="mode" :initial-empty-row="true" />
+            <ArrayList v-if="!isView || value.spec.group_by.length > 0" v-model="value.spec.group_by" :label="t('monitoringRoute.groups.label')" :mode="mode" :initial-empty-row="true" />
             <div v-else>
               {{ t('generic.none') }}
             </div>
@@ -92,50 +93,56 @@ export default {
         <hr class="divider" />
         <div class="row mb-10">
           <div class="col span-6">
-            <LabeledInput v-model="value.spec.group_wait" label="Group Wait" :mode="mode" />
+            <LabeledInput v-model="value.spec.group_wait" :label="t('monitoringRoute.wait.label')" :mode="mode" />
           </div>
           <div class="col span-6">
-            <LabeledInput v-model="value.spec.group_interval" label="Group Interval" :mode="mode" />
+            <LabeledInput v-model="value.spec.group_interval" :label="t('monitoringRoute.interval.label')" :mode="mode" />
           </div>
         </div>
         <div class="row mb-10">
           <div class="col span-6">
-            <LabeledInput v-model="value.spec.repeat_interval" label="Repeat Interval" :mode="mode" />
+            <LabeledInput v-model="value.spec.repeat_interval" :label="t('monitoringRoute.repeatInterval.label')" :mode="mode" />
           </div>
         </div>
       </Tab>
       <Tab label="Matching" :weight="1" name="matching">
         <Banner v-if="value.isRoot" color="info">
-          The root route has to match everything so matching can't be configured.
+          {{ t('monitoringRoute.matching.info') }}
         </Banner>
         <div v-else class="row">
-          <div class="col span-6">
+          <div class="col span-12">
             <span class="label">
-              Match:
+              {{ t('monitoringRoute.matching.label') }}
             </span>
             <KeyValue
               v-if="!isView || Object.keys(value.spec.match || {}).length > 0"
               v-model="value.spec.match"
               :disabled="value.isRoot"
               :options="receiverOptions"
-              label="Receiver"
+              :label="t('monitoringRoute.receiver.label')"
               :mode="mode"
+              :read-allowed="false"
+              add-label="Add match"
             />
             <div v-else>
               {{ t('generic.none') }}
             </div>
           </div>
-          <div class="col span-6">
+        </div>
+        <div class="row mt-40">
+          <div class="col span-12">
             <span class="label">
-              Match Regex:
+              {{ t('monitoringRoute.regex.label') }}:
             </span>
             <KeyValue
               v-if="!isView || Object.keys(value.spec.match_re || {}).length > 0"
               v-model="value.spec.match_re"
               :disabled="value.isRoot"
               :options="receiverOptions"
-              label="Receiver"
+              :label="t('monitoringRoute.receiver.label')"
               :mode="mode"
+              :read-allowed="false"
+              add-label="Add match regex"
             />
             <div v-else>
               {{ t('generic.none') }}

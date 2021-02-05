@@ -5,6 +5,8 @@ Harvester UI.  For the other Rancher UI see [rancher/ui](https://github.com/ranc
 
 ## Build Setup
 
+## Running for development
+This is what you probably want to get started.
 ```bash
 # install dependencies
 $ yarn install

@@ -4,6 +4,9 @@ const WAITING = 'waiting';
 const SUCCESS = 'success';
 const ERROR = 'error';
 
+const TEXT = 'text';
+const TOOLTIP = 'tooltip';
+
 export default {
   props: {
     /**
@@ -73,10 +76,14 @@ export default {
       type:    String,
       default: null,
     },
-    showLabel: {
-      type:    Boolean,
-      default: true,
+    labelAs: {
+      type:    String,
+      default: TEXT,
     },
+    size: {
+      type:    String,
+      default: '',
+    }
   },
 
   data() {
@@ -95,6 +102,10 @@ export default {
         btn:     true,
         [color]: true,
       };
+
+      if (this.size) {
+        out[`btn-${ this.size }`] = true;
+      }
 
       return out;
     },
@@ -150,6 +161,17 @@ export default {
 
     isDisabled() {
       return this.disabled || this.phase === WAITING;
+    },
+
+    tooltip() {
+      if ( this.labelAs === TOOLTIP ) {
+        return {
+          content:           this.displayLabel,
+          hideOnTargetClick: false
+        };
+      }
+
+      return null;
     }
   },
 
@@ -182,6 +204,10 @@ export default {
       if ( this.phase === SUCCESS || this.phase === ERROR ) {
         this.phase = ACTION;
       }
+    },
+
+    focus() {
+      this.$refs.btn.focus();
     }
   }
 };
@@ -189,6 +215,7 @@ export default {
 
 <template>
   <button
+    ref="btn"
     :class="classes"
     :name="name"
     :type="type"
@@ -196,7 +223,16 @@ export default {
     :tab-index="tabIndex"
     @click="clicked"
   >
-    <i v-if="displayIcon" :class="{icon: true, 'icon-lg': true, [displayIcon]: true}" />
-    <span v-if="showLabel" class="pl-5" v-html="displayLabel" />
+    <i
+      v-if="displayIcon"
+      v-tooltip="tooltip"
+      :class="{icon: true, 'icon-lg': true, [displayIcon]: true}"
+    />
+    <span
+      v-if="labelAs === 'text' && displayLabel"
+      v-tooltip="tooltip"
+      class="pl-5"
+      v-html="displayLabel"
+    />
   </button>
 </template>

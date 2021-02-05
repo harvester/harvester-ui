@@ -93,6 +93,7 @@ export default {
     @error="e=>errors = e"
     @finish="save"
     @cancel="done"
+    @apply-hooks="applyHooks"
   >
     <NameNsDescription
       v-if="!isView"
@@ -102,11 +103,9 @@ export default {
       :extra-columns="extraColumns"
     >
       <template #project-col>
-        <LabeledSelect v-model="project" label="Project" :options="projectOpts" />
+        <LabeledSelect v-model="project" :label="t('namespace.project.label')" :options="projectOpts" />
       </template>
     </NameNsDescription>
-
-    <div class="spacer"></div>
 
     <Tabbed :side-tabs="true">
       <Tab name="container-resource-limit" :label="t('namespace.containerResourceLimit')">

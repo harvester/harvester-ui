@@ -5,7 +5,7 @@ export default {
   props:      {
     row: {
       type:     Object,
-      required: true,
+      default:  null,
     },
 
     value: {
@@ -26,7 +26,7 @@ export default {
     iconKey: {
       type:    String,
       default: null,
-    }
+    },
   },
 
   computed: {

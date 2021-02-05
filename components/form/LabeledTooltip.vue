@@ -2,7 +2,7 @@
 export default {
   props: {
     value: {
-      type:    String,
+      type:    [String, Object],
       default: null
     },
 
@@ -13,9 +13,8 @@ export default {
 
     hover: {
       type:    Boolean,
-      default: false
+      default: true
     }
-
   },
 };
 </script>
@@ -23,7 +22,7 @@ export default {
 <template>
   <div ref="container" class="labeled-tooltip" :class="{[status]: true, hoverable: hover}">
     <template v-if="hover">
-      <i v-tooltip="{content: value, classes: [`tooltip-${status}`]}" :class="{'hover':!value}" class="icon icon-info status-icon" />
+      <i v-tooltip="value.content ? { ...{content: value.content, classes: [`tooltip-${status}`]}, ...value } : value" :class="{'hover':!value}" class="icon icon-info status-icon" />
     </template>
     <template v-else>
       <i :class="{'hover':!value}" class="icon icon-info status-icon" />
@@ -35,7 +34,6 @@ export default {
       </div>
     </template>
   </div>
-</template>
 </template>
 
 <style lang='scss'>
@@ -50,14 +48,14 @@ export default {
       height: 0%;
     }
 
-    .status-icon {
-        position:  absolute;
-        right: 26px;
-        top: 16px;
-        font-size: 20px;
-        z-index: z-index(hoverOverContent);
+     .status-icon {
+         position:  absolute;
+         right: 30px;
+         top: 16px;
+         font-size: 20px;
+         z-index: z-index(hoverOverContent);
 
-    }
+     }
 
     .tooltip {
         position: absolute;

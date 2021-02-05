@@ -2,16 +2,22 @@
 import Date from '@/components/formatter/Date';
 import SortableTable from '@/components/SortableTable';
 import Banner from '@/components/Banner';
-import { defaultAsyncData } from '@/components/ResourceDetail';
+import LabeledSelect from '@/components/form/LabeledSelect';
+import Loading from '@/components/Loading';
+import day from 'dayjs';
+import { DATE_FORMAT, TIME_FORMAT } from '@/store/prefs';
+import { escapeHtml, randomStr } from '@/utils/string';
 import { CIS } from '@/config/types';
 import { STATE } from '@/config/table-headers';
-import { randomStr } from '@/utils/string';
+import { get } from '@/utils/object';
 
 export default {
   components: {
     Date,
     SortableTable,
-    Banner
+    Banner,
+    LabeledSelect,
+    Loading,
   },
 
   props: {
@@ -24,22 +30,20 @@ export default {
   },
 
   async fetch() {
-    this.clusterReport = await this.value.getReport();
-  },
-
-  asyncData(ctx) {
-    return defaultAsyncData(ctx, null, { hideBanner: true, hideAge: true });
+    this.clusterReports = await this.value.getReports();
   },
 
   data() {
-    return { clusterReport: null };
+    return { clusterReports: [], clusterReport: null };
   },
 
   computed: {
     parsedReport() {
-      const report = this.clusterReport?.parsedReport;
+      return this.clusterReport?.parsedReport || null;
+    },
 
-      return report;
+    canBeScheduled() {
+      return this.value.canBeScheduled();
     },
 
     reportNodes() {
@@ -78,7 +82,7 @@ export default {
         return [];
       }
 
-      return [
+      const out = [
         {
           label: this.t('cis.profile'),
           value: this.value.status.lastRunScanProfileName,
@@ -96,15 +100,19 @@ export default {
           value: this.parsedReport.total
         },
         {
-          label: this.t('cis.scan.passed'),
+          label: this.t('cis.scan.pass'),
           value: this.parsedReport.pass
         },
         {
-          label: this.t('cis.scan.skipped'),
+          label: this.t('cis.scan.warn'),
+          value: this.parsedReport.warn
+        },
+        {
+          label: this.t('cis.scan.skip'),
           value: this.parsedReport.skip
         },
         {
-          label: this.t('cis.scan.failed'),
+          label: this.t('cis.scan.fail'),
           value: this.parsedReport.fail
         },
         {
@@ -112,11 +120,17 @@ export default {
           value: this.parsedReport.notApplicable
         },
         {
-          label:     this.t('cis.scan.lastScanTime'),
+          label:     this.canBeScheduled ? this.t('cis.scan.lastScanTime') : this.t('cis.scan.scanDate'),
           value:     this.value.status.lastRunTimestamp,
           component: 'Date'
         },
       ];
+
+      if (!this.canBeScheduled) {
+        return out.filter(each => each.label !== this.t('cis.scan.warn'));
+      }
+
+      return out;
     },
 
     reportCheckHeaders() {
@@ -125,7 +139,7 @@ export default {
           ...STATE,
           value:         'state',
           formatterOpts: { arbitrary: true },
-          sort:          'testStateSort'
+          sort:          ['testStateSort', 'testIdSort']
         },
         {
           name:  'number',
@@ -137,7 +151,7 @@ export default {
         {
           name:  'description',
           label: this.t('cis.scan.description'),
-          value: 'description'
+          value: 'description',
         }
       ];
     },
@@ -160,7 +174,6 @@ export default {
           label:     this.t('tableHeaders.type'),
           value:     'type',
         },
-
       ];
     },
   },
@@ -168,14 +181,29 @@ export default {
   watch: {
     value(neu) {
       try {
-        neu.getReport().then((report) => {
-          this.clusterReport = report;
+        neu.getReports().then((reports) => {
+          this.clusterReports = reports;
         });
       } catch {}
+    },
+
+    clusterReports(neu) {
+      if (!this.clusterReport) {
+        this.clusterReport = neu[0];
+      }
     }
   },
 
   methods: {
+    reportLabel(report = {}) {
+      const { creationTimestamp } = report.metadata;
+      const dateFormat = escapeHtml( this.$store.getters['prefs/get'](DATE_FORMAT));
+      const timeFormat = escapeHtml( this.$store.getters['prefs/get'](TIME_FORMAT));
+
+      const name = report.id.replace(/^scan-report-/, '');
+
+      return `${ name } ${ day(creationTimestamp).format(`${ dateFormat } ${ timeFormat }`) }`;
+    },
 
     nodeState(check, node, nodes = []) {
       if (check.state === 'mixed') {
@@ -187,11 +215,13 @@ export default {
 
     testStateSort(state) {
       const SORT_ORDER = {
-        fail:          1,
-        skip:          2,
-        notApplicable: 3,
+        other:         7,
+        notApplicable: 6,
+        skip:          5,
         pass:          4,
-        other:         5,
+        warn:          3,
+        mixed:         2,
+        fail:          1,
       };
 
       return `${ SORT_ORDER[state] || SORT_ORDER['other'] } ${ state }`;
@@ -202,12 +232,24 @@ export default {
 
       return id.split('.').map(n => +n + 1000).join('.');
     },
+
+    remediationDisplay(row) {
+      const { remediation } = row;
+
+      if (!remediation) {
+
+      } else {
+        return `${ this.t('cis.scan.remediation') }: ${ remediation }`;
+      }
+    },
+    get
   }
 };
 </script>
 
 <template>
-  <div>
+  <Loading v-if="$fetchState.pending" />
+  <div v-else>
     <div class="detail mb-20">
       <div v-for="item in details" :key="item.label">
         <span class="text-label">{{ item.label }}</span>:
@@ -218,9 +260,25 @@ export default {
         <span v-else>{{ item.value }}</span>
       </div>
     </div>
-    <div v-if="results.length">
-      <h3>{{ t('cis.scan.scanReport') }}</h3>
+    <div v-if="clusterReports.length > 1" class="table-header row mb-20">
+      <div class="col span-8">
+        <h3>
+          {{ t('cis.scan.scanReport') }}
+        </h3>
+      </div>
+      <div class="col span-4">
+        <LabeledSelect
+          v-model="clusterReport"
+          :label="t('cis.reports')"
+          :options="clusterReports"
+          :get-option-label="reportLabel"
+          :get-option-key="report=>report.id"
+        />
+      </div>
+    </div>
+    <div v-if="results && !!get(value, 'status.summary')">
       <SortableTable
+        no-rows-key="cis.noReportFound"
         default-sort-by="state"
         :search="false"
         :row-actions="false"
@@ -235,6 +293,7 @@ export default {
         <template #sub-row="{row, fullColspan}">
           <tr>
             <td :colspan="fullColspan">
+              <Banner v-if="row.remediation" class="sub-banner" :label="remediationDisplay(row)" color="warning" />
               <SortableTable
                 class="sub-table"
                 :rows="row.nodeRows"
@@ -249,7 +308,6 @@ export default {
         </template>
       </SortableTable>
     </div>
-    <Banner v-else color="error" :label="value.metadata.state.message" />
   </div>
 </template>
 
@@ -268,5 +326,14 @@ export default {
 
 .sub-table {
   padding: 0px 40px 0px 40px;
+}
+
+.sub-banner{
+  margin: 0px 40px 0px 40px;
+  width: auto;
+}
+
+.table-header {
+  align-items: flex-end;
 }
 </style>

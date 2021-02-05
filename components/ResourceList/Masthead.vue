@@ -1,44 +1,44 @@
 <script>
 import { mapGetters } from 'vuex';
 import Favorite from '@/components/nav/Favorite';
-import ButtonDropdown from '@/components/ButtonDropdown';
 import TypeDescription from '@/components/TypeDescription';
+import { clone, get } from '@/utils/object';
+import { AS, _YAML } from '@/config/query-params';
 
 export default {
   components: {
-    ButtonDropdown,
     Favorite,
     TypeDescription,
   },
-  props:      {
+  props: {
     resource: {
       type:     String,
-      required: true
+      required: true,
     },
     schema: {
       type:    Object,
-      default: null
+      default: null,
     },
     typeDisplay: {
       type:    String,
-      default: ''
+      default: null,
     },
     isCreatable: {
       type:    Boolean,
-      default: false
+      default: null,
     },
     isYamlCreatable: {
       type:    Boolean,
-      default: false,
+      default: null,
     },
     createLocation: {
       type:    Object,
-      default: null
+      default: null,
     },
     yamlCreateLocation: {
       type:    Object,
-      default: null
-    }
+      default: null,
+    },
   },
 
   async fetch() {
@@ -53,7 +53,29 @@ export default {
     }
   },
 
+  data() {
+    const params = { ...this.$route.params };
+    const resource = params.resource;
+
+    const formRoute = { name: `${ this.$route.name }-create`, params };
+
+    const hasEditComponent = this.$store.getters['type-map/hasCustomEdit'](resource);
+
+    const yamlRoute = {
+      name:  `${ this.$route.name }-create`,
+      params,
+      query: { [AS]: _YAML },
+    };
+
+    return {
+      formRoute,
+      yamlRoute,
+      hasEditComponent,
+    };
+  },
+
   computed: {
+    get,
     ...mapGetters(['isExplorer']),
 
     resourceName() {
@@ -61,19 +83,82 @@ export default {
         return this.customCreateFormName;
       }
 
-      if ( this.schema ) {
+      if (this.schema) {
         return this.$store.getters['type-map/labelFor'](this.schema);
       }
 
       return this.resource;
     },
+
     disableCreateButton() {
       const type = this.resource;
       const inStore = this.$store.getters['currentProduct'].inStore;
       const config = this.$store.getters[`${ inStore }/getCacheConfig`](type);
 
       return config.disableCreateButton || false;
+    },
+
+    extraAction() {
+      const opt = this.$store.getters[`type-map/optionsFor`](this.resource).extraListAction;
+
+      if ( opt ) {
+        const to = opt.to ? opt.to : clone(this.createLocation);
+
+        if ( opt.query ) {
+          to.query = Object.assign({}, to.query || {}, opt.query);
+        }
+
+        return {
+          to,
+          class: opt.classNames || 'btn role-primary',
+          label: (opt.labelKey ? this.t(opt.labelKey) : opt.label || 'Action?' ),
+        };
+      }
+
+      return null;
+    },
+
+    _typeDisplay() {
+      if ( this.typeDisplay !== null) {
+        return this.typeDisplay;
+      }
+
+      if ( !this.schema ) {
+        return '?';
+      }
+
+      return this.$store.getters['type-map/labelFor'](this.schema, 99);
+    },
+
+    _isYamlCreatable() {
+      if ( this.isYamlCreatable !== null) {
+        return this.isYamlCreatable;
+      }
+
+      return this.schema && this._isCreatable && this.$store.getters['type-map/optionsFor'](this.$route.params.resource).canYaml;
+    },
+
+    _isCreatable() {
+      // Does not take into account hasEditComponent, such that _isYamlCreatable works
+      if ( this.isCreatable !== null) {
+        return this.isCreatable;
+      }
+
+      if ( this.schema && !this.schema?.collectionMethods.find(x => x.toLowerCase() === 'post') ) {
+        return false;
+      }
+
+      return this.$store.getters['type-map/optionsFor'](this.$route.params.resource).isCreatable;
+    },
+
+    _createLocation() {
+      return this.createLocation || this.formRoute;
+    },
+
+    _yamlCreateLocation() {
+      return this.yamlCreateLocation || this.yamlRoute;
     }
+
   },
 };
 </script>
@@ -81,70 +166,39 @@ export default {
 <template>
   <header>
     <TypeDescription :resource="resource" />
-    <h1>
-      {{ typeDisplay }}<Favorite v-if="isExplorer" :resource="resource" />
-    </h1>
-    <div class="actions">
-      <ButtonDropdown
-        v-if="isCreatable || isYamlCreatable"
-        :disable-button="disableCreateButton"
-      >
-        <template #button-content="slotProps">
-          <nuxt-link
-            v-if="isCreatable"
-            :to="createLocation"
-            class="btn bg-transparent link"
-            :class="slotProps.buttonSize"
-            :disabled="disableCreateButton"
-          >
-            {{ t("resourceList.head.create") }}
-          </nuxt-link>
-          <nuxt-link
-            v-else-if="!isCreatable && isYamlCreatable"
-            :to="yamlCreateLocation"
-            class="btn bg-transparent"
-            :class="slotProps.buttonSize"
-          >
-            {{ t("resourceList.head.createFromYaml") }}
-          </nuxt-link>
-          <a
-            v-else
-            href="#"
-            class="btn bg-transparent"
-            :class="slotProps.buttonSize"
-            disabled="true"
-            @click.prevent.self
-          >
-            {{ t("resourceList.head.create") }}
-          </a>
-        </template>
-        <template
-          v-if="isCreatable && isYamlCreatable"
-          slot="popover-content"
+    <div class="title">
+      <h1 class="m-0">
+        {{ _typeDisplay }} <Favorite v-if="isExplorer" :resource="resource" />
+      </h1>
+    </div>
+    <div class="actions-container">
+      <div class="actions">
+        <slot name="extraActions">
+        </slot>
+
+        <n-link
+          v-if="extraAction"
+          :to="extraAction.to"
+          :class="extraAction.class"
         >
-          <ul class="list-unstyled menu" style="margin: -1px;">
-            <li class="hand">
-              <nuxt-link
-                v-if="isCreatable"
-                :to="createLocation"
-              >
-                {{ t("resourceList.head.createResource", { resourceName }) }}
-              </nuxt-link>
-            </li>
-            <li class="divider">
-              <div class="divider-inner"></div>
-            </li>
-            <li class="hand">
-              <nuxt-link
-                v-if="isYamlCreatable"
-                :to="yamlCreateLocation"
-              >
-                {{ t("resourceList.head.createFromYaml") }}
-              </nuxt-link>
-            </li>
-          </ul>
-        </template>
-      </ButtonDropdown>
+          {{ extraAction.label }}
+        </n-link>
+        <n-link
+          v-if="hasEditComponent && _isCreatable"
+          :to="_createLocation"
+          class="btn role-primary"
+          :disabled="disableCreateButton"
+        >
+          {{ t("resourceList.head.create") }}
+        </n-link>
+        <n-link
+          v-else-if="_isYamlCreatable"
+          :to="_yamlCreateLocation"
+          class="btn role-primary"
+        >
+          {{ t("resourceList.head.createFromYaml") }}
+        </n-link>
+      </div>
     </div>
   </header>
 </template>

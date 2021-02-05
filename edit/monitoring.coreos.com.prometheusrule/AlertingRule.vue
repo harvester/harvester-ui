@@ -39,17 +39,17 @@ export default {
       type:    String,
       default: 'create',
     },
-
-    ruleIndex: {
-      type:    Number,
-      default: 0,
-    },
   },
 
   data() {
     return {
       selectedSeverityLabel: null,
       ignoredAnnotations:    INGORED_ANNOTATIONS,
+      severityOptions:       [
+        this.t('prometheusRule.alertingRules.labels.severity.choices.critical'),
+        this.t('prometheusRule.alertingRules.labels.severity.choices.warning'),
+        this.t('prometheusRule.alertingRules.labels.severity.choices.none'),
+      ],
     };
   },
 
@@ -248,25 +248,13 @@ export default {
     },
     updateExpression(value) {
       this.$set(this.value, 'expr', value);
-    },
-    remove() {
-      this.$emit('removeRule', this.ruleIndex);
-    },
+    }
   },
 };
 </script>
 
 <template>
   <div>
-    <button
-      v-if="!isView"
-      v-tooltip="t('prometheusRule.alertingRules.removeAlert')"
-      type="button"
-      class="btn btn-sm bg-transparent remove"
-      @click="remove"
-    >
-      <i class="icon icon-x icon-2x" />
-    </button>
     <div class="row mt-25">
       <div class="col span-6">
         <LabeledInput
@@ -313,7 +301,7 @@ export default {
     <div class="suggested-labels">
       <div class="row mb-0 mt-30">
         <div class="col span-12">
-          <h3 class="mb-0">
+          <h3>
             <t k="prometheusRule.alertingRules.labels.label" />
           </h3>
         </div>
@@ -336,11 +324,7 @@ export default {
             :mode="mode"
             :label="t('prometheusRule.alertingRules.labels.severity.choices.label')"
             :localized-label="false"
-            :options="[
-              t('prometheusRule.alertingRules.labels.severity.choices.critical'),
-              t('prometheusRule.alertingRules.labels.severity.choices.warning'),
-              t('prometheusRule.alertingRules.labels.severity.choices.none'),
-            ]"
+            :options="severityOptions"
           />
         </div>
       </div>
@@ -351,7 +335,6 @@ export default {
             :value="filteredLabels"
             :add-label="t('labels.addLabel')"
             :mode="mode"
-            :pad-left="false"
             :read-allowed="false"
             :value-multiline="false"
             @input="queueLabelUpdate"
@@ -361,7 +344,7 @@ export default {
       <div class="suggested-annotations">
         <div class="row mb-0 mt-30">
           <div class="col span-12">
-            <h3 class="mb-0">
+            <h3>
               <t k="prometheusRule.alertingRules.annotations.label" />
             </h3>
           </div>
@@ -480,7 +463,6 @@ export default {
             :value="filteredAnnotations"
             :add-label="t('labels.addAnnotation')"
             :mode="mode"
-            :pad-left="false"
             :read-allowed="false"
             @input="queueAnnotationUpdate"
           />

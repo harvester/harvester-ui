@@ -14,6 +14,8 @@ export const STEVE = {
 export const NORMAN = {
   AUTH_CONFIG: 'authconfig',
   PRINCIPAL:   'principal',
+  USER:        'user',
+  TOKEN:        'token',
 };
 
 // Public (via Norman)
@@ -48,6 +50,9 @@ export const RBAC = {
   CLUSTER_ROLE:         'rbac.authorization.k8s.io.clusterrole',
   ROLE_BINDING:         'rbac.authorization.k8s.io.rolebinding',
   CLUSTER_ROLE_BINDING: 'rbac.authorization.k8s.io.clusterrolebinding',
+  GLOBAL_ROLE:          'management.cattle.io.globalrole',
+  GLOBAL_ROLE_BINDING:  'management.cattle.io.globalrolebinding',
+  SPOOFED:              { ROLE_TEMPLATE: 'rbac.authorization.k8s.io.roletemplate' }
 };
 
 export const WORKLOAD = 'workload';
@@ -91,6 +96,7 @@ export const MONITORING = {
     RECEIVER_PAGERDUTY:   'monitoring.coreos.com.receiver.pagerduty',
     RECEIVER_OPSGENIE:    'monitoring.coreos.com.receiver.opsgenie',
     RECEIVER_HTTP_CONFIG: 'monitoring.coreos.com.receiver.httpconfig',
+    RESPONDER:            'monitoring.coreos.com.receiver.responder',
     ROUTE:                'monitoring.coreos.com.route',
     ROUTE_SPEC:           'monitoring.coreos.com.route.spec',
   }
@@ -112,6 +118,7 @@ export const LONGHORN = {
 // Rancher Management API (via Steve)
 // Base: /v1
 export const MANAGEMENT = {
+  AUTH_CONFIG:      'management.cattle.io.authconfig',
   CATALOG_TEMPLATE: 'management.cattle.io.catalogtemplate',
   CATALOG:          'management.cattle.io.catalog',
   CLUSTER:          'management.cattle.io.cluster',
@@ -121,6 +128,14 @@ export const MANAGEMENT = {
   PROJECT:          'management.cattle.io.project',
   SETTING:          'management.cattle.io.setting',
   USER:             'management.cattle.io.user',
+  TOKEN:            'management.cattle.io.token',
+};
+
+export const CAPI = {
+  CAPI_CLUSTER: 'cluster.x-k8s.io.cluster',
+  RKE_CLUSTER:  'cluster.cattle.io.rkecluster',
+  NODE_CONFIG:  'node-config.cattle.io',
+  SPOOFED:      { NODE_CONFIG: 'node-config.cattle.io' }
 };
 
 // --------------------------------------
@@ -168,7 +183,33 @@ export const LOGGING = {
   CLUSTER_FLOW:   'logging.banzaicloud.io.clusterflow',
   CLUSTER_OUTPUT: 'logging.banzaicloud.io.clusteroutput',
   FLOW:           'logging.banzaicloud.io.flow',
-  OUTPUT:         'logging.banzaicloud.io.output'
+  OUTPUT:         'logging.banzaicloud.io.output',
+  SPOOFED:        {
+    FILTERS:            'logging.banzaicloud.io.output.filters',
+    FILTER:             'logging.banzaicloud.io.output.filter',
+    CONCAT:             'logging.banzaicloud.io.output.filters.concat',
+    DEDOT:              'logging.banzaicloud.io.output.filters.dedot',
+    DETECTEXCEPTIONS:   'logging.banzaicloud.io.output.filters.detectExceptions',
+    GEOIP:              'logging.banzaicloud.io.output.filters.geoip',
+    GREP:               'logging.banzaicloud.io.output.filters.grep',
+    PARSER:             'logging.banzaicloud.io.output.filters.parser',
+    PROMETHEUS:         'logging.banzaicloud.io.output.filters.prometheus',
+    RECORD_MODIFIER:    'logging.banzaicloud.io.output.filters.record_modifier',
+    RECORD_TRANSFORMER: 'logging.banzaicloud.io.output.filters.record_transformer',
+    STDOUT:             'logging.banzaicloud.io.output.filters.stdout',
+    SUMOLOGIC:          'logging.banzaicloud.io.output.filters.sumologic',
+    TAG_NORMALISER:     'logging.banzaicloud.io.output.filters.tag_normaliser',
+    THROTTLE:           'logging.banzaicloud.io.output.filters.throttle',
+    RECORD:             'logging.banzaicloud.io.output.filters.record',
+    REGEXPSECTION:      'logging.banzaicloud.io.output.filters.regexpsection',
+    EXCLUDESECTION:     'logging.banzaicloud.io.output.filters.excludesection',
+    ORSECTION:          'logging.banzaicloud.io.output.filters.orsection',
+    ANDSECTION:         'logging.banzaicloud.io.output.filters.andsection',
+    PARSESECTION:       'logging.banzaicloud.io.output.filters.parsesection',
+    METRICSECTION:      'logging.banzaicloud.io.output.filters.metricsection',
+    REPLACE:            'logging.banzaicloud.io.output.filters.replace',
+    SINGLEPARSESECTION: 'logging.banzaicloud.io.output.filters.replace.singleparsesection'
+  }
 };
 
 export const BACKUP_RESTORE = {

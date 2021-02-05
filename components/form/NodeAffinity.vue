@@ -1,12 +1,16 @@
 <script>
 import { _VIEW } from '@/config/query-params';
-import { get, isEmpty } from '@/utils/object';
+import { get, isEmpty, clone } from '@/utils/object';
 import { NODE } from '@/config/types';
 import MatchExpressions from '@/components/form/MatchExpressions';
-import InfoBox from '@/components/InfoBox';
+import LabeledSelect from '@/components/form/LabeledSelect';
+import { randomStr } from '@/utils/string';
+import ArrayListGrouped from '@/components/form/ArrayListGrouped';
 
 export default {
-  components: { MatchExpressions, InfoBox },
+  components: {
+    ArrayListGrouped, MatchExpressions, LabeledSelect
+  },
 
   props:      {
     // value should be NodeAffinity or VolumeNodeAffinity
@@ -30,20 +34,20 @@ export default {
     } else {
       const { preferredDuringSchedulingIgnoredDuringExecution = [], requiredDuringSchedulingIgnoredDuringExecution = {} } = this.value;
       const { nodeSelectorTerms = [] } = requiredDuringSchedulingIgnoredDuringExecution;
+      const allSelectorTerms = [...preferredDuringSchedulingIgnoredDuringExecution, ...nodeSelectorTerms].map((term) => {
+        const neu = clone(term);
 
-      const selectorMap = {};
-      const weightedSelectorMap = {};
+        neu._id = randomStr(4);
+        if (term.preference) {
+          Object.assign(neu, term.preference);
+          delete neu.preference;
+        }
 
-      nodeSelectorTerms.forEach((term, i) => {
-        selectorMap[i] = term;
-      });
-      preferredDuringSchedulingIgnoredDuringExecution.forEach((term, i) => {
-        weightedSelectorMap[i] = term;
+        return neu;
       });
 
       return {
-        selectorMap,
-        weightedSelectorMap,
+        allSelectorTerms,
         weightedNodeSelectorTerms: preferredDuringSchedulingIgnoredDuringExecution,
         defaultWeight:             1
       };
@@ -66,24 +70,43 @@ export default {
     update() {
       this.$nextTick(() => {
         const out = {};
-        const selectors = Object.values(this.selectorMap) || [];
-        const weightedSelectors = Object.values(this.weightedSelectorMap) || [];
+        const requiredDuringSchedulingIgnoredDuringExecution = { nodeSelectorTerms: [] };
+        const preferredDuringSchedulingIgnoredDuringExecution = [] ;
 
-        if (selectors.length) {
-          out['requiredDuringSchedulingIgnoredDuringExecution'] = { nodeSelectorTerms: selectors };
+        this.allSelectorTerms.forEach((term) => {
+          if (term.weight) {
+            const neu = { weight: 1, preference: term };
+
+            preferredDuringSchedulingIgnoredDuringExecution.push(neu);
+          } else {
+            requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.push(term);
+          }
+        });
+
+        if (preferredDuringSchedulingIgnoredDuringExecution.length) {
+          out.preferredDuringSchedulingIgnoredDuringExecution = preferredDuringSchedulingIgnoredDuringExecution;
         }
-        if (weightedSelectors.length) {
-          out['preferredDuringSchedulingIgnoredDuringExecution'] = weightedSelectors;
+        if (requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.length) {
+          out.requiredDuringSchedulingIgnoredDuringExecution = requiredDuringSchedulingIgnoredDuringExecution;
         }
         this.$emit('input', out);
       });
     },
-    updateSelector(map, key, val) {
-      this.$set(map, key, val);
-      this.update();
+
+    changePriority(term) {
+      if (term.weight) {
+        this.$delete(term, 'weight');
+      } else {
+        this.$set(term, 'weight', 1);
+      }
+    },
+
+    priorityDisplay(term) {
+      return term.weight ? this.t('workload.scheduling.affinity.preferred') : this.t('workload.scheduling.affinity.required');
     },
 
     get,
+
     isEmpty
   }
 
@@ -92,57 +115,33 @@ export default {
 
 <template>
   <div class="row" @input="update">
-    <div :class="{'col span-6':hasWeighted, 'col span-12':!hasWeighted}">
-      <div v-if="!isView || Object.values(selectorMap).length " class="mb-10">
-        <label><t k="workload.scheduling.affinity.requireAny" /></label>
-      </div>
-      <template v-for="(nodeSelectorTerm, key) in selectorMap">
-        <InfoBox :key="key" class="node-selector">
+    <div class="col span-12">
+      <ArrayListGrouped v-model="allSelectorTerms" class="mt-20" :default-add-value="{matchExpressions:[]}" :add-label="t('workload.scheduling.affinity.addNodeSelector')">
+        <template #default="props">
+          <div class="row">
+            <div class="col span-6">
+              <LabeledSelect
+                :options="[t('workload.scheduling.affinity.preferred'),t('workload.scheduling.affinity.required')]"
+                :value="priorityDisplay(props.row.value)"
+                :label="t('workload.scheduling.affinity.priority')"
+                :mode="mode"
+                @input="(changePriority(props.row.value))"
+              />
+            </div>
+          </div>
           <MatchExpressions
-            :key="key"
+            v-model="props.row.value.matchExpressions"
             :initial-empty-row="!isView"
             :mode="mode"
-            class="col span-12"
+            class="col span-12 mt-20"
             :type="node"
-            :value="nodeSelectorTerm.matchExpressions"
-            @remove="$delete(selectorMap, key)"
-            @input="e=>updateSelector(selectorMap, key, {matchExpressions:e})"
+            :show-remove="false"
           />
-        </InfoBox>
-      </template>
-      <button v-if="!isView" type="button" class="btn role-tertiary" @click="e=>$set(selectorMap, Math.random(), {matchExpressions:[]})">
-        <t k="workload.scheduling.affinity.addNodeSelector" />
-      </button>
-    </div>
-
-    <div v-if="hasWeighted" class="col span-6">
-      <div v-if="!isView || Object.values(weightedSelectorMap).length " class="mb-10">
-        <label><t k="workload.scheduling.affinity.preferAny" /></label>
-      </div>
-      <template v-for="(nodeSelectorTerm, key) in weightedSelectorMap">
-        <InfoBox :key="key" class="node-selector">
-          <MatchExpressions
-            :key="key"
-            :mode="mode"
-            class="col span-12"
-            :initial-empty-row="!isView"
-            :type="node"
-            :value="get(nodeSelectorTerm, 'preference.matchExpressions')"
-            :weight="nodeSelectorTerm.weight"
-            @remove="$delete(weightedSelectorMap, key)"
-            @input="e=>updateSelector(weightedSelectorMap, key, {preference:{matchExpressions:e}, weight:defaultWeight})"
-          />
-        </InfoBox>
-      </template>
-      <button v-if="!isView" type="button" class="btn role-tertiary" @click="e=>$set(weightedSelectorMap, Math.random(), {preference:{matchExpressions:[]}, weight:defaultWeight})">
-        <t k="workload.scheduling.affinity.addNodeSelector" />
-      </button>
+        </template>
+      </ArrayListGrouped>
     </div>
   </div>
 </template>
 
 <style>
-  .node-selector{
-    position: relative
-  }
 </style>

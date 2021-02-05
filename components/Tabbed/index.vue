@@ -40,6 +40,8 @@ export default {
     const tabs = this.tabs;
 
     return {
+      sideTabs: this.sideTabs,
+
       addTab(tab) {
         const existing = findBy(tabs, 'name', tab.name);
 
@@ -66,10 +68,7 @@ export default {
   computed: {
     // keep the tabs list ordered for dynamic tabs
     sortedTabs() {
-      const { tabs } = this;
-      const shownTabs = tabs.filter(tab => !tab.canToggle);
-
-      return sortBy(shownTabs, ['weight:desc', 'label', 'name']);
+      return sortBy(this.tabs, ['weight:desc', 'labelDisplay', 'name']);
     },
   },
 
@@ -202,7 +201,7 @@ export default {
           role="tab"
           @click.prevent="select(tab.name, $event)"
         >
-          {{ tab.label }}
+          {{ tab.labelDisplay }}
         </a>
       </li>
       <ul v-if="sideTabs && showTabsAddRemove" class="tab-list-footer">

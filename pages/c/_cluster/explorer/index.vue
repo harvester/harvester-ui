@@ -27,6 +27,7 @@ import SimpleBox from '@/components/SimpleBox';
 import ResourceGauge, { resourceCounts } from '@/components/ResourceGauge';
 import CountGauge from '@/components/CountGauge';
 import Glance from '@/components/Glance';
+import { findBy } from '@/utils/array';
 import HardwareResourceGauge from './HardwareResourceGauge';
 
 const PARSE_RULES = {
@@ -52,12 +53,12 @@ const RESOURCES = [NAMESPACE, INGRESS, PV, WORKLOAD_TYPES.DEPLOYMENT, WORKLOAD_T
 export default {
   components: {
     CountGauge,
-    Loading,
     Glance,
     HardwareResourceGauge,
+    Loading,
     ResourceGauge,
     SimpleBox,
-    SortableTable
+    SortableTable,
   },
 
   async fetch() {
@@ -119,7 +120,7 @@ export default {
     ];
 
     return {
-      metricPoller:  null,
+      metricPoller:      null,
       eventHeaders,
       nodeHeaders,
       constraints:       [],
@@ -137,6 +138,10 @@ export default {
     displayProvider() {
       const other = 'other';
       let provider = this.currentCluster.status.provider || other;
+
+      if (provider === 'rke.windows') {
+        provider = 'rkeWindows';
+      }
 
       if (!this.$store.getters['i18n/exists'](`cluster.provider.${ provider }`)) {
         provider = 'other';
@@ -178,7 +183,7 @@ export default {
       };
     },
 
-    podsReserved() {
+    podsUsed() {
       return {
         total:  parseSi(this.currentCluster?.status?.allocatable?.pods || '0'),
         useful: parseSi(this.currentCluster?.status?.requested?.pods || '0')
@@ -227,7 +232,7 @@ export default {
 
     showReservedMetrics() {
       // As long as we have at least one reserved value > 0 we should show these metrics
-      const reservedSum = [this.cpuReserved, this.podsReserved, this.ramReserved].reduce((agg, cur) => {
+      const reservedSum = [this.cpuReserved, this.podsUsed, this.ramReserved].reduce((agg, cur) => {
         return agg + (cur.total || 0) + (cur.useful || 0);
       }, 0);
 
@@ -303,6 +308,7 @@ export default {
     async loadMetrics() {
       this.nodeMetrics = await this.fetchClusterResources(METRIC.NODE, { force: true } );
     },
+    findBy,
   },
 
   beforeRouteLeave(to, from, next) {
@@ -315,8 +321,8 @@ export default {
 <template>
   <Loading v-if="$fetchState.pending" />
   <section v-else>
-    <header class="row">
-      <div class="span-11">
+    <header>
+      <div class="title">
         <h1>
           <t k="clusterIndexPage.header" />
         </h1>
@@ -327,10 +333,16 @@ export default {
     </header>
     <Glance
       :slots="['displayProvider', 'kubernetesVersion', 'totalNodes', 'created']"
+      class="cluster-dashboard-glance"
     >
       <template #displayProvider>
-        <h1>{{ displayProvider }}</h1>
-        <label>{{ t('glance.provider') }}</label>
+        <div class="title-content">
+          <h1>{{ displayProvider }}</h1>
+          <label>{{ t('glance.provider') }}</label>
+        </div>
+        <div class="logo">
+          <img class="os-provider-logo" :src="currentCluster.providerOsLogo" />
+        </div>
       </template>
       <template #kubernetesVersion>
         <h1>{{ currentCluster.kubernetesVersion }}</h1>
@@ -350,7 +362,7 @@ export default {
       <ResourceGauge v-for="(resource, i) in accessibleResources" :key="resource" :resource="resource" :primary-color-var="`--sizzle-${i}`" />
     </div>
     <div v-if="showReservedMetrics" class="hardware-resource-gauges">
-      <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.podsReserved')" :total="podsReserved.total" :useful="podsReserved.useful" />
+      <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.podsUsed')" :total="podsUsed.total" :useful="podsUsed.useful" />
       <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.coresReserved')" :total="cpuReserved.total" :useful="cpuReserved.useful" />
       <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.ramReserved')" :total="ramReserved.total" :useful="ramReserved.useful" :units="ramReserved.units" />
     </div>
@@ -384,11 +396,44 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-  .actions-span {
-    align-self: center;
-  }
+.glance.cluster-dashboard-glance ::v-deep {
+  .tile:first-child {
+    flex-direction: row;
 
-  .events {
-    margin-top: 30px;
+    .title-content,
+    .logo {
+      flex: 1;
+    }
+
+    .title-content {
+      &:first-child {
+        flex-basis: 75%;
+      }
+    }
+
+    .logo {
+      display: flex;
+      justify-content: flex-end;
+      align-self: center;
+      padding-right: 20px;
+    }
   }
+}
+
+.title h1 {
+  margin: 0;
+}
+
+.actions-span {
+  align-self: center;
+}
+
+.events {
+  margin-top: 30px;
+}
+
+.os-provider-logo {
+  height: 40px;
+  width: 40px;
+}
 </style>

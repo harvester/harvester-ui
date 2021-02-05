@@ -100,7 +100,7 @@ export default {
 </script>
 
 <template>
-  <button type="button" class="file-selector btn" @click="selectFile">
+  <button :disabled="disabled" type="button" class="file-selector btn" @click="selectFile">
     <span>{{ label }}</span>
     <input
       ref="uploader"

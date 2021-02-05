@@ -74,23 +74,29 @@ export default {
     // filter benchmarks by spec.clusterProvider and kubernetes min/max version
     // include benchmarks with no clusterProvider defined
     validateBenchmark(benchmark) {
-      const clusterVersion = this.currentCluster.kubernetesVersion;
-
       if (!!benchmark?.spec?.clusterProvider) {
         return benchmark?.spec?.clusterProvider === this.provider;
       }
-      if (benchmark?.spec?.minKubernetesVersion) {
-        if (semver.gt(benchmark?.spec?.minKubernetesVersion, clusterVersion)) {
-          return false;
-        }
-      }
-      if (benchmark?.spec?.maxKubernetesVersion) {
-        if (semver.gt(clusterVersion, benchmark?.spec?.maxKubernetesVersion)) {
-          return false;
-        }
-      }
 
-      return true;
+      try {
+        const clusterVersion = this.currentCluster.kubernetesVersionDisplay;
+
+        if (benchmark?.spec?.minKubernetesVersion) {
+          if (semver.gt(benchmark?.spec?.minKubernetesVersion, clusterVersion)) {
+            return false;
+          }
+        }
+        if (benchmark?.spec?.maxKubernetesVersion) {
+          if (semver.gt(clusterVersion, benchmark?.spec?.maxKubernetesVersion)) {
+            return false;
+          }
+        }
+
+        return true;
+      } catch (e) {
+        // If a version doesn't parse, show it
+        return true;
+      }
     }
   }
 };
@@ -98,7 +104,15 @@ export default {
 
 <template>
   <div>
-    <CruResource :validation-passed="!!name && !!value.spec.benchmarkVersion" :done-route="doneRoute" :resource="value" :mode="mode" @finish="save">
+    <CruResource
+      :validation-passed="!!name && !!value.spec.benchmarkVersion"
+      :done-route="doneRoute"
+      :resource="value"
+      :mode="mode"
+      :errors="errors"
+      @finish="save"
+      @error="e=>errors = e"
+    >
       <template>
         <div class="spacer"></div>
         <div class="row">

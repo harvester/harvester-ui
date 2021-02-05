@@ -6,8 +6,11 @@ import { ucFirst } from '@/utils/string';
 import { createPopper } from '@popperjs/core';
 import $ from 'jquery';
 import { CATALOG } from '@/config/types';
+import Select from '@/components/form/Select';
 
 export default {
+  components: { Select },
+
   data() {
     return { previous: null };
   },
@@ -24,6 +27,8 @@ export default {
 
     options() {
       const t = this.$store.getters['i18n/t'];
+      const isMultiCluster = this.$store.getters['isMultiCluster'];
+
       const entries = this.activeProducts.map((p) => {
         let label;
         const key = `product.${ p.name }`;
@@ -56,18 +61,35 @@ export default {
         return out;
       });
 
-      const out = sortBy(entries, ['inStore', 'removable', 'weight:desc', 'label']);
+      const out = sortBy(entries, ['inStore', 'weight:desc', 'label']);
+
+      if ( isMultiCluster && out[0].inStore === 'cluster' ) {
+        insertAt(out, 0, {
+          label:    t('product.clusterGroup'),
+          disabled: true,
+          kind:     'label',
+        });
+      }
+
       let last;
 
       for ( let i = out.length - 1 ; i >= 0 ; i-- ) {
         const entry = out[i];
 
-        if ( last && ( (last.removable !== entry.removable) || (last.inStore !== entry.inStore) ) ) {
+        if ( isMultiCluster && last && (last.inStore !== entry.inStore) ) {
+          insertAt(out, i + 1, {
+            label:    t('product.globalGroup'),
+            disabled: true,
+            kind:     'label',
+          });
+
           insertAt(out, i + 1, {
             label:    `The great divide ${ i }`,
             kind:     'divider',
             disabled: true
           });
+
+          break;
         }
 
         last = out[i];
@@ -79,7 +101,7 @@ export default {
 
   methods: {
     focus() {
-      this.$refs.select.$refs.search.focus();
+      this.$refs.select.focusSearch();
     },
 
     shortcutsActive() {
@@ -163,6 +185,10 @@ export default {
         strategy:  'fixed',
         modifiers: [
           {
+            name:    'offset',
+            options: { offset: [0, -2] },
+          },
+          {
             name:    'toggleClass',
             enabled: true,
             phase:   'write',
@@ -181,23 +207,24 @@ export default {
 
 <template>
   <div class="filter">
-    <v-select
+    <Select
       ref="select"
       key="product"
       :value="value"
-      :clearable="false"
       :selectable="option => !option.disabled"
       :options="options"
       :reduce="opt=>opt.value"
-      :calculate-position="withPopper"
+      :popper-override="withPopper"
       :append-to-body="true"
-
-      label="label"
+      placement="bottom"
       @input="change"
     >
       <template v-slot:option="opt">
         <template v-if="opt.kind === 'divider'">
           <hr />
+        </template>
+        <template v-else-if="opt.kind === 'label'">
+          <b>{{ opt.label }}</b>
         </template>
         <template v-else>
           <i class="product-icon icon icon-lg icon-fw" :class="{[opt.icon]: true}" />
@@ -205,7 +232,7 @@ export default {
           <i v-if="opt.kind === 'external'" class="icon icon-external-link ml-10" />
         </template>
       </template>
-    </v-select>
+    </Select>
     <button v-shortkey.once="['p']" class="hide" @shortkey="focus()" />
     <button v-shortkey.once="['f']" class="hide" @shortkey="switchToFleet()" />
     <button v-shortkey.once="['e']" class="hide" @shortkey="switchToExplorer()" />
@@ -214,83 +241,87 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-  .filter ::v-deep .v-select {
-    max-width: 100%;
-    display: inline-block;
+.filter ::v-deep .unlabeled-select {
+  background-color: transparent;
+  min-height: 50px;
+  border: 0;
 
+  .v-select {
     &.vs--disabled .vs__actions {
       display: none;
     }
 
-    .vs__actions:after {
-      fill: white !important;
-      color: white !important;
+    .vs__actions {
+      &:after {
+        fill: white !important;
+        color: white !important;
+      }
     }
 
     .vs__dropdown-toggle {
+      // margin-bottom: -4px;
       height: var(--header-height);
-      // margin-left: 35px;
       background-color: transparent;
-      border: 0;
       position: relative;
-      // left: 35px;
+      padding-top: 0;
     }
 
     .vs__selected {
       user-select: none;
       cursor: default;
       color: white;
-      line-height: calc(var(--header-height) - 14px);
+      line-height: calc(var(--header-height) - 7px);
       position: relative;
       left: 40px;
+      align-self: center;
+    }
+    .vs__selected-options {
+      flex-wrap: wrap;
+    }
+    .unlabeled-select INPUT[type='search'] {
+      margin-left: 40px;
     }
   }
-
-  .filter ::v-deep INPUT {
-    width: auto;
-    background-color: transparent;
-  }
-
-  .filter ::v-deep INPUT:hover {
-    background-color: transparent;
-  }
-
+}
 </style>
 
 <style lang="scss">
-  .product-menu {
-    width: 300px;
-    max-height: 90vh;
+// these styles exist because the dd is placed with Popper and is outside the flow of the component, product-menu gets appended to the menu
+.product-menu {
+  width: 300px;
+  max-height: 90vh;
+  &.vs__dropdown-menu {
+    outline: none;
+  }
 
-    .vs__dropdown-option {
-      padding: 10px;
-      text-decoration: none;
-      border-left: 5px solid transparent;
+  .vs__dropdown-option {
+    padding: 10px;
+    text-decoration: none;
+    border-left: 5px solid transparent;
 
-      &.vs__dropdown-option--disabled {
-        // The dividers
-        padding: 0;
-      }
-
-      .product-icon {
-        color: var(--product-icon);
-        margin-right: 5px;
-      }
-
-      UL {
-        margin: 0;
-      }
+    &.vs__dropdown-option--disabled {
+      // The dividers
+      padding: 0;
     }
 
-    .vs__dropdown-option--selected {
-      color: var(--body-text);
-      // font-weight: bold;
-      background: var(--nav-active);
-      border-left: 5px solid var(--primary);
+    .product-icon {
+      color: var(--product-icon);
+      margin-right: 5px;
+    }
 
-      .product-icon {
-        color: var(--product-icon-active);
-      }
+    UL {
+      margin: 0;
     }
   }
+
+  .vs__dropdown-option--selected {
+    color: var(--body-text);
+    background: var(--nav-active);
+    border-left: 5px solid var(--primary);
+
+    .product-icon {
+      color: var(--product-icon-active);
+    }
+  }
+}
 </style>

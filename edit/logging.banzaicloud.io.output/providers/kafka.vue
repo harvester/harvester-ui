@@ -2,7 +2,7 @@
 import LabeledInput from '@/components/form/LabeledInput';
 import SecretSelector from '@/components/form/SecretSelector';
 import Checkbox from '@/components/form/Checkbox';
-import { protocol } from './options';
+import { protocol } from './utils';
 
 export default {
   components: {
@@ -23,6 +23,10 @@ export default {
       type:     String,
       required: true,
     },
+    namespace: {
+      type:     String,
+      required: true
+    }
   },
 
   data() {
@@ -33,48 +37,58 @@ export default {
 
 <template>
   <div class="kafka">
-    <div class="bordered-section">
-      <h3>{{ t('logging.output.sections.target') }}</h3>
-      <div class="row">
-        <div class="col span-6">
-          <LabeledInput v-model="value.brokers" :mode="mode" :disabled="disabled" :label="t('logging.kafka.brokers')" />
-        </div>
-        <div class="col span-6">
-          <LabeledInput v-model="value.default_topic" :mode="mode" :disabled="disabled" :label="t('logging.kafka.defaultTopic')" />
-        </div>
+    <div class="row">
+      <div class="col span-6">
+        <h3>{{ t('logging.output.sections.target') }}</h3>
       </div>
     </div>
-
-    <div class="bordered-section">
-      <h3>{{ t('logging.output.sections.access') }}</h3>
-      <div class="row mb-10">
-        <div class="col span-6">
-          <SecretSelector
-            v-model="value.username"
-            :mode="mode"
-            :disabled="disabled"
-            :label="t('logging.kafka.username')"
-            :show-key-selector="true"
-          />
-        </div>
-        <div class="col span-6">
-          <SecretSelector
-            v-model="value.password"
-            :mode="mode"
-            :disabled="disabled"
-            :label="t('logging.kafka.password')"
-            :show-key-selector="true"
-          />
-        </div>
+    <div class="row">
+      <div class="col span-6">
+        <LabeledInput v-model="value.brokers" :mode="mode" :disabled="disabled" :label="t('logging.kafka.brokers')" />
       </div>
-      <div class="row">
-        <div class="col span-6">
-          <LabeledInput v-model="value.scram_mechanism" :mode="mode" :disabled="disabled" :label="t('logging.kafka.scramMechanism')" />
-        </div>
+      <div class="col span-6">
+        <LabeledInput v-model="value.default_topic" :mode="mode" :disabled="disabled" :label="t('logging.kafka.defaultTopic')" />
       </div>
     </div>
-
-    <h3>{{ t('logging.output.sections.certificate') }}</h3>
+    <div class="spacer"></div>
+    <div class="row">
+      <div class="col span-6">
+        <h3>{{ t('logging.output.sections.access') }}</h3>
+      </div>
+    </div>
+    <div class="row mb-10">
+      <div class="col span-6">
+        <SecretSelector
+          v-model="value.username"
+          :mode="mode"
+          :namespace="namespace"
+          :disabled="disabled"
+          :secret-name-label="t('logging.kafka.username')"
+          :show-key-selector="true"
+        />
+      </div>
+      <div class="col span-6">
+        <SecretSelector
+          v-model="value.password"
+          :mode="mode"
+          :namespace="namespace"
+          :disabled="disabled"
+          :secret-name-label="t('logging.kafka.password')"
+          :show-key-selector="true"
+        />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col span-6">
+        <LabeledInput v-model="value.scram_mechanism" :mode="mode" :disabled="disabled" :label="t('logging.kafka.scramMechanism')" />
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="row">
+      <div class="col span-6">
+        <h3>{{ t('logging.output.sections.certificate') }}</h3>
+      </div>
+    </div>
     <div class="row mb-10">
       <div class="col span-6">
         <Checkbox v-model="value.sasl_over_ssl" :mode="mode" :disabled="disabled" :label="t('logging.kafka.saslOverSsl')" />
@@ -85,8 +99,9 @@ export default {
         <SecretSelector
           v-model="value.ssl_ca_cert"
           :mode="mode"
+          :namespace="namespace"
           :disabled="disabled"
-          :label="t('logging.kafka.sslCaCert.label')"
+          :secret-name-label="t('logging.kafka.sslCaCert.label')"
           :show-key-selector="true"
         />
       </div>
@@ -94,8 +109,9 @@ export default {
         <SecretSelector
           v-model="value.ssl_client_cert"
           :mode="mode"
+          :namespace="namespace"
           :disabled="disabled"
-          :label="t('logging.kafka.sslClientCert.label')"
+          :secret-name-label="t('logging.kafka.sslClientCert.label')"
           :show-key-selector="true"
         />
       </div>
@@ -105,8 +121,9 @@ export default {
         <SecretSelector
           v-model="value.ssl_client_cert_chain"
           :mode="mode"
+          :namespace="namespace"
           :disabled="disabled"
-          :label="t('logging.kafka.sslClientCertChain.label')"
+          :secret-name-label="t('logging.kafka.sslClientCertChain.label')"
           :show-key-selector="true"
         />
       </div>
@@ -114,8 +131,9 @@ export default {
         <SecretSelector
           v-model="value.ssl_client_cert_key"
           :mode="mode"
+          :namespace="namespace"
           :disabled="disabled"
-          :label="t('logging.kafka.sslClientCertKey')"
+          :secret-name-label="t('logging.kafka.sslClientCertKey')"
           :show-key-selector="true"
         />
       </div>

@@ -72,9 +72,11 @@ export default {
       return this.storageClasses.filter(sc => sc.metadata.annotations[STORAGE.DEFAULT_STORAGE_CLASS] && sc.metadata.annotations[STORAGE.DEFAULT_STORAGE_CLASS] !== 'false' )[0] || '';
     },
 
-    unboundPVs() {
+    availablePVs() {
       return this.persistentVolumes.filter((total, each) => {
-        return each?.status?.phase !== 'bound';
+        const rwx = (each?.spec?.accessModes || []).includes('ReadWriteMany');
+
+        return each?.status?.phase !== 'bound' || rwx ;
       });
     },
 
@@ -96,7 +98,6 @@ export default {
 
   watch: {
     storageSource(neu) {
-      this.reclaimWarning = false;
       switch (neu) {
       case 'pickSC':
         this.value.persistence.enabled = true;
@@ -105,12 +106,16 @@ export default {
           this.value.persistence.storageClass = this.defaultStorageClass?.id;
           this.storageClass = this.defaultStorageClass;
         }
+        if (this.storageClass?.reclaimPolicy === 'Delete') {
+          this.reclaimWarning = true;
+        }
         delete this.value.persistence.volumeName;
         break;
       case 'pickPV':
         this.value.persistence.enabled = true;
         this.value.s3.enabled = false;
         this.value.persistence.storageClass = '-';
+        this.reclaimWarning = false;
         break;
       case 's3':
         this.value.persistence.enabled = false;
@@ -199,7 +204,7 @@ export default {
               :tooltip="reclaimWarning ? t('backupRestoreOperator.deployment.storage.warning', {type: 'Persistent Volume'}) : null"
               :mode="mode"
               :status="reclaimWarning ? 'warning' : null"
-              :options="unboundPVs"
+              :options="availablePVs"
               :hover-tooltip="true"
             />
           </div>

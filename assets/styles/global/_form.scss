@@ -6,7 +6,7 @@ INPUT[type='password'],
 INPUT[type='number'],
 INPUT[type='date'],
 INPUT[type='email'],
-INPUT[type='search'],
+INPUT[type='search']:not(.vs__search),
 INPUT[type='tel'],
 INPUT[type='url'],
 SELECT,
@@ -17,61 +17,21 @@ TEXTAREA,
   display: block;
   box-sizing: border-box;
   width: 100%;
-  padding: 8px;
+  padding: 10px;
   background-color: var(--input-bg);
   border-radius: var(--border-radius);
-  border: solid var(--outline-width) var(--input-border);
+  border: solid var(--border-width) var(--input-border);
   color: var(--input-text);
 
-  &:not(.focused) {
-    &.success {
-      border: solid 1px var(--success);
-      input, .selected { 
-        color: var(--success);
-      }
+  @include input-status-color;
 
-      .vs__actions:after {
-        color: var(--success);
-      }
-    }
-  
-    &.warning {
-      border: solid 1px var(--warning);
-      input, .selected { 
-        color: var(--warning);
-      }
-
-      .vs__actions:after {
-        color: var(--warning);
-      }
-    }
-  
-    &.error {
-      border: solid 1px var(--error);
-      input, .selected { 
-        color: var(--error);
-      }
-
-      .vs__actions:after {
-        color: var(--error);
-      }
-    }
+  LABEL {
+    color: var(--input-label);
   }
-
-  &:not(.view) {
-    background-color: var(--input-bg);
-
-    &:hover {
-      &, .vs__dropdown-menu {
-        background: var(--input-hover-bg);
-      }
+  &:hover {
+    &, .vs__dropdown-menu {
+      background: var(--input-hover-bg);
     }
-  }
-
-  &.view {
-    border: none;
-    background-color: transparent;
-    padding:0px;
   }
 
   &::placeholder {
@@ -80,26 +40,28 @@ TEXTAREA,
 
   &.disabled, &.disabled .selected, &[disabled], &[disabled]:hover {
     color: var(--input-disabled-text);
-    background-color: var(--input-disabled-bg, var(--input-bg));
+    background-color: var(--input-disabled-bg);
     outline-width: 0;
-    border-color: var(--input-disabled-border, var(--input-border));
+    border-color: var(--input-disabled-border);
     cursor: not-allowed;
+    label {
+      color: var(--input-disabled-label);
+      display: inline-block;
+      z-index: 1;
+    }
     &::placeholder {
-        color: var(--input-disabled-placeholder, var(--input-placeholder));
+        color: var(--input-disabled-placeholder);
     }
   }
 
   LABEL {
-    margin: $spacing 0 $spacing 0;
+    margin: $spacing 0 0 0;
   }
-
-  // &.no-resize::placeholder {
-  //   padding-top: 8px;
-  // }
 }
 
 TEXTAREA {
-  padding: 17px 10px 10px 10px
+  padding: 17px 10px 10px 10px;
+  line-height: 1.25;
 }
 
 FORM {
@@ -108,6 +70,11 @@ FORM {
     display: inline-block;
     margin: $spacing 0 $spacing 0;
     font-size: 12px;
+
+    &.radio-label,
+    &.checkbox-label {
+      font-size: 14px;
+    }
 
     &.radio, &.checkbox {
       cursor: pointer;

@@ -2,7 +2,20 @@
 import { _VIEW } from '@/config/query-params';
 import LabeledSelect from '@/components/form/LabeledSelect';
 
-export const SCOPE_OPTIONS = ['*', 'Cluster', 'Namespaced'];
+export const SCOPE_OPTIONS = [
+  {
+    label: 'Cluster & Namespaced',
+    value: '*'
+  },
+  {
+    label: 'Cluster',
+    value: 'Cluster'
+  },
+  {
+    label: 'Namespaced',
+    value: 'Namespaced'
+  }
+];
 
 export default {
   components: { LabeledSelect },
@@ -10,20 +23,28 @@ export default {
   props: {
     value: {
       type:    String,
-      default: null
+      default: null,
     },
     mode: {
       type:    String,
-      default: _VIEW
-    }
+      default: _VIEW,
+    },
   },
 
   data() {
     return { SCOPE_OPTIONS };
-  }
+  },
 };
 </script>
 
 <template>
-  <LabeledSelect :value="value" :mode="mode" :options="SCOPE_OPTIONS" @input="e=>$emit('input', e)" />
+  <LabeledSelect
+    :label="t('gatekeeperConstraint.tab.namespaces.sub.scope.title')"
+    :hover-tooltip="true"
+    tooltip="Determines if cluster-scoped and/or namesapced-scoped resources are selected."
+    :value="value"
+    :mode="mode"
+    :options="SCOPE_OPTIONS"
+    @input="e=>$emit('input', e)"
+  />
 </template>

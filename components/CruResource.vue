@@ -9,7 +9,9 @@ import AsyncButton from '@/components/AsyncButton';
 import { mapGetters } from 'vuex';
 import { stringify } from '@/utils/error';
 import CruResourceFooter from '@/components/CruResourceFooter';
-import { _EDIT, _VIEW, AS_YAML, _FLAGGED } from '@/config/query-params';
+import {
+  _EDIT, _VIEW, AS, _YAML, _UNFLAG, SUB_TYPE
+} from '@/config/query-params';
 import { BEFORE_SAVE_HOOKS } from '@/mixins/child-hook';
 
 export default {
@@ -74,10 +76,13 @@ export default {
   },
 
   data() {
+    const yaml = this.createResourceYaml(this.resource);
+
     return {
       isCancelModal: false,
-      showAsForm:    this.$route.query[AS_YAML] !== _FLAGGED,
-      resourceYaml:  this.createResourceYaml(this.resource),
+      showAsForm:    this.$route.query[AS] !== _YAML,
+      resourceYaml:  yaml,
+      initialYaml:   yaml,
     };
   },
 
@@ -95,6 +100,11 @@ export default {
 
       return false;
     },
+
+    canDiff() {
+      return this.initialYaml !== this.resourceYaml;
+    },
+
     isView() {
       return this.mode === _VIEW;
     },
@@ -103,20 +113,32 @@ export default {
       return this.mode === _EDIT;
     },
 
-    showSubtypeSelection() {
-      const { selectedSubtype, subtypes } = this;
+    _selectedSubtype() {
+      if ( this.selectedSubtype ) {
+        return this.selectedSubtype;
+      }
 
-      if (isEmpty(subtypes)) {
+      return this.$route.query[SUB_TYPE];
+    },
+
+    showSubtypeSelection() {
+      if (isEmpty(this.subtypes)) {
         return false;
       }
 
-      if (!selectedSubtype) {
+      if (!this._selectedSubtype) {
         return true;
       }
 
       return false;
     },
     ...mapGetters({ t: 'i18n/t' })
+  },
+
+  created() {
+    if ( this._selectedSubtype ) {
+      this.$emit('select-type', this._selectedSubtype);
+    }
   },
 
   methods: {
@@ -128,6 +150,7 @@ export default {
       } else if (!this.showAsForm) {
         this.resourceYaml = null;
         this.showAsForm = true;
+        this.$router.applyQuery({ [AS]: _UNFLAG });
       }
     },
 
@@ -149,7 +172,9 @@ export default {
       const schemas = this.$store.getters[`${ inStore }/all`](SCHEMA);
       const clonedResource = clone(resource);
 
-      return createYaml(schemas, resource.type, clonedResource);
+      const out = createYaml(schemas, resource.type, clonedResource);
+
+      return out;
     },
 
     async showPreviewYaml() {
@@ -158,12 +183,15 @@ export default {
 
       this.resourceYaml = resourceYaml;
       this.showAsForm = false;
+      this.$router.applyQuery({ [AS]: _YAML });
     },
 
     selectType(id, event) {
       if (event?.srcElement?.tagName === 'A') {
         return;
       }
+
+      this.$router.applyQuery({ [SUB_TYPE]: id });
       this.$emit('select-type', id);
     }
   }
@@ -182,7 +210,7 @@ export default {
             v-for="subtype in subtypes"
             :key="subtype.id"
             class="subtype-banner"
-            :class="{ selected: subtype.id === selectedSubtype }"
+            :class="{ selected: subtype.id === _selectedSubtype }"
             @click="selectType(subtype.id, $event)"
           >
             <slot name="subtype-content">
@@ -231,7 +259,7 @@ export default {
       </div>
       <template v-if="showAsForm">
         <div
-          v-if="selectedSubtype || !subtypes.length"
+          v-if="_selectedSubtype || !subtypes.length"
           class="resource-container"
         >
           <slot />
@@ -248,7 +276,7 @@ export default {
               <template #default>
                 <div v-if="!isView">
                   <button
-                    v-if="!isEdit && canYaml && (selectedSubtype || !subtypes.length)"
+                    v-if="canYaml && (_selectedSubtype || !subtypes.length)"
                     type="button"
                     class="btn role-secondary"
                     @click="showPreviewYaml"
@@ -276,16 +304,16 @@ export default {
           ref="resourceyaml"
           :value="resource"
           :mode="mode"
+          :initial-yaml-for-diff="initialYaml"
           :yaml="resourceYaml"
           :offer-preview="isEdit"
           :done-route="doneRoute"
           :done-override="resource.doneOverride"
-          :save-override="resource.yamlSaveOverride"
           :errors="errors"
           @apply-hooks="$emit('apply-hooks', $event)"
           @error="e=>$emit('error', e)"
         >
-          <template #yamlFooter="{currentYaml, yamlSave, showPreview, yamlPreview, yamlUnpreview}">
+          <template #yamlFooter="{yamlSave, showPreview, yamlPreview, yamlUnpreview}">
             <div class="controls-row">
               <slot name="cru-yaml-footer">
                 <CruResourceFooter
@@ -306,7 +334,7 @@ export default {
                       </button>
                       <button
                         v-if="!showPreview && isEdit"
-                        :disabled="resourceYaml === currentYaml"
+                        :disabled="!canDiff"
                         type="button"
                         class="btn role-secondary"
                         @click="yamlPreview"
@@ -314,7 +342,7 @@ export default {
                         <t k="resourceYaml.buttons.diff" />
                       </button>
                     </div>
-                    <div v-if="selectedSubtype || !subtypes.length" class="controls-right">
+                    <div v-if="_selectedSubtype || !subtypes.length" class="controls-right">
                       <button type="button" class="btn role-secondary" @click="checkCancel(false)">
                         <t k="cruResource.backToForm" />
                       </button>
@@ -346,104 +374,20 @@ export default {
   </section>
 </template>
 
-<style lang='scss'>
+<style lang='scss' scoped>
 .cru-resource-yaml-container {
   .resource-yaml {
     .yaml-editor {
-      min-height: 400px;
+      min-height: 100px;
     }
   }
 }
-.subtypes-container {
-  display: flex;
-  flex-wrap: wrap;
-  width: 100%;
+.create-resource-container {
+  .subtype-banner {
+    .round-image {
+      background-color: var(--primary);
+    }
+  }
 }
 
-.subtype-content {
-  width: 100%;
-}
-
-.subtype-banner {
-  border-left: 5px solid var(--primary);
-  border-radius: var(--border-radius);
-  display: flex;
-  flex-basis: 40%;
-  margin: 10px;
-  min-height: 100px;
-  padding: 10px;
-  box-shadow: 0 0 20px var(--shadow);
-
-  &.selected {
-    background-color: var(--accent-btn);
-  }
-
-  &.top {
-    background-image: linear-gradient(
-      -90deg,
-      var(--body-bg),
-      var(--accent-btn)
-    );
-
-    H2 {
-      margin: 0px;
-    }
-  }
-
-  .title {
-    align-items: center;
-    display: flex;
-    width: 100%;
-    // flex-basis: 10%;
-
-    h5 {
-      margin: 0;
-    }
-
-    .flex-right {
-      margin-left: auto;
-    }
-  }
-
-  .description {
-    color: var(--input-label);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .description {
-    color: var(--input-label);
-  }
-
-  &:not(.top) {
-    align-items: top;
-    flex-direction: row;
-    justify-content: start;
-    &:hover {
-      cursor: pointer;
-      box-shadow: 0px 0px 1px var(--outline-width) var(--outline);
-    }
-  }
-
-  .round-image {
-    background-color: var(--primary);
-    border-radius: 50%;
-    height: 50px;
-    margin-right: 10px;
-    width: 50px;
-    overflow: hidden;
-  }
-
-  .banner-abbrv {
-    align-items: center;
-    background-color: var(--primary);
-    color: white;
-    display: flex;
-    font-size: 2.5em;
-    height: 100%;
-    justify-content: center;
-    width: 100%;
-  }
-}
 </style>

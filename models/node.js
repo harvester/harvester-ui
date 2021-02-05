@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { formatPercent } from '@/utils/string';
 import { NODE_ROLES, RKE, HOST_CUSTOM_NAME } from '@/config/labels-annotations.js';
-import { METRIC, NODE } from '@/config/types';
+import { METRIC, POD, NODE } from '@/config/types';
 import { parseSi } from '@/utils/units';
 import { PRIVATE } from '@/plugins/steve/resource-proxy';
 import findLast from 'lodash/findLast';
@@ -174,7 +174,7 @@ export default {
   },
 
   podConsumed() {
-    return Number.parseInt(this.status.capacity.pods) - Number.parseInt(this.status.allocatable.pods);
+    return this.runningPods.length;
   },
 
   isPidPressureOk() {
@@ -206,7 +206,7 @@ export default {
       return 'icon-docker';
     }
 
-    return false;
+    return '';
   },
 
   cordon() {
@@ -283,6 +283,16 @@ export default {
       errorCount:   error
     };
   },
+
+  pods() {
+    const allPods = this.$rootGetters['cluster/all'](POD);
+
+    return allPods.filter(pod => pod.spec.nodeName === this.name);
+  },
+
+  runningPods() {
+    return this.pods.filter(pod => pod.isRunning);
+  }
 };
 
 function calculatePercentage(allocatable, capacity) {

@@ -5,7 +5,7 @@ import Security from '@/components/form/Security';
 import WorkloadPorts from '@/components/form/WorkloadPorts';
 import ContainerResourceLimit from '@/components/ContainerResourceLimit';
 import LabeledInput from '@/components/form/LabeledInput';
-import { _VIEW } from '@/config/query-params';
+import { _CREATE, _VIEW } from '@/config/query-params';
 
 export default {
   components: {
@@ -28,7 +28,7 @@ export default {
 
     mode: {
       type:    String,
-      default: 'create'
+      default: _CREATE,
     }
   },
 
@@ -78,7 +78,7 @@ export default {
 
 <template>
   <div v-if="isView">
-    <hr class="section-divider" />
+    <div class="spacer"></div>
     <div>
       <div class="row">
         <div class="col span-4">
@@ -88,7 +88,7 @@ export default {
           <LabeledInput
             v-model="value.image"
             :label="t('workload.container.image')"
-            placeholder="eg nginx:latest"
+            placeholder="e.g. nginx:latest"
             required
             :mode="mode"
           />
@@ -102,7 +102,7 @@ export default {
         </div>
       </div>
     </div>
-    <hr class="section-divider" />
+    <div class="spacer"></div>
     <div>
       <h3><t k="workload.container.titles.ports" /></h3>
       <WorkloadPorts v-if="value.ports" v-model="value.ports" :mode="mode" />
@@ -111,13 +111,13 @@ export default {
       </div>
     </div>
 
-    <hr class="section-divider" />
+    <div class="spacer"></div>
     <div>
       <h3><t k="workload.container.titles.command" /></h3>
       <Command v-model="value" :mode="mode" :secrets="[]" :config-maps="[]" />
     </div>
 
-    <hr class="section-divider" />
+    <div class="spacer"></div>
     <div>
       <h3><t k="workload.container.titles.resources" /></h3>
       <ContainerResourceLimit v-if="hasResourceLimits" v-model="flatResources" :mode="mode" :show-tip="false" />
@@ -126,7 +126,7 @@ export default {
       </div>
     </div>
 
-    <hr class="section-divider" />
+    <div class="spacer"></div>
     <div>
       <h3><t k="workload.container.titles.healthCheck" /></h3>
       <HealthCheck v-if="hasHealthCheck" v-model="healthCheck" :mode="mode" />

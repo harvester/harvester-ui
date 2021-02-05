@@ -1,3 +1,5 @@
+import { NODE as NODE_TYPE } from '@/config/types';
+
 // Note: 'id' is always the last sort, so you don't have to specify it here.
 
 export const STATE = {
@@ -41,7 +43,6 @@ export const LOGGING_OUTPUT_PROVIDERS = {
   labelKey:      'tableHeaders.loggingOutputProviders',
   value:         'providersDisplay',
   sort:          ['providersSortable'],
-  width:         '75%',
   formatter:     'List',
 };
 
@@ -60,6 +61,13 @@ export const EFFECT = {
   sort:     ['effect'],
 };
 
+export const STORAGE_CLASS_PROVISIONER = {
+  name:     'storage_class_provisioner',
+  labelKey: 'tableHeaders.storage_class_provisioner',
+  value:    'provisionerDisplay',
+  sort:     ['provisioner'],
+};
+
 export const OUTPUT = {
   name:          'localOutputRefs',
   labelKey:      'tableHeaders.output',
@@ -70,8 +78,8 @@ export const OUTPUT = {
 };
 
 export const CONFIGURED_PROVIDERS = {
-  name:      'configuredProviders',
-  labelKey:  'tableHeaders.configuredProviders',
+  name:      'providers',
+  labelKey:  'tableHeaders.providers',
   value:     'providersDisplay',
   sort:      'providersSortable',
   formatter: 'List'
@@ -102,11 +110,12 @@ export const NAMESPACE = {
 };
 
 export const NODE = {
-  name:      'node',
-  labelKey:  'tableHeaders.node',
-  value:     'spec.nodeName',
-  sort:      'spec.nodeName',
-  formatter: 'LinkNode'
+  name:          'node',
+  labelKey:      'tableHeaders.node',
+  value:         'spec.nodeName',
+  sort:          'spec.nodeName',
+  formatter:     'LinkName',
+  formatterOpts: { type: NODE_TYPE },
 };
 
 export const NODE_NAME = {
@@ -296,28 +305,36 @@ export const DESTINATION = {
 };
 
 export const USERNAME = {
-  name:     'username',
-  labelKey: 'tableHeaders.username',
-  value:    'username'
+  name:        'username',
+  labelKey:    'tableHeaders.username',
+  value:       'username',
+  dashIfEmpty: true,
+  sort:        'username',
 };
 
 export const USER_DISPLAY_NAME = {
-  name:     'display name',
-  labelKey: 'tableHeaders.userDisplayName',
-  value:    'name'
+  name:          'name',
+  labelKey:      'tableHeaders.name',
+  value:         'nameDisplay',
+  sort:          ['nameSort'],
+  dashIfEmpty:   true,
+};
+
+export const USER_PROVIDER = {
+  name:        'provider',
+  labelKey:    'tableHeaders.provider',
+  value:       'providerDisplay',
+  dashIfEmpty: true,
+  sort:        'providerDisplay',
 };
 
 export const USER_ID = {
-  name:     'user-id',
-  labelKey: 'tableHeaders.userId',
-  value:    'id'
-};
-
-export const USER_STATUS = {
-  name:      'user-state',
-  labelKey:  'tableHeaders.userStatus',
-  value:     'stateDisplay',
-  formatter: 'BadgeStateFormatter'
+  name:          'user-id',
+  labelKey:      'tableHeaders.userId',
+  value:         'id',
+  formatter:     'LinkDetail',
+  canBeVariable: true,
+  sort:          'id',
 };
 
 export const ADDRESS = {
@@ -461,6 +478,20 @@ export const RBAC_HEADERS = [
   }
 ];
 
+export const RBAC_DEFAULT = {
+  name:      'default',
+  labelKey:  'tableHeaders.default',
+  value:     'default',
+  formatter: 'Checked'
+};
+
+export const RBAC_BUILTIN = {
+  name:      'builtin',
+  labelKey:  'tableHeaders.builtin',
+  value:     'builtin',
+  formatter: 'Checked'
+};
+
 export const RESOURCE = {
   name:     'resource',
   labelKey: 'tableHeaders.resource',
@@ -566,6 +597,13 @@ export const WORKSPACE = {
 
 export const WORKLOAD_IMAGES = { ...POD_IMAGES, value: '' };
 
+export const WORKLOAD_ENDPOINTS = {
+  name:      'workloadEndpoints',
+  labelKey:  'tableHeaders.endpoints',
+  value:     'endpoints',
+  formatter: 'WorkloadEndpoints'
+};
+
 export const FLEET_SUMMARY = {
   name:      'summary',
   labelKey:  'tableHeaders.resources',
@@ -648,6 +686,23 @@ export const CONSTRAINT_VIOLATION_COUNT = {
       return 'error';
     }
   }
+};
+
+export const RECEIVER_PROVIDERS = {
+  name:      'receiver-providers',
+  label:     'Configured Providers',
+  value:     'receiverTypes',
+  sort:      'receiverTypes',
+  formatter: 'List',
+};
+
+export const CONFIGURED_RECEIVER = {
+  name:          'receiver',
+  label:         'Configured Receiver',
+  value:         'receiverLink',
+  sort:          'receiverLink.text',
+  formatter:     'Link',
+  formatterOpts: { options: { internal: true } },
 };
 
 // harvester

@@ -34,7 +34,7 @@ export default {
   data() {
     const container = this.podSpec.containers[0];
 
-    const volumeMounts = container.volumeMounts.filter(mount => mount.name === this.name);
+    const volumeMounts = (container.volumeMounts || []).filter(mount => mount.name === this.name);
 
     return { volumeMounts };
   },
@@ -51,7 +51,7 @@ export default {
     volumeMounts(neu) {
       const container = this.podSpec.containers[0];
 
-      container.volumeMounts = container.volumeMounts.filter(mount => mount.name && (mount.name !== this.name));
+      container.volumeMounts = (container.volumeMounts || []).filter(mount => mount.name && (mount.name !== this.name));
       container.volumeMounts.push(...neu);
     },
 
@@ -104,14 +104,14 @@ export default {
       <div class="read-only">
         <Checkbox v-model="volumeMount.readOnly" :mode="mode" />
       </div>
-      <div>
+      <div class="remove">
         <button v-if="mode!=='view'" type="button" class="btn btn-sm role-link" @click="remove(volumeMount)">
           {{ t('generic.remove') }}
         </button>
       </div>
     </div>
     <div class="row">
-      <button v-if="mode!=='view'" type="button" class="btn btn-sm role-secondary" @click="volumeMounts.push({name})">
+      <button v-if="mode!=='view'" type="button" class="btn btn-sm role-tertiary" @click="volumeMounts.push({name})">
         {{ t('workload.storage.addMount') }}
       </button>
     </div>
@@ -121,12 +121,13 @@ export default {
 <style lang='scss'>
 .mount-headers, .mount-rows{
     display: grid;
-    grid-template-columns: 40% 40% 8% auto;
+    grid-template-columns: 35% 35% auto auto;
     grid-gap: $column-gutter;
     margin-bottom: 10px;
     align-items: center;
-    .read-only{
-        justify-self: center;
+
+    .remove {
+      text-align: right;
     }
 }
 

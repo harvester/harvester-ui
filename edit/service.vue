@@ -1,5 +1,6 @@
 <script>
 import { isEmpty } from 'lodash';
+import throttle from 'lodash/throttle';
 import ArrayList from '@/components/form/ArrayList';
 import CreateEditView from '@/mixins/create-edit-view';
 import KeyValue from '@/components/form/KeyValue';
@@ -16,15 +17,17 @@ import CruResource from '@/components/CruResource';
 import Banner from '@/components/Banner';
 import Labels from '@/components/form/Labels';
 import { clone } from '@/utils/object';
+import { POD } from '@/config/types';
+import { matching } from '@/utils/selector';
 
 const SESSION_AFFINITY_ACTION_VALUES = {
   NONE:     'None',
-  CLIENTIP: 'ClientIP'
+  CLIENTIP: 'ClientIP',
 };
 
 const SESSION_AFFINITY_ACTION_LABELS = {
   NONE:     'servicesPage.affinity.actionLabels.none',
-  CLIENTIP: 'servicesPage.affinity.actionLabels.clientIp'
+  CLIENTIP: 'servicesPage.affinity.actionLabels.clientIp',
 };
 
 const SESSION_STICKY_TIME_DEFAULT = 10800;
@@ -45,22 +48,36 @@ export default {
     ServicePorts,
     Tab,
     Tabbed,
-    UnitInput
+    UnitInput,
   },
 
   mixins: [CreateEditView],
+
+  fetch() {
+    return this.loadPods();
+  },
 
   data() {
     if (!this?.value?.spec?.type) {
       if (!this.value?.spec) {
         this.$set(this.value, 'spec', {
           ports:           [],
-          sessionAffinity: 'None'
+          sessionAffinity: 'None',
         });
       }
     }
 
+    const matchingPods = {
+      matched: 0,
+      matches: [],
+      none:    true,
+      sample:  null,
+      total:   0,
+    };
+
     return {
+      matchingPods,
+      allPods:                     [],
       defaultServiceTypes:         DEFAULT_SERVICE_TYPES,
       saving:                      false,
       sessionAffinityActionLabels: Object.values(SESSION_AFFINITY_ACTION_LABELS)
@@ -68,11 +85,16 @@ export default {
         .map(ucFirst),
       sessionAffinityActionOptions: Object.values(
         SESSION_AFFINITY_ACTION_VALUES
-      )
+      ),
     };
   },
 
   computed: {
+    showSelectorWarning() {
+      const selector = this.value.spec?.selector;
+
+      return !!isEmpty(selector);
+    },
     serviceType: {
       get() {
         const serviceType = this.value?.spec?.type;
@@ -107,14 +129,26 @@ export default {
 
           this.$set(this.value.spec, 'type', serviceType);
         }
-      }
+      },
     },
     showAffinityTimeout() {
-      return this.value.spec.sessionAffinity === 'ClientIP' && !isEmpty(this.value.spec.sessionAffinityConfig);
+      return (
+        this.value.spec.sessionAffinity === 'ClientIP' &&
+        !isEmpty(this.value.spec.sessionAffinityConfig)
+      );
+    },
+
+    hasClusterIp() {
+      return (
+        this.checkTypeIs('ClusterIP') ||
+        this.checkTypeIs('LoadBalancer') ||
+        this.checkTypeIs('NodePort')
+      );
     },
   },
 
   watch: {
+    'value.spec.selector': 'updateMatchingPods',
     'value.spec.sessionAffinity'(val) {
       if (val === 'ClientIP') {
         this.value.spec.sessionAffinityConfig = { clientIP: { timeoutSeconds: null } };
@@ -130,7 +164,7 @@ export default {
       ) {
         delete this.value.spec.sessionAffinityConfig.clientIP.timeoutSeconds;
       }
-    }
+    },
   },
 
   created() {
@@ -144,6 +178,37 @@ export default {
   },
 
   methods: {
+    updateMatchingPods: throttle(function() {
+      const { allPods, value: { spec: { selector = { } } } } = this;
+
+      if (isEmpty(selector)) {
+        this.matchingPods = {
+          matched: 0,
+          total:   allPods.length,
+          none:    true,
+          sample:  null,
+        };
+      } else {
+        const match = matching(allPods, selector);
+
+        this.matchingPods = {
+          matched: match.length,
+          total:   allPods.length,
+          none:    match.length === 0,
+          sample:  match[0] ? match[0].nameDisplay : null,
+        };
+      }
+    }, 250, { leading: true }),
+
+    async loadPods() {
+      try {
+        const inStore = this.$store.getters['currentProduct'].inStore;
+
+        this.allPods = await this.$store.dispatch(`${ inStore }/findAll`, { type: POD });
+        this.matchingPods.total = this.allPods.length;
+      } catch (e) { }
+    },
+
     checkTypeIs(typeIn) {
       const { serviceType } = this;
 
@@ -178,8 +243,7 @@ export default {
         this.value.spec.ports = this.targetPortsStrOrInt(this.value.spec.ports);
       }
     },
-
-  }
+  },
 };
 </script>
 
@@ -192,42 +256,43 @@ export default {
     :subtypes="defaultServiceTypes"
     :validation-passed="true"
     :errors="errors"
-    @error="e=>errors = e"
+    @error="(e) => (errors = e)"
     @finish="save"
     @cancel="done"
-    @select-type="(st) => serviceType = st"
+    @select-type="(st) => (serviceType = st)"
     @apply-hooks="() => applyHooks('_beforeSaveHooks')"
   >
     <NameNsDescription v-if="!isView" :value="value" :mode="mode" />
-
-    <div class="spacer"></div>
 
     <Tabbed :side-tabs="true">
       <Tab
         v-if="checkTypeIs('ExternalName')"
         name="define-external-name"
         :label="t('servicesPage.externalName.define')"
+        :tooltip="t('servicesPage.externalName.helpText')"
       >
-        <div class="clearfix">
-          <h4>
-            <t k="servicesPage.externalName.label" />
-          </h4>
-          <Banner color="info" :label="t('servicesPage.externalName.helpText')" />
-        </div>
         <div class="row mt-10">
           <div class="col span-6">
             <span v-if="isView">{{ value.spec.externalName }}</span>
-            <input
+            <LabeledInput
               v-else
               ref="external-name"
               v-model.number="value.spec.externalName"
-              type="text"
+              :mode="mode"
+              :label="t('servicesPage.externalName.input.label')"
               :placeholder="t('servicesPage.externalName.placeholder')"
+              :required="true"
+              type="text"
             />
           </div>
         </div>
       </Tab>
-      <Tab v-else name="define-service-ports" :label="t('servicesPage.ips.define')">
+      <Tab
+        v-else
+        name="define-service-ports"
+        :label="t('servicesPage.ips.define')"
+        :weight="10"
+      >
         <ServicePorts
           v-model="value.spec.ports"
           class="col span-12"
@@ -243,7 +308,9 @@ export default {
       >
         <div class="row">
           <div class="col span-12">
-            <Banner color="info" :label="t('servicesPage.selectors.helpText')" />
+            <Banner :color="(matchingPods.none ? 'warning' : 'success')">
+              <span v-html="t('servicesPage.selectors.matchingPods.matchesSome', matchingPods)" />
+            </Banner>
           </div>
         </div>
         <div class="row">
@@ -253,35 +320,29 @@ export default {
               v-model="value.spec.selector"
               :mode="mode"
               :initial-empty-row="true"
-              :pad-left="false"
               :protip="false"
-              @input="e=>$set(value.spec, 'selector', e)"
+              @input="(e) => $set(value.spec, 'selector', e)"
             />
           </div>
         </div>
       </Tab>
-      <Tab name="ips" :label="t('servicesPage.ips.label')">
-        <div
-          v-if="checkTypeIs('ClusterIP') || checkTypeIs('LoadBalancer') || checkTypeIs('NodePort')"
-          class="row mb-20"
-        >
+      <Tab
+        name="ips"
+        :label="t('servicesPage.ips.label')"
+        :tooltip="t('servicesPage.ips.external.protip')"
+      >
+        <div v-if="hasClusterIp" class="row mb-20">
           <div class="col span-6">
             <LabeledInput
               v-model="value.spec.clusterIP"
               :mode="mode"
               :label="t('servicesPage.ips.input.label')"
               :placeholder="t('servicesPage.ips.input.placeholder')"
-              @input="e=>$set(value.spec, 'clusterIP', e)"
-            >
-              <template #corner>
-                <i
-                  v-if="checkTypeIs('ClusterIP') || checkTypeIs('LoadBalancer') || checkTypeIs('NodePort')"
-                  v-tooltip="t('servicesPage.ips.clusterIpHelpText')"
-                  class="icon icon-info"
-                  style="font-size: 14px"
-                />
-              </template>
-            </LabeledInput>
+              :tooltip-key="
+                hasClusterIp ? 'servicesPage.ips.clusterIpHelpText' : null
+              "
+              @input="(e) => $set(value.spec, 'clusterIP', e)"
+            />
           </div>
         </div>
         <div class="row">
@@ -289,12 +350,11 @@ export default {
             <ArrayList
               key="clusterExternalIpAddresses"
               v-model="value.spec.externalIPs"
-              :title="t('servicesPage.ips.external.label')"
+              :title="hasClusterIp ? t('servicesPage.ips.external.label') : ''"
               :value-placeholder="t('servicesPage.ips.external.placeholder')"
               :mode="mode"
-              :pad-left="false"
-              :protip="t('servicesPage.ips.external.protip')"
-              @input="e=>$set(value.spec, 'externalIPs', e)"
+              :protip="false"
+              @input="(e) => $set(value.spec, 'externalIPs', e)"
             />
           </div>
         </div>
@@ -303,10 +363,8 @@ export default {
         v-if="!checkTypeIs('ExternalName') && !checkTypeIs('Headless')"
         name="session-affinity"
         :label="t('servicesPage.affinity.label')"
+        :tooltip="t('servicesPage.affinity.helpText')"
       >
-        <div class="col span-12">
-          <Banner color="info" :label="t('servicesPage.affinity.helpText')" />
-        </div>
         <div class="row session-affinity">
           <div class="col span-6">
             <RadioGroup
@@ -321,10 +379,22 @@ export default {
           <div v-if="showAffinityTimeout" class="col span-6">
             <UnitInput
               v-model="value.spec.sessionAffinityConfig.clientIP.timeoutSeconds"
-              :suffix="t('suffix.seconds', {count: value.spec.sessionAffinityConfig.clientIP.timeoutSeconds})"
+              :suffix="
+                t('suffix.seconds', {
+                  count:
+                    value.spec.sessionAffinityConfig.clientIP.timeoutSeconds,
+                })
+              "
               :label="t('servicesPage.affinity.timeout.label')"
               :placeholder="t('servicesPage.affinity.timeout.placeholder')"
-              @input="e=>$set(value.spec.sessionAffinityConfig.clientIP, 'timeoutSeconds', e)"
+              @input="
+                (e) =>
+                  $set(
+                    value.spec.sessionAffinityConfig.clientIP,
+                    'timeoutSeconds',
+                    e
+                  )
+              "
             />
           </div>
         </div>
@@ -347,11 +417,4 @@ export default {
 </template>
 
 <style lang="scss">
-.labels-and-annotations-container {
-  > div:last-child {
-    border-top: 1px solid var(--border);
-    margin-top: 20px;
-    padding-top: 20px;
-  }
-}
 </style>

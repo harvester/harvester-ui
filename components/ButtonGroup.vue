@@ -21,9 +21,9 @@ export default {
       required: true,
     },
 
-    labelsAreTranslations: {
-      type:    Boolean,
-      default: false
+    iconSize: {
+      type:    String,
+      default: null,
     }
   },
 
@@ -66,14 +66,14 @@ export default {
     <button
       v-for="(opt,idx) in optionObjects"
       :key="idx"
+      v-tooltip="opt.tooltipKey ? t(opt.tooltipKey) : opt.tooltip"
       type="button"
       :class="opt.class"
-      class="btn-sm"
       @click="change(opt.value)"
     >
       <slot name="option" :label="opt.label" :value="opt.value">
-        <i v-if="opt.icon" :class="{icon: true, [opt.icon]: true}" />
-        <t v-if="opt.label && labelsAreTranslations" :k="opt.label" />
+        <i v-if="opt.icon" :class="{icon: true, [opt.icon]: true, [`icon-${iconSize}`]: !!iconSize }" />
+        <t v-if="opt.labelKey" :k="opt.labelKey" />
         <span v-else-if="opt.label">{{ opt.label }}</span>
       </slot>
     </button>

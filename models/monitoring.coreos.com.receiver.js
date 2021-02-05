@@ -1,48 +1,53 @@
 import { canCreate, updateConfig } from '@/utils/alertmanagerconfig';
 import { isEmpty } from '@/utils/object';
+import { MONITORING } from '@/config/types';
+import jsyaml from 'js-yaml';
 
 export const RECEIVERS_TYPES = [
   {
     name:  'slack',
-    label: 'Slack',
-    title: 'Slack Config',
+    label: 'monitoringReceiver.slack.label',
+    title: 'monitoringReceiver.slack.title',
+    info:  'monitoringReceiver.slack.info',
     key:   'slack_configs',
-    logo:  require(`~/assets/images/icon-slack.svg`)
+    logo:  require(`~/assets/images/vendor/slack.svg`)
   },
   {
     name:  'email',
-    label: 'Email',
-    title: 'Email Config',
+    label: 'monitoringReceiver.email.label',
+    title: 'monitoringReceiver.email.title',
     key:   'email_configs',
-    logo:  require(`~/assets/images/icon-email.svg`)
+    logo:  require(`~/assets/images/vendor/email.svg`)
   },
   {
     name:  'pagerduty',
-    label: 'PagerDuty',
-    title: 'PagerDuty Config',
+    label: 'monitoringReceiver.pagerduty.label',
+    title: 'monitoringReceiver.pagerduty.title',
+    info:  'monitoringReceiver.pagerduty.info',
     key:   'pagerduty_configs',
-    logo:  require(`~/assets/images/icon-email.svg`)
+    logo:  require(`~/assets/images/vendor/pagerduty.svg`)
   },
   {
     name:  'opsgenie',
-    label: 'OpsGenie',
-    title: 'OpsGenie Config',
+    label: 'monitoringReceiver.opsgenie.label',
+    title: 'monitoringReceiver.opsgenie.title',
     key:   'opsgenie_configs',
-    logo:  require(`~/assets/images/icon-email.svg`)
+    logo:  require(`~/assets/images/vendor/email.svg`)
   },
   {
     name:  'webhook',
-    label: 'Webhook',
-    title: 'Webhook Config',
+    label: 'monitoringReceiver.webhook.label',
+    title: 'monitoringReceiver.webhook.title',
     key:   'webhook_configs',
-    logo:  require(`~/assets/images/icon-webhook.svg`)
+    logo:  require(`~/assets/images/vendor/webhook.svg`)
   },
   {
     name:  'custom',
-    label: 'Custom',
-    title: 'Custom Config',
+    label: 'monitoringReceiver.custom.label',
+    title: 'monitoringReceiver.custom.title',
+    info:  'monitoringReceiver.custom.info',
     key:   'webhook_configs',
-    logo:  require(`~/assets/images/icon-custom.svg`)
+    logo:  require(`~/assets/images/vendor/custom.svg`)
   },
 ];
 
@@ -96,7 +101,7 @@ export default {
   },
 
   canDelete() {
-    return this.secret.canDelete;
+    return this.id !== 'null' && !this.spec.name !== 'null' && this.secret.canDelete;
   },
 
   canViewInApi() {
@@ -132,10 +137,13 @@ export default {
     return fn => updateConfig(this.$dispatch, 'receivers', this.type, fn);
   },
 
-  yamlSaveOverride() {
-    return (value, originalValue) => {
-      Object.assign(originalValue, value);
-      originalValue.save();
+  saveYaml() {
+    return (yaml) => {
+      const parsed = jsyaml.safeLoad(yaml);
+
+      Object.assign(this, parsed);
+
+      return this.save();
     };
   },
 
@@ -150,6 +158,24 @@ export default {
     ];
 
     return rules;
+  },
+
+  routes() {
+    if (!this.$rootGetters['cluster/haveAll'](MONITORING.SPOOFED.ROUTE)) {
+      throw new Error('The routes have not been loaded');
+    }
+
+    return this.$rootGetters['cluster/all'](MONITORING.SPOOFED.ROUTE);
+  },
+
+  hasDependentRoutes() {
+    return !!this.routes.find(route => route.spec.receiver === this.id);
+  },
+
+  preventDeletionMessage() {
+    if (this.hasDependentRoutes) {
+      return `There are still routes using this receiver. You cannot delete this receiver while it's in use.`;
+    }
   },
 
 };

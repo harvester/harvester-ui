@@ -3,13 +3,16 @@ import {
   NAMESPACE, NODE, SECRET, INGRESS,
   WORKLOAD, WORKLOAD_TYPES, SERVICE, HPA, NETWORK_POLICY, PV, PVC, STORAGE_CLASS, POD,
   RBAC,
+  MANAGEMENT,
 } from '@/config/types';
 
 import {
   STATE, NAME as NAME_COL, NAMESPACE as NAMESPACE_COL, AGE, KEYS,
   INGRESS_DEFAULT_BACKEND, INGRESS_TARGET, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM,
-  SPEC_TYPE, TARGET_PORT, SELECTOR, NODE as NODE_COL, TYPE, WORKLOAD_IMAGES, POD_IMAGES
+  SPEC_TYPE, TARGET_PORT, SELECTOR, NODE as NODE_COL, TYPE, WORKLOAD_IMAGES, POD_IMAGES, USER_ID, USERNAME, USER_DISPLAY_NAME, USER_PROVIDER, WORKLOAD_ENDPOINTS, STORAGE_CLASS_PROVISIONER
 } from '@/config/table-headers';
+
+import { copyResourceValues, SUBTYPES } from '@/models/rbac.authorization.k8s.io.roletemplate';
 
 import { DSL } from '@/store/type-map';
 
@@ -21,12 +24,14 @@ export function init(store) {
     basicType,
     ignoreType,
     mapGroup,
+    mapType,
     weightGroup,
+    weightType,
     headers,
     virtualType,
     componentForType,
-    uncreatableType,
-    immutableType
+    configureType,
+    spoofedType
   } = DSL(store, NAME);
 
   product({
@@ -65,9 +70,9 @@ export function init(store) {
   ], 'workload');
   basicType([
     RBAC.ROLE,
-    RBAC.CLUSTER_ROLE,
     RBAC.ROLE_BINDING,
     RBAC.CLUSTER_ROLE_BINDING,
+    RBAC.SPOOFED.ROLE_TEMPLATE
   ], 'rbac');
 
   weightGroup('cluster', 99, true);
@@ -75,6 +80,7 @@ export function init(store) {
   weightGroup('serviceDiscovery', 97, true);
   weightGroup('storage', 96, true);
   weightGroup('rbac', 95, true);
+  weightType(POD, -1, true);
 
   for (const key in WORKLOAD_TYPES) {
     componentForType(WORKLOAD_TYPES[key], WORKLOAD);
@@ -109,8 +115,17 @@ export function init(store) {
   mapGroup('logging.banzaicloud.io', 'Logging');
   mapGroup(/.*resources\.cattle\.io.*/, 'Backup-Restore');
 
-  uncreatableType(NODE);
-  immutableType(NODE);
+  configureType(NODE, { isCreatable: false, isEditable: false });
+  configureType(WORKLOAD_TYPES.JOB, { isEditable: false, match: WORKLOAD_TYPES.JOB });
+
+  configureType('workload', {
+    displayName: 'Workload',
+    location:    {
+      name:    'c-cluster-product-resource',
+      params:  { resource: 'workload' },
+    },
+    resource: WORKLOAD_TYPES.DEPLOYMENT
+  });
 
   headers(CONFIG_MAP, [NAME_COL, NAMESPACE_COL, KEYS, AGE]);
   headers(SECRET, [
@@ -120,10 +135,9 @@ export function init(store) {
     {
       name:      'type',
       label:     'Type',
-      value:     'tableTypeDisplay',
+      value:     'typeDisplay',
       sort:      ['typeDisplay', 'nameSort'],
-      width:     100,
-      formatter: 'SecretType'
+      width:     120,
     },
     {
       name:      'data',
@@ -137,15 +151,16 @@ export function init(store) {
   headers(NODE, [STATE, NAME_COL, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM, AGE]);
   headers(SERVICE, [STATE, NAME_COL, NAMESPACE_COL, SPEC_TYPE, TARGET_PORT, SELECTOR, AGE]);
 
-  headers(WORKLOAD, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, TYPE, 'Ready', AGE]);
-  headers(WORKLOAD_TYPES.DEPLOYMENT, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, 'Ready', 'Up-to-date', 'Available', AGE]);
-  headers(WORKLOAD_TYPES.DAEMON_SET, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, 'Ready', 'Current', 'Desired', AGE]);
-  headers(WORKLOAD_TYPES.REPLICA_SET, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, 'Ready', 'Current', 'Desired', AGE]);
-  headers(WORKLOAD_TYPES.STATEFUL_SET, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, 'Ready', AGE]);
-  headers(WORKLOAD_TYPES.JOB, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, 'Completions', 'Duration', AGE]);
-  headers(WORKLOAD_TYPES.CRON_JOB, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, 'Schedule', 'Last Schedule', AGE]);
-  headers(WORKLOAD_TYPES.REPLICATION_CONTROLLER, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, 'Ready', 'Current', 'Desired', AGE]);
+  headers(WORKLOAD, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, TYPE, 'Ready', AGE]);
+  headers(WORKLOAD_TYPES.DEPLOYMENT, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, 'Ready', 'Up-to-date', 'Available', AGE]);
+  headers(WORKLOAD_TYPES.DAEMON_SET, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, 'Ready', 'Current', 'Desired', AGE]);
+  headers(WORKLOAD_TYPES.REPLICA_SET, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, 'Ready', 'Current', 'Desired', AGE]);
+  headers(WORKLOAD_TYPES.STATEFUL_SET, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, 'Ready', AGE]);
+  headers(WORKLOAD_TYPES.JOB, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, 'Completions', 'Duration', AGE]);
+  headers(WORKLOAD_TYPES.CRON_JOB, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, 'Schedule', 'Last Schedule', AGE]);
+  headers(WORKLOAD_TYPES.REPLICATION_CONTROLLER, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, 'Ready', 'Current', 'Desired', AGE]);
   headers(POD, [STATE, NAME_COL, NAMESPACE_COL, POD_IMAGES, 'Ready', 'Restarts', 'IP', NODE_COL, AGE]);
+  headers(STORAGE_CLASS, [STATE, NAME_COL, STORAGE_CLASS_PROVISIONER, AGE]);
 
   headers(RBAC.ROLE, [
     STATE,
@@ -157,6 +172,15 @@ export function init(store) {
   headers(RBAC.CLUSTER_ROLE, [
     STATE,
     NAME_COL,
+    AGE
+  ]);
+
+  headers(MANAGEMENT.USER, [
+    STATE,
+    USER_ID,
+    USER_DISPLAY_NAME,
+    USER_PROVIDER,
+    USERNAME,
     AGE
   ]);
 
@@ -176,10 +200,51 @@ export function init(store) {
     namespaced:     true,
     name:           'workload',
     weight:         99,
+    icon:           'folder',
     ifHaveSubTypes: Object.values(WORKLOAD_TYPES),
     route:          {
       name:     'c-cluster-product-resource',
       params:   { resource: WORKLOAD }
     },
   });
+
+  spoofedType({
+    label:             'Role Template',
+    type:              RBAC.SPOOFED.ROLE_TEMPLATE,
+    collectionMethods: ['POST'],
+    schemas:           [
+      {
+        id:                RBAC.SPOOFED.ROLE_TEMPLATE,
+        type:              'schema',
+        resourceFields:    { filters: { type: 'string' } },
+        collectionMethods: ['POST'],
+      }
+    ],
+    getInstances: async() => {
+      const allPrmises = SUBTYPES.map(type => store.dispatch('cluster/findAll', { type } ));
+      const all = await Promise.all(allPrmises);
+
+      return all
+        .flat()
+        .map((template) => {
+          const instance = {
+            id:              template.id,
+            kind:            template.kind,
+            type:            RBAC.SPOOFED.ROLE_TEMPLATE,
+            status:          template.status,
+            links:           {
+              self: template.links.self,
+              view: template.links.view
+            },
+            template
+          };
+
+          copyResourceValues(template, instance);
+
+          return instance;
+        });
+    }
+  });
+
+  mapType(RBAC.SPOOFED.ROLE_TEMPLATE, 'Role Template');
 }

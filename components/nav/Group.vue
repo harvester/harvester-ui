@@ -24,7 +24,7 @@ export default {
     },
 
     expanded: {
-      type:     Function,
+      type:     [Function, Boolean],
       required: true,
     },
 
@@ -215,7 +215,6 @@ export default {
 
     A:focus {
       outline: none;
-      box-shadow: 0 0 0 var(--outline-width) var(--outline);
     }
   }
 </style>

@@ -145,20 +145,19 @@ export default {
 <template>
   <div @input="update">
     <div class="title clearfix">
-      <h4 :style="{'display':'flex'}">
+      <h3>
         {{ label }}
-        <i v-if="description" v-tooltip="description" class="icon icon-info" style="font-size: 12px" />
-      </h4>
+        <i v-if="description" v-tooltip="description" class="icon icon-info" />
+      </h3>
     </div>
     <div class="row">
       <div class="col span-11-of-23">
         <LabeledSelect
-          v-if="!isView || kind!=='none'"
           v-model="kind"
           :mode="mode"
-          :label="t('generic.type')"
+          :label="t('probe.type.label')"
           :options="kindOptions"
-          placeholder="Select a check type"
+          :placeholder="t('probe.type.placeholder')"
         />
 
         <div v-if="kind && kind!=='none'" class="spacer-small" />
@@ -170,8 +169,8 @@ export default {
             min="1"
             max="65535"
             :mode="mode"
-            :label="t('workload.container.healthCheck.httpGet.port')"
-            placeholder="e.g. 80"
+            :label="t('probe.httpGet.port.label')"
+            :placeholder="t('probe.httpGet.port.placeholder')"
           />
 
           <div class="spacer-small" />
@@ -179,8 +178,8 @@ export default {
           <LabeledInput
             v-model="httpGet.path"
             :mode="mode"
-            :label="t('workload.container.healthCheck.httpGet.path')"
-            placeholder="e.g. /healthz"
+            :label="t('probe.httpGet.path.label')"
+            :placeholder="t('probe.httpGet.path.placeholder')"
           />
         </div>
 
@@ -191,8 +190,8 @@ export default {
             min="1"
             max="65535"
             :mode="mode"
-            :label="t('workload.container.healthCheck.httpGet.port')"
-            placeholder="e.g. 25"
+            :label="t('probe.httpGet.port.label')"
+            :placeholder="t('probe.httpGet.port.placeholderDuex')"
           />
           <div class="spacer-small" />
         </div>
@@ -201,8 +200,8 @@ export default {
           <div class="col span-12">
             <ShellInput
               v-model="exec.command"
-              :label="t('workload.container.healthCheck.command.command')"
-              placeholder="e.g. cat /tmp/health"
+              :label="t('probe.httpGet.port.command.label')"
+              :placeholder="t('probe.httpGet.port.command.placeholder')"
             />
           </div>
           <div class="spacer-small" />
@@ -219,30 +218,30 @@ export default {
             <UnitInput
               v-model="probe.periodSeconds"
               :mode="mode"
-              :label="t('workload.container.healthCheck.checkInterval')"
+              :label="t('probe.checkInterval.label')"
               min="1"
               :suffix="t('suffix.sec')"
-              placeholder="Default: 10"
+              :placeholder="t('probe.checkInterval.placeholder')"
             />
           </div>
           <div class="col span-4">
             <UnitInput
               v-model="probe.initialDelaySeconds"
               :mode="mode"
-              :label="t('workload.container.healthCheck.initialDelay')"
               :suffix="t('suffix.sec')"
+              :label="t('probe.initialDelay.label')"
               min="0"
-              placeholder="Default: 0"
+              :placeholder="t('probe.initialDelay.placeholder')"
             />
           </div>
           <div class="col span-4">
             <UnitInput
               v-model="probe.timeoutSeconds"
               :mode="mode"
-              :label="t('workload.container.healthCheck.timeout')"
               :suffix="t('suffix.sec')"
+              :label="t('probe.timeout.placeholder')"
               min="0"
-              placeholder="Default: 3"
+              :placeholder="t('probe.timeout.placeholder')"
             />
           </div>
         </div>
@@ -256,8 +255,8 @@ export default {
               type="number"
               min="1"
               :mode="mode"
-              :label="t('workload.container.healthCheck.successThreshold')"
-              placeholder="Default: 1"
+              :label="t('probe.successThreshold.label')"
+              :placeholder="t('probe.successThreshold.placeholder')"
             />
           </div>
           <div class="col span-6">
@@ -266,8 +265,8 @@ export default {
               type="number"
               min="1"
               :mode="mode"
-              :label="t('workload.container.healthCheck.failureThreshold')"
-              placeholder="Default: 3"
+              :label="t('probe.failureThreshold.label')"
+              :placeholder="t('probe.failureThreshold.label')"
             />
           </div>
         </div>
@@ -281,18 +280,17 @@ export default {
                 v-model="httpGet.httpHeaders"
                 key-name="name"
                 :mode="mode"
-                :pad-left="false"
                 :as-map="false"
                 :read-allowed="false"
-                :title="t('workload.container.healthCheck.httpGet.headers')"
+                :title="t('probe.httpGet.headers.label')"
                 :key-label="t('generic.name')"
                 :value-label="t('generic.value')"
                 :add-label="t('generic.add')"
               >
                 <template #title>
-                  <h4>
+                  <h3>
                     {{ t('workload.container.healthCheck.httpGet.headers') }}
-                  </h4>
+                  </h3>
                 </template>
               </KeyValue>
             </div>
@@ -307,6 +305,9 @@ export default {
 
   .title {
     margin-bottom: 10px;
+  }
+  ::v-deep .labeled-select {
+    height: auto;
   }
 
 </style>

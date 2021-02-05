@@ -1,9 +1,10 @@
 import https from 'https';
 import cloneDeep from 'lodash/cloneDeep';
 import { SCHEMA } from '@/config/types';
-import { addPrefix } from '@/utils/url';
+import { addPrefix, addParam } from '@/utils/url';
 import { createYaml } from '@/utils/create-yaml';
 import { SPOOFED_API_PREFIX, SPOOFED_PREFIX } from '@/store/type-map';
+
 import { normalizeType } from './normalize';
 import { proxyFor, SELF } from './resource-proxy';
 
@@ -134,7 +135,7 @@ export default {
       return getters.all(type);
     }
 
-    console.log('Find All', type); // eslint-disable-line no-console
+    console.log(`Find All: [${ ctx.state.config.namespace }] ${ type }`); // eslint-disable-line no-console
     opt = opt || {};
     opt.url = getters.urlFor(type, null, opt);
 
@@ -167,7 +168,7 @@ export default {
     const { getters, commit, dispatch } = ctx;
 
     opt = opt || {};
-    console.log('Find Matching', type, selector); // eslint-disable-line no-console
+    console.log(`Find Matching: [${ ctx.state.config.namespace }] ${ type }`, selector); // eslint-disable-line no-console
     type = getters.normalizeType(type);
 
     if ( !getters.typeRegistered(type) ) {
@@ -222,7 +223,7 @@ export default {
 
     type = normalizeType(type);
 
-    console.log('Find', type, id); // eslint-disable-line no-console
+    console.log(`Find: [${ ctx.state.config.namespace }] ${ type } ${ id }`); // eslint-disable-line no-console
     let out;
 
     if ( opt.force !== true ) {
@@ -352,4 +353,56 @@ export default {
     commit('action-menu/toggleEjectCDROM', resources, { root: true });
   },
 
+  async resourceAction({ getters, dispatch }, {
+    resource, actionName, body, opt,
+  }) {
+    opt = opt || {};
+
+    if ( !opt.url ) {
+      opt.url = resource.actionLinkFor(actionName);
+    }
+
+    opt.method = 'post';
+    opt.data = body;
+
+    const res = await dispatch('request', opt);
+
+    if ( opt.load !== false && res.type === 'collection' ) {
+      await dispatch('loadMulti', res.data);
+
+      return res.data.map(x => getters.byId(x.type, x.id) || x);
+    } else if ( opt.load !== false && res.type && res.id ) {
+      return dispatch('load', { data: res });
+    } else {
+      return res;
+    }
+  },
+
+  async collectionAction({ getters, dispatch }, {
+    type, actionName, body, opt
+  }) {
+    opt = opt || {};
+
+    if ( !opt.url ) {
+      // Cheating, but cheaper than loading the whole collection...
+      const schema = getters['schemaFor'](type);
+
+      opt.url = addParam(schema.links.collection, 'action', actionName);
+    }
+
+    opt.method = 'post';
+    opt.data = body;
+
+    const res = await dispatch('request', opt);
+
+    if ( opt.load !== false && res.type === 'collection' ) {
+      await dispatch('loadMulti', res.data);
+
+      return res.data.map(x => getters.byId(x.type, x.id) || x);
+    } else if ( opt.load !== false && res.type && res.id ) {
+      return dispatch('load', { data: res });
+    } else {
+      return res;
+    }
+  },
 };

@@ -5,6 +5,7 @@ import isString from 'lodash/isString';
 import jsyaml from 'js-yaml';
 import omitBy from 'lodash/omitBy';
 import pickBy from 'lodash/pickBy';
+import forIn from 'lodash/forIn';
 import uniq from 'lodash/uniq';
 import _ from 'lodash';
 import Vue from 'vue';
@@ -28,11 +29,12 @@ import {
   validateChars,
   validateDnsLikeTypes,
   validateLength,
+  validateBoolean
 } from '@/utils/validators';
 
-import { ANNOTATIONS_TO_IGNORE_REGEX, DESCRIPTION, LABELS_TO_IGNORE_REGEX } from '@/config/labels-annotations';
+import { ANNOTATIONS_TO_IGNORE_REGEX, DESCRIPTION, LABELS_TO_IGNORE_REGEX, NORMAN_NAME } from '@/config/labels-annotations';
 import {
-  AS_YAML, MODE, _CLONE, _EDIT, _FLAGGED, _VIEW, _UNFLAG
+  AS, _YAML, MODE, _CLONE, _EDIT, _VIEW, _UNFLAG, _CONFIG
 } from '@/config/query-params';
 
 import { cleanForNew, normalizeType } from './normalize';
@@ -56,9 +58,10 @@ const REMAP_STATE = {
   notready:      'Not Ready',
   waitapplied:   'Wait Applied',
   outofsync:     'Out of Sync',
-  'in-progress':   'In Progress',
+  'in-progress': 'In Progress',
   gitupdating:   'Git Updating',
-  errapplied:    'Err Applied'
+  errapplied:    'Err Applied',
+  waitcheckin:   'Wait Check-In',
 };
 
 const DEFAULT_COLOR = 'warning';
@@ -67,7 +70,7 @@ const DEFAULT_ICON = 'x';
 const DEFAULT_WAIT_INTERVAL = 1000;
 const DEFAULT_WAIT_TMIMEOUT = 30000;
 
-const STATES = {
+export const STATES = {
   'in-progress':      { color: 'info', icon: 'tag' },
   'pending-rollback': { color: 'info', icon: 'dot-half' },
   'pending-upgrade':  { color: 'info', icon: 'dot-half' },
@@ -80,6 +83,7 @@ const STATES = {
   building:           { color: 'success', icon: 'dot-open' },
   completed:          { color: 'success', icon: 'dot' },
   cordoned:           { color: 'info', icon: 'tag' },
+  count:              { color: 'success', icon: 'dot-open' },
   created:            { color: 'info', icon: 'tag' },
   creating:           { color: 'info', icon: 'tag' },
   deactivating:       { color: 'info', icon: 'adjust' },
@@ -88,23 +92,29 @@ const STATES = {
   deployed:           { color: 'success', icon: 'dot-open' },
   disabled:           { color: 'warning', icon: 'error' },
   disconnected:       { color: 'warning', icon: 'error' },
-  error:              { color: 'error', icon: 'error' },
   errapplied:         { color: 'error', icon: 'error' },
+  error:              { color: 'error', icon: 'error' },
   erroring:           { color: 'error', icon: 'error' },
+  errors:             { color: 'error', icon: 'error' },
   expired:            { color: 'warning', icon: 'error' },
-  failed:             { color: 'error', icon: 'error' },
   fail:               { color: 'error', icon: 'error' },
+  failed:             { color: 'error', icon: 'error' },
   healthy:            { color: 'success', icon: 'dot-open' },
   inactive:           { color: 'error', icon: 'dot' },
   initializing:       { color: 'warning', icon: 'error' },
   inprogress:         { color: 'info', icon: 'spinner' },
   locked:             { color: 'warning', icon: 'adjust' },
   migrating:          { color: 'info', icon: 'info' },
+  missing:            { color: 'warning', icon: 'adjust' },
   modified:           { color: 'warning', icon: 'edit' },
+  notApplicable:      { color: 'warning', icon: 'tag' },
   notapplied:         { color: 'warning', icon: 'tag' },
-  notApplicable:         { color: 'warning', icon: 'tag' },
-  passed:             { color: 'success', icon: 'dot-dotfill' },
+  notready:           { color: 'warning', icon: 'tag' },
+  orphaned:           { color: 'warning', icon: 'tag' },
+  other:              { color: 'info', icon: 'info' },
+  outofsync:          { color: 'warning', icon: 'tag' },
   pass:               { color: 'success', icon: 'dot-dotfill' },
+  passed:             { color: 'success', icon: 'dot-dotfill' },
   paused:             { color: 'info', icon: 'info' },
   pending:            { color: 'info', icon: 'tag' },
   provisioning:       { color: 'info', icon: 'dot' },
@@ -121,8 +131,8 @@ const STATES = {
   restarting:         { color: 'info', icon: 'adjust' },
   restoring:          { color: 'info', icon: 'medicalcross' },
   running:            { color: 'success', icon: 'dot-open' },
-  skipped:            { color: 'info', icon: 'dot-open' },
   skip:               { color: 'info', icon: 'dot-open' },
+  skipped:            { color: 'info', icon: 'dot-open' },
   starting:           { color: 'info', icon: 'adjust' },
   stopped:            { color: 'error', icon: 'dot' },
   stopping:           { color: 'info', icon: 'adjust' },
@@ -137,9 +147,7 @@ const STATES = {
   unknown:            { color: 'warning', icon: 'x' },
   untriggered:        { color: 'success', icon: 'tag' },
   updating:           { color: 'warning', icon: 'tag' },
-  waiting:            { color: 'info', icon: 'tag' },
   waitapplied:        { color: 'info', icon: 'tag' },
-  notready:           { color: 'warning', icon: 'tag' },
   imported:           { color: 'success', icon: 'dot-open' },
   validated:          { color: 'success', icon: 'dot-open' },
   progress:           { color: 'warning', icon: 'x' },
@@ -148,7 +156,32 @@ const STATES = {
   'vm-error':         { color: 'error', icon: 'dot' },
   off:                { color: 'warning', icon: 'x' },
   stoping:            { color: 'info', icon: 'dot-open' },
+  waitcheckin:        { color: 'warning', icon: 'tag' },
+  waiting:            { color: 'info', icon: 'tag' },
+  warning:            { color: 'warning', icon: 'error' },
 };
+
+export function getStatesByType(type = 'info') {
+  const out = {
+    info:    [],
+    error:   [],
+    success: [],
+    warning: [],
+    unknown: [],
+  };
+
+  forIn(STATES, (state, stateKey) => {
+    if (state.color) {
+      if (out[state.color]) {
+        out[state.color].push(stateKey);
+      } else {
+        out.unknown.push(stateKey);
+      }
+    }
+  });
+
+  return out;
+}
 
 const SORT_ORDER = {
   error:   1,
@@ -303,7 +336,7 @@ export default {
   },
 
   nameDisplay() {
-    return this.spec?.displayName || this.metadata?.name || this.id || this.username; // TODO
+    return this.displayName || this.spec?.displayName || this.metadata?.annotations?.[NORMAN_NAME] || this.metadata?.name || this.id || this.username;
   },
 
   nameSort() {
@@ -326,7 +359,7 @@ export default {
   },
 
   name() {
-    return this.metadata?.name;
+    return this._name || this.metadata?.name;
   },
 
   namespace() {
@@ -672,36 +705,18 @@ export default {
 
   _standardActions() {
     const all = [
-      {
-        action:  'goToEdit',
-        label:   this.t('action.goToEdit'),
-        icon:    'icon icon-edit',
-        enabled:  this.canUpdate && this.canCustomEdit,
-      },
-      {
-        action:  'goToClone',
-        label:   this.t('action.goToClone'),
-        icon:    'icon icon-copy',
-        enabled:  this.canCreate && this.canCustomEdit,
-      },
       { divider: true },
       {
-        action:  'goToEditYaml',
-        label:   this.t('action.goToEditYaml'),
-        icon:    'icon icon-file',
-        enabled: this.canUpdate && this.canYaml,
+        action:  this.canUpdate ? 'goToEdit' : 'goToViewConfig',
+        label:   this.t(this.canUpdate ? 'action.edit' : 'action.view'),
+        icon:    'icon icon-edit',
+        enabled:  this.canCustomEdit,
       },
       {
-        action:  'goToViewYaml',
-        label:   this.t('action.goToViewYaml'),
+        action:  this.canUpdate ? 'goToEditYaml' : 'goToViewYaml',
+        label:   this.t(this.canUpdate ? 'action.editYaml' : 'action.viewYaml'),
         icon:    'icon icon-file',
-        enabled: !this.canUpdate && this.canYaml
-      },
-      {
-        action:  'cloneYaml',
-        label:   this.t('action.cloneYaml'),
-        icon:    'icon icon-copy',
-        enabled:  this.canCreate && this.canYaml,
+        enabled: this.canYaml,
       },
       {
         action:     'download',
@@ -710,6 +725,12 @@ export default {
         bulkable:   true,
         bulkAction: 'downloadBulk',
         enabled:    this.canYaml
+      },
+      {
+        action:  (this.canCustomEdit ? 'goToClone' : 'cloneYaml'),
+        label:   this.t('action.clone'),
+        icon:    'icon icon-copy',
+        enabled:  this.canCreate && (this.canCustomEdit || this.canYaml),
       },
       { divider: true },
       {
@@ -721,7 +742,6 @@ export default {
         enabled:    this.canDelete,
         bulkAction: 'promptRemove',
       },
-      { divider: true },
       {
         action:  'viewInApi',
         label:   this.t('action.viewInApi'),
@@ -736,19 +756,23 @@ export default {
   // ------------------------------------------------------------------
 
   canDelete() {
-    return this.hasLink('remove');
+    return this.hasLink('remove') && this.$rootGetters['type-map/optionsFor'](this.type).isRemovable;
   },
 
   canUpdate() {
-    return this.hasLink('update') && this.$rootGetters['type-map/isEditable'](this.type);
+    return this.hasLink('update') && this.$rootGetters['type-map/optionsFor'](this.type).isEditable;
   },
 
   canCustomEdit() {
-    return this.$rootGetters['type-map/hasCustomEdit'](this.type);
+    return this.$rootGetters['type-map/hasCustomEdit'](this.type, this.id);
   },
 
   canCreate() {
-    return this.$rootGetters['type-map/isCreatable'](this.type);
+    if ( this.schema && !this.schema?.collectionMethods.find(x => x.toLowerCase() === 'post') ) {
+      return false;
+    }
+
+    return this.$rootGetters['type-map/optionsFor'](this.type).isCreatable;
   },
 
   canViewInApi() {
@@ -807,14 +831,12 @@ export default {
 
   doAction() {
     return (actionName, body, opt = {}) => {
-      if ( !opt.url ) {
-        opt.url = this.actionLinkFor(actionName);
-      }
-
-      opt.method = 'post';
-      opt.data = body;
-
-      return this.$dispatch('request', opt);
+      return this.$dispatch('resourceAction', {
+        resource: this,
+        actionName,
+        body,
+        opt,
+      });
     };
   },
 
@@ -847,10 +869,15 @@ export default {
 
       delete this.__rehydrate;
       const forNew = !this.id;
+
       const errors = await this.validationErrors(this);
 
       if (!isEmpty(errors)) {
         return Promise.reject(errors);
+      }
+
+      if ( this.metadata?.resourceVersion ) {
+        this.metadata.resourceVersion = `${ this.metadata.resourceVersion }`;
       }
 
       if ( !opt.url ) {
@@ -978,7 +1005,7 @@ export default {
     };
   },
 
-  detailLocation() {
+  _detailLocation() {
     const schema = this.$getters['schemaFor'](this.type);
 
     const id = this?.id?.replace(/.*\//, '');
@@ -995,6 +1022,10 @@ export default {
     };
   },
 
+  detailLocation() {
+    return this._detailLocation;
+  },
+
   goToClone() {
     return (moreQuery = {}) => {
       const location = this.detailLocation;
@@ -1002,6 +1033,7 @@ export default {
       location.query = {
         ...location.query,
         [MODE]: _CLONE,
+        [AS]:   _UNFLAG,
         ...moreQuery
       };
 
@@ -1015,8 +1047,23 @@ export default {
 
       location.query = {
         ...location.query,
-        [MODE]:    _EDIT,
-        [AS_YAML]: _UNFLAG,
+        [MODE]: _EDIT,
+        [AS]:   _UNFLAG,
+        ...moreQuery
+      };
+
+      this.currentRouter().push(location);
+    };
+  },
+
+  goToViewConfig() {
+    return (moreQuery = {}) => {
+      const location = this.detailLocation;
+
+      location.query = {
+        ...location.query,
+        [MODE]:  _VIEW,
+        [AS]:   _CONFIG,
         ...moreQuery
       };
 
@@ -1030,8 +1077,8 @@ export default {
 
       location.query = {
         ...location.query,
-        [MODE]:      _EDIT,
-        [AS_YAML]: _FLAGGED
+        [MODE]: _EDIT,
+        [AS]:   _YAML
       };
 
       this.currentRouter().push(location);
@@ -1044,8 +1091,8 @@ export default {
 
       location.query = {
         ...location.query,
-        [MODE]:      _VIEW,
-        [AS_YAML]: _FLAGGED
+        [MODE]: _VIEW,
+        [AS]:   _YAML
       };
 
       this.currentRouter().push(location);
@@ -1058,8 +1105,8 @@ export default {
 
       location.query = {
         ...location.query,
-        [MODE]:      _CLONE,
-        [AS_YAML]: _FLAGGED,
+        [MODE]: _CLONE,
+        [AS]:   _YAML,
         ...moreQuery
       };
 
@@ -1190,6 +1237,49 @@ export default {
     };
   },
 
+  saveYaml() {
+    return async(yaml) => {
+      const parsed = jsyaml.safeLoad(yaml); // will throw on invalid yaml
+
+      if ( this.schema?.attributes?.namespaced && !parsed.metadata.namespace ) {
+        const err = this.$rootGetters['i18n/t']('resourceYaml.errors.namespaceRequired');
+
+        throw err;
+      }
+
+      let res;
+      const isCreate = !this.id;
+      const headers = {
+        'content-type': 'application/yaml',
+        accept:         'application/json',
+      };
+
+      if ( isCreate ) {
+        res = await this.schema.followLink('collection', {
+          method:  'POST',
+          headers,
+          data:   yaml
+        });
+      } else {
+        const link = this.hasLink('rioupdate') ? 'rioupdate' : 'update';
+
+        res = await this.followLink(link, {
+          method:  'PUT',
+          headers,
+          data:   yaml
+        });
+      }
+
+      // Steve used to return tables and still might, maybe?
+      if ( res && res.kind !== 'Table') {
+        await this.$dispatch(`load`, {
+          data:     res,
+          existing: (isCreate ? this : undefined)
+        });
+      }
+    };
+  },
+
   validationErrors() {
     return (data, ignoreFields) => {
       const errors = [];
@@ -1246,9 +1336,12 @@ export default {
             Vue.set(data, key, val);
           }
         }
-
-        validateLength(val, field, displayKey, this.$rootGetters, errors);
-        validateChars(val, field, displayKey, this.$rootGetters, errors);
+        if (fieldType === 'boolean') {
+          validateBoolean(val, field, displayKey, this.$rootGetters, errors);
+        } else {
+          validateLength(val, field, displayKey, this.$rootGetters, errors);
+          validateChars(val, field, displayKey, this.$rootGetters, errors);
+        }
 
         if (errors.length > 0) {
           errors.push(this.t('validation.required', { key: displayKey }));
@@ -1285,7 +1378,7 @@ export default {
             validators = [],
             type: fieldType,
           } = rule;
-          let pathValue = get(data, path) || null;
+          let pathValue = get(data, path);
 
           const parsedRules = compact((validators || []));
           let displayKey = path;
@@ -1297,11 +1390,10 @@ export default {
           if (isString(pathValue)) {
             pathValue = pathValue.trim();
           }
-
           if (requiredIfPath) {
             const reqIfVal = get(data, requiredIfPath);
 
-            if (!isEmpty(reqIfVal) && isEmpty(pathValue)) {
+            if (!isEmpty(reqIfVal) && (isEmpty(pathValue) && pathValue !== 0)) {
               errors.push(this.t('validation.required', { key: displayKey }));
             }
           }
@@ -1412,21 +1504,29 @@ export default {
     return this.$rootGetters['i18n/t'];
   },
 
+  // Returns array of MODELS that own this resource (async, network call)
+  findOwners() {
+    return () => {
+      return this._getRelationship('owner', 'from');
+    };
+  },
+
+  // Returns array of {type, namespace, id} objects that own this resource (sync)
   getOwners() {
     return () => {
       return this._getRelationship('owner', 'from');
     };
   },
 
-  getOwned() {
+  findOwned() {
     return () => {
-      return this._getRelationship('owner', 'to');
+      return this._findRelationship('owner', 'to');
     };
   },
 
-  _getRelationship() {
-    return async(rel, direction) => {
-      const out = [];
+  _relationshipsFor() {
+    return (rel, direction) => {
+      const out = { selectors: [], ids: [] };
 
       if ( !this.metadata?.relationships?.length ) {
         return out;
@@ -1442,27 +1542,74 @@ export default {
         }
 
         if ( r.selector ) {
-          const matching = await this.$dispatch('findMatching', {
+          addObjects(out.selectors, {
             type:      r.toType,
             namespace: r.toNamespace,
             selector:  r.selector
           });
-
-          addObjects(out, matching.data);
         } else {
           const type = r[`${ direction }Type`];
-          const ns = r[`${ direction }Namespace`];
-          const id = (ns ? `${ ns }/` : '') + r[`${ direction }Id`];
+          let namespace = r[`${ direction }Namespace`];
+          let name = r[`${ direction }Id`];
 
-          let matching = this.$getters['byId'](type, id);
+          if ( !namespace && name.includes('/') ) {
+            const idx = name.indexOf('/');
 
-          if ( !matching ) {
+            namespace = name.substr(0, idx);
+            name = name.substr(idx + 1);
+          }
+
+          const id = (namespace ? `${ namespace }/` : '') + name;
+
+          addObject(out.ids, {
+            type,
+            namespace,
+            name,
+            id,
+          });
+        }
+      }
+
+      return out;
+    };
+  },
+
+  _getRelationship() {
+    return (rel, direction) => {
+      const res = this._relationshipsFor(rel, direction);
+
+      if ( res.selectors?.length ) {
+        // eslint-disable-next-line no-console
+        console.warn('Sync request for a relationship that is a selector');
+      }
+
+      return res.ids || [];
+    };
+  },
+
+  _findRelationship() {
+    return async(rel, direction) => {
+      const { selectors, ids } = this._relationshipsFor(rel, direction);
+      const out = [];
+
+      for ( const sel of selectors ) {
+        const matching = await this.$dispatch('findMatching', sel);
+
+        addObjects(out, matching.data);
+      }
+
+      for ( const obj of ids ) {
+        const { type, id } = obj;
+        let matching = this.$getters['byId'](type, id);
+
+        if ( !matching ) {
+          try {
             matching = await this.$dispatch('find', { type, id });
+          } catch {
           }
-
-          if ( matching ) {
-            addObject(out, matching);
-          }
+        }
+        if (matching) {
+          addObject(out, matching);
         }
       }
 

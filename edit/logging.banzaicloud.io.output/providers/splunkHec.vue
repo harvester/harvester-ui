@@ -3,7 +3,7 @@ import SecretSelector from '@/components/form/SecretSelector';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import Checkbox from '@/components/form/Checkbox';
-import { protocol } from './options';
+import { protocol, updatePort } from './utils';
 
 export default {
   components: {
@@ -24,6 +24,10 @@ export default {
       type:     String,
       required: true,
     },
+    namespace: {
+      type:     String,
+      required: true
+    }
   },
 
   data() {
@@ -36,7 +40,7 @@ export default {
         return this.value.hec_port;
       },
       set(port) {
-        this.$set(this.value, 'hec_port', Number.parseInt(port));
+        updatePort(value => this.$set(this.value, 'hec_port', value), port);
       }
     }
   }
@@ -45,9 +49,9 @@ export default {
 
 <template>
   <div class="splunk">
-    <div class="bordered-section">
+    <div>
       <h3>{{ t('logging.output.sections.target') }}</h3>
-      <div class="row">
+      <div class="row mb-10">
         <div class="col span-2">
           <LabeledSelect v-model="value.protocol" :mode="mode" :disabled="disabled" :options="protocolOptions" :label="t('logging.splunk.protocol')" />
         </div>
@@ -55,29 +59,91 @@ export default {
           <LabeledInput v-model="value.hec_host" :mode="mode" :disabled="disabled" :label="t('logging.splunk.host')" />
         </div>
         <div class="col span-2">
-          <LabeledInput v-model="port" :mode="mode" :disabled="disabled" type="number" :label="t('logging.splunk.port')" />
+          <LabeledInput
+            v-model="port"
+            :mode="mode"
+            :disabled="disabled"
+            type="number"
+            min="1"
+            max="65535"
+            :label="t('logging.splunk.port')"
+          />
+        </div>
+      </div>
+      <div class="row">
+        <div class="col span-6">
+          <LabeledInput v-model="value.index" :mode="mode" :disabled="disabled" :label="t('logging.splunk.indexName')" />
+        </div>
+        <div class="col span-6">
+          <LabeledInput v-model="value.source" :mode="mode" :disabled="disabled" :label="t('logging.splunk.source')" />
         </div>
       </div>
     </div>
-    <div class="bordered-section">
+    <div class="spacer"></div>
+    <div>
       <h3>{{ t('logging.output.sections.access') }}</h3>
       <div class="row">
         <div class="col span-6">
           <SecretSelector
             v-model="value.hec_token"
             :mode="mode"
+            :namespace="namespace"
             :disabled="disabled"
-            :label="t('logging.splunk.token')"
+            :secret-name-label="t('logging.splunk.token')"
             :show-key-selector="true"
           />
         </div>
       </div>
     </div>
-
+    <div class="spacer"></div>
     <h3>{{ t('logging.output.sections.certificate') }}</h3>
-    <div class="row">
+    <div class="row mb-10">
       <div class="col span-6">
         <Checkbox v-model="value.insecure_ssl" :mode="mode" :disabled="disabled" :label="t('logging.splunk.insecureSsl')" />
+      </div>
+    </div>
+    <div class="row mb-10">
+      <div class="col span-6">
+        <SecretSelector
+          v-model="value.ca_file"
+          :mode="mode"
+          :namespace="namespace"
+          :disabled="disabled"
+          :secret-name-label="t('logging.splunk.caFile')"
+          :show-key-selector="true"
+        />
+      </div>
+      <div class="col span-6">
+        <SecretSelector
+          v-model="value.ca_path"
+          :mode="mode"
+          :namespace="namespace"
+          :disabled="disabled"
+          :secret-name-label="t('logging.splunk.caPath')"
+          :show-key-selector="true"
+        />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col span-6">
+        <SecretSelector
+          v-model="value.client_cert"
+          :mode="mode"
+          :namespace="namespace"
+          :disabled="disabled"
+          :secret-name-label="t('logging.splunk.clientCert')"
+          :show-key-selector="true"
+        />
+      </div>
+      <div class="col span-6">
+        <SecretSelector
+          v-model="value.client_key"
+          :mode="mode"
+          :namespace="namespace"
+          :disabled="disabled"
+          :secret-name-label="t('logging.splunk.clientKey')"
+          :show-key-selector="true"
+        />
       </div>
     </div>
   </div>

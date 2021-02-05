@@ -1,6 +1,8 @@
 import { DSL } from '@/store/type-map';
 import { MONITORING } from '@/config/types';
-import { STATE, NAME as NAME_COL, AGE } from '@/config/table-headers';
+import {
+  STATE, NAME as NAME_COL, AGE, RECEIVER_PROVIDERS, CONFIGURED_RECEIVER
+} from '@/config/table-headers';
 import { getAllReceivers, getAllRoutes } from '@/utils/alertmanagerconfig';
 
 export const NAME = 'monitoring';
@@ -15,6 +17,7 @@ export function init(store) {
     spoofedType,
     virtualType,
     weightType,
+    configureType,
   } = DSL(store, NAME);
   const {
     ALERTMANAGER,
@@ -23,7 +26,7 @@ export function init(store) {
     PROMETHEUSRULE,
     PROMETHEUS,
     SPOOFED: {
-      RECEIVER, RECEIVER_SPEC, RECEIVER_EMAIL, RECEIVER_SLACK, RECEIVER_WEBHOOK, RECEIVER_PAGERDUTY, RECEIVER_OPSGENIE, RECEIVER_HTTP_CONFIG,
+      RECEIVER, RECEIVER_SPEC, RECEIVER_EMAIL, RECEIVER_SLACK, RECEIVER_WEBHOOK, RECEIVER_PAGERDUTY, RECEIVER_OPSGENIE, RECEIVER_HTTP_CONFIG, RESPONDER,
       ROUTE, ROUTE_SPEC
     }
   } = MONITORING;
@@ -82,6 +85,7 @@ export function init(store) {
         id:              RECEIVER_SLACK,
         type:            'schema',
         resourceFields:  {
+          text:          { type: 'string' },
           api_url:       { type: 'string' },
           channel:       { type: 'string' },
           http_config:   { type: RECEIVER_HTTP_CONFIG },
@@ -102,10 +106,10 @@ export function init(store) {
         id:              RECEIVER_OPSGENIE,
         type:            'schema',
         resourceFields:  {
-          api_url:       { type: 'string' },
           api_key:       { type: 'string' },
           http_config:   { type: RECEIVER_HTTP_CONFIG },
-          send_resolved: { type: 'boolean' }
+          send_resolved: { type: 'boolean' },
+          responders:    { type: `array[${ RESPONDER }]` }
         }
       },
       {
@@ -122,7 +126,17 @@ export function init(store) {
         type:           'schema',
         resourceFields: { proxy_url: { type: 'string' } }
       },
+      {
+        id:             RESPONDER,
+        type:           'schema',
+        resourceFields: {
+          type:     { type: 'string' },
+          id:       { type: 'string' },
+          name:     { type: 'string' },
+          username: { type: 'string' },
 
+        }
+      }
     ],
     getInstances: () => getAllReceivers(store.dispatch)
   });
@@ -154,6 +168,9 @@ export function init(store) {
     getInstances: () => getAllRoutes(store.dispatch)
   });
 
+  configureType(ROUTE, { showState: false, showAge: false });
+  configureType(RECEIVER, { showState: false, showAge: false });
+
   basicType([
     'monitoring-overview',
     RECEIVER,
@@ -181,25 +198,12 @@ export function init(store) {
 
   headers(RECEIVER, [
     NAME_COL,
-    {
-      name:      'receiver-types',
-      label:     'Configured Receivers',
-      value:     'receiverTypes',
-      sort:      'receiverTypes',
-      formatter: 'List',
-      width:     '85%'
-    }
+    RECEIVER_PROVIDERS
   ]);
 
   headers(ROUTE, [
     NAME_COL,
-    {
-      name:      'receiver',
-      label:     'Configured Receiver',
-      value:     'spec.receiver',
-      sort:      'spec.receiver',
-      width:     '85%'
-    }
+    CONFIGURED_RECEIVER
   ]);
 
   headers(ALERTMANAGER, [

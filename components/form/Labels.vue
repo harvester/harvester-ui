@@ -37,7 +37,7 @@ export default {
     },
 
     sectionClass() {
-      return `${ this.displaySideBySide ? 'col span-6' : 'row mb-20' } ${ this.defaultSectionClass }`.trim();
+      return `${ this.displaySideBySide ? 'col span-6' : 'row' } ${ this.defaultSectionClass }`.trim();
     }
   }
 };
@@ -51,11 +51,12 @@ export default {
         :add-label="t('labels.addLabel')"
         :mode="mode"
         :title="t('labels.labels.title')"
-        :pad-left="false"
         :read-allowed="false"
+        :value-can-be-empty="true"
         @input="value.setLabels"
       />
     </div>
+    <div class="spacer"></div>
     <div :class="sectionClass">
       <KeyValue
         key="annotations"
@@ -63,10 +64,14 @@ export default {
         :add-label="t('labels.addAnnotation')"
         :mode="mode"
         :title="t('labels.annotations.title')"
-        :pad-left="false"
         :read-allowed="false"
+        :value-can-be-empty="true"
         @input="value.setAnnotations"
       />
     </div>
   </div>
 </template>
+
+<style scoped>
+
+</style>

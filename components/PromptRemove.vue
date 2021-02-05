@@ -1,15 +1,18 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 import { get, isEmpty } from '@/utils/object';
-import { NAMESPACE, RIO } from '@/config/types';
+import { NAMESPACE, NODE, RIO } from '@/config/types';
 import Card from '@/components/Card';
 import { alternateLabel } from '@/utils/platform';
 import LinkDetail from '@/components/formatter/LinkDetail';
 import { uniq } from '@/utils/array';
 import { addPrefix } from '@/utils/url';
+import AsyncButton from '@/components/AsyncButton';
 
 export default {
-  components: { Card, LinkDetail },
+  components: {
+    Card, LinkDetail, AsyncButton
+  },
   data() {
     const { resource } = this.$route.params;
     const getters = this.$store.getters;
@@ -19,6 +22,8 @@ export default {
       hasCustomRemove,
       confirmName:     '',
       error:           '',
+      warning:         '',
+      preventDelete:   false,
       removeComponent: this.$store.getters['type-map/importCustomPromptRemove'](resource)
     };
   },
@@ -64,21 +69,7 @@ export default {
       }
       const type = first.type;
 
-      return (type === NAMESPACE || type === RIO.STACK) && this.toRemove.length === 1;
-    },
-
-    preventDeletionMessage() {
-      const toRemoveWithWarning = this.toRemove.filter(tr => tr?.preventDeletionMessage);
-
-      if (toRemoveWithWarning.length === 0) {
-        return null;
-      }
-
-      return toRemoveWithWarning[0].preventDeletionMessage;
-    },
-
-    isDeleteDisabled() {
-      return !!this.preventDeletionMessage;
+      return (type === NAMESPACE || type === NODE || type === RIO.STACK) && this.toRemove.length === 1;
     },
 
     plusMore() {
@@ -144,6 +135,33 @@ export default {
       } else {
         this.$modal.hide('promptRemove');
       }
+    },
+
+    // check for any resources with a deletion prevention message,
+    // if none found (delete is allowed), then check for any resources with a warning message
+    toRemove(neu) {
+      let message;
+      const preventDeletionMessages = neu.filter(item => item.preventDeletionMessage);
+
+      this.preventDelete = false;
+
+      if (!!preventDeletionMessages.length) {
+        this.preventDelete = true;
+        message = preventDeletionMessages[0].preventDeletionMessage;
+      } else {
+        const warnDeletionMessages = neu.filter(item => item.warnDeletionMessage);
+
+        if (!!warnDeletionMessages.length) {
+          message = warnDeletionMessages[0].warnDeletionMessage;
+        }
+      }
+      if (typeof message === 'function' ) {
+        this.warning = message(this.toRemove);
+      } else if (!!message) {
+        this.warning = message;
+      } else {
+        this.warning = '';
+      }
     }
   },
 
@@ -154,7 +172,7 @@ export default {
       this.$store.commit('action-menu/togglePromptRemove');
     },
 
-    remove() {
+    remove(btnCB) {
       if (this.hasCustomRemove && this.$refs?.customPrompt?.remove) {
         this.$refs.customPrompt.remove();
 
@@ -162,6 +180,7 @@ export default {
       }
       if (this.needsConfirm && this.confirmName !== this.names[0]) {
         this.error = 'Resource names do not match';
+        btnCB(false);
         // if doneLocation is defined, redirect after deleting
       } else {
         let goTo;
@@ -174,14 +193,14 @@ export default {
         const serialRemove = this.toRemove.some(resource => resource.removeSerially);
 
         if (serialRemove) {
-          this.serialRemove(goTo);
+          this.serialRemove(goTo, btnCB);
         } else {
-          this.parallelRemove(goTo);
+          this.parallelRemove(goTo, btnCB);
         }
       }
     },
 
-    async serialRemove(goTo) {
+    async serialRemove(goTo, btnCB) {
       try {
         const spoofedTypes = this.getSpoofedTypes(this.toRemove);
 
@@ -194,14 +213,15 @@ export default {
         if ( goTo && !isEmpty(goTo) ) {
           this.currentRouter.push(goTo);
         }
-
+        btnCB(true);
         this.close();
       } catch (err) {
         this.error = err;
+        btnCB(false);
       }
     },
 
-    async parallelRemove(goTo) {
+    async parallelRemove(goTo, btnCB) {
       try {
         const spoofedTypes = this.getSpoofedTypes(this.toRemove);
 
@@ -211,10 +231,11 @@ export default {
         if ( goTo && !isEmpty(goTo) ) {
           this.currentRouter.push(goTo);
         }
-
+        btnCB(true);
         this.close();
       } catch (err) {
         this.error = err?.message || err;
+        btnCB(false);
       }
     },
 
@@ -241,9 +262,9 @@ export default {
     name="promptRemove"
     :width="350"
     height="auto"
-    styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 100vh;"
+    styles="max-height: 100vh;"
   >
-    <Card>
+    <Card class="prompt-remove" :show-highlight-border="false">
       <h4 slot="title" class="text-default-text">
         Are you sure?
       </h4>
@@ -269,25 +290,31 @@ export default {
           <span v-if="needsConfirm" :key="resource">Re-enter its name below to confirm:</span>
         </div>
         <input v-if="needsConfirm" id="confirm" v-model="confirmName" type="text" />
-        <span class="text-warning">{{ preventDeletionMessage }}</span>
-        <span class="error-message text-error">{{ error }}</span>
-        <span v-if="!needsConfirm" class="text-info mt-20">{{ protip }}</span>
-      </div>
-      <template slot="actions">
-        <div class="actions">
-          <button class="btn role-secondary" @click="close">
-            Cancel
-          </button>
-          <button class="btn bg-error" :disabled="isDeleteDisabled" @click="remove">
-            Delete
-          </button>
+        <div class="mb-10">
+          {{ warning }}
         </div>
+        <div class="text-error mb-10">
+          {{ error }}
+        </div>
+        <div v-if="!needsConfirm" class="text-info mt-20">
+          {{ protip }}
+        </div>
+      </div>
+      <template #actions>
+        <button class="btn role-secondary" @click="close">
+          Cancel
+        </button>
+        <AsyncButton mode="delete" class="btn bg-error ml-10" :disabled="preventDelete" @click="remove" />
       </template>
     </Card>
   </modal>
 </template>
 
 <style lang='scss'>
+  .prompt-remove {
+    &.card-container {
+      box-shadow: none;
+    }
     #confirm {
       width: 90%;
       margin-left: 3px;
@@ -310,5 +337,20 @@ export default {
       width: 100%;
       display: flex;
       justify-content: space-around;
+      border-radius: var(--border-radius);
+      overflow: scroll;
+      max-height: 100vh;
+      & ::-webkit-scrollbar-corner {
+        background: rgba(0,0,0,0);
+      }
     }
+
+    .actions {
+      text-align: right;
+    }
+    .card-actions {
+      display: flex;
+      justify-content: center;
+    }
+  }
 </style>

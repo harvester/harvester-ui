@@ -38,7 +38,12 @@ export default {
       };
     }
 
-    this.updateMatchingClusters();
+    const expressions = convert(
+      this.value.spec.selector.matchLabels || {},
+      this.value.spec.selector.matchExpressions || []
+    );
+
+    this.matchChanged(expressions);
   },
 
   data() {
@@ -46,10 +51,7 @@ export default {
       allClusters:      null,
       allWorkspaces:    null,
       matchingClusters: null,
-      expressions:      [
-        ...convert(this.value.spec.selector.matchLabels || {}),
-        ...(this.value.spec.selector.matchExpressions || []),
-      ],
+      expressions:      null,
     };
   },
 
@@ -131,14 +133,12 @@ export default {
       :namespace-type="FLEET_WORKSPACE"
     />
 
-    <hr v-if="!isView" class="mt-20 mb-20" />
-
     <h2 v-t="'fleet.clusterGroup.selector.label'" />
     <MatchExpressions
       :initial-empty-row="!isView"
       :mode="mode"
       type=""
-      :value="value.spec.selector.matchExpressions"
+      :value="expressions"
       :show-remove="false"
       @input="matchChanged($event)"
     />
@@ -151,7 +151,7 @@ export default {
       />
     </Banner>
 
-    <hr class="mt-20" />
+    <div class="spacer" />
 
     <Labels
       default-section-class="mt-20"

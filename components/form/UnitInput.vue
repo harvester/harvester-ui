@@ -1,11 +1,17 @@
 <script>
 import { parseSi, UNITS, FRACTIONAL } from '@/utils/units';
 import LabeledInput from '@/components/form/LabeledInput';
+import { _EDIT } from '@/config/query-params';
 
 export default {
   components: { LabeledInput },
 
   props: {
+    mode: {
+      type:    String,
+      default: _EDIT
+    },
+
     value: {
       type:    [Number, String],
       default: null
@@ -31,15 +37,25 @@ export default {
       default: 0,
     },
 
-    mode: {
-      type:    String,
-      default: 'edit'
+    label: {
+      type:     String,
+      default: null
     },
 
-    placeholder: {
-      type:    String,
+    labelKey: {
+      type:     String,
       default: null
-    }
+    },
+
+    tooltip: {
+      type:    [String, Object],
+      default: null
+    },
+
+    tooltipKey: {
+      type:     String,
+      default: null
+    },
   },
 
   computed: {
@@ -90,20 +106,24 @@ export default {
     v-bind="$attrs"
     type="number"
     min="0"
-    :placeholder="placeholder"
     :mode="mode"
+    :label="label"
+    :label-key="labelKey"
+    :tooltip="tooltip"
+    :tooltip-key="tooltipKey"
     @input="update($event)"
   >
     <template #suffix>
-      <div v-if="addon" class="addon">
+      <div v-if="addon" class="addon" :class="{'with-tooltip': tooltip || tooltipKey}">
         {{ addon }}
       </div>
     </template>
-    <template #corner>
-      <slot name="corner" />
-    </template>
-    <template #label>
-      <slot name="label" />
-    </template>
   </LabeledInput>
 </template>
+
+<style lang="scss" scoped>
+  .addon.with-tooltip {
+    position: relative;
+    right: 30px;
+  }
+</style>

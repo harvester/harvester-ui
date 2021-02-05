@@ -1,3 +1,4 @@
+export const NORMAN_NAME = 'field.cattle.io/name';
 export const DESCRIPTION = 'field.cattle.io/description';
 export const HOSTNAME = 'kubernetes.io/hostname';
 export const TIMESTAMP = 'cattle.io/timestamp';
@@ -5,11 +6,16 @@ export const SYSTEM_NAMESPACE = 'management.cattle.io/system-namespace';
 export const PROJECT = 'field.cattle.io/projectId';
 export const SYSTEM_PROJECT = 'authz.management.cattle.io/system-project';
 export const CONTAINER_DEFAULT_RESOURCE_LIMIT = 'field.cattle.io/containerDefaultResourceLimit';
+export const CATTLE_PUBLIC_ENDPOINTS = 'field.cattle.io/publicEndpoints';
+export const TARGET_WORKLOADS = 'field.cattle.io/targetWorkloadIds';
+export const UI_MANAGED = 'management.cattle.io/ui-managed';
 
 export const KUBERNETES = {
   SERVICE_ACCOUNT_UID:  'kubernetes.io/service-account.uid',
   SERVICE_ACCOUNT_NAME: 'kubernetes.io/service-account.name',
   MANAGED_BY:           'app.kubernetes.io/managed-by',
+  MANAGED_NAME:         'app.kubernetes.io/name',
+  INSTANCE:             'app.kubernetes.io/instance',
 };
 
 export const RIO = { STACK: 'rio.cattle.io/stack' };
@@ -49,9 +55,9 @@ export const CATALOG = {
   SOURCE_REPO_NAME: 'catalog.cattle.io/ui-source-repo',
   COLOR:            'catalog.cattle.io/ui-color',
   DISPLAY_NAME:     'catalog.cattle.io/display-name',
-};
 
-const CATTLE_REGEX = /cattle\.io\//;
+  SUPPORTED_OS: 'catalog.cattle.io/os',
+};
 
 export const FLEET = {
   CLUSTER_DISPLAY_NAME: 'management.cattle.io/cluster-display-name',
@@ -59,7 +65,13 @@ export const FLEET = {
   BUNDLE_ID:            'fleet.cattle.io/bundle-id',
 };
 
+export const RBAC = { PRODUCT: 'management.cattle.io/ui-product' };
+
 export const RKE = { EXTERNAL_IP: 'rke.cattle.io/external-ip' };
+
+export const ISTIO = { AUTO_INJECTION: 'istio-injection' };
+
+const CATTLE_REGEX = /cattle\.io\//;
 
 export const LABELS_TO_IGNORE_REGEX = [
   CATTLE_REGEX

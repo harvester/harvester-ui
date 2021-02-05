@@ -3,10 +3,10 @@ import debounce from 'lodash/debounce';
 import { _EDIT, _VIEW } from '@/config/query-params';
 import { removeAt } from '@/utils/array';
 import { clone } from '@/utils/object';
-import LabeledSelect from '@/components/form/LabeledSelect';
+import Select from '@/components/form/Select';
 
 export default {
-  components: { LabeledSelect },
+  components: { Select },
   props:      {
     value: {
       type:    Array,
@@ -72,12 +72,13 @@ export default {
     }
 
     if (this.autoAddIfEmpty && this.mode !== _EDIT && this?.rows.length < 1) {
-      this.add();
+      // don't focus on mount because we'll pull focus from name/namespace input
+      this.add(false);
     }
   },
 
   methods: {
-    add() {
+    add(focus = true) {
       this.rows.push({
         name:       '',
         port:       null,
@@ -87,9 +88,9 @@ export default {
 
       this.queueUpdate();
 
-      if (this.rows.length > 1) {
+      if (this.rows.length > 0 && focus) {
         this.$nextTick(() => {
-          const inputs = this.$refs.port;
+          const inputs = this.$refs['port-name'];
 
           inputs[inputs.length - 1].focus();
         });
@@ -114,12 +115,6 @@ export default {
 
 <template>
   <div>
-    <div class="clearfix">
-      <h2>
-        <t k="servicePorts.header.label" />
-      </h2>
-    </div>
-
     <div v-if="rows.length">
       <div class="ports-headers" :class="{'show-protocol':showProtocol, 'show-node-port':showNodePort}">
         <span v-if="padLeft" class="left"></span>
@@ -128,12 +123,15 @@ export default {
         </span>
         <span class="port">
           <t k="servicePorts.rules.listening.label" />
+          <span class="text-error">*</span>
         </span>
         <span v-if="showProtocol" class="port-protocol">
           <t k="servicePorts.rules.protocol.label" />
         </span>
         <span class="target-port">
           <t k="servicePorts.rules.target.label" />
+          <span class="text-error">*</span>
+
         </span>
         <span v-if="showNodePort" class="node-port">
           <t k="servicePorts.rules.node.label" />
@@ -173,7 +171,7 @@ export default {
         </div>
         <div v-if="showProtocol" class="port-protocol">
           <span v-if="isView">{{ row.protocol }}</span>
-          <LabeledSelect
+          <Select
             v-else
             v-model="row.protocol"
             :options="protocolOptions"
@@ -209,7 +207,7 @@ export default {
       </div>
     </div>
     <div v-if="showAdd" class="footer">
-      <button type="button" class="btn role-tertiary add mt-10" @click="add()">
+      <button type="button" class="btn role-tertiary add" @click="add()">
         <t k="generic.add" />
       </button>
     </div>
@@ -233,10 +231,6 @@ export default {
     grid-column-gap: $column-gutter;
     margin-bottom: 10px;
     align-items: center;
-    & .port{
-      display: flex;
-      justify-content: space-between;
-    }
 
     &.show-protocol{
       grid-template-columns: 23% 23% 10% 15% 15% 10%;
@@ -261,8 +255,18 @@ export default {
     padding: 0px;
   }
 
-  .ports-row INPUT {
-    height: 50px;
+  .ports-row {
+    > div {
+      height: 100%;
+    }
+
+    .port-protocol ::v-deep {
+      .unlabeled-select {
+        .v-select.inline {
+          margin-top: 2px;
+        }
+      }
+    }
   }
 
   .footer {

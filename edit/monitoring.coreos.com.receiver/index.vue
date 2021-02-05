@@ -10,24 +10,28 @@ import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
 import CreateEditView from '@/mixins/create-edit-view';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 import jsyaml from 'js-yaml';
 import { RECEIVERS_TYPES } from '@/models/monitoring.coreos.com.receiver';
 
 export default {
   components: {
-    ArrayListGrouped, Banner, CruResource, GradientBox, LabeledInput, Loading, Tabbed, Tab, YamlEditor
+    ArrayListGrouped,
+    Banner,
+    CruResource,
+    GradientBox,
+    LabeledInput,
+    Loading,
+    Tabbed,
+    Tab,
+    YamlEditor
   },
-  mixins: [CreateEditView],
-  asyncData(ctx) {
-    function yamlSave(value, originalValue) {
-      originalValue.yamlSaveOverride(value, originalValue);
-    }
 
-    return defaultAsyncData(ctx, null, {
-      hideBanner: true, hideAge: true, hideBadgeState: true, yamlSave
-    });
+  mixins: [CreateEditView],
+
+  async fetch() {
+    await this.$store.dispatch('cluster/findAll', { type: MONITORING.SPOOFED.ROUTE });
   },
+
   data() {
     this.$set(this.value, 'spec', this.value.spec || {});
 
@@ -58,9 +62,10 @@ export default {
       receiver:         {},
       suffixYaml,
       EDITOR_MODES,
-      yamlSaveOverride: this.yamlSaveOverride
+      yamlError:        ''
     };
   },
+
   computed: {
     editorMode() {
       if ( this.isView ) {
@@ -70,6 +75,7 @@ export default {
       return EDITOR_MODES.EDIT_CODE;
     },
   },
+
   watch: {
     suffixYaml(value) {
       try {
@@ -83,9 +89,13 @@ export default {
         const suffix = jsyaml.safeLoad(value);
 
         Object.assign(this.value.spec, suffix);
-      } catch (ex) {}
+        this.yamlError = '';
+      } catch (ex) {
+        this.yamlError = `There was a problem parsing the Custom Config: ${ ex }`;
+      }
     }
   },
+
   methods: {
     getComponent(name) {
       return require(`./types/${ name }`).default;
@@ -100,6 +110,7 @@ export default {
 
       return found.length;
     },
+
     tabChanged({ tab }) {
       window.scrollTop = 0;
       if ( tab.name === 'custom' ) {
@@ -111,12 +122,24 @@ export default {
         });
       }
     },
+
+    saveOverride(buttonDone) {
+      if (this.yamlError) {
+        this.errors = this.errors || [];
+        this.errors.push(this.yamlError);
+        buttonDone(false);
+      } else {
+        this.save(...arguments);
+      }
+    }
   }
 };
 </script>
 
 <template>
+  <Loading v-if="$fetchState.pending" />
   <CruResource
+    v-else
     class="receiver"
     :done-route="doneRoute"
     :mode="mode"
@@ -124,7 +147,7 @@ export default {
     :subtypes="[]"
     :errors="errors"
     @error="e=>errors = e"
-    @finish="save"
+    @finish="saveOverride"
     @cancel="done"
   >
     <div v-if="!isView" class="row mb-10">
@@ -142,7 +165,7 @@ export default {
                   <img :src="receiverType.logo" />
                 </div>
                 <h4 class="name ml-10">
-                  {{ receiverType.label }}
+                  <t :k="receiverType.label" />
                 </h4>
               </div>
               <div v-if="receiverType.name !== 'custom'" class="right">
@@ -152,16 +175,13 @@ export default {
           </GradientBox>
         </div>
       </Tab>
-      <Tab v-for="(receiverType, i) in receiverTypes" :key="i" :label="receiverType.label" :name="receiverType.name" :weight="receiverTypes.length - i">
-        <Banner v-if="receiverType.name === 'slack'" color="info">
-          Here's how you create <a href="https://rancher.slack.com/apps/A0F7XDUAZ-incoming-webhooks" target="_blank" rel="noopener noreferrer nofollow">Incoming Webhooks</a> for Slack.
-        </Banner>
-        <Banner v-if="receiverType.name === 'custom'" color="info" label="The YAML provided here will be directly appended to your receiver within the Alertmanager Config Secret" />
-        <div class="provider mb-10">
-          <h1>
-            {{ receiverType.title }}
-          </h1>
-        </div>
+      <Tab
+        v-for="(receiverType, i) in receiverTypes"
+        :key="i"
+        :label="t(receiverType.label)"
+        :name="receiverType.name"
+        :weight="receiverTypes.length - i"
+      >
         <YamlEditor
           v-if="receiverType.name === 'custom'"
           ref="customEditor"
@@ -175,10 +195,10 @@ export default {
           class="namespace-list"
           :mode="mode"
           :default-add-value="{}"
-          :add-label="'Add ' + receiverType.label"
+          :add-label="t('monitoringReceiver.addButton', { type: t(receiverType.label) })"
         >
           <template #default="props">
-            <div class="pt-30">
+            <div :class="{'pt-30': !isView}">
               <component :is="getComponent(receiverType.name)" :value="props.row.value" :mode="mode" />
             </div>
           </template>

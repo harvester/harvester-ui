@@ -2,18 +2,26 @@
 import { MANAGEMENT } from '@/config/types';
 import { sortBy } from '@/utils/sort';
 import { findBy } from '@/utils/array';
-import { mapState } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
+import Select from '@/components/form/Select';
 
 export default {
-  computed: {
+  components: { Select },
+
+  computed:   {
     ...mapState(['isMultiCluster']),
+    ...mapGetters(['currentCluster']),
 
     value: {
       get() {
         const options = this.options;
-        const existing = findBy(options, 'id', this.$store.getters['clusterId']);
+        const existing = findBy(
+          options,
+          'id',
+          this.$store.getters['clusterId']
+        );
 
-        if ( existing ) {
+        if (existing) {
           return existing;
         }
 
@@ -22,7 +30,7 @@ export default {
 
       set(neu) {
         this.$router.push({ name: 'c-cluster', params: { cluster: neu.id } });
-      }
+      },
     },
 
     options() {
@@ -30,9 +38,10 @@ export default {
 
       const out = all.map((x) => {
         return {
-          id:    x.id,
-          label: x.nameDisplay,
-          ready: x.isReady,
+          id:     x.id,
+          label:  x.nameDisplay,
+          ready:  x.isReady,
+          osLogo: x.providerOsLogo,
         };
       });
 
@@ -42,27 +51,31 @@ export default {
 
   methods: {
     focus() {
-      this.$refs.select.$refs.search.focus();
-    }
+      this.$refs.select.focusSearch();
+    },
   },
 };
-
 </script>
 
 <template>
   <div class="filter">
-    <v-select
+    <Select
       ref="select"
       key="cluster"
       v-model="value"
-      :selectable="option => option.ready"
+      :append-to-body="false"
+      :searchable="true"
+      :selectable="(option) => option.ready"
       :clearable="false"
       :options="options"
-      label="label"
     >
       <template #selected-option="opt">
-        <i class="icon icon-copy icon-lg pr-5" />
-        {{ opt.label }}
+        <span class="cluster-label-container">
+          <img v-if="currentCluster" class="cluster-switcher-os-logo" :src="currentCluster.providerOsLogo" />
+          <span class="cluster-label">
+            {{ opt.label }}
+          </span>
+        </span>
       </template>
 
       <template #no-options="{ search, searching }">
@@ -73,61 +86,113 @@ export default {
       </template>
 
       <template #option="opt">
-        <b v-if="opt === value">{{ opt.label }}</b>
-        <nuxt-link v-else-if="opt.ready" class="cluster" :to="{name: 'c-cluster', params: { cluster: opt.id }}">
-          {{ opt.label }}
-        </nuxt-link>
-        <span v-else class="text-muted">{{ opt.label }}</span>
+        <span class="dropdown-option">
+          <span class="logo">
+            <img v-if="opt.osLogo" class="cluster-switcher-os-logo" :src="opt.osLogo" />
+          </span>
+          <span class="content">
+            <b v-if="opt === value">{{ opt.label }}</b>
+            <nuxt-link
+              v-else-if="opt.ready"
+              class="cluster"
+              :to="{ name: 'c-cluster', params: { cluster: opt.id } }"
+            >
+              {{ opt.label }}
+            </nuxt-link>
+            <span v-else>{{ opt.label }}</span>
+          </span>
+        </span>
       </template>
-    </v-select>
+    </Select>
     <button v-shortkey.once="['c']" class="hide" @shortkey="focus()" />
   </div>
 </template>
 
 <style lang="scss" scoped>
-  .filter ::v-deep .v-select {
-    max-width: 100%;
-    display: inline-block;
-    margin-top: 8px;
+.filter {
+  .cluster-label-container {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 15% 85%;
+  }
+
+  .cluster-switcher-os-logo {
+    height: 16px;
+  }
+}
+
+.filter ::v-deep .unlabeled-select .v-select {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: var(--border-radius);
+  color: var(--header-btn-text);
+  display: inline-block;
+  max-width: 100%;
+
+  .vs__selected {
+    width: 100%;
+  }
+
+  // matches the padding a layout of the option (and logo/content) to the selected option so it doesn't look off
+  .vs__dropdown-option  {
+    padding: 3px 20px 3px 8px;
+    .dropdown-option {
+      display: grid;
+      width: 100%;
+      grid-template-columns: 25px fit-content(100%);
+    }
+  }
+
+  &.vs--disabled .vs__actions {
+    display: none;
+  }
+
+  .vs__actions:after {
+    fill: white !important;
+    color: white !important;
+  }
+
+  .vs__dropdown-toggle {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: var(--border-radius);
     border: 1px solid var(--header-btn-bg);
     color: var(--header-btn-text);
-    background: rgba(0,0,0,.05);
-    border-radius: var(--border-radius);
+    max-width: 100%;
+    padding-top: 0;
+    height: 40px;
 
-    &.vs--disabled .vs__actions {
-      display: none;
-    }
-
-    .vs__actions:after {
-      fill: white !important;
-      color: white !important;
-    }
-
-    .vs__dropdown-toggle {
-      height: calc(var(--header-height) - 19px);
-      background-color: transparent;
-      border: 0;
-
-      .vs__actions {
-        margin-left: -10px;
-      }
-    }
-
-    .vs__selected {
-      user-select: none;
-      cursor: default;
-      color: white;
-      line-height: calc(var(--header-height) - 32px);
+    .vs__actions {
+      margin-left: -10px;
     }
   }
 
-  .filter ::v-deep INPUT {
-    width: auto;
-    background-color: transparent;
+  .vs__selected {
+    border: none;
+    position: absolute;
+    user-select: none;
+    cursor: default;
+    color: white;
+    line-height: calc(var(--header-height) - 32px);
   }
+}
 
-  .filter ::v-deep INPUT:hover {
-    background-color: transparent;
-  }
+.filter ::v-deep .unlabeled-select:not(.view):hover .vs__dropdown-menu {
+  background: var(--dropdown-bg);
+}
 
+.filter ::v-deep .unlabeled-select {
+  background-color: transparent;
+}
+
+.filter ::v-deep .unlabeled-select:not(.focused) {
+  border: 0;
+  min-height: 0;
+}
+
+.filter ::v-deep .unlabeled-select INPUT[type='search'] {
+  width: auto;
+}
+
+.filter ::v-deep .unlabeled-select INPUT:hover {
+  background-color: transparent;
+}
 </style>

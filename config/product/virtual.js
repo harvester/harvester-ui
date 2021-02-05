@@ -12,7 +12,6 @@ export function init(store) {
     product,
     basicType,
     virtualType,
-    uncreatableType
   } = DSL(store, NAME);
 
   product({
@@ -159,7 +158,6 @@ export function init(store) {
     exact: false,
   });
 
-  uncreatableType(HARVESTER_SETTING);
   virtualType({
     label:      'Settings',
     group:      'root',

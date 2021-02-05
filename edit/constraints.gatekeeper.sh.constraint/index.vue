@@ -15,7 +15,6 @@ import Tabbed from '@/components/Tabbed';
 import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
 import CruResource from '@/components/CruResource';
 import { ENFORCEMENT_ACTION_VALUES } from '@/models/constraints.gatekeeper.sh.constraint';
-import { defaultAsyncData } from '@/components/ResourceDetail';
 import NamespaceList, { NAMESPACE_FILTERS } from './NamespaceList';
 import MatchKinds from './MatchKinds';
 import Scope, { SCOPE_OPTIONS } from './Scope';
@@ -55,14 +54,6 @@ export default {
     }
   },
 
-  asyncData(ctx) {
-    function yamlSave(value, originalValue) {
-      originalValue.yamlSaveOverride(value, originalValue);
-    }
-
-    return defaultAsyncData(ctx, null, { yamlSave });
-  },
-
   data() {
     const emptySpec = {
       enforcementAction: ENFORCEMENT_ACTION_VALUES.DENY,
@@ -80,7 +71,7 @@ export default {
       this.$set(this.value, 'spec', merge(this.value.spec, emptySpec));
 
       if (!this.value.spec.match.scope) {
-        this.$set(this.value.spec.match, 'scope', SCOPE_OPTIONS[0]);
+        this.$set(this.value.spec.match, 'scope', SCOPE_OPTIONS[0].value);
       }
     } else {
       this.$set(this.value.spec, 'match', this.value.spec.match || {});
@@ -170,8 +161,8 @@ export default {
     isTemplateSelectorDisabled() {
       return !this.isCreate;
     },
-    areNamespacesDisabled() {
-      return this.value.spec.match.scope !== 'Namespaced';
+    showNamespaceLists() {
+      return this.value.spec.match.scope !== 'Cluster';
     }
   },
 
@@ -224,10 +215,11 @@ export default {
       }
     },
     selectTemplateSubtype(subType) {
-      this.value.kind = subType;
+      this.$set(this.value, 'kind', subType);
+      this.$emit('set-subtype', subType);
     },
     onScopeChange(newScope) {
-      if (newScope !== 'Namespaced') {
+      if (newScope === 'Cluster') {
         this.value.spec.match.namespaces = [];
         this.value.spec.match.excludedNamespaces = [];
       }
@@ -258,7 +250,6 @@ export default {
             :namespaced="false"
           />
         </div>
-        <div class="spacer"></div>
         <div class="row mb-40">
           <div class="col span-12">
             <h3>Enforcement Action</h3>
@@ -273,19 +264,49 @@ export default {
           </div>
         </div>
         <Tabbed :side-tabs="true" @changed="onTabChanged">
-          <Tab name="parameters" :label="t('gatekeeperConstraint.tab.parameters.title')" :weight="3">
-            <YamlEditor
-              ref="yamlEditor"
-              v-model="parametersYaml"
-              class="yaml-editor"
-              :editor-mode="editorMode"
-              @newObject="$set(value.spec, 'parameters', $event)"
-            />
+          <Tab name="namespaces" :label="t('gatekeeperConstraint.tab.namespaces.title')" :weight="3">
+            <div class="row">
+              <div class="col span-6">
+                <Scope v-model="value.spec.match.scope" :mode="mode" @input="onScopeChange($event)" />
+              </div>
+            </div>
+            <div v-if="showNamespaceLists" class="row mt-20">
+              <div class="col span-12">
+                <NamespaceList
+                  v-model="value.spec.match.namespaces"
+                  :label="t('gatekeeperConstraint.tab.namespaces.sub.namespaces')"
+                  tooltip="If defined, a constraint will only apply to resources in a listed namespace."
+                  :mode="mode"
+                  :namespace-filter="NAMESPACE_FILTERS.nonSystem"
+                  add-label="Add Namespace"
+                />
+              </div>
+            </div>
+            <div v-if="showNamespaceLists" class="row mt-20">
+              <div class="col span-12">
+                <NamespaceList
+                  v-model="value.spec.match.excludedNamespaces"
+                  :label="t('gatekeeperConstraint.tab.namespaces.sub.excludedNamespaces')"
+                  tooltip="If defined, a constraint will only apply to resources not in a listed namespace."
+                  :mode="mode"
+                  add-label="Add Excluded Namespace"
+                />
+              </div>
+            </div>
+            <div class="row mt-40">
+              <div class="col span-12">
+                <h3>{{ t('gatekeeperConstraint.tab.namespaces.sub.namespaceSelector.title') }}</h3>
+                <RuleSelector
+                  v-model="value.spec.match.namespaceSelector.matchExpressions"
+                  add-label="Add Namespace Selector"
+                  :mode="mode"
+                />
+              </div>
+            </div>
           </Tab>
           <Tab name="rules" :label="t('gatekeeperConstraint.tab.rules.title')" :weight="2">
             <div class="row">
               <div class="col span-12">
-                <h3>{{ t('gatekeeperConstraint.tab.rules.title') }}</h3>
                 <MatchKinds v-model="value.spec.match.kinds" :mode="mode" />
               </div>
             </div>
@@ -300,35 +321,14 @@ export default {
               </div>
             </div>
           </Tab>
-          <Tab name="namespaces" :label="t('gatekeeperConstraint.tab.namespaces.title')" :weight="1">
-            <div class="row">
-              <div class="col span-6">
-                <h3>{{ t('gatekeeperConstraint.tab.namespaces.sub.scope.title') }} <i v-tooltip="'Determines if cluster-scoped and/or namesapced-scoped resources are selected.'" class="icon icon-info" style="font-size:12px;" /></h3>
-                <Scope v-model="value.spec.match.scope" :mode="mode" @input="onScopeChange($event)" />
-              </div>
-            </div>
-            <div class="row mt-40">
-              <div class="col span-12">
-                <h3>{{ t('gatekeeperConstraint.tab.namespaces.sub.namespaces') }} <i v-tooltip="'If defined, a constraint will only apply to resources in a listed namespace.'" class="icon icon-info" style="font-size:12px;" /></h3>
-                <NamespaceList v-model="value.spec.match.namespaces" :mode="mode" :namespace-filter="NAMESPACE_FILTERS.nonSystem" :disabled="areNamespacesDisabled" add-label="Add Namespace" />
-              </div>
-            </div>
-            <div class="row mt-40">
-              <div class="col span-12">
-                <h3>{{ t('gatekeeperConstraint.tab.namespaces.sub.excludedNamespaces') }} <i v-tooltip="'If defined, a constraint will only apply to resources not in a listed namespace.'" class="icon icon-info" style="font-size:12px;" /></h3>
-                <NamespaceList v-model="value.spec.match.excludedNamespaces" :mode="mode" :disabled="areNamespacesDisabled" add-label="Add Excluded Namespace" />
-              </div>
-            </div>
-            <div class="row mt-40">
-              <div class="col span-12">
-                <h3>{{ t('gatekeeperConstraint.tab.namespaces.sub.namespaceSelector.title') }}</h3>
-                <RuleSelector
-                  v-model="value.spec.match.namespaceSelector.matchExpressions"
-                  add-label="Add Namespace Selector"
-                  :mode="mode"
-                />
-              </div>
-            </div>
+          <Tab name="parameters" :label="t('gatekeeperConstraint.tab.parameters.title')" :weight="1">
+            <YamlEditor
+              ref="yamlEditor"
+              v-model="parametersYaml"
+              class="yaml-editor"
+              :editor-mode="editorMode"
+              @newObject="$set(value.spec, 'parameters', $event)"
+            />
           </Tab>
         </Tabbed>
       </div>

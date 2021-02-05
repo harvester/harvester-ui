@@ -58,6 +58,7 @@ export default {
       terminal:    null,
       fitAddon:    null,
       searchAddon: null,
+      webglAddon:  null,
       isOpen:      false,
       isOpening:   false,
       backlog:     []
@@ -115,6 +116,7 @@ export default {
         theme: {
           background: docStyle.getPropertyValue('--terminal-bg').trim(),
           cursor:     docStyle.getPropertyValue('--terminal-cursor').trim(),
+          selection:  docStyle.getPropertyValue('--terminal-selection').trim(),
           foreground: docStyle.getPropertyValue('--terminal-text').trim()
         },
         ...this.xtermConfig,
@@ -123,11 +125,21 @@ export default {
       this.fitAddon = new addons.fit.FitAddon();
       this.searchAddon = new addons.search.SearchAddon();
 
+      try {
+        this.webglAddon = new addons.webgl.WebGlAddon();
+      } catch (e) {
+        // Some browsers (Safari) don't support the webgl renderer, so don't use it.
+        this.webglAddon = null;
+      }
+
       terminal.loadAddon(this.fitAddon);
       terminal.loadAddon(this.searchAddon);
       terminal.loadAddon(new addons.weblinks.WebLinksAddon());
       terminal.open(this.$refs.xterm);
-      terminal.loadAddon(new addons.webgl.WebglAddon());
+
+      if ( this.webglAddon ) {
+        terminal.loadAddon(this.webglAddon);
+      }
 
       this.fit();
       this.flush();
@@ -240,6 +252,10 @@ export default {
     },
 
     fit(arg) {
+      if ( !this.fitAddon ) {
+        return;
+      }
+
       this.fitAddon.fit();
 
       const { rows, cols } = this.fitAddon.proposeDimensions();
@@ -266,19 +282,21 @@ export default {
         v-if="containerChoices.length > 0"
         v-model="container"
         :disabled="containerChoices.length === 1"
-        class="containerPicker auto-width"
+        class="containerPicker auto-width pull-left"
         :options="containerChoices"
-        :searchable="false"
         :clearable="false"
+        placement="top"
         @input="switchTo($event)"
       >
         <template #selected-option="option">
           <t v-if="option" k="wm.containerShell.containerName" :label="option.label" />
         </template>
       </Select>
-      <button class="btn btn-sm bg-primary" @click="clear">
-        <t k="wm.containerShell.clear" />
-      </button>
+      <div class="pull-left ml-5">
+        <button class="btn btn-sm bg-primary" @click="clear">
+          <t k="wm.containerShell.clear" />
+        </button>
+      </div>
       <div class="pull-right text-center p-10" style="min-width: 80px;">
         <t v-if="isOpen" k="wm.connection.connected" class="text-success" />
         <t v-else-if="isOpening" k="wm.connection.connecting" class="text-warning" :raw="true" />
@@ -309,10 +327,10 @@ export default {
     }
   }
 
-  .containerPicker ::v-deep .vs__search {
-    width: 0;
-    padding: 0;
-    margin: 0;
-    opacity: 0;
+  .containerPicker {
+    ::v-deep &.unlabeled-select {
+      display: inline-block;
+      min-width: 200px;
+    }
   }
 </style>

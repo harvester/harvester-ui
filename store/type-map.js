@@ -14,14 +14,13 @@
 //
 // 2) Detecting and using custom list/detail/edit/header components
 //
-// hasCustomList(type)        Does type have a custom list implementation?
-// hasCustomDetail(type)      Does type have a custom detail implementation?
-// hasCustomEdit(type)        Does type have a custom edit implementation?
-// importList(type)           Returns a promise that resolves to the list component for type
-// importDetail(type)         Returns a promise that resolves to the detail component for type
-// importEdit(type)           Returns a promise that resolves to the edit component for type
-// isCreatable(type)          Is type allowed to be created in the UI? (independent of what RBAC thinks)
-// isEditable(type)           Is type allowed to be edited in the UI? (independent of what RBAC thinks)
+// hasCustomList(type)              Does type have a custom list implementation?
+// hasCustomDetail(type[,subType])  Does type have a custom detail implementation?
+// hasCustomEdit(type[,subType])    Does type have a custom edit implementation?
+// importList(type)                 Returns a promise that resolves to the list component for type
+// importDetail(type[,subType])     Returns a promise that resolves to the detail component for type
+// importEdit(type[,subType])       Returns a promise that resolves to the edit component for type
+// optionsFor(schemaOrType)         Return the configured options for a type (from configureType)
 //
 // 3) Changing specialization info about a type
 // For all:
@@ -31,11 +30,12 @@
 //   removable,               -- Is the product removable (true) or built-in (false).
 //   weight,                  -- Sort order and divider sections in the product menu.  3=global (fleet, ecm), 2=always on (apps, explorer) 1=other
 //   showClusterSwitcher,     -- Show the cluster switcher in the header (default true)
-//   showNamespaceFilter,     -- show the namespace filter in the header (default false)
-//   showWorkspaceSwitcher,   -- show the workspace switcher in the header (conflicts with namespace) (default false)
+//   showNamespaceFilter,     -- Show the namespace filter in the header (default false)
+//   showWorkspaceSwitcher,   -- Show the workspace switcher in the header (conflicts with namespace) (default false)
 //   ifHaveGroup,             -- Show this product only if the given group exists in the store [inStore]
 //   ifHaveType,              -- Show this product only if the given type exists in the store [inStore]
 //   inStore,                 -- Which store to look at for if* above and the left-nav, defaults to "cluster"
+//   public,                  -- If true, show to all users.  If false, only show when the Developer Tools pref is on (default true)
 // })
 //
 // externalLink(stringOrFn)  The product has an external page (function gets context object
@@ -78,9 +78,17 @@
 //   matchRegexOrString,      -- Type to match, or regex that matches types
 //   replacementString        -- String to replace the type with
 // )
-// uncreatableType(type)      Disable create (as Form or YAML) buttons for the type, even if the schema says it's creatable
-// immutableType(type)        Disable edit (as form or YAML) action for the type, even if a resource says it's editable
-//
+// configureType(            Display options for a particular type
+//   type,                    -- Type to apply to
+//  options                   -- Object of options.  Defaults/Supported: {
+ //                               isCreatable: true, -- If false, disable create even if schema says it's allowed
+ //                               isEditable: true,  -- Ditto, for edit
+ //                               isRemovable: true,  -- Ditto, for remove/delete
+ //                               showState: true,  -- If false, hide state in columns and masthead
+ //                               showAge: true,    -- If false, hide age in columns and masthead
+ //                               canYaml: true,
+ //                           }
+// )
 // ignoreGroup(group):        Never show group or any types in it
 // weightGroup(               Set the weight (sorting) of one or more groups
 //   groupOrArrayOfGroups,    -- see weightType...
@@ -134,6 +142,7 @@ export function DSL(store, product, module = 'type-map') {
         removable:           true,
         showClusterSwitcher: true,
         showNamespaceFilter: false,
+        'public':            true,
         filterMode:          'namespaces',
         ...inOpt
       };
@@ -165,24 +174,12 @@ export function DSL(store, product, module = 'type-map') {
       store.commit(`${ module }/headers`, { type, headers });
     },
 
-    uncreatableType(match) {
-      store.commit(`${ module }/uncreatableType`, { match });
+    configureType(match, options) {
+      store.commit(`${ module }/configureType`, {...options, match});
     },
 
     componentForType(match, replace) {
       store.commit(`${ module }/componentForType`, { match, replace });
-    },
-
-    immutableType(match) {
-      store.commit(`${ module }/immutableType`, { match });
-    },
-
-    formOnlyType(match) {
-      store.commit(`${ module }/formOnlyType`, { match });
-    },
-
-    yamlOnlyDetail(match) {
-      store.commit(`${ module }/yamlOnlyDetail`, { match });
     },
 
     ignoreType(regexOrString) {
@@ -268,16 +265,13 @@ export const state = function() {
     groupWeights:            {},
     basicGroupWeights:       {[ROOT]: 1000},
     groupMappings:           [],
-    immutable:               [],
-    formOnly:                [],
-    yamlOnlyDetail:          [],
     typeIgnore:              [],
     basicTypeWeights:        {},
     typeWeights:             {},
     typeMappings:            [],
     typeMoveMappings:        [],
     typeToComponentMappings: [],
-    uncreatable:             [],
+    typeOptions:             [],
     groupBy:                 {},
     headers:                 {},
     schemaGeneration:        1,
@@ -369,51 +363,28 @@ export const getters = {
     };
   },
 
-  isCreatable(state) {
-    return (type) => {
-      const found = state.uncreatable.find((uncreatableType) => {
-        const re = stringToRegex(uncreatableType);
-
-        return re.test(type);
-      });
-
-      return !found;
+  optionsFor(state) {
+    const def = {
+      isCreatable: true,
+      isEditable: true,
+      isRemovable: true,
+      showState: true,
+      showAge: true,
+      canYaml: true,
+      extraListAction: null,
     };
-  },
 
-  isFormOnly(state) {
-    return (type) => {
-      const found = state.formOnly.find((formOnlyType) => {
-        const re = stringToRegex(formOnlyType);
-
-        return re.test(type);
-      });
-
-      return !!found;
-    };
-  },
-
-  isEditable(state) {
-    return (type) => {
-      const found = state.immutable.find((immutableType) => {
-        const re = stringToRegex(immutableType);
+    return (schemaOrType) => {
+      const type = (typeof schemaOrType === 'object' ? schemaOrType.id : schemaOrType);
+      const found = state.typeOptions.find((entry) => {
+        const re = stringToRegex(entry.match);
 
         return re.test(type);
       });
 
-      return !found;
-    };
-  },
+      const opts = Object.assign({}, def, found || {});
 
-  isYamlOnlyDetail(state) {
-    return (type) => {
-      const found = state.yamlOnlyDetail.find((yamlOnlyType) => {
-        const re = stringToRegex(yamlOnlyType);
-
-        return re.test(type);
-      });
-
-      return !!found;
+      return opts;
     };
   },
 
@@ -501,7 +472,7 @@ export const getters = {
         const virtual = !!typeObj.virtual;
         let icon = typeObj.icon;
 
-        if ( !virtual && !icon ) {
+        if ( (!virtual || typeObj.isSpoofed ) && !icon ) {
           if ( namespaced ) {
             icon = 'folder';
           } else {
@@ -728,16 +699,18 @@ export const getters = {
         };
       }
 
-      // Add virtual types and spoofed types
+      // Add virtual and spoofed types
       if ( mode !== USED ) {
         const virtualTypes = state.virtualTypes[product] || [];
+        const spoofedTypes = state.spoofedTypes[product] || [];
+        const allTypes = [...virtualTypes, ...spoofedTypes];
 
-        for ( const vt of virtualTypes ) {
-          const item = clone(vt);
+        for ( const type of allTypes ) {
+          const item = clone(type);
           const id = item.name;
-          const weight = vt.weight || getters.typeWeightFor(item.label, isBasic);
+          const weight = type.weight || getters.typeWeightFor(item.label, isBasic);
 
-          if ( item.ifDev && !isDev ) {
+          if ( item['public'] === false && !isDev ) {
             continue;
           }
 
@@ -762,10 +735,10 @@ export const getters = {
           item.mode = mode;
           item.weight = weight;
           
-          const schema = rootGetters[`${module}/schema`](vt.name);
+          const schema = rootGetters[`${module}/schema`](type.name);
 
-          if(vt.labelDisplay) {
-            item.label = rootGetters['i18n/t'](vt.labelDisplay);
+          if(type.labelDisplay) {
+            item.label = rootGetters['i18n/t'](type.labelDisplay);
           } else if (schema) {
             const count = counts[schema.id];
             item.label = getters.labelFor(schema, count);
@@ -777,11 +750,6 @@ export const getters = {
         }
       }
 
-      const spoofedTypes = state.spoofedTypes[product] || [];
-      spoofedTypes.forEach(type => {
-        out[type.name] = type;
-      });
-
       return out;
     };
   },
@@ -792,10 +760,11 @@ export const getters = {
     };
   },
 
-  headersFor(state) {
+  headersFor(state, getters, rootState, rootGetters) {
     return (schema) => {
       const attributes = schema.attributes || {};
       const columns = attributes.columns || [];
+      const typeOptions = getters['optionsFor'](schema);
 
       // A specific list has been provided
       if ( state.headers[schema.id] ) {
@@ -803,7 +772,7 @@ export const getters = {
           if ( typeof entry === 'string' ) {
             const col = findBy(columns, 'name', entry);
             if ( col ) {
-              return fromSchema(col);
+              return fromSchema(col, rootGetters);
             } else {
               return null;
             }
@@ -812,8 +781,9 @@ export const getters = {
           }
         }).filter(col => !!col);
       }
+
       // Otherwise make one up from schema
-      const out = [STATE]; // Everybody gets a state
+      const out = typeOptions.showState ? [STATE] : [];
       const namespaced = attributes.namespaced || false;
       let hasName = false;
 
@@ -825,7 +795,7 @@ export const getters = {
             out.push(NAMESPACE);
           }
         } else {
-          out.push(fromSchema(col));
+          out.push(fromSchema(col, rootGetters));
         }
       }
 
@@ -839,12 +809,14 @@ export const getters = {
       // Age always goes last
       if ( out.includes(AGE) ) {
         removeObject(out, AGE);
-        out.push(AGE);
+        if ( typeOptions.showAge ) {
+          out.push(AGE);
+        }
       }
 
       return out;
 
-      function fromSchema(col) {
+      function fromSchema(col, rootGetters) {
         let formatter, width, formatterOpts;
 
         if ( (col.format === '' || col.format == 'date') && col.name === 'Age' ) {
@@ -861,9 +833,13 @@ export const getters = {
           formatter = 'Number';
         }
 
+        const exists = rootGetters['i18n/exists']
+        const t = rootGetters['i18n/t']
+        const labelKey = `tableHeaders.${col.name}`
+
         return {
           name:  col.name.toLowerCase(),
-          label: col.name,
+          label: exists(labelKey) ? t(labelKey) : col.name,
           value: col.field.startsWith('.') ? `$${ col.field }` : col.field,
           sort:  [col.field],
           formatter,
@@ -903,43 +879,43 @@ export const getters = {
   },
 
   hasCustomDetail(state, getters) {
-    return (rawType) => {
-      const type = getters.componentFor(rawType);
+    return (rawType, subType) => {
+      const key = getters.componentFor(rawType, subType);
       const cache = state.cache.detail;
 
-      if ( cache[type] !== undefined ) {
-        return cache[type];
+      if ( cache[key] !== undefined ) {
+        return cache[key];
       }
 
       try {
-        require.resolve(`@/detail/${ type }`);
-        cache[type] = true;
+        require.resolve(`@/detail/${ key }`);
+        cache[key] = true;
       } catch (e) {
-        cache[type] = false;
+        cache[key] = false;
       }
 
-      return cache[type];
+      return cache[key];
     };
   },
 
   hasCustomEdit(state, getters) {
-    return (rawType) => {
-      const type = getters.componentFor(rawType);
+    return (rawType, subType) => {
+      const key = getters.componentFor(rawType, subType);
 
       const cache = state.cache.edit;
 
-      if ( cache[type] !== undefined ) {
-        return cache[type];
+      if ( cache[key] !== undefined ) {
+        return cache[key];
       }
 
       try {
-        require.resolve(`@/edit/${ type }`);
-        cache[type] = true;
+        require.resolve(`@/edit/${ key }`);
+        cache[key] = true;
       } catch (e) {
-        cache[type] = false;
+        cache[key] = false;
       }
 
-      return cache[type];
+      return cache[key];
     };
   },
 
@@ -973,18 +949,18 @@ export const getters = {
   },
 
   importDetail(state, getters) {
-    return (rawType) => {
-      const type = getters.componentFor(rawType);
+    return (rawType, subType) => {
+      const key = getters.componentFor(rawType, subType);
 
-      return () => import(`@/detail/${ type }`);
+      return () => import(`@/detail/${ key }`);
     };
   },
 
   importEdit(state, getters) {
-    return (rawType) => {
-      const type = getters.componentFor(rawType);
+    return (rawType, subType) => {
+      const key = getters.componentFor(rawType, subType);
 
-      return () => import(`@/edit/${ type }`);
+      return () => import(`@/edit/${ key }`);
     };
   },
 
@@ -996,10 +972,16 @@ export const getters = {
     };
   },
 
-  componentFor(state) {
-    return (type) => {
-      if ( state.cache.componentFor[type] !== undefined ) {
-        return state.cache.componentFor[type];
+  componentFor(state, getters) {
+    return (type, subType) => {
+      let key = type;
+
+      if ( subType ) {
+        key = `${type}/${subType}`;
+      }
+
+      if ( state.cache.componentFor[key] !== undefined ) {
+        return state.cache.componentFor[key];
       }
 
       let out = type;
@@ -1007,14 +989,17 @@ export const getters = {
       const mapping = state.typeToComponentMappings.find((mapping) => {
         const re = stringToRegex(mapping.match);
 
-        return re.test(type);
+        return re.test(key);
       });
 
       if ( mapping ) {
         out = mapping.replace;
+      } else if ( subType ) {
+        // Try again without the subType
+        out = getters.componentFor(type);
       }
 
-      state.cache.componentFor[type] = out;
+      state.cache.componentFor[key] = out;
 
       return out;
     };
@@ -1055,6 +1040,7 @@ export const getters = {
   activeProducts(state, getters, rootState, rootGetters) {
     const knownTypes = {};
     const knownGroups = {};
+    const isDev = rootGetters['prefs/get'](DEV);
 
     if ( state.schemaGeneration < 0 ) {
       // This does nothing, but makes activeProducts depend on schemaGeneration
@@ -1065,6 +1051,15 @@ export const getters = {
 
     return state.products.filter((p) => {
       const module = p.inStore;
+
+      if ( p['public'] === false && !isDev ) {
+        return false;
+      }
+
+      if ( p.ifGetter && !rootGetters[p.ifGetter] ) {
+        return false;
+      }
+
       if ( !knownTypes[module] ) {
         const schemas = rootGetters[`${module}/all`](SCHEMA);
 
@@ -1085,10 +1080,6 @@ export const getters = {
       }
 
       if ( p.ifHaveGroup && !knownGroups[module].find((t) => t.match(stringToRegex(p.ifHaveGroup)) ) ) {
-        return false;
-      }
-
-      if ( p.ifGetter && !rootGetters[p.ifGetter] ) {
         return false;
       }
 
@@ -1146,11 +1137,12 @@ export const mutations = {
     }
 
     const copy = clone(obj);
-    
+
     instanceMethods[product] = instanceMethods[product] || {};
     instanceMethods[product][copy.type] = copy.getInstances;
     delete copy.getInstances;
 
+    copy.name = copy.type;
     copy.isSpoofed = true;
     copy.virtual = true;
     copy.schemas.forEach(schema => {
@@ -1271,38 +1263,21 @@ export const mutations = {
     state.typeToComponentMappings.push({ match, replace });
   },
 
-  uncreatableType(state, { match }) {
-    match = ensureRegex(match);
-    match = regexToString(match);
-    state.uncreatable.push(match);
-  },
+  configureType(state, options) {
+    const match = regexToString(ensureRegex(options.match));
 
-  removeUncreatableType(state, {match}) {
-    match = ensureRegex(match);
-    match = regexToString(match);
-    const matchingIndex = state.uncreatable.findIndex((regex) => regex === match);
-    if (matchingIndex >= 0) {
-      state.uncreatable.splice(matchingIndex, 1);
+    let idx = state.typeOptions.findIndex((obj) => obj.match === match);
+    let obj = { ...options, match };
+
+    if ( idx >= 0 ) {
+      obj = Object.assign(obj, state.typeOptions[idx]);
+      state.typeOptions.splice(idx, 1, obj);
+    } else {
+      const obj = Object.assign({}, options, {match});
+      state.typeOptions.push(obj);
     }
   },
 
-  immutableType(state, { match }) {
-    match = ensureRegex(match);
-    match = regexToString(match);
-    state.immutable.push(match);
-  },
-
-  formOnlyType(state, { match }) {
-    match = ensureRegex(match);
-    match = regexToString(match);
-    state.formOnly.push(match);
-  },
-
-  yamlOnlyDetail(state, { match }) {
-    match = ensureRegex(match);
-    match = regexToString(match);
-    state.yamlOnlyDetail.push(match);
-  },
 };
 
 export const actions = {
@@ -1333,11 +1308,9 @@ export const actions = {
 
     dispatch('prefs/set', { key: EXPANDED_GROUPS, value: groups }, { root: true });
   },
-  uncreatableType({ commit }, match) {
-    commit(`uncreatableType`, match);
-  },
-  removeUncreatableType({ commit }, match) {
-    commit(`removeUncreatableType`, match);
+
+  configureType({commit}, options) {
+    commit('configureType', options);
   }
 };
 

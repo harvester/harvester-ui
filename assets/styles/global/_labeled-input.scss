@@ -13,7 +13,6 @@
     transition-timing-function: ease-in-out;
     color: var(--input-label);
     pointer-events: none;
-    z-index: z-index('overContent');
     i {
       pointer-events: initial;
     }
@@ -57,15 +56,15 @@
     user-select: none;
   }
 
-  INPUT:not(.view), INPUT:not(.view):hover, INPUT:focus,
-  TEXTAREA:not(.view), TEXTAREA:not(.view):hover, TEXTAREA:focus,
-  SELECT:not(.view), SELECT:not(.view):hover, SELECT:focus {
+  INPUT, INPUT:hover, INPUT:focus,
+  TEXTAREA, TEXTAREA:hover, TEXTAREA:focus,
+  SELECT, SELECT:hover, SELECT:focus {
     border: none;
     background-color: transparent;
     outline: 0;
     box-shadow: none;
     padding: 17px 0 0 0;
-    line-height: 1.25rem;
+    line-height: 1.25;
 
     &.no-label {
       padding: 8.5px 0px 8.5px 0px;
@@ -82,7 +81,8 @@
   }
 
   &.create,
-  &.edit {
+  &.edit,
+  &.view {
     .addon,
     .addon.btn {
       display: table-cell;
@@ -103,14 +103,16 @@
     }
   }
 
-  &.view {
-    .addon {
-      display: inline;
-    }
+  &.suffix INPUT {
+    padding-right: 8px;
   }
 
-  &.suffix INPUT:not(.view){
-    padding-right: 8px;
+  .cron-label{
+    position: absolute;
+    top: 100%;
+    padding-top: 5px;
+    left: 0;
+    color: var(--input-label);
   }
 
   &--tooltip {

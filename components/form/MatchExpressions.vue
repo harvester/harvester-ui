@@ -1,16 +1,12 @@
 <script>
 import { NODE, POD, NAMESPACE } from '@/config/types';
-import LabeledInput from '@/components/form/LabeledInput';
-import LabeledSelect from '@/components/form/LabeledSelect';
+import Select from '@/components/form/Select';
 import { sortBy } from '@/utils/sort';
 import { mapGetters } from 'vuex';
 import { removeObject } from '@/utils/array';
 
 export default {
-  components: {
-    LabeledInput,
-    LabeledSelect,
-  },
+  components: { Select },
   props:      {
     // array of match expressions
     value: {
@@ -156,13 +152,17 @@ export default {
       this.$nextTick(() => {
         const out = this.rules.map((rule) => {
           const matchExpression = { key: rule.key, operator: rule.operator };
-          const val = (rule.values || '').trim();
+          let val = (rule.values || '').trim();
 
-          if ( !val && rule.operator !== 'Exists' && rule.operator !== 'DoesNotExist') {
+          if ( rule.operator === 'Exists' || rule.operator === 'DoesNotExist') {
+            val = null;
+          } else if (!val) {
             return;
           }
 
-          matchExpression.values = val.split(/\s*,\s*/).filter(x => !!x);
+          if ( val !== null ) {
+            matchExpression.values = val.split(/\s*,\s*/).filter(x => !!x);
+          }
 
           return matchExpression;
         }).filter(x => !!x);
@@ -181,30 +181,6 @@ export default {
       <i class="icon icon-x" />
     </button>
 
-    <template v-if="type===pod">
-      <div class="row mt-20 mb-20">
-        <div class="col span-12">
-          <LabeledSelect
-            :value="namespaces"
-            :multiple="true"
-            :taggable="true"
-            :options="allNamespaces"
-            :label="t('workload.scheduling.affinity.matchExpressions.inNamespaces')"
-            @input="e=>$emit('update:namespaces', e)"
-          />
-        </div>
-      </div>
-
-      <LabeledInput
-        :mode="mode"
-        :value="topologyKey"
-        required
-        :label="t('workload.scheduling.affinity.topologyKey.label')"
-        :placeholder="t('workload.scheduling.affinity.topologyKey.placeholder')"
-        @input="e=>$emit('update:topologyKey', e)"
-      />
-    </template>
-
     <div v-if="rules.length" class="match-expression-header" :class="{'view':isView}">
       <label>
         {{ t('workload.scheduling.affinity.matchExpressions.key') }}
@@ -220,7 +196,7 @@ export default {
     <div
       v-for="row in rules"
       :key="row.id"
-      class="match-expression-row"
+      class="match-expression-row mb-10"
     >
       <div>
         <div v-if="isView">
@@ -232,7 +208,7 @@ export default {
         <div v-if="isView">
           {{ row.operator }}
         </div>
-        <LabeledSelect
+        <Select
           v-else
           v-model="row.operator"
           class="operator single"
@@ -253,7 +229,7 @@ export default {
         </div>
         <input v-else v-model="row.values" :mode="mode" :disabled="row.operator==='Exists' || row.operator==='DoesNotExist'" />
       </div>
-      <div class="text-right">
+      <div class="remove-container">
         <button
           v-if="!isView"
           type="button"
@@ -267,13 +243,15 @@ export default {
         </button>
       </div>
     </div>
-    <button v-if="!isView" type="button" class="btn role-tertiary add mt-10" @click="addRule">
-      <t k="workload.scheduling.affinity.matchExpressions.addRule" />
-    </button>
+    <div class="mt-20">
+      <button v-if="!isView" type="button" class="btn role-tertiary add" @click="addRule">
+        <t k="workload.scheduling.affinity.matchExpressions.addRule" />
+      </button>
+    </div>
   </div>
 </template>
 
-<style lang='scss'>
+<style lang='scss' scoped>
   $separator: 20;
   $remove: 75;
   $spacing: 10px;
@@ -297,6 +275,11 @@ export default {
     font-size:2em;
   }
 
+  .remove-container {
+    display: flex;
+    justify-content: center;
+  }
+
   .selector-weight {
     color: var(--input-label)
   }
@@ -304,19 +287,15 @@ export default {
   .match-expression-row, .match-expression-header {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: $column-gutter;
-    align-items: center;
+    margin: 5px 0;
+    grid-gap: 10px;
 
-    &>label{
-      margin-left: 8px;
+    & > LABEL {
+      margin: 0;
     }
 
     &:not(.view){
       grid-template-columns: 1fr 1fr 1fr 100px;
-    }
-
-    INPUT {
-      height: 50px;
     }
   }
 </style>
