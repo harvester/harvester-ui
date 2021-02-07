@@ -2282,16 +2282,6 @@ typeDescription:
   logging.banzaicloud.io.output: 输出定义可以将日志发送到哪些日志提供程序。输出需要在与使用它的流相同的命名空间中。
   logging: 要收集和发送日志，您需要定义流和输出。流定义要收集、筛选哪些日志，以及要发送输出的日志。如果希望收集集群中的所有日志，可以创建一个 ClusterFlow。输出可以在命名空间级别定义，也可以在集群级别定义，并供这两种流类型使用。
 typeLabel:
-  catalog.cattle.io.app: 安装应用
-  catalog.cattle.io.clusterrepo: 仓库
-  catalog.cattle.io.operation: 最近执行操作
-  chartInstallAction: 应用
-  chartUpgradeAction: 应用
-  endpoints: 访问地址
-  fleet.cattle.io.cluster: 集群
-  fleet.cattle.io.gitrepo: Git 仓库
-  monitoring.coreos.com.prometheusrule: Prometheus 规则
-  monitoring.coreos.com.thanosruler: Thanos 规则
   namespace: 命名空间
   persistentvolume: 持久卷
   service: 服务

@@ -4,7 +4,7 @@ import { dasherize, ucFirst } from '@/utils/string';
 import { get, clone } from '@/utils/object';
 import { removeObject, filterBy } from '@/utils/array';
 import Checkbox from '@/components/form/Checkbox';
-import ButtonDropdown from '@/components/ButtonDropdown';
+import ButtonDropdown from '@/components/Dropdown';
 import $ from 'jquery';
 import throttle from 'lodash/throttle';
 import THead from './THead';
@@ -491,9 +491,9 @@ export default {
             <i v-if="act.icon" :class="act.icon" />
             <span v-html="act.label" />
           </button>
-          <ButtonDropdown v-if="hasExternalActions" class="external-actions" :disable-button="externalActions.length === 0" size="xs">
+          <ButtonDropdown v-if="hasExternalActions" class="external-actions" :disable-button="externalActions.length === 0" size="med">
             <template #button-content>
-              <button type="button" class="btn btn-sm mr-0" :disabled="externalActions.length === 0">
+              <button class="btn btn-primary mr-0 no-right-border-radius" :disabled="externalActions.length === 0">
                 <i class="icon icon-gear" />
                 <span>{{ t('harvester.tableHeaders.actions') }}</span>
               </button>

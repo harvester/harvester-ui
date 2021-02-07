@@ -46,7 +46,7 @@ export default {
       return this.state === 'Failed';
     },
     errorMessage() {
-      return this.row.getStatusConditionOfType('imported')?.reason;
+      return this.row.getStatusConditionOfType('imported')?.message;
     }
   },
 };

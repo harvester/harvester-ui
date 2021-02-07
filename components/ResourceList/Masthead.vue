@@ -160,6 +160,12 @@ export default {
     }
 
   },
+
+  methods: {
+    handlerCreateLocation() {
+      this.$router.replace(this._createLocation);
+    }
+  }
 };
 </script>
 
@@ -183,14 +189,14 @@ export default {
         >
           {{ extraAction.label }}
         </n-link>
-        <n-link
+        <button
           v-if="hasEditComponent && _isCreatable"
-          :to="_createLocation"
-          class="btn role-primary"
+          class="btn role-primary hand"
           :disabled="disableCreateButton"
+          @click="handlerCreateLocation"
         >
           {{ t("resourceList.head.create") }}
-        </n-link>
+        </button>
         <n-link
           v-else-if="_isYamlCreatable"
           :to="_yamlCreateLocation"

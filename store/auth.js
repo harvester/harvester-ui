@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { addPrefix } from '@/utils/url';
 const ERR_CLIENT = 'client';
 const ERR_SERVER = 'server';

@@ -1,6 +1,6 @@
 <script>
 import { getPrefix } from '@/utils/url';
-import ButtonDropdown from '@/components/ButtonDropdown';
+import ButtonDropdown from '@/components/Dropdown';
 
 export default {
   name: 'ConsoleBar',
@@ -80,7 +80,7 @@ export default {
 
     <ButtonDropdown :disable-button="!isRunning" size="xs">
       <template #button-content="{ buttonSize }">
-        <button :disabled="!isRunning" :class="buttonSize" @click="show('vnc')">
+        <button :disabled="!isRunning" :class="buttonSize" class="no-right-border-radius" @click="show('vnc')">
           &nbsp;Console
         </button>
       </template>
@@ -99,4 +99,8 @@ export default {
   </div>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss" scoped>
+.btn {
+  line-height: normal !important;
+}
+</style>

@@ -55,7 +55,8 @@ export default {
       displayName: '',
       resource:    '',
       headers:     {},
-      fileUrl:     ''
+      fileUrl:     '',
+      fileSize:        { 'File-Size': '' }
     };
   },
 
@@ -91,7 +92,7 @@ export default {
     inputFile(newFile, oldFile) {
       const file = newFile || oldFile;
       const csrf = Cookie.get('CSRF');
-      const header = { 'X-Api-Csrf': csrf };
+      const header = { 'X-Api-Csrf': csrf, 'File-Size': file.size };
 
       file.headers = header;
     },
