@@ -131,8 +131,6 @@ export default {
 
 <template>
   <div class="overview-basics">
-    <h2>{{ t('harvester.vmPage.detail.tabs.basics') }}</h2>
-
     <div class="row">
       <div class="col span-6">
         <div class="labeled-input view">
