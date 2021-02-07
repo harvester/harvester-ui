@@ -119,11 +119,6 @@ export default {
       immediate: true
     },
   },
-  created() {
-    this.providerComponents = this.providers.map((name) => {
-      return () => import(/* webpackChunkName: "login" */ `@/components/auth/login/${ configType[name] }`)
-    });
-  },
 
   mounted() {
     this.focusSomething();
@@ -143,20 +138,17 @@ export default {
 
   methods: {
     focusSomething() {
-      if ( !this.showLocal ) {
-        // One of the provider components will handle it
-        return;
-      }
-
       let elem;
 
-      if ( this.username ) {
+      if ( this.hasGithub && !this.showLocal ) {
+        elem = this.$refs.github;
+      } else if ( this.username ) {
         elem = this.$refs.password;
       } else {
         elem = this.$refs.username;
       }
 
-      if ( elem?.focus ) {
+      if ( elem ) {
         elem.focus();
 
         if ( elem.select ) {
@@ -328,11 +320,6 @@ export default {
             <div v-else>
               <LabeledInput v-model="token" type="password" />
             </div>
-          </div>
-          <div v-if='hasLocal' class="mt-20 text-center">
-            <button type="button" class="btn bg-link" @click="toggleLocal">
-              {{ t('login.useLocal')}}
-            </button>
           </div>
           <div v-if="allowLocalUser && localMode" class="mt-20 half">
             <LabeledInput v-model="form.username" :label="t('harvester.loginPage.username')" required />
