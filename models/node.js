@@ -265,16 +265,14 @@ export default {
   resourcesStatus() {
     const nodeList = this.$rootGetters['cluster/all'](NODE);
 
-    let warning = 0;
+    const warning = 0;
     let error = 0;
 
     nodeList.forEach((item) => {
       const status = item.getConditionStatus('Ready');
 
-      if (status === 'False') {
+      if (status === 'False' || status === 'Unknown') {
         error += 1;
-      } else if (status === 'Unknown') {
-        warning += 1;
       }
     });
 
