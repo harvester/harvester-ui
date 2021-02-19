@@ -35,6 +35,14 @@ export default {
     close() {
       this.$refs.novncConsole.disconnect();
     },
+
+    sendCtrlAltDel() {
+      this.$refs.novncConsole.ctrlAltDelete();
+    },
+
+    sendPrintScreen() {
+      this.$refs.novncConsole.printScreen();
+    },
   }
 };
 </script>
@@ -42,6 +50,35 @@ export default {
 <template>
   <div id="app">
     <div class="vm-console">
+      <div class="combination-keys">
+        <v-popover
+          ref="popover"
+          placement="top"
+          trigger="click"
+        >
+          <button class="btn btn-sm bg-primary">
+            <i class="icon icon-actions"></i>
+          </button>
+
+          <template slot="popover">
+            <ul class="list-unstyled dropdown" style="margin: -1px;">
+              <li
+                class="p-10 hand"
+                @click="sendCtrlAltDel()"
+              >
+                Ctrl Alt Delete
+              </li>
+
+              <li
+                class="p-10 hand"
+                @click="sendPrintScreen()"
+              >
+                Print Screen
+              </li>
+            </ul>
+          </template>
+        </v-popover>
+      </div>
       <NovncConsole v-if="url && !isDown" ref="novncConsole" :url="url" />
       <p v-if="isDown">
         {{ t("harvester.vmPage.detail.console.down") }}
@@ -49,3 +86,11 @@ export default {
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+  .combination-keys {
+    position: fixed;
+    right: 0;
+    top: 0;
+  }
+</style>
