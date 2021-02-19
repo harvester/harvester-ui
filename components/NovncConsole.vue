@@ -28,7 +28,15 @@ export default {
   methods: {
     disconnect() {
       this.rfb.disconnect();
-    }
+    },
+
+    ctrlAltDelete() {
+      this.rfb.sendCtrlAltDel();
+    },
+
+    printScreen() {
+      this.rfb.sendKey(0, 'PrintScreen');
+    },
   }
 };
 </script>
