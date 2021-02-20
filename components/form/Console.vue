@@ -1,4 +1,5 @@
 <script>
+import KeyTable from '@novnc/novnc/core/input/keysym';
 import NovncConsole from '@/components/NovncConsole';
 
 export default {
@@ -38,11 +39,24 @@ export default {
 
     sendCtrlAltDel() {
       this.$refs.novncConsole.ctrlAltDelete();
+      this.$refs.popover.isOpen = false;
     },
 
     sendPrintScreen() {
-      this.$refs.novncConsole.printScreen();
+      this.$refs.novncConsole.sendKey(KeyTable.XK_Meta_L, 'MetaLeft', true);
+      this.$refs.novncConsole.sendKey(KeyTable.XK_Print, 'PrintScreen', true);
+      this.$refs.novncConsole.sendKey(KeyTable.XK_Print, 'PrintScreen', false);
+      this.$refs.novncConsole.sendKey(KeyTable.XK_comma, 'MetaLeft', false);
+      this.$refs.popover.isOpen = false;
     },
+
+    sendCtrlShortKeys(key) {
+      this.$refs.novncConsole.sendKey(KeyTable.XK_Control_L, 'ControlLeft', true);
+      this.$refs.novncConsole.sendKey(0, key, true);
+      this.$refs.novncConsole.sendKey(0, key, false);
+      this.$refs.novncConsole.sendKey(KeyTable.XK_Control_L, 'ControlLeft', false);
+      this.$refs.popover.isOpen = false;
+    }
   }
 };
 </script>
@@ -66,7 +80,7 @@ export default {
                 class="p-10 hand"
                 @click="sendCtrlAltDel()"
               >
-                Ctrl Alt Delete
+                Ctrl + Alt + Delete
               </li>
 
               <li
@@ -74,6 +88,34 @@ export default {
                 @click="sendPrintScreen()"
               >
                 Print Screen
+              </li>
+
+              <li
+                class="p-10 hand"
+                @click="sendCtrlShortKeys('KeyT')"
+              >
+                Ctrl + T
+              </li>
+
+              <li
+                class="p-10 hand"
+                @click="sendCtrlShortKeys('KeyN')"
+              >
+                Ctrl + N
+              </li>
+
+              <li
+                class="p-10 hand"
+                @click="sendCtrlShortKeys('KeyW')"
+              >
+                Ctrl + W
+              </li>
+
+              <li
+                class="p-10 hand"
+                @click="sendCtrlShortKeys('KeyY')"
+              >
+                Ctrl + Y
               </li>
             </ul>
           </template>
