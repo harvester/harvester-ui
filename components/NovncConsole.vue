@@ -34,9 +34,9 @@ export default {
       this.rfb.sendCtrlAltDel();
     },
 
-    printScreen() {
-      this.rfb.sendKey(0, 'PrintScreen');
-    },
+    sendKey(keysym, code, down) {
+      this.rfb.sendKey(keysym, code, down);
+    }
   }
 };
 </script>
