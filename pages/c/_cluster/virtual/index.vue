@@ -335,21 +335,21 @@ export default {
     <Upgrade />
 
     <Glance
-      :slots="['displayProvider', 'kubernetesVersion', 'totalNodes', 'created']"
+      :slots="['HarvesterVersion', 'totalNodes', 'created']"
       class="cluster-dashboard-glance"
     >
-      <template #displayProvider>
+      <!-- <template #displayProvider>
         <div class="title-content">
           <h1>{{ displayProvider }}</h1>
           <label>{{ t('glance.provider') }}</label>
         </div>
-        <!-- <div class="logo">
+        <div class="logo">
           <img class="os-provider-logo" :src="currentCluster.providerOsLogo" />
-        </div> -->
-      </template>
-      <template #kubernetesVersion>
+        </div>
+      </template> -->
+      <template #HarvesterVersion>
         <h1>{{ currentVersion }}</h1>
-        <label>{{ t('glance.version') }}</label>
+        <label>{{ t('harvester.glance.version') }}</label>
       </template>
       <template #totalNodes>
         <h1>{{ (nodes || []).length }}</h1>

@@ -3019,6 +3019,8 @@ keyValue:
   valuePlaceholder: e.g. bar
 
 harvester:
+  glance: 
+    version: Harvester Version
   loading: Loading...
   copyed: Copied!
   close: Close

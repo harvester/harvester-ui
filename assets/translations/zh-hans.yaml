@@ -2467,6 +2467,8 @@ keyValue:
   valuePlaceholder: '例如: bar'
 
 harvester:
+  glance: 
+    version: Harvester 版本
   loading: 加载中...
   copyed: 已复制!
   close: 关闭
