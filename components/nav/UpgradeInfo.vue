@@ -25,7 +25,7 @@ export default {
     },
 
     isShow() {
-      return !(this.currentResource?.getLabelValue(HARVESTER_UPGRADESTATE) === 'Succeeded');
+      return !(this.currentResource?.getLabelValue(HARVESTER_UPGRADESTATE) === 'Succeeded') && this.currentResource;
     },
 
     nodesStatus() {
