@@ -2,7 +2,10 @@ import Vue from 'vue';
 import _ from 'lodash';
 import { safeLoad } from 'js-yaml';
 import { colorForState } from '@/plugins/steve/resource-instance';
-import { VMI, POD, VM, NODE } from '@/config/types';
+import {
+  VMI, POD, VM, NODE, HARVESTER_RESTORE
+} from '@/config/types';
+import { HARVESTER_RESTORE_NAME } from '@/config/labels-annotations';
 
 const VMI_WAITING_MESSAGE =
   'The virtual machine is waiting for resources to become available.';
@@ -109,8 +112,16 @@ export default {
       {
         action:     'backupVM',
         enabled:    !!this.actions?.backup,
-        icon:       'icon icon-play',
+        icon:       'icons icon-h-restore-existing',
         label:      this.t('action.backup'),
+        bulkable:   true,
+        external:   true,
+      },
+      {
+        action:     'restoreVM',
+        enabled:    !!this.actions?.restore,
+        icon:       'icons icon-h-restore-new',
+        label:      this.t('action.restore'),
         bulkable:   true,
         external:   true,
       },
@@ -143,8 +154,14 @@ export default {
   },
 
   backupVM() {
-    return () => {
-      this.doAction('backup', {});
+    return (resources = this) => {
+      this.$commit('kubevirt.io.virtualmachine/toggleBackupModal', resources, { root: true });
+    };
+  },
+
+  restoreVM() {
+    return (resources = this) => {
+      this.$commit('kubevirt.io.virtualmachine/toggleRestoreModal', resources, { root: true });
     };
   },
 
@@ -372,7 +389,26 @@ export default {
     return _.get(this, 'spec.dataVolumeTemplates') === null ? [] : this.spec.dataVolumeTemplates;
   },
 
+  restoreState() {
+    return (vmResource = this, id) => {
+      if (!id) {
+        id = `default/${ vmResource.getAnnotationValue(HARVESTER_RESTORE_NAME) }`;
+      }
+      const restoreResource = this.$rootGetters['cluster/byId'](HARVESTER_RESTORE, id);
+
+      if (!restoreResource) {
+        return true;
+      }
+
+      return restoreResource?.isComplete;
+    };
+  },
+
   actualState() {
+    if (!this.restoreState()) {
+      return 'Restore';
+    }
+
     const state =
       this.isPaused?.status ||
       this.isVMError?.status ||

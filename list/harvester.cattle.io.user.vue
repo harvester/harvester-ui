@@ -30,10 +30,6 @@ export default {
       ];
     },
   },
-
-  customCreateFormName() {
-    return 'User';
-  },
 };
 </script>
 

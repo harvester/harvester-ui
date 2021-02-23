@@ -1333,6 +1333,7 @@ resourceDetail:
     edit: "{subtype} {name}"
     stage: "Stage from {subtype} {name}"
     view: "{subtype} {name}"
+    restoreVM: 恢复虚拟机
   masthead:
     age: Age
     defaultBannerMessage:
@@ -2304,7 +2305,7 @@ typeLabel:
   harvester.cattle.io.user: 用户
   harvester.cattle.io.setting: 设置
   node: 主机
-
+  harvester.cattle.io.virtualmachinebackup: 备份
   cis.cattle.io.clusterscan: |-
     {count, plural,
       one { 扫描 }
@@ -2440,6 +2441,8 @@ action:
   addTemplateVersion: 添加模版版本
   backup: 备份
   restore: 恢复
+  restoreNewVM: 恢复新的虚拟机
+  restoreExistingVM: 恢复现存的虚拟机
 
 unit:
   sec: secs
@@ -2496,6 +2499,7 @@ harvester:
     PhysicalNic: 物理网卡
     cpu: Cpu
     memory: 内存
+    virtaulName: 虚拟机名称
   tab:
     volume: 卷
     network: 网络
@@ -2513,6 +2517,9 @@ harvester:
     fingerprint: 唯一标识
     value: 值
     actions: 操作
+    readyToUse: 可用
+    backupTarget: 备份路径
+    targetVm: 目标VM
   validation:
     custom:
       tooLongName: '"名称" 不能超过 {max} 个字符'
@@ -2694,10 +2701,39 @@ harvester:
         suffic: ",错误信息： "
   keypairPage:
     keypair: SSH 公钥
+  backUpPage:
+    backupModal:
+      addBackup: 添加备份
+    restoreModal:
+      title: 恢复备份
+      selectBackup: 选择备份
+    createText: 恢复备份
+    title: 恢复虚拟机
+    backupTargetTip: 用于访问备份存储的端点。 支持NFS和S3。
+    message:
+      noSetting:
+        prefix: '在创建新备份之前, 必须在'
+        middle: '设置'
+        suffic: '中配置备份目标.'
+      errorTip:
+        prefix: 非法的备份目标
+        middle: 设置
+        suffic: ",错误信息： "
+    restore:
+      backup: 备份名称
+      deletePreviousVolumes: 历史卷清除策略
+      createNew: 新建虚拟机
+      replaceExisting: 选择已存在的虚拟机
+      virtualMachineName: 虚拟机名称
+    matchTarget: 当前备份目标与现有目标不匹配。
   userPage:
     username: 用户名
     password: 密码
   settingPage:
+    placeholder:
+      accessKeyId: 指定您的访问密钥ID
+      secretAccessKey: 指定您的私密访问密钥
+      cert: 上传自签名SSL证书
   loginPage:
     howdy: 您好!
     welcome: 欢迎使用 Harvester

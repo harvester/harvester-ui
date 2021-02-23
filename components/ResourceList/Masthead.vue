@@ -157,13 +157,24 @@ export default {
 
     _yamlCreateLocation() {
       return this.yamlCreateLocation || this.yamlRoute;
-    }
+    },
 
+    customCreateText() {
+      return this.$store.getters['type-map/optionsFor'](this.$route.params.resource).customCreateText || 'resourceList.head.create';
+    },
+
+    setting() {
+      const type = this.resource;
+      const inStore = this.$store.getters['currentProduct'].inStore;
+      const config = this.$store.getters[`${ inStore }/getCacheConfig`](type);
+
+      return config.setting || false;
+    }
   },
 
   methods: {
     handlerCreateLocation() {
-      this.$router.replace(this._createLocation);
+      this.$router.push(this._createLocation);
     }
   }
 };
@@ -174,7 +185,13 @@ export default {
     <TypeDescription :resource="resource" />
     <div class="title">
       <h1 class="m-0">
-        {{ _typeDisplay }} <Favorite v-if="isExplorer" :resource="resource" />
+        {{ _typeDisplay }}
+        <span v-if="setting" class="setting">
+          <nuxt-link :to="setting">
+            {{ t('harvester.backUpPage.message.noSetting.middle') }}
+          </nuxt-link>
+        </span>
+        <Favorite v-if="isExplorer" :resource="resource" />
       </h1>
     </div>
     <div class="actions-container">
@@ -195,7 +212,7 @@ export default {
           :disabled="disableCreateButton"
           @click="handlerCreateLocation"
         >
-          {{ t("resourceList.head.create") }}
+          {{ t(customCreateText) }}
         </button>
         <n-link
           v-else-if="_isYamlCreatable"
@@ -208,3 +225,9 @@ export default {
     </div>
   </header>
 </template>
+
+<style lang="scss" scoped>
+.setting {
+  font-size: 14px;
+}
+</style>

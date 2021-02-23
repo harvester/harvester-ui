@@ -5,6 +5,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import Footer from '@/components/form/Footer';
 import CreateEditView from '@/mixins/create-edit-view';
 import NetworkSetting from './NetworkSetting';
+import BackupTarget from './BackupTarget';
 
 export default {
   name: 'Networks',
@@ -12,6 +13,7 @@ export default {
   components: {
     Footer,
     NetworkSetting,
+    BackupTarget,
     Tab,
     Tabbed,
     LabeledInput
@@ -45,6 +47,9 @@ export default {
   computed: {
     isNetworkSetting() {
       return this.value.metadata.name === 'network-setting';
+    },
+    isBackupTarget() {
+      return this.value.metadata.name === 'backup-target';
     }
   },
 
@@ -55,8 +60,6 @@ export default {
       }
     },
   },
-
-  methods: {},
 };
 </script>
 
@@ -65,6 +68,9 @@ export default {
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
       <Tab v-if="isNetworkSetting" name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
         <NetworkSetting v-model="value" />
+      </Tab>
+      <Tab v-if="isBackupTarget" name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
+        <BackupTarget v-model="value" />
       </Tab>
       <Tab v-else name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
         <div class="row mb-20">

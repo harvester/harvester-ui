@@ -35,10 +35,6 @@ export default {
       ];
     },
   },
-
-  customCreateFormName() {
-    return 'Upgrade';
-  },
 };
 </script>
 

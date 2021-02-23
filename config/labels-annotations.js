@@ -115,3 +115,7 @@ export const HARVESTER_UPGRADESTATE = 'harvester.cattle.io/upgradeState';
 export const NODE_ROLE_MASTER = 'node-role.kubernetes.io/master';
 export const NODE_ROLE_CONTROL_PLANE = 'node-role.kubernetes.io/control-plane';
 export const HARVESTER_PROMOTE_STATUS = 'harvester.cattle.io/promote-status';
+export const HARVESTER_RESTORE_NAME = 'restore.harvester.io/name';
+
+// backup
+export const HARVESTER_BACKUP_TARGET = 'backup.harvester.io/backupTarget';

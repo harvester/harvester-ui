@@ -79,13 +79,13 @@ export default {
     const prefix = getPrefix();
 
     if (!prefix) {
-      return `/apis/subresources.kubevirt.io/v1alpha3/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
+      return `/apis/subresources.kubevirt.io/v1/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
     } else {
-      return `${ prefix }apis/subresources.kubevirt.io/v1alpha3/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
+      return `${ prefix }apis/subresources.kubevirt.io/v1/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
     }
   },
 
   getSerialConsolePath() {
-    return `/apis/subresources.kubevirt.io/v1alpha3/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/console`;
+    return `/apis/subresources.kubevirt.io/v1/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/console`;
   }
 };

@@ -63,17 +63,6 @@ export default {
   <div>
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
       <Tab name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
-        <div class="row mb-20">
-          <div class="col span-12">
-            <LabeledInput
-              v-model="value.default"
-              :label="t('generic.default')"
-              class="mb-20"
-              mode="view"
-            />
-          </div>
-        </div>
-
         <div class="row">
           <div class="col span-12">
             <LabeledInput
@@ -81,6 +70,10 @@ export default {
               :mode="mode"
               :label="t('generic.value')"
             />
+            <p class="mt-10">
+              <span class="icons icon-h-question"></span>
+              <span class="tip">{{ t('harvester.backUpPage.backupTargetTip') }}</span>
+            </p>
           </div>
         </div>
       </Tab>
@@ -88,3 +81,16 @@ export default {
     <Footer :mode="mode" :errors="errors" @save="save" @done="done" />
   </div>
 </template>
+
+<style lang="scss" scoped>
+p {
+  display: flex;
+  align-items: center;
+}
+.icon-h-question {
+  font-size: 24px;
+}
+.tip {
+  font-size: 15px;
+}
+</style>

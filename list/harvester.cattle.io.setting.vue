@@ -1,6 +1,8 @@
 <script>
 import ResourceTable from '@/components/ResourceTable';
+import { allHash } from '@/utils/promise';
 import { NAME, SETTING_VALUE } from '@/config/table-headers';
+import { HARVESTER_SETTING } from '@/config/types';
 
 export default {
   name:       'ListSetting',
@@ -10,19 +12,27 @@ export default {
     schema: {
       type:     Object,
       required: true,
-    },
+    }
+  },
 
-    rows: {
-      type:     Array,
-      required: true,
-    },
+  async fetch() {
+    const hash = await allHash({ haversterSettings: this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }) });
+
+    this.haversterSettings = hash.haversterSettings;
   },
 
   data() {
-    return { headers: [NAME, { ...SETTING_VALUE, formatter: 'settingMessage' }] };
+    return {
+      headers:           [{ ...NAME, width: 200 }, { ...SETTING_VALUE, formatter: 'settingMessage' }],
+      haversterSettings: []
+    };
   },
 
-  methods: {}
+  computed: {
+    rows() {
+      return [...this.haversterSettings];
+    },
+  }
 
 };
 </script>
