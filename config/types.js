@@ -243,3 +243,5 @@ export const HARVESTER_SETTING = 'harvester.cattle.io.setting';
 export const HARVESTER_UPGRADE = 'harvester.cattle.io.upgrade';
 export const HARVESTER_BACKUP = 'harvester.cattle.io.virtualmachinebackup';
 export const HARVESTER_RESTORE = 'harvester.cattle.io.virtualmachinerestore';
+export const HARVESTER_BACKUP_CONTENT = 'harvester.cattle.io.virtualmachinebackupcontent';
+export const LONGHORN_SETTING = 'longhorn.io.setting';

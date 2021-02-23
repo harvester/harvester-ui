@@ -27,4 +27,8 @@ export default {
   valueOrDefaultValue() {
     return this.value || this.default;
   },
+
+  isNeedEditBackupTarget() {
+    return !this.value;
+  }
 };

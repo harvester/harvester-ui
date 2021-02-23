@@ -1,9 +1,21 @@
 export const state = function() {
-  return { isOpenBackUpModal: false };
+  return {
+    actionResources: null,
+    isShowBackUp:    false,
+    isShowRestore:   false
+  };
 };
 
-export const getters = {};
+export const mutations = {
+  toggleBackupModal(state, resources = []) {
+    state.isShowBackUp = !state.isShowBackUp;
+    state.actionResources = resources;
+  },
 
-export const mutations = {};
+  toggleRestoreModal(state, resources = []) {
+    state.isShowRestore = !state.isShowRestore;
+    state.actionResources = resources;
+  },
+};
 
 export const actions = {};

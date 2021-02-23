@@ -3,11 +3,17 @@ import { STATE, AGE, NAME } from '@/config/table-headers';
 import SortableTable from '@/components/SortableTable';
 import VmState from '@/components/formatter/BadgeStateFormatter';
 import MigrationState from '@/components/formatter/MigrationState';
+import BackupModal from './backupModal';
+import RestoreModal from './restoreModal';
 
 export default {
   name:       'ListVM',
   components: {
-    SortableTable, VmState, MigrationState
+    SortableTable,
+    VmState,
+    MigrationState,
+    BackupModal,
+    RestoreModal
   },
 
   props: {
@@ -22,7 +28,12 @@ export default {
     },
   },
 
+  data() {
+    return {};
+  },
+
   computed: {
+
     headers() {
       return [
         {
@@ -56,26 +67,30 @@ export default {
       ];
     },
   },
-
 };
 </script>
 
 <template>
-  <SortableTable
-    v-bind="$attrs"
-    :headers="headers"
-    default-sort-by="age"
-    :rows="[...rows]"
-    key-field="_key"
-    v-on="$listeners"
-  >
-    <template slot="cell:state" slot-scope="scope" class="state-col">
-      <div class="state">
-        <VmState class="vmstate" :row="scope.row" />
-        <MigrationState :vm-resource="scope.row" :show-success="false" />
-      </div>
-    </template>
-  </sortabletable>
+  <div>
+    <SortableTable
+      v-bind="$attrs"
+      :headers="headers"
+      default-sort-by="age"
+      :rows="[...rows]"
+      key-field="_key"
+      v-on="$listeners"
+    >
+      <template slot="cell:state" slot-scope="scope" class="state-col">
+        <div class="state">
+          <VmState class="vmstate" :row="scope.row" />
+          <MigrationState :vm-resource="scope.row" :show-success="false" />
+        </div>
+      </template>
+    </sortabletable>
+
+    <BackupModal />
+    <RestoreModal />
+  </div>
 </template>
 
 <style lang="scss" scoped>

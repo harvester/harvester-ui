@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Steve from '@/plugins/steve';
 import {
-  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, FLEET, POD, HARVESTER_SETTING, NODE
+  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, FLEET, POD, HARVESTER_SETTING, NODE, HARVESTER_RESTORE
 } from '@/config/types';
 import { CLUSTER as CLUSTER_PREF, NAMESPACE_FILTERS, LAST_NAMESPACE, WORKSPACE } from '@/store/prefs';
 import { allHash } from '@/utils/promise';
@@ -540,6 +540,8 @@ export const actions = {
       pods:               dispatch('cluster/findAll', { type: POD }),
       setting:          dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
       nodes:            dispatch('cluster/findAll', { type: NODE }),
+      restores:         dispatch('cluster/findAll', { type: HARVESTER_RESTORE }),
+
     });
 
     commit('updateNamespaces', {

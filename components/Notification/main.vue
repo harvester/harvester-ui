@@ -162,8 +162,7 @@ export default {
     box-sizing: border-box;
     position: fixed;
     border: 1px solid #ebeef5;
-    border-radius: 8px;
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    border-radius: 2px;
     width: 330px;
     padding: 12px 26px 14px 13px;
     background: var(--body-bg);
@@ -185,7 +184,8 @@ export default {
 
     &__message {
       p {
-        font-size: 1.2em;
+        font-family: "Fira Sans";
+        font-size: 15px;
         word-break: break-all;
       }
     }

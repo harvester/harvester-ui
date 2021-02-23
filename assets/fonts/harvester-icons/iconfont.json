@@ -6,6 +6,27 @@
   "description": "Harvester",
   "glyphs": [
     {
+      "icon_id": "4448575",
+      "name": "question",
+      "font_class": "question",
+      "unicode": "e685",
+      "unicode_decimal": 59013
+    },
+    {
+      "icon_id": "1445202",
+      "name": "restore",
+      "font_class": "restore-existing",
+      "unicode": "e87b",
+      "unicode_decimal": 59515
+    },
+    {
+      "icon_id": "5635080",
+      "name": "window-restore",
+      "font_class": "restore-new",
+      "unicode": "f2df",
+      "unicode_decimal": 62175
+    },
+    {
       "icon_id": "19903826",
       "name": "持续升级",
       "font_class": "upgrade",

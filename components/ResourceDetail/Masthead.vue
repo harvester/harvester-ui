@@ -56,6 +56,11 @@ export default {
     resourceSubtype: {
       type:    String,
       default: null,
+    },
+
+    title: {
+      type:    String,
+      default: 'create'
     }
   },
 
@@ -196,6 +201,7 @@ export default {
 
     viewOptions() {
       const out = [];
+      const typeOptions = this.$store.getters[`type-map/optionsFor`]( this.resource );
 
       if ( this.hasDetail ) {
         out.push({
@@ -204,7 +210,7 @@ export default {
         });
       }
 
-      if ( this.hasEdit ) {
+      if ( this.hasEdit && !typeOptions.DisableEditInDetail) {
         out.push({
           labelKey: 'resourceDetail.masthead.config',
           value:    'config',
@@ -301,7 +307,7 @@ export default {
               {{ parent.displayName }}:
             </nuxt-link>
             <span v-else>{{ parent.displayName }}:</span>
-            <t :k="'resourceDetail.header.' + realMode" :subtype="resourceSubtype" :name="value.nameDisplay" />
+            <t :k="'resourceDetail.header.' + title" :subtype="resourceSubtype" :name="value.nameDisplay" />
             <BadgeState v-if="!isCreate && parent.showState" class="masthead-state" :value="value" />
           </h1>
         </div>

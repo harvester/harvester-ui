@@ -9,6 +9,7 @@ import { podAffinity } from '@/utils/validators/pod-affinity';
 import { vmNetworks, vmDisks, vmMemoryUnit } from '@/utils/validators/vm';
 import { imageUrl } from '@/utils/validators/vm-image';
 import { dataVolumeSize } from '@/utils/validators/vm-datavolumes';
+import { backupTarget } from '@/utils/validators/setting';
 
 /**
 * Custom validation functions beyond normal scalr types
@@ -32,5 +33,6 @@ export default {
   vmDisks,
   vmMemoryUnit,
   imageUrl,
-  dataVolumeSize
+  dataVolumeSize,
+  backupTarget
 };

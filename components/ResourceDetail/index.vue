@@ -189,6 +189,7 @@ export default {
       as:              null,
       value:           null,
       model:           null,
+      title:           ''
     };
   },
 
@@ -249,6 +250,24 @@ export default {
       if ( this.mode === _VIEW && this.as === _YAML && a && b && a !== b) {
         this.yaml = await getYaml(this.originalModel);
       }
+    },
+
+    showComponent: {
+      async handler(neu) {
+        if (!neu) {
+          this.title = this.realMode;
+
+          return;
+        }
+        const component = (await neu())?.default;
+
+        if (component?.title) {
+          this.title = component.title.apply(this);
+        } else {
+          this.title = this.realMode;
+        }
+      },
+      immediate: true
     }
   },
 
@@ -282,6 +301,7 @@ export default {
       :value="originalModel"
       :mode="mode"
       :real-mode="realMode"
+      :title="title"
       :as="as"
       :has-detail="hasCustomDetail"
       :has-edit="hasCustomEdit"

@@ -1,5 +1,9 @@
 <script>
+import Tag from '@/components/Tag';
+
 export default {
+  components: { Tag },
+
   props:      {
     value: {
       type:    [String, Object],
@@ -15,23 +19,28 @@ export default {
     message() {
       return this.row?.configuredCondition?.reason;
     },
+
+    displayValue() {
+      return this.row.displayValue || this.value;
+    }
   }
 };
 </script>
 
 <template>
   <div class="flex">
-    <span>
-      {{ value }}
-    </span>
-    <span class="banner error">
+    <div>
+      <template v-if="typeof displayValue === 'object'">
+        <Tag v-for="(V, N) in displayValue" :key="N" class="ml-5">
+          {{ `${N}:   ${V}` }}
+        </Tag>
+      </template>
+
+      <span v-else>{{ displayValue }}</span>
+    </div>
+
+    <div class="text-error mt-5">
       {{ message }}
-    </span>
+    </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.banner {
-  margin-left: 20px;
-}
-</style>

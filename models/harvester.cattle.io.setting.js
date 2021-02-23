@@ -47,5 +47,65 @@ export default {
 
   currentVersion() {
     return this.value || '';
-  }
+  },
+
+  displayValue() { // Select the field you want to display
+    if (this.id === 'backup-target') {
+      return this.parseValue?.endpoint;
+    }
+
+    return null;
+  },
+
+  parseValue() {
+    let parseDefaultValue = {};
+
+    try {
+      parseDefaultValue = JSON.parse(this.value);
+    } catch (err) {
+      parseDefaultValue = JSON.parse(this.default);
+    }
+
+    return parseDefaultValue;
+  },
+
+  isS3() {
+    return this.parseValue.type === 's3';
+  },
+
+  isNFS() {
+    return this.parseValue.type === 'nfs';
+  },
+
+  bakcupError() {
+    const configured = findBy((this?.status?.conditions || []), 'type', 'configured') || {};
+
+    return configured.status === 'False';
+  },
+
+  errorBackupTargetMessage() {
+    const configured = findBy((this?.status?.conditions || []), 'type', 'configured') || {};
+
+    return configured.reason;
+  },
+
+  customValidationRules() {
+    const id = this.id;
+
+    const out = [];
+
+    switch (id) {
+    case 'backup-target':
+      out.push( {
+        nullable:       false,
+        path:           'value',
+        required:       true,
+        type:           'string',
+        validators:     ['backupTarget'],
+      });
+      break;
+    }
+
+    return out;
+  },
 };
