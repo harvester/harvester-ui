@@ -3,7 +3,7 @@ import { STATE, NAME } from '@/config/table-headers';
 import SortableTable from '@/components/SortableTable';
 import Banner from '@/components/Banner';
 import Loading from '@/components/Loading';
-import { HARVESTER_SETTING, NETWORK_ATTACHMENT } from '@/config/types';
+import { HARVESTER_CLUSTER_NETWORK, NETWORK_ATTACHMENT, HARVESTER_NODE_NETWORK } from '@/config/types';
 import { allHash } from '@/utils/promise';
 import { findBy } from '@/utils/array';
 
@@ -22,19 +22,22 @@ export default {
 
   async fetch() {
     const hash = await allHash({
-      setting: this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
-      rows:    this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
+      clusterNetworkSetting:      this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
+      hostNetworks:          this.$store.dispatch('cluster/findAll', { type: HARVESTER_NODE_NETWORK }),
+      rows:                  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
     });
 
     this.rows = hash.rows;
-    this.setting = hash.setting;
+    this.clusterNetworkSetting = hash.clusterNetworkSetting;
+    this.hostNetworks = hash.hostNetworks;
   },
 
   data() {
     return {
-      setting: [],
-      rows:    [],
-      hash:    {}
+      clusterNetworkSetting:      [],
+      rows:                  [],
+      hash:                  {},
+      hostNetworks:          [],
     };
   },
 
@@ -61,37 +64,41 @@ export default {
         }
       ];
     },
-    configuredStatus() {
-      const network = findBy((this.setting || []), 'metadata.name', 'network-setting');
 
-      return network?.getConditionStatus('configured') === 'True';
-    },
-    statusText() {
-      const network = findBy((this.setting || []), 'metadata.name', 'network-setting');
-
-      return network?.configuredCondition?.reason;
-    },
     isAbnormal() {
-      const network = findBy((this.setting || []), 'metadata.name', 'network-setting');
+      const network = findBy((this.clusterNetworkSetting || []), 'metadata.name', 'vlan');
 
-      return network?.configuredCondition?.status !== 'True';
+      return !(network?.isOpenVlan && network?.defaultPhysicalNic.length > 0);
+    },
+
+    hostNetworkReady() {
+      const notReadyCrd = this.hostNetworks.filter( (O) => {
+        return !O.isReady;
+      });
+
+      return notReadyCrd.map( (O) => {
+        return {
+          name:    O.attachNodeName,
+          message: O.message,
+          to:      `node/${ O.attachNodeName }?mode=edit`
+        };
+      });
     }
   },
 
   watch: {
-    configuredStatus: {
+    isAbnormal: {
       handler(neu) {
         const type = this.$route.params.resource;
 
         this.$store.commit('cluster/setConfig', {
           type,
-          data: { disableCreateButton: !neu }
+          data: { disableCreateButton: neu }
         });
       },
       immediate: true
     }
   },
-
 };
 </script>
 
@@ -102,20 +109,26 @@ export default {
       <Banner
         color="error"
       >
-        <div v-if="!statusText">
+        <div>
           {{ t('harvester.networkPage.message.premise.prefix') }}
-          <nuxt-link to="harvester.cattle.io.setting/network-setting?mode=edit">
+          <nuxt-link to="network.harvester.cattle.io.clusternetwork/harvester-system/vlan?mode=edit">
             {{ t('harvester.networkPage.message.premise.middle') }}
           </nuxt-link>
           {{ t('harvester.networkPage.message.premise.suffic') }}
         </div>
+      </Banner>
+    </div>
 
-        <div v-else>
-          {{ t('harvester.networkPage.message.errorTip.prefix') }}
-          <nuxt-link to="harvester.cattle.io.setting/network-setting?mode=edit">
-            {{ t('harvester.networkPage.message.errorTip.middle') }}
-          </nuxt-link> {{ t('harvester.networkPage.message.errorTip.suffic') }} {{ statusText }}
-        </div>
+    <div v-if="hostNetworkReady.length">
+      <Banner
+        v-for="item in hostNetworkReady"
+        :key="item.name"
+        color="error"
+      >
+        <nuxt-link :to="item.to">
+          {{ item.name }}
+        </nuxt-link>
+        {{ item.message }}
       </Banner>
     </div>
     <SortableTable

@@ -1,13 +1,10 @@
 <script>
-import Banner from '@/components/Banner';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import LabeledInput from '@/components/form/LabeledInput';
 
 export default {
   name:       'NetworkSetting',
-  components: {
-    LabeledSelect, LabeledInput, Banner
-  },
+  components: { LabeledSelect, LabeledInput },
 
   props:      {
     value: {
@@ -38,10 +35,6 @@ export default {
         label: 'L2VlanNetwork'
       }];
     },
-
-    statusText() {
-      return this.value?.configuredCondition?.reason;
-    }
   },
 
   methods: {
@@ -60,16 +53,5 @@ export default {
     <LabeledSelect v-model="type" class="mb-20" :label="t('harvester.fields.type')" :options="typeOption" :disabled="true" />
 
     <LabeledInput v-model="parseDefaultValue.NIC" :label="t('harvester.fields.PhysicalNic')" />
-
-    <Banner
-      v-if="statusText"
-      color="error"
-    >
-      {{ statusText }}
-    </Banner>
   </div>
 </template>
-
-<style lang="scss" scoped>
-
-</style>

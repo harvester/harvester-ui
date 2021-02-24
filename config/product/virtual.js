@@ -1,6 +1,6 @@
 import {
   IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME, HARVESTER_USER, NODE,
-  HARVESTER_SETTING, NETWORK_ATTACHMENT, HARVESTER_BACKUP
+  HARVESTER_SETTING, NETWORK_ATTACHMENT, HARVESTER_BACKUP, HARVESTER_CLUSTER_NETWORK
 } from '@/config/types';
 import { DSL } from '@/store/type-map';
 
@@ -94,12 +94,13 @@ export function init(store) {
   basicType([
     TEMPLATE,
     NETWORK_ATTACHMENT,
-    HARVESTER_BACKUP,
+    // HARVESTER_BACKUP,
     SSH,
     HARVESTER_USER,
     HARVESTER_SETTING
   ], 'advanced');
 
+  configureType(HARVESTER_CLUSTER_NETWORK, { realResource: HARVESTER_SETTING });
   virtualType({
     label:      'VM Templates',
     group:      'root',

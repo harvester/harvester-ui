@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+BUILD_DEBUG="${BUILD_DEBUG:-}"
+if [[ -n "${BUILD_DEBUG}" ]]; then
+    set -x
+    env
+fi
+
+cd $(dirname $0)/..
+
+echo "Bootstrapping..."
+yarn --pure-lockfile install
+
+source scripts/version
+echo "BRANCH: ${COMMIT_BRANCH:-<none>}"
+echo "TAG: ${GIT_TAG:-<none>}"
+DIR=${GIT_TAG:-$COMMIT_BRANCH}
+
+# Rio is stuck pointing at the "master" folder, use "latest" instead.
+if [[ "${DIR}" == "master" ]]; then
+  DIR="latest"
+fi
+
+BASE=https://rancher-harvester.s3-ap-southeast-1.amazonaws.com/ui/${DIR}
+
+echo "Building for ${BASE}..."
+
+NUXT_ENV_commit=${COMMIT} NUXT_ENV_version=${VERSION} OUTPUT_DIR=dist/${DIR} ROUTER_BASE="/" RESOURCE_BASE="${BASE}" yarn run build --spa
