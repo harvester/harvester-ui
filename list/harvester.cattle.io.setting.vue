@@ -1,39 +1,39 @@
 <script>
 import ResourceTable from '@/components/ResourceTable';
-import { allHash } from '@/utils/promise';
+import { allSettled } from '@/utils/promise';
 import { NAME, SETTING_VALUE } from '@/config/table-headers';
-import { HARVESTER_SETTING } from '@/config/types';
+import { HARVESTER_SETTING, HARVESTER_CLUSTER_NETWORK } from '@/config/types';
 
 export default {
   name:       'ListSetting',
   components: { ResourceTable },
-
-  props: {
+  props:      {
     schema: {
       type:     Object,
       required: true,
     }
   },
-
   async fetch() {
-    const hash = await allHash({ haversterSettings: this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }) });
+    const hash = await allSettled({
+      haversterSettings:      this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
+      clusterNetworkSettings: this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
+    });
 
     this.haversterSettings = hash.haversterSettings;
+    this.clusterNetworkSettings = hash.clusterNetworkSettings;
   },
-
   data() {
     return {
-      headers:           [{ ...NAME, width: 200 }, { ...SETTING_VALUE, formatter: 'settingMessage' }],
-      haversterSettings: []
+      headers:                [NAME, { ...SETTING_VALUE, formatter: 'settingMessage' }],
+      haversterSettings:      [],
+      clusterNetworkSettings: []
     };
   },
-
   computed: {
     rows() {
-      return [...this.haversterSettings];
+      return [...this.haversterSettings, ...this.clusterNetworkSettings];
     },
   }
-
 };
 </script>
 

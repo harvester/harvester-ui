@@ -2,7 +2,9 @@
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import Poller from '@/utils/poller';
-import { METRIC, VM, NODE, VMI } from '@/config/types';
+import {
+  METRIC, VM, NODE, VMI, HARVESTER_NODE_NETWORK
+} from '@/config/types';
 import { HOSTNAME } from '@/config/labels-annotations';
 import { allHash } from '@/utils/promise';
 import Basic from './basic';
@@ -32,8 +34,9 @@ export default {
 
   async fetch() {
     const hash = {
-      nodes:   this.$store.dispatch('cluster/findAll', { type: NODE }),
-      vms:     this.$store.dispatch('cluster/findAll', { type: VM }),
+      nodes:        this.$store.dispatch('cluster/findAll', { type: NODE }),
+      vms:          this.$store.dispatch('cluster/findAll', { type: VM }),
+      hostNetworks: this.$store.dispatch('cluster/findAll', { type: HARVESTER_NODE_NETWORK })
     };
 
     const res = await allHash(hash);
@@ -50,14 +53,21 @@ export default {
     this.rows = res.vms.filter((row) => {
       return instanceMap[row.metadata?.uid]?.status?.nodeName === this.value?.metadata?.labels?.[HOSTNAME];
     });
+
+    const hostNetowrkResource = res.hostNetworks.find( O => this.value.id === O.attachNodeName);
+
+    if (hostNetowrkResource) {
+      this.hostNetowrkResource = hostNetowrkResource;
+    }
   },
 
   data() {
     return {
-      metricPoller: new Poller(this.loadMetrics, METRICS_POLL_RATE_MS, MAX_FAILURES),
-      metrics:      null,
-      mode:         'view',
-      rows:          []
+      metricPoller:        new Poller(this.loadMetrics, METRICS_POLL_RATE_MS, MAX_FAILURES),
+      metrics:             null,
+      mode:                'view',
+      rows:                [],
+      hostNetowrkResource: null
     };
   },
 
@@ -94,7 +104,7 @@ export default {
 <template>
   <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
     <Tab name="basics" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
-      <Basic v-model="value" :metrics="metrics" :mode="mode" />
+      <Basic v-model="value" :metrics="metrics" :mode="mode" :host-netowrk-resource="hostNetowrkResource" />
     </Tab>
     <Tab name="instance" :label="t('harvester.vmPage.detail.tabs.instance')" :weight="2" class="bordered-table">
       <Instance :rows="rows" />

@@ -2299,7 +2299,7 @@ typeLabel:
   kubevirt.io.virtualmachine: 虚拟机
   harvester.cattle.io.virtualmachineimage: 镜像
   harvester.cattle.io.keypair: SSH 密钥
-  harvester.cattle.io.virtualmachinetemplateversion: VM 模板
+  harvester.cattle.io.virtualmachinetemplateversion: 虚拟机模板
   k8s.cni.cncf.io.networkattachmentdefinition: 网络
   cdi.kubevirt.io.datavolume: 卷
   harvester.cattle.io.user: 用户
@@ -2561,14 +2561,6 @@ harvester:
     sections:
       events:
         label: 事件
-  hostPage:
-    promote:
-      none: ' '
-      running: 角色升级中
-      failed: 角色升级失败
-      unknown: 角色升级中断
-      promoteRestart: 角色升级重启中
-      promoteSucceed: 角色升级完成
   upgradePage:
     upgradeApp: 升级软件
     upgrade: 升级
@@ -2674,6 +2666,21 @@ harvester:
   vmtemplatePage:
     nameNsDescription:
       name: 模板名称
+  hostPage:
+    promote:
+      none: ' '
+      running: 角色升级中
+      failed: 角色升级失败
+      unknown: 角色升级中断
+      promoteRestart: 角色升级重启中
+      promoteSucceed: 角色升级完成
+    tabs:
+      network: 网络
+    detail:
+      title:
+        network: 网络配置
+      networkType: 类型
+      nic: 物理网卡
   volumePage:
     size: 大小
     source: 资源类型

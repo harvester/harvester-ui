@@ -163,16 +163,16 @@ export default {
     parent() {
       const displayName = this.$store.getters['type-map/labelFor'](this.schema);
       const product = this.$store.getters['currentProduct'].name;
+      const typeOptions = this.$store.getters[`type-map/optionsFor`]( this.resource );
 
       const location = {
         name:   'c-cluster-product-resource',
         params: {
-          resource: this.resource,
+          resource: typeOptions?.realResource || this.resource,
           product,
         }
       };
 
-      const typeOptions = this.$store.getters[`type-map/optionsFor`]( this.resource );
       const out = {
         displayName, location, ...typeOptions
       };

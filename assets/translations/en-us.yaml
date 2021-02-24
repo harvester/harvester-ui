@@ -3108,17 +3108,9 @@ harvester:
     and: and
   axios:
     timeoutErrorMessage: timeout of {timeout}s exceeded
-  hostPage:
-    promote:
-      none: ' '
-      running: promoting
-      failed: promote failed
-      unknown: promote halted
-      promoteRestart: restarting
-      promoteSucceed: promote completed
   homePage:
     hardwareResourceGauge:
-      cpu: CPU
+      cpu: CPU  
       memory: Memory
       storage: Storage Size
     header: Dashboard
@@ -3252,6 +3244,21 @@ harvester:
   vmtemplatePage:
     nameNsDescription:
       name: Template Name
+  hostPage:
+    promote:
+      none: ' '
+      running: promoting
+      failed: promote failed
+      unknown: promote halted
+      promoteRestart: restarting
+      promoteSucceed: promote completed
+    tabs:
+      network: Network
+    detail:
+      title:
+        network: Network Configuration
+      nic: Physical NIC
+      networkType: Type
   volumePage:
     size: Size
     source: Source

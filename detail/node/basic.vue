@@ -1,13 +1,16 @@
 <script>
 import ConsumptionGauge from '@/components/ConsumptionGauge';
 import LabelValue from '@/components/LabelValue';
+import Banner from '@/components/Banner';
 import { formatSi, exponentNeeded, UNITS } from '@/utils/units';
 import { HOST_CUSTOM_NAME } from '@/config/labels-annotations';
 
 export default {
   name: 'BasicNode',
 
-  components: { ConsumptionGauge, LabelValue },
+  components: {
+    ConsumptionGauge, LabelValue, Banner
+  },
 
   props: {
     value: {
@@ -16,6 +19,20 @@ export default {
     },
 
     metrics: {
+      type:     Object,
+      required: false,
+      default:  () => {
+        return null;
+      }
+    },
+
+    mode: {
+      type:     String,
+      required: false,
+      default:  'view'
+    },
+
+    hostNetowrkResource: {
       type:     Object,
       required: false,
       default:  () => {
@@ -115,6 +132,18 @@ export default {
 
     nodeRoleState() {
       return this.value.nodeRoleState;
+    },
+
+    networkType() {
+      return this.hostNetowrkResource?.spec?.type;
+    },
+
+    nic() {
+      return this.hostNetowrkResource?.spec?.nic;
+    },
+
+    networkMessage() {
+      return this.hostNetowrkResource?.message;
     }
   },
 
@@ -171,7 +200,22 @@ export default {
       </div>
     </div>
 
-    <hr class="section-divider" />
+    <hr class="divider" />
+    <h3>{{ t('harvester.hostPage.detail.title.network') }}</h3>
+    <Banner v-if="networkMessage" color="error">
+      {{ networkMessage }}
+    </Banner>
+    <div class="row mb-20">
+      <div class="col span-6">
+        <LabelValue :name="t('harvester.hostPage.detail.networkType')" :value="networkType" />
+      </div>
+
+      <div class="col span-6">
+        <LabelValue :name="t('harvester.hostPage.detail.nic')" :value="nic" />
+      </div>
+    </div>
+
+    <hr class="divider" />
     <h3>{{ t('harvester.vmPage.detail.tabs.monitor') }}</h3>
     <div class="row mb-20">
       <div class="col span-4">
