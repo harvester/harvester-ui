@@ -902,6 +902,7 @@ $spacing: 10px;
 
       &:hover {
         background-color: var(--primary-hover-bg);
+        color: var(--primary-hover-text);
       }
 
       > *, .icon-chevron-down {

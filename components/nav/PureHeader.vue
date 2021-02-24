@@ -32,10 +32,9 @@ export default {
   <header>
     <div class="product">
       <div class="go" @click="goHome">
-        <div class="productName">
-          Harvester
+        <div class="logo" alt="Logo">
+          <img src="~assets/images/pl/logo_horizontal_white.svg" width="auto" height="35" />
         </div>
-        <div class="logo" alt="Logo" />
       </div>
     </div>
 
@@ -89,20 +88,13 @@ export default {
 
       .productName {
         color: #fff;
-        line-height: 50px;
+        line-height: 55px;
         left: 43px;
         position: absolute;
       }
 
       .logo {
-        background-color: var(--header-logo);
-        mask: url("~assets/images/pl/half-logo.svg") no-repeat center;
-        width: 36px;
-        height: 30px;
-        position: absolute;
-        top: 9px;
-        left: 0;
-        z-index: 2;
+        margin-top: 10px;
       }
     }
 
