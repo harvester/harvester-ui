@@ -6,8 +6,8 @@ export default {
       required: true
     },
     value: {
-      type:     String,
-      required: true
+      type:     [Number, String, undefined],
+      default: ''
     }
   }
 };
@@ -15,7 +15,7 @@ export default {
 
 <template>
   <div class="label">
-    <div class="name">
+    <div class="text-label">
       <slot name="name">
         {{ name }}
       </slot>
@@ -33,12 +33,6 @@ export default {
 .label {
   display: flex;
   flex-direction: column;
-
-  .name {
-    color: var(--input-label);
-    font-size: 14px;
-    line-height: 18px;
-  }
 
   .value {
     font-size: 14px;

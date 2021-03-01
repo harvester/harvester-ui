@@ -2555,6 +2555,13 @@ harvester:
       events:
         label: 事件
   hostPage:
+    promote:
+      none: ' '
+      running: 角色升级中
+      failed: 角色升级失败
+      unknown: 角色升级中断
+      promoteRestart: 角色升级重启中
+      promoteSucceed: 角色升级完成
   upgradePage:
     upgradeApp: 升级软件
     upgrade: 升级

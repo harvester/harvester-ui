@@ -3097,6 +3097,13 @@ harvester:
   axios:
     timeoutErrorMessage: timeout of {timeout}s exceeded
   hostPage:
+    promote:
+      none: ' '
+      running: promoting
+      failed: promote failed
+      unknown: promote halted
+      promoteRestart: restarting
+      promoteSucceed: promote complete
   homePage:
     hardwareResourceGauge:
       cpu: CPU
