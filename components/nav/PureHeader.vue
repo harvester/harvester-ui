@@ -33,7 +33,7 @@ export default {
     <div class="product">
       <div class="go" @click="goHome">
         <div class="logo" alt="Logo">
-          <img src="~assets/images/pl/logo_horizontal_white.svg" width="auto" height="35" />
+          <img src="~assets/images/pl/logo_horizontal_white.png" width="auto" height="35" />
         </div>
       </div>
     </div>

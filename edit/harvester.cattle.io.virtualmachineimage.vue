@@ -9,6 +9,7 @@ import KeyValue from '@/components/form/KeyValue';
 import NameNsDescription from '@/components/form/NameNsDescription';
 import CreateEditView from '@/mixins/create-edit-view';
 import Cookie from 'js-cookie';
+import customValidators from '@/utils/custom-validators';
 
 const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
 
@@ -88,6 +89,18 @@ export default {
     }
   },
 
+  created() {
+    this.registerBeforeHook( () => {
+      if (this.uploadMode === 'url') {
+        const errors = customValidators.imageUrl(this.value.spec.url, this.$store.getters, []);
+
+        if (errors.length) {
+          return Promise.reject(new Error(errors));
+        }
+      }
+    });
+  },
+
   methods: {
     inputFile(newFile, oldFile) {
       const file = newFile || oldFile;
@@ -98,6 +111,8 @@ export default {
     },
 
     inputFilter(newFile, oldFile, prevent) {
+      this.errors = customValidators.imageUrl(newFile.name, this.$store.getters, [], '', 'file');
+
       if (!/\.(gz|qcow|qcow2|raw|img|xz|iso)$/i.test(newFile.name.toLowerCase())) {
         return prevent();
       }

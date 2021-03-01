@@ -1,4 +1,4 @@
-export function imageUrl(url, getters, errors, validatorArgs) {
+export function imageUrl(url, getters, errors, validatorArgs, type) {
   const t = getters['i18n/t'];
 
   if (!url || url === '') {
@@ -14,7 +14,9 @@ export function imageUrl(url, getters, errors, validatorArgs) {
   const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
 
   if (!filesFormat.includes(fileSuffiic)) {
-    errors.push(t('harvester.validation.image.ruleTip'));
+    const tipString = type === 'file' ? 'harvester.validation.image.ruleFileTip' : 'harvester.validation.image.ruleTip';
+
+    errors.push(t(tipString));
   }
 
   return errors;
