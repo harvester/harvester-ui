@@ -1,13 +1,13 @@
 <script>
-import LabeledInput from '@/components/form/LabeledInput';
 import ConsumptionGauge from '@/components/ConsumptionGauge';
+import LabelValue from '@/components/LabelValue';
 import { formatSi, exponentNeeded, UNITS } from '@/utils/units';
 import { HOST_CUSTOM_NAME } from '@/config/labels-annotations';
 
 export default {
   name: 'BasicNode',
 
-  components: { LabeledInput, ConsumptionGauge },
+  components: { ConsumptionGauge, LabelValue },
 
   props: {
     value: {
@@ -21,17 +21,7 @@ export default {
       default:  () => {
         return null;
       }
-    },
-
-    mode: {
-      type:     String,
-      required: false,
-      default:  'view'
     }
-  },
-
-  data() {
-    return {};
   },
 
   computed: {
@@ -116,13 +106,15 @@ export default {
     },
 
     nodeType() {
-      const isMaster = this.value.metadata?.labels?.['node-role.kubernetes.io/master'] === 'true';
-
-      return isMaster ? this.t('node.detail.type.management') : this.t('node.detail.type.compute');
+      return this.value.isMaster ? this.t('node.detail.type.management') : this.t('node.detail.type.compute');
     },
 
     lastUpdateTime() {
       return this.value.status?.conditions?.[0]?.lastHeartbeatTime;
+    },
+
+    nodeRoleState() {
+      return this.value.nodeRoleState;
     }
   },
 
@@ -145,29 +137,41 @@ export default {
     <h3>{{ t('harvester.vmPage.detail.tabs.overview') }}</h3>
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="customName" :label="t('node.detail.basic.customName')" :mode="mode" />
+        <LabelValue :name="t('node.detail.basic.customName')" :value="customName" />
       </div>
       <div class="col span-6">
-        <LabeledInput v-model="value.internalIp" :label="t('node.detail.basic.hostIP')" :mode="mode" />
+        <LabelValue :name="t('node.detail.basic.hostIP')" :value="value.internalIp" />
       </div>
     </div>
+
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.status.nodeInfo.osImage" :label="t('node.detail.basic.os')" :mode="mode" />
+        <LabelValue :name="t('node.detail.basic.os')" :value="value.status.nodeInfo.osImage" />
       </div>
       <div class="col span-6">
-        <LabeledInput v-model="nodeType" :label="t('node.detail.basic.role')" :mode="mode" />
+        <div class="role">
+          <LabelValue :name="t('node.detail.basic.role')">
+            <template #value>
+              {{ nodeType }}
+              <span class="text-warning ml-20">
+                {{ t(`harvester.hostPage.promote.${nodeRoleState}`) }}
+              </span>
+            </template>
+          </LabelValue>
+        </div>
       </div>
     </div>
+
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.metadata.creationTimestamp" :label="t('node.detail.basic.create')" :mode="mode" />
+        <LabelValue :name="t('node.detail.basic.create')" :value="value.metadata.creationTimestamp" />
       </div>
       <div class="col span-6">
-        <LabeledInput v-model="lastUpdateTime" :label="t('node.detail.basic.update')" :mode="mode" />
+        <LabelValue :name="t('node.detail.basic.update')" :value="lastUpdateTime" />
       </div>
     </div>
-    <hr class="divider" />
+
+    <hr class="section-divider" />
     <h3>{{ t('harvester.vmPage.detail.tabs.monitor') }}</h3>
     <div class="row mb-20">
       <div class="col span-4">
@@ -180,26 +184,19 @@ export default {
         <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.storage')" :capacity="storageTotal" :used="storageUsage" :units="storageUnits" :number-formatter="memoryFormatter" />
       </div>
     </div>
-    <hr class="divider" />
+
+    <hr class="section-divider" />
     <h3>{{ t('node.detail.basic.more') }}</h3>
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.status.nodeInfo.systemUUID" :label="t('node.detail.more.uuid')" :mode="mode" />
+        <LabelValue :name="t('node.detail.more.uuid')" :value="value.status.nodeInfo.systemUUID" />
       </div>
     </div>
   </div>
 </template>
 
-<style lang="scss">
-.host-detail {
-  .consumption-gauge {
-    margin-top: 25px;
-    min-height: auto;
-
-    .consumption {
-      margin-bottom: 15px;
-    }
-  }
+<style lang="scss" scoped>
+.role {
+  display: flex;
 }
-
 </style>

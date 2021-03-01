@@ -1,6 +1,13 @@
 import Vue from 'vue';
 import { formatPercent } from '@/utils/string';
-import { NODE_ROLES, RKE, HOST_CUSTOM_NAME } from '@/config/labels-annotations.js';
+import {
+  NODE_ROLES,
+  RKE,
+  HOST_CUSTOM_NAME,
+  NODE_ROLE_MASTER,
+  NODE_ROLE_CONTROL_PLANE,
+  HARVESTER_PROMOTE_STATUS
+} from '@/config/labels-annotations.js';
 import { METRIC, POD, NODE } from '@/config/types';
 import { parseSi } from '@/utils/units';
 import { PRIVATE } from '@/plugins/steve/resource-proxy';
@@ -290,6 +297,23 @@ export default {
 
   runningPods() {
     return this.pods.filter(pod => pod.isRunning);
+  },
+
+  nodeRoleState() {
+    const isExistRoleStatus = this.getLabelValue(NODE_ROLE_MASTER) || this.getLabelValue(NODE_ROLE_CONTROL_PLANE);
+    const promoteStatus = this.getAnnotationValue(HARVESTER_PROMOTE_STATUS) || 'none';
+
+    if (!isExistRoleStatus && promoteStatus === 'complete') {
+      return 'promoteRestart';
+    } else if (isExistRoleStatus && promoteStatus === 'complete') {
+      return 'promoteSucceed';
+    }
+
+    return promoteStatus;
+  },
+
+  isMaster() {
+    return this.metadata?.labels?.[NODE_ROLE_MASTER] === 'true' || this.metadata?.labels?.[NODE_ROLE_CONTROL_PLANE] === 'true';
   }
 };
 
