@@ -28,8 +28,8 @@ export default {
       return getFileSize(this.value?.status?.downloadedBytes) || '-';
     },
 
-    downloadUrl() {
-      return this.value?.status?.downloadUrl || '-';
+    url() {
+      return this.value?.spec?.url || '-';
     },
 
     description() {
@@ -49,7 +49,12 @@ export default {
       <div class="row">
         <div class="col span-12">
           <div>{{ t('harvester.imagePage.url') }}</div>
-          <div><CopyToClipboardText v-model="value.spec.url" /></div>
+          <div v-if="url !== '-'">
+            <CopyToClipboardText :text="url" />
+          </div>
+          <div v-else>
+            {{ url }}
+          </div>
         </div>
       </div>
 
