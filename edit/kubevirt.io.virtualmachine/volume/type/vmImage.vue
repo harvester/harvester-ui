@@ -2,13 +2,14 @@
 import UnitInput from '@/components/form/UnitInput';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
+import InputOrDisplay from '@/components/InputOrDisplay';
 import { IMAGE } from '@/config/types';
 import { _CREATE, _EDIT } from '@/config/query-params';
 
 export default {
   name:       'VmImage',
   components: {
-    UnitInput, LabeledInput, LabeledSelect
+    UnitInput, LabeledInput, LabeledSelect, InputOrDisplay
   },
   props: {
     value: {
@@ -111,60 +112,72 @@ export default {
   <div @input="update">
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.name" :label="t('harvester.fields.name')" required :mode="mode" :disabled="isDisabled" />
+        <InputOrDisplay :name="t('harvester.fields.name')" :value="value.name" :mode="mode">
+          <LabeledInput v-model="value.name" :label="t('harvester.fields.name')" required :mode="mode" :disabled="isDisabled" />
+        </InputOrDisplay>
       </div>
 
       <div class="col span-6">
-        <LabeledSelect
-          v-model="value.type"
-          :label="t('harvester.fields.type')"
-          :options="typeOption"
-          :mode="mode"
-          :disabled="isDisabled"
-          @input="update"
-        />
+        <InputOrDisplay :name="t('harvester.fields.type')" :value="value.type" :mode="mode">
+          <LabeledSelect
+            v-model="value.type"
+            :label="t('harvester.fields.type')"
+            :options="typeOption"
+            :mode="mode"
+            :disabled="isDisabled"
+            @input="update"
+          />
+        </InputOrDisplay>
       </div>
     </div>
 
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledSelect
-          v-model="value.image"
-          :disabled="disabledImageVolume || isDisabled"
-          :label="t('harvester.fields.image')"
-          :options="imagesOption"
-          :mode="mode"
-          @input="update"
-        />
+        <InputOrDisplay :name="t('harvester.fields.image')" :value="value.image" :mode="mode">
+          <LabeledSelect
+            v-model="value.image"
+            :disabled="disabledImageVolume || isDisabled"
+            :label="t('harvester.fields.image')"
+            :options="imagesOption"
+            :mode="mode"
+            @input="update"
+          />
+        </InputOrDisplay>
       </div>
 
       <div class="col span-6">
-        <UnitInput v-model="value.size" :label="t('harvester.fields.size')" :mode="mode" suffix="GiB" :disabled="isDisabled" />
+        <InputOrDisplay :name="t('harvester.fields.size')" :value="value.size" :mode="mode">
+          <UnitInput v-model="value.size" :label="t('harvester.fields.size')" :mode="mode" suffix="GiB" :disabled="isDisabled" />
+        </InputOrDisplay>
       </div>
     </div>
 
     <div class="row mb-20">
       <div class="col span-3">
-        <LabeledSelect
-          v-model="value.bus"
-          :label="t('harvester.vmPage.volume.bus')"
-          :mode="mode"
-          :options="interfaceOption"
-          :disabled="isDisabled"
-          @input="update"
-        />
+        <InputOrDisplay :name="t('harvester.vmPage.volume.bus')" :value="value.bus" :mode="mode">
+          <LabeledSelect
+            v-model="value.bus"
+            :label="t('harvester.vmPage.volume.bus')"
+            :mode="mode"
+            :options="interfaceOption"
+            :disabled="isDisabled"
+            @input="update"
+          />
+        </InputOrDisplay>
       </div>
 
       <div class="col span-3">
-        <LabeledSelect
-          v-model="value.bootOrder"
-          :label="t('harvester.vmPage.volume.bootOrder')"
-          :mode="mode"
-          :disabled="isDisabled"
-          :searchable="false"
-          :options="bootOrderOption"
-          @input="update"
-        />
+        <InputOrDisplay :name="t('harvester.vmPage.volume.bootOrder')" :value="value.bootOrder" :mode="mode">
+          <LabeledSelect
+            v-model="value.bootOrder"
+            :label="t('harvester.vmPage.volume.bootOrder')"
+            :mode="mode"
+            :disabled="isDisabled"
+            :searchable="false"
+            :options="bootOrderOption"
+            @input="update"
+          />
+        </InputOrDisplay>
       </div>
 
       <!-- <div class="col span-6">

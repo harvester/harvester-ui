@@ -1,10 +1,11 @@
 <script>
 import { formatSi, parseSi } from '@/utils/units';
+import InputOrDisplay from '@/components/InputOrDisplay';
 import UnitInput from '@/components/form/UnitInput';
 
 export default {
   name:       'CpuMemory',
-  components: { UnitInput },
+  components: { UnitInput, InputOrDisplay },
 
   props:      {
     cpu: {
@@ -73,31 +74,35 @@ export default {
 <template>
   <div class="row" @input="change">
     <div class="col span-6">
-      <UnitInput
-        v-model="localCpu"
-        v-int-number
-        label="CPU"
-        suffix="C"
-        :increment="1"
-        :input-exponent="0"
-        required
-        :mode="mode"
-        class="mb-20"
-      />
+      <InputOrDisplay name="CPU" :value="localCpu" :mode="mode" class="mb-20">
+        <UnitInput
+          v-model="localCpu"
+          v-int-number
+          label="CPU"
+          suffix="C"
+          :increment="1"
+          :input-exponent="0"
+          required
+          :mode="mode"
+          class="mb-20"
+        />
+      </InputOrDisplay>
     </div>
 
     <div class="col span-6">
-      <UnitInput
-        v-model="localMemory"
-        v-int-number
-        :label="t('harvester.vmPage.input.memory')"
-        suffix="iB"
-        :mode="mode"
-        :input-exponent="3"
-        :output-exponent="3"
-        required
-        class="mb-20"
-      />
+      <InputOrDisplay :name="t('harvester.vmPage.input.memory')" :value="localMemory" :mode="mode" class="mb-20">
+        <UnitInput
+          v-model="localMemory"
+          v-int-number
+          :label="t('harvester.vmPage.input.memory')"
+          suffix="iB"
+          :mode="mode"
+          :input-exponent="3"
+          :output-exponent="3"
+          required
+          class="mb-20"
+        />
+      </InputOrDisplay>
     </div>
   </div>
 </template>

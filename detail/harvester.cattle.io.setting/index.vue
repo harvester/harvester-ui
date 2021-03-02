@@ -1,7 +1,7 @@
 <script>
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
-import LabeledInput from '@/components/form/LabeledInput';
+import LabelValue from '@/components/LabelValue';
 import NetworkSetting from './NetworkSetting';
 
 export default {
@@ -11,7 +11,7 @@ export default {
     Tab,
     Tabbed,
     NetworkSetting,
-    LabeledInput
+    LabelValue
   },
 
   props: {
@@ -46,22 +46,13 @@ export default {
       <Tab v-else name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
         <div class="row mb-20">
           <div class="col span-12">
-            <LabeledInput
-              v-model="value.default"
-              :label="t('generic.default')"
-              class="mb-20"
-              mode="view"
-            />
+            <LabelValue :name="t('generic.default')" :value="value.default" class="mb-20" />
           </div>
         </div>
 
         <div class="row">
           <div class="col span-12">
-            <LabeledInput
-              v-model="value.value"
-              :mode="mode"
-              :label="t('generic.value')"
-            />
+            <LabelValue :name="t('generic.value')" :value="value.value" class="mb-20" />
           </div>
         </div>
       </Tab>

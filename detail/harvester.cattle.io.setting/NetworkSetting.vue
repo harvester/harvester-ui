@@ -1,9 +1,10 @@
 <script>
 import Banner from '@/components/Banner';
+import LabelValue from '@/components/LabelValue';
 
 export default {
   name:       'Detail',
-  components: { Banner },
+  components: { Banner, LabelValue },
 
   props:      {
     value: {
@@ -40,25 +41,11 @@ export default {
   <div>
     <div class="row mb-15">
       <div class="col span-4">
-        <div class="labeled-input view">
-          <label>
-            {{ t('harvester.fields.type') }}
-          </label>
-          <div>
-            {{ type }}
-          </div>
-        </div>
+        <LabelValue :name="t('harvester.fields.type')" :value="type" />
       </div>
 
       <div class="col span-4">
-        <div class="labeled-input view">
-          <label>
-            {{ t('harvester.fields.PhysicalNic') }}
-          </label>
-          <div>
-            {{ parseDefaultValue.NIC }}
-          </div>
-        </div>
+        <LabelValue :name="t('harvester.fields.PhysicalNic')" :value="parseDefaultValue.NIC" />
       </div>
     </div>
 
