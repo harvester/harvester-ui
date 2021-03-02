@@ -1,5 +1,6 @@
 <script>
 import CopyToClipboardText from '@/components/CopyToClipboardText';
+import LabelValue from '@/components/LabelValue';
 import { getFileSize } from '@/utils/units';
 import { DESCRIPTION } from '@/config/labels-annotations';
 import Tabbed from '@/components/Tabbed';
@@ -9,7 +10,8 @@ export default {
   components: {
     CopyToClipboardText,
     Tab,
-    Tabbed
+    Tabbed,
+    LabelValue
   },
 
   props: {
@@ -48,27 +50,28 @@ export default {
     <Tab name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
       <div class="row">
         <div class="col span-12">
-          <div>{{ t('harvester.imagePage.url') }}</div>
-          <div v-if="url !== '-'">
-            <CopyToClipboardText :text="url" />
-          </div>
-          <div v-else>
-            {{ url }}
-          </div>
+          <LabelValue :name="t('harvester.imagePage.url')" :value="url" class="mb-20">
+            <template #value>
+              <div v-if="url !== '-'">
+                <CopyToClipboardText :text="url" />
+              </div>
+              <div v-else>
+                {{ url }}
+              </div>
+            </template>
+          </LabelValue>
         </div>
       </div>
 
       <div class="row">
         <div class="col span-12">
-          <div>{{ t('harvester.imagePage.size') }}</div>
-          <div>{{ formattedValue }}</div>
+          <LabelValue :name="t('harvester.imagePage.size')" :value="formattedValue" class="mb-20" />
         </div>
       </div>
 
       <div class="row">
         <div class="col span-12">
-          <div>{{ t('nameNsDescription.description.label') }}</div>
-          <div>{{ description }}</div>
+          <LabelValue :name="t('nameNsDescription.description.label')" :value="description" class="mb-20" />
         </div>
       </div>
 
@@ -85,18 +88,6 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-.row {
-  height: 54px;
-  margin-bottom: 10px;
-
-  .col {
-    div:first-child {
-      line-height: 30px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-  }
-}
 .error {
   color: var(--error);
 }

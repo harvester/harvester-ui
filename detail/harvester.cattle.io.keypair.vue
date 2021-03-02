@@ -1,5 +1,5 @@
 <script>
-import LabeledInput from '@/components/form/LabeledInput';
+import LabelValue from '@/components/LabelValue';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 
@@ -7,7 +7,7 @@ export default {
   name: 'ViewSSH',
 
   components: {
-    LabeledInput,
+    LabelValue,
     Tab,
     Tabbed
   },
@@ -38,14 +38,7 @@ export default {
     <Tab name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
       <div class="row">
         <div class="col span-12 keypair-card">
-          <LabeledInput
-            v-model="publicKey"
-            type="multiline"
-            mode="view"
-            :min-height="160"
-            label="SSH-Key"
-            required
-          />
+          <LabelValue name="SSH-Key" :value="publicKey" class="mb-20" />
         </div>
       </div>
     </Tab>

@@ -1,6 +1,8 @@
 <script>
 import IPAddress from '@/components/formatter/ipAddress';
 import ConsoleBar from '@/components/form/ConsoleBar';
+import LabelValue from '@/components/LabelValue';
+import InputOrDisplay from '@/components/InputOrDisplay';
 import { IMAGE } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 
@@ -12,6 +14,8 @@ export default {
   components: {
     ConsoleBar,
     IPAddress,
+    LabelValue,
+    InputOrDisplay
   },
 
   mixins: [CreateEditView],
@@ -133,83 +137,59 @@ export default {
   <div class="overview-basics">
     <div class="row">
       <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("harvester.vmPage.detail.details.name") }}
-          </label>
-          <div>
+        <LabelValue :name="t('harvester.vmPage.detail.details.name')" :value="name">
+          <template #value>
             <div class="smart-row">
               <div class="console">
                 {{ name }} <ConsoleBar :resource="value" class="cosoleBut" />
               </div>
             </div>
-          </div>
-        </div>
+          </template>
+        </LabelValue>
       </div>
 
       <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("harvester.fields.image") }}
-          </label>
-          <div>
-            {{ imageName }}
-          </div>
-        </div>
+        <LabelValue :name="t('harvester.fields.image')" :value="imageName" />
       </div>
     </div>
 
     <div class="row">
       <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("harvester.vmPage.detail.details.hostname") }}
-          </label>
-          <div v-if="!isDown">
-            {{ hostname || t("harvester.vmPage.detail.GuestAgentNotInstalled") }}
-          </div>
-          <div v-else>
-            {{ t("harvester.vmPage.detail.details.down") }}
-          </div>
-        </div>
+        <LabelValue :name="t('harvester.vmPage.detail.details.hostname')" :value="hostname">
+          <template #value>
+            <div v-if="!isDown">
+              {{ hostname || t("harvester.vmPage.detail.GuestAgentNotInstalled") }}
+            </div>
+            <div v-else>
+              {{ t("harvester.vmPage.detail.details.down") }}
+            </div>
+          </template>
+        </LabelValue>
       </div>
 
       <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("harvester.vmPage.detail.details.node") }}
-          </label>
-          <div v-if="!isDown">
-            <span>{{ node }}</span>
-          </div>
-          <div v-else>
-            {{ t("harvester.vmPage.detail.details.down") }}
-          </div>
-        </div>
+        <LabelValue :name="t('harvester.vmPage.detail.details.node')" :value="node">
+          <template #value>
+            <div v-if="!isDown">
+              {{ node }}
+            </div>
+            <div v-else>
+              {{ t("harvester.vmPage.detail.details.down") }}
+            </div>
+          </template>
+        </LabelValue>
       </div>
     </div>
 
     <div class="row">
       <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("harvester.vmPage.detail.details.ipAddress") }}
-          </label>
-          <div>
-            <IPAddress v-model="value.id" :row="value" />
-          </div>
-        </div>
+        <InputOrDisplay :name="t('harvester.vmPage.detail.details.ipAddress')" :value="value.id" :mode="mode">
+          <IPAddress v-model="value.id" :row="value" />
+        </InputOrDisplay>
       </div>
 
       <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("harvester.vmPage.detail.details.created") }}
-          </label>
-          <div>
-            {{ creationTimestamp }}
-          </div>
-        </div>
+        <LabelValue :name="t('harvester.vmPage.detail.details.created')" :value="creationTimestamp" />
       </div>
     </div>
 
@@ -219,25 +199,19 @@ export default {
 
     <div class="row">
       <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("harvester.vmPage.detail.details.bootOrder") }}
-          </label>
-          <div>
+        <InputOrDisplay :name="t('harvester.vmPage.detail.details.bootOrder')" :value="disks" :mode="mode">
+          <template #value>
             <ul>
               <li v-for="(disk) in disks" :key="disk.bootOrder">
                 {{ disk.bootOrder }}. {{ disk.name }} ({{ getDeviceType(disk) }})
               </li>
             </ul>
-          </div>
-        </div>
+          </template>
+        </InputOrDisplay>
       </div>
       <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("harvester.vmPage.detail.details.CDROMs") }}
-          </label>
-          <div>
+        <InputOrDisplay :name="t('harvester.vmPage.detail.details.CDROMs')" :value="cdroms" :mode="mode">
+          <template #value>
             <div>
               <ul v-if="cdroms.length > 0">
                 <li v-for="(rom) in cdroms" :key="rom.name">
@@ -248,51 +222,23 @@ export default {
                 {{ t("harvester.vmPage.detail.notAvailable") }}
               </span>
             </div>
-          </div>
-        </div>
+          </template>
+        </InputOrDisplay>
       </div>
     </div>
     <div class="row">
       <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("harvester.vmPage.detail.details.operatingSystem") }}
-          </label>
-          <div>
-            {{ operatingSystem || t("harvester.vmPage.detail.GuestAgentNotInstalled") }}
-          </div>
-        </div>
+        <LabelValue :name="t('harvester.vmPage.detail.details.operatingSystem')" :value="operatingSystem || t('harvester.vmPage.detail.GuestAgentNotInstalled')" />
       </div>
-      <div class="labeled-input view">
-        <label>
-          {{ t("harvester.vmPage.detail.details.flavor") }}
-        </label>
-        <div>
-          {{ flavor }}
-        </div>
-      </div>
+      <LabelValue :name="t('harvester.vmPage.detail.details.flavor')" :value="flavor" />
     </div>
     <div class="row">
       <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("harvester.vmPage.detail.details.timeZone") }}
-          </label>
-          <div>
-            {{ timeZone || t("harvester.vmPage.detail.GuestAgentNotInstalled") }}
-          </div>
-        </div>
+        <LabelValue :name="t('harvester.vmPage.detail.details.timeZone')" :value="timeZone || t('harvester.vmPage.detail.GuestAgentNotInstalled')" />
       </div>
 
       <div class="col span-6">
-        <div class="labeled-input view">
-          <label>
-            {{ t("harvester.vmPage.input.MachineType") }}
-          </label>
-          <div>
-            {{ machineType }}
-          </div>
-        </div>
+        <LabelValue :name="t('harvester.vmPage.input.MachineType')" :value="machineType" />
       </div>
     </div>
   </div>

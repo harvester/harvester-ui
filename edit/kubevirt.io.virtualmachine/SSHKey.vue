@@ -1,6 +1,7 @@
 <script>
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
+import InputOrDisplay from '@/components/InputOrDisplay';
 import Banner from '@/components/Banner';
 import Card from '@/components/Card';
 import { clone } from '@/utils/object';
@@ -12,7 +13,8 @@ export default {
     Card,
     Banner,
     LabeledInput,
-    LabeledSelect
+    LabeledSelect,
+    InputOrDisplay
   },
 
   props: {
@@ -157,16 +159,18 @@ export default {
   <div>
     <div>
       <div class="keyLisk">
-        <LabeledSelect
-          v-model="checkedSsh"
-          :label="t('harvester.vmPage.input.sshKey')"
-          :taggable="true"
-          :mode="mode"
-          :multiple="true"
-          :searchable="true"
-          :options="sshOption"
-          @input="update"
-        />
+        <InputOrDisplay :name="t('harvester.vmPage.input.sshKey')" :value="checkedSsh" :mode="mode" class="mb-20">
+          <LabeledSelect
+            v-model="checkedSsh"
+            :label="t('harvester.vmPage.input.sshKey')"
+            :taggable="true"
+            :mode="mode"
+            :multiple="true"
+            :searchable="true"
+            :options="sshOption"
+            @input="update"
+          />
+        </InputOrDisplay>
       </div>
 
       <span v-if="!isView" class="btn btn-sm bg-primary mt-20" @click="addSSH">

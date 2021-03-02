@@ -1,9 +1,10 @@
 <script>
 import LabeledSelect from '@/components/form/LabeledSelect';
+import InputOrDisplay from '@/components/InputOrDisplay';
 import { IMAGE } from '@/config/types';
 
 export default {
-  components: { LabeledSelect },
+  components: { LabeledSelect, InputOrDisplay },
 
   props: {
     value: {
@@ -63,15 +64,17 @@ export default {
 </script>
 
 <template>
-  <LabeledSelect
-    v-model="image"
-    :disabled="disabled"
-    :mode="mode"
-    :label="t('harvester.vmPage.input.image')"
-    :required="required"
-    :options="ImageOption"
-    :tooltip="tip"
-    :hover-tooltip="true"
-    @input="update"
-  />
+  <InputOrDisplay :name="t('harvester.vmPage.input.image')" :value="image" :mode="mode" class="mb-20">
+    <LabeledSelect
+      v-model="image"
+      :disabled="disabled"
+      :mode="mode"
+      :label="t('harvester.vmPage.input.image')"
+      :required="required"
+      :options="ImageOption"
+      :tooltip="tip"
+      :hover-tooltip="true"
+      @input="update"
+    />
+  </InputOrDisplay>
 </template>

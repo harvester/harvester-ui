@@ -2,13 +2,15 @@
 import { IMAGE } from '@/config/types';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
+import LabelValue from '@/components/LabelValue';
 
 export default {
   name: 'Overview',
 
   components: {
     Tab,
-    Tabbed
+    Tabbed,
+    LabelValue
   },
 
   props: {
@@ -78,36 +80,15 @@ export default {
     <Tab name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
       <div class="row mb-15">
         <div class="col span-4">
-          <div class="labeled-input view">
-            <label>
-              {{ t('harvester.volumePage.source') }}
-            </label>
-            <div>
-              {{ source }}
-            </div>
-          </div>
+          <LabelValue :name="t('harvester.volumePage.source')" :value="source" />
         </div>
 
         <div v-if="source !== 'blank'" class="col span-4">
-          <div class="labeled-input view">
-            <label>
-              {{ t('harvester.volumePage.image') }}
-            </label>
-            <div>
-              {{ image }}
-            </div>
-          </div>
+          <LabelValue :name="t('harvester.volumePage.image')" :value="image" />
         </div>
 
         <div class="col span-4">
-          <div class="labeled-input view">
-            <label>
-              {{ t('harvester.volumePage.size') }}
-            </label>
-            <div>
-              {{ storage }}
-            </div>
-          </div>
+          <LabelValue :name="t('harvester.volumePage.size')" :value="storage" />
         </div>
       </div>
     </Tab>

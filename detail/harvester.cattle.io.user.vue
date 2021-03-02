@@ -1,13 +1,15 @@
 <script>
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
+import LabelValue from '@/components/LabelValue';
 
 export default {
   name: 'Detail',
 
   components: {
     Tab,
-    Tabbed
+    Tabbed,
+    LabelValue
   },
 
   props: {
@@ -38,14 +40,7 @@ export default {
     <Tab name="basics" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
       <div class="row mb-15">
         <div class="col span-4">
-          <div class="labeled-input view">
-            <label>
-              {{ t('harvester.userPage.username') }}
-            </label>
-            <div>
-              {{ username }}
-            </div>
-          </div>
+          <LabelValue :name="t('harvester.userPage.username')" :value="username" class="mb-20" />
         </div>
       </div>
     </Tab>
