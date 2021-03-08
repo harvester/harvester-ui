@@ -120,12 +120,12 @@ export default {
         icon:       'icon icon-delete',
         label:      this.t('action.ejectCDROM'),
       },
-      // {
-      //   action:     'migrateVM',
-      //   enabled:    !!this.actions?.migrate,
-      //   icon:       'icons icon-h-migrate',
-      //   label:      'migrate',
-      // },
+      {
+        action:     'migrateVM',
+        enabled:    !!this.actions?.migrate,
+        icon:       'icons icon-h-migrate',
+        label:      'migrate',
+      },
       {
         action:     'abortMigrationVM',
         enabled:    !!this.actions?.abortMigration,
