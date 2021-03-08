@@ -157,7 +157,7 @@ export default {
         pvcNS:            'default',
         size:             '10Gi',
         type:             'disk',
-        accessMode:       'ReadWriteOnce',
+        accessMode:       'ReadWriteMany',
         volumeMode:       'Filesystem',
         volumeName:        '',
         bus:              'virtio',

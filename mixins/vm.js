@@ -226,7 +226,7 @@ export default {
         out.push({
           source:           SOURCE_TYPE.IMAGE,
           name:             'disk-0',
-          accessMode:       'ReadWriteOnce',
+          accessMode:       'ReadWriteMany',
           bus:              'virtio',
           pvcNS:            '',
           volumeName:       '',
@@ -284,7 +284,7 @@ export default {
               const dvResource = choices.find( O => O.metadata.name === volume?.dataVolume?.name);
 
               source = SOURCE_TYPE.ATTACH_VOLUME;
-              accessMode = dvResource?.spec?.pvc?.accessModes?.[0] || 'ReadWriteOnce';
+              accessMode = dvResource?.spec?.pvc?.accessModes?.[0] || 'ReadWriteMany';
               size = dvResource?.spec?.pvc?.resources?.requests?.storage || '10Gi';
               storageClassName = dvResource?.spec?.pvc?.storageClassName;
               volumeMode = dvResource?.spec?.pvc?.volumeMode || 'Filesystem';
