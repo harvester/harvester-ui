@@ -33,9 +33,27 @@ export default {
       bulkable:   true
     };
 
+    const enableMaintenance = {
+      action:     'enableMaintenanceMode',
+      enabled:    this.hasAction('enableMaintenanceMode'),
+      icon:       'icon icon-fw icon-play',
+      label:      'Enable Maintenance Mode',
+      total:      1
+    };
+
+    const disableMaintenance = {
+      action:     'disableMaintenanceMode',
+      enabled:    this.hasAction('disableMaintenanceMode'),
+      icon:       'icon icon-fw icon-play',
+      label:      'Disable Maintenance Mode',
+      total:      1
+    };
+
     return [
       cordon,
       uncordon,
+      enableMaintenance,
+      disableMaintenance,
       ...this._standardActions
     ];
   },
@@ -228,6 +246,14 @@ export default {
       Vue.set(this.spec, 'unschedulable', false);
       await this.save();
     };
+  },
+
+  enableMaintenanceMode() {
+    this.doAction('enableMaintenanceMode', {});
+  },
+
+  disableMaintenanceMode() {
+    this.doAction('disableMaintenanceMode', {});
   },
 
   state() {
