@@ -402,6 +402,8 @@ export default {
       this.parseNetworkRows(this.networkRows);
 
       this.parseDiskRows(this.diskRows);
+
+      this.supportMigration();
     },
 
     getImageSource(url) {
@@ -737,6 +739,10 @@ export default {
       } else {
         this.$set(this.spec.template, 'spec', spec);
       }
+    },
+
+    supportMigration() {
+      this.$set(this.spec.template.spec, 'evictionStrategy', 'LiveMigrate');
     },
 
     updateCloudConfig(userData, networkData) {
