@@ -42,7 +42,7 @@ export default {
         pvc: {
           resources:   { requests: { storage: '' } },
           volumeMode:  'Filesystem',
-          accessModes: ['ReadWriteOnce']
+          accessModes: ['ReadWriteMany']
         },
         source: { blank: true }
       };
