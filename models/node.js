@@ -36,7 +36,7 @@ export default {
     const enableMaintenance = {
       action:     'enableMaintenanceMode',
       enabled:    this.hasAction('enableMaintenanceMode'),
-      icon:       'icon icon-fw icon-play',
+      icon:       'icon icon-fw icon-unlock',
       label:      'Enable Maintenance Mode',
       total:      1
     };
@@ -44,7 +44,7 @@ export default {
     const disableMaintenance = {
       action:     'disableMaintenanceMode',
       enabled:    this.hasAction('disableMaintenanceMode'),
-      icon:       'icon icon-fw icon-play',
+      icon:       'icon icon-fw icon-lock',
       label:      'Disable Maintenance Mode',
       total:      1
     };
