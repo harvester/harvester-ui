@@ -138,6 +138,19 @@ export default {
       return this.isSingle ? this.t('harvester.vmPage.hostName.label') : this.t('harvester.vmPage.hostPrefixName.label');
     },
 
+    machineTypeOption() {
+      return [{
+        label: 'None',
+        value: ''
+      }, {
+        label: 'q35',
+        value: 'q35'
+      }, {
+        label: 'pc',
+        value: 'pc'
+      }];
+    },
+
     ...mapGetters({ t: 'i18n/t' })
   },
 
@@ -448,14 +461,15 @@ export default {
             </div>
 
             <div class="col span-6">
-              <LabeledInput v-model="MachineType" class="labeled-input--tooltip">
+              <!-- <LabeledInput v-model="MachineType" class="labeled-input--tooltip">
                 <template #label>
                   <label class="has-tooltip" :style="{'color':'var(--input-label)'}">
                     {{ t('harvester.vmPage.input.MachineType') }}
                     <i v-tooltip="t('harvester.vmPage.machineTypeTip')" class="icon icon-info" style="font-size: 14px" />
                   </label>
                 </template>
-              </LabeledInput>
+              </LabeledInput> -->
+              <LabeledSelect v-model="MachineType" :label="t('harvester.vmPage.input.MachineType')" :options="machineTypeOption" />
             </div>
           </div>
 
