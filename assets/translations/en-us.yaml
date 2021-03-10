@@ -3115,7 +3115,7 @@ harvester:
       failed: promote failed
       unknown: promote halted
       promoteRestart: restarting
-      promoteSucceed: promote complete
+      promoteSucceed: promote completed
   homePage:
     hardwareResourceGauge:
       cpu: CPU
