@@ -2,13 +2,14 @@
 import CreateEditView from '@/mixins/create-edit-view';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
+import Password from '@/components/form/Password';
 import Tip from '@/components/Tip';
 
 export default {
   name: 'BackupTarget',
 
   components: {
-    LabeledInput, LabeledSelect, Tip
+    LabeledInput, LabeledSelect, Tip, Password
   },
   mixins:     [CreateEditView],
   props:      {
@@ -64,7 +65,7 @@ export default {
     },
 
     endpointPlaceholder() {
-      return this.isS3 ? 'https://<your-bucket-name>@<your-aws-region>/mypath/' : 'nfs://server:/path/';
+      return this.isS3 ? '' : 'nfs://server:/path/';
     }
   },
 
@@ -106,7 +107,7 @@ export default {
           v-model="parseDefaultValue.bucketName"
           class="mb-20"
           :mode="mode"
-          label="bucketName"
+          label="BucketName"
           required
         />
 
@@ -114,7 +115,7 @@ export default {
           v-model="parseDefaultValue.bucketRegion"
           class="mb-20"
           :mode="mode"
-          label="bucketRegion"
+          label="BucketRegion"
           required
         />
 
@@ -127,11 +128,11 @@ export default {
           required
         />
 
-        <LabeledInput
+        <Password
           v-model="parseDefaultValue.secretAccessKey"
-          :placeholder="t('harvester.settingPage.placeholder.secretAccessKey')"
           class="mb-20"
           :mode="mode"
+          :placeholder="t('harvester.settingPage.placeholder.secretAccessKey')"
           label="SecretAccessKey"
           required
         />
@@ -143,7 +144,7 @@ export default {
           :placeholder="t('harvester.settingPage.placeholder.cert')"
           :mode="mode"
           :min-height="120"
-          label="certificate"
+          label="Certificate"
         />
 
         <LabeledSelect v-model="parseDefaultValue.virtualHostedStyle" class="mb-20" label="VirtualHostedStyle" :options="virtualHostedStyleType" @input="update" />

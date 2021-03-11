@@ -25,6 +25,10 @@ export default {
     autocomplete: {
       type:      String,
       default:   ''
+    },
+    placeholder: {
+      type:      String,
+      default:   ''
     }
   },
   data() {
@@ -78,6 +82,7 @@ export default {
       :type="isRandom || reveal ? 'text' : 'password'"
       :readonly="isRandom"
       :label="label"
+      :placeholder="placeholder"
       :required="!isRandom"
       :disabled="isRandom"
       @blur="$emit('blur', $event)"
