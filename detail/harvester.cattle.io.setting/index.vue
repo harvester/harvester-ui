@@ -2,7 +2,7 @@
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import LabelValue from '@/components/LabelValue';
-import NetworkSetting from './NetworkSetting';
+import BackupTargetSetting from './BackupTargetSetting';
 
 export default {
   name: 'Detail',
@@ -10,7 +10,7 @@ export default {
   components: {
     Tab,
     Tabbed,
-    NetworkSetting,
+    BackupTargetSetting,
     LabelValue
   },
 
@@ -30,8 +30,8 @@ export default {
   },
 
   computed: {
-    isNetworkSetting() {
-      return this.value.metadata.name === 'network-setting';
+    isBackupTargetSetting() {
+      return this.value.metadata.name === 'backup-target';
     }
   },
 };
@@ -40,8 +40,8 @@ export default {
 <template>
   <div>
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-      <Tab v-if="isNetworkSetting" name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
-        <NetworkSetting v-model="value" />
+      <Tab v-if="isBackupTargetSetting" name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
+        <BackupTargetSetting v-model="value" />
       </Tab>
       <Tab v-else name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
         <div class="row mb-20">
@@ -59,7 +59,3 @@ export default {
     </Tabbed>
   </div>
 </template>
-
-<style lang="scss">
-
-</style>
