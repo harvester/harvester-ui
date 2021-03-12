@@ -5,7 +5,8 @@ import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
-import { HARVESTER_BACKUP, HARVESTER_RESTORE, VM, LONGHORN_SETTING } from '@/config/types';
+import { exceptionToErrorsArray } from '@/utils/error';
+import { HARVESTER_BACKUP, HARVESTER_RESTORE, VM } from '@/config/types';
 
 const createObject = {
   apiVersion: 'harvester.cattle.io/v1alpha1',
@@ -39,7 +40,6 @@ export default {
     await allHash({
       backups:         this.$store.dispatch('cluster/findAll', { type: HARVESTER_BACKUP }),
       vms:             this.$store.dispatch('cluster/findAll', { type: VM }),
-      longhornSetting: this.$store.dispatch('cluster/findAll', { type: LONGHORN_SETTING })
     });
   },
 
@@ -138,7 +138,7 @@ export default {
           params: { resource: VM }
         });
       } catch (err) {
-        this.errors = err;
+        this.errors = exceptionToErrorsArray(err) || err;
         buttonCb(false);
       }
     },

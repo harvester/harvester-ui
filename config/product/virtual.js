@@ -94,7 +94,7 @@ export function init(store) {
   basicType([
     TEMPLATE,
     NETWORK_ATTACHMENT,
-    // HARVESTER_BACKUP,
+    HARVESTER_BACKUP,
     SSH,
     HARVESTER_USER,
     HARVESTER_SETTING

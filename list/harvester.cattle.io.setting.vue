@@ -24,7 +24,7 @@ export default {
   },
   data() {
     return {
-      headers:                [NAME, { ...SETTING_VALUE, formatter: 'settingMessage' }],
+      headers:                [{ ...NAME, width: 200 }, { ...SETTING_VALUE, formatter: 'settingMessage' }],
       haversterSettings:      [],
       clusterNetworkSettings: []
     };
