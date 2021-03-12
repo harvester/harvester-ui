@@ -20,7 +20,7 @@ export const plugins = [
   Steve({ namespace: 'clusterExternal', baseUrl: '' }), // project scoped cluster stuff, url set later
   Steve({ namespace: 'management', baseUrl: '/v1' }),
   Steve({ namespace: 'cluster', baseUrl: '' }), // url set later
-  Steve({ namespace: 'rancher', baseUrl: '/v3' }),
+  // Steve({ namespace: 'rancher', baseUrl: '/v3' }),
 ];
 
 export const state = () => {
