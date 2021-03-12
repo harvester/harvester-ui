@@ -406,7 +406,7 @@ export default {
 
   actualState() {
     if (!this.restoreState()) {
-      return 'Restore';
+      return 'Restoring';
     }
 
     const state =
