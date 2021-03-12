@@ -1,6 +1,6 @@
 <script>
 import { allHash } from '@/utils/promise';
-import { LONGHORN_SETTING } from '@/config/types';
+import { HARVESTER_SETTING } from '@/config/types';
 
 export default {
   props: {
@@ -11,21 +11,21 @@ export default {
   },
 
   async fetch() {
-    const hash = await allHash({ longhornSettings: this.$store.dispatch('cluster/findAll', { type: LONGHORN_SETTING }) });
+    const hash = await allHash({ harvesterSettings: this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }) });
 
-    this.longhornSettings = hash.longhornSettings;
+    this.harvesterSettings = hash.harvesterSettings;
   },
 
   data() {
-    return { longhornSettings: [] };
+    return { harvesterSettings: [] };
   },
 
   computed: {
     isMatch() {
-      const longhornSettings = this.$store.getters['cluster/all'](LONGHORN_SETTING) || [];
-      const resource = longhornSettings.find( V => V.id === 'longhorn-system/backup-target');
+      const harvesterSettings = this.$store.getters['cluster/all'](HARVESTER_SETTING) || [];
+      const resource = harvesterSettings.find( V => V.id === 'backup-target');
 
-      return this.value === resource?.value;
+      return this.value === resource?.parseValue?.endpoint;
     }
   }
 };
