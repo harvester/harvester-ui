@@ -1,4 +1,4 @@
-import { HARVESTER_BACKUP, LONGHORN_SETTING, VM } from '@/config/types';
+import { HARVESTER_BACKUP, HARVESTER_SETTING, VM } from '@/config/types';
 import { HARVESTER_BACKUP_TARGET } from '@/config/labels-annotations';
 import { colorForState } from '@/plugins/steve/resource-instance';
 
@@ -86,10 +86,10 @@ export default {
   },
 
   isMatchWithCurrentBakcupTarget() {
-    const allLongornSetting = this.$rootGetters['cluster/all'](LONGHORN_SETTING);
-    const backupTargetResource = allLongornSetting.find( O => O.id === 'longhorn-system/backup-target');
+    const allSetting = this.$rootGetters['cluster/all'](HARVESTER_SETTING);
+    const backupTargetResource = allSetting.find( O => O.id === 'backup-target');
 
-    return this.backupTarget === backupTargetResource?.value;
+    return this.backupTarget === backupTargetResource?.parseValue?.endpoint;
   },
 
   attachVmExisting() {
