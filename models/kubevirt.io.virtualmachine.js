@@ -498,6 +498,10 @@ export default {
     };
   },
 
+  restoreName() {
+    return this.getAnnotationValue(HARVESTER_RESTORE_NAME);
+  },
+
   actuallyBeforeSave() {
     return () => {
       Vue.delete(this, 'type');

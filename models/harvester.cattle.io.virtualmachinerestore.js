@@ -3,6 +3,13 @@ export default {
     return this?.status?.complete || false;
   },
 
+  engineList() {
+    const restores = this?.status?.restores || [];
+    const out = restores.map( O => O?.persistentVolumeClaimSpec?.spec?.volumeName);
+
+    return out;
+  },
+
   customValidationRules() {
     const isNew = this.spec?.newVM;
 

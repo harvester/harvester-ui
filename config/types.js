@@ -246,3 +246,6 @@ export const HARVESTER_RESTORE = 'harvester.cattle.io.virtualmachinerestore';
 export const HARVESTER_BACKUP_CONTENT = 'harvester.cattle.io.virtualmachinebackupcontent';
 export const HARVESTER_NODE_NETWORK = 'network.harvester.cattle.io.nodenetwork';
 export const HARVESTER_CLUSTER_NETWORK = 'network.harvester.cattle.io.clusternetwork';
+
+// longhorn
+export const LONGHORN_IO_ENGINE = 'longhorn.io.engine';

@@ -35,13 +35,6 @@ export default {
       defaultPhysicalNic: ''
     };
   },
-  watch: {
-    // 'value'(neu) {
-    //   if (!neu) {
-    //     delete this.value.value;
-    //   }
-    // },
-  },
 
   created() {
     this.registerBeforeHook(() => {

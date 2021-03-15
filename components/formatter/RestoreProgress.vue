@@ -41,7 +41,7 @@ export default {
       AttachEngines.map( (E) => {
         out += E.restoreProgress;
       });
-      console.log('---out', out, this.vm.actualState);
+      // console.log('---out', out, this.vm.actualState);
 
       return out;
     },
