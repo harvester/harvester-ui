@@ -8,7 +8,6 @@ export default {
         out = restoreStatus[key]?.progress;
       }
     }
-    console.log('----model out', out);
 
     return out;
   }
