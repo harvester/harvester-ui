@@ -68,7 +68,7 @@ export default {
       return choices.filter( (T) => {
         const hasVM = this.restoreNewVm || T.attachVmExisting;
 
-        return T.isMatchWithCurrentBakcupTarget && hasVM;
+        return T.isMatchWithCurrentBakcupTarget && hasVM && T?.status?.readyToUse;
       }).map( (T) => {
         return {
           label: T.metadata.name,
