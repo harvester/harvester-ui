@@ -12,6 +12,6 @@ export default {
   },
 
   attachNodeName() {
-    return this.getLabelValue('nodename');
+    return this.getLabelValue('network.harvester.cattle.io/nodename');
   }
 };
