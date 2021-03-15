@@ -5,6 +5,7 @@ import { addPrefix, addParam } from '@/utils/url';
 import { createYaml } from '@/utils/create-yaml';
 import { SPOOFED_API_PREFIX, SPOOFED_PREFIX } from '@/store/type-map';
 
+import Notification from '@/components/Notification/main.js';
 import { normalizeType } from './normalize';
 import { proxyFor, SELF } from './resource-proxy';
 
@@ -365,7 +366,13 @@ export default {
     opt.method = 'post';
     opt.data = body;
 
-    const res = await dispatch('request', opt);
+    let res = {};
+
+    try {
+      res = await dispatch('request', opt);
+    } catch (e) {
+      Notification.error(e.message);
+    }
 
     if ( opt.load !== false && res.type === 'collection' ) {
       await dispatch('loadMulti', res.data);

@@ -176,6 +176,8 @@ export default {
 
     &__group {
       flex: 1;
+      display: flex;
+      align-items: center;
     }
 
     &__title {
