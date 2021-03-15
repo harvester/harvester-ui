@@ -36,6 +36,7 @@ generic:
   unknown: Unknown
   key: Key
   value: Value
+  unknownErrorTip: An error occurred! Please try again.
 
 locale:
   en-us: English
