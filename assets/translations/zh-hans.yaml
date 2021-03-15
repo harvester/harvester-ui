@@ -35,6 +35,7 @@ generic:
   unknown: 未知
   key: 键
   value: 值
+  unknownErrorTip: 发生了未知错误, 请重试!
 
 locale:
   en-us: English

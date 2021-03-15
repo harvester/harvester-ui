@@ -354,7 +354,7 @@ export default {
     commit('action-menu/toggleEjectCDROM', resources, { root: true });
   },
 
-  async resourceAction({ getters, dispatch }, {
+  async resourceAction({ getters, rootGetters, dispatch }, {
     resource, actionName, body, opt,
   }) {
     opt = opt || {};
@@ -371,7 +371,16 @@ export default {
     try {
       res = await dispatch('request', opt);
     } catch (e) {
-      Notification.error(e.message);
+      const t = rootGetters['i18n/t'];
+      let message = t('generic.unknownErrorTip');
+
+      if (e && e.data) {
+        message = e.data;
+      } else if (e && e.message) {
+        message = e.message;
+      }
+
+      Notification.error(message);
     }
 
     if ( opt.load !== false && res.type === 'collection' ) {
