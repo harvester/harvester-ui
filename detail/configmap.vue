@@ -1,13 +1,16 @@
 <script>
-import ResourceTabs from '@/components/form/ResourceTabs';
 import DetailText from '@/components/DetailText';
+import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
+import LabelValue from '@/components/LabelValue';
+import { HARVESTER_CLOUD_INIT_NETWORK } from '@/config/labels-annotations';
 
 export default {
   components: {
-    ResourceTabs,
     DetailText,
+    Tabbed,
     Tab,
+    LabelValue,
   },
 
   props: {
@@ -20,41 +23,39 @@ export default {
   },
 
   computed:   {
-    parsedRows() {
-      const rows = [];
-      const { data = {}, binaryData = {} } = this.value;
+    type() {
+      let out = 'User Data';
 
-      Object.keys(data).forEach((key) => {
-        rows.push({
-          key,
-          value:  data[key],
-          binary: false,
-        });
-      });
+      if (!!this.value.metadata?.labels?.[HARVESTER_CLOUD_INIT_NETWORK]) {
+        out = 'Netwrok Data';
+      }
 
-      Object.keys(binaryData).forEach((key) => {
-        rows.push({
-          key,
-          value:  binaryData[key],
-          binary: true,
-        });
-      });
+      return out;
+    },
 
-      return rows;
+    template() {
+      const { data = {} } = this.value;
+      const key = 'cloudInit';
+
+      return {
+        key,
+        value:  data[key],
+        binary: false
+      };
     },
   },
 };
 </script>
 
 <template>
-  <ResourceTabs v-model="value">
-    <Tab name="data" label-key="secret.data">
-      <div v-for="(row,idx) in parsedRows" :key="idx" class="mb-20">
-        <DetailText :value="row.value" :label="row.key" :binary="row.binary" />
+  <Tabbed :side-tabs="true">
+    <Tab name="basics" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="2">
+      <div class="mb-20">
+        <LabelValue :name="t('harvester.cloudInitPage.templateType')" :value="type" />
       </div>
-      <div v-if="!parsedRows.length">
-        <div v-t="'sortableTable.noRows'" class="m-20 text-center" />
+      <div class="resource-yaml">
+        <DetailText :value="template.value" :label="template.key" :binary="template.binary" />
       </div>
     </Tab>
-  </ResourceTabs>
+  </Tabbed>
 </template>

@@ -2304,6 +2304,7 @@ typeLabel:
   kubevirt.io.virtualmachine: 虚拟机
   harvester.cattle.io.virtualmachineimage: 镜像
   harvester.cattle.io.keypair: SSH 密钥
+  configmap: Cloud Init 模板
   harvester.cattle.io.virtualmachinetemplateversion: 虚拟机模板
   k8s.cni.cncf.io.networkattachmentdefinition: 网络
   cdi.kubevirt.io.datavolume: 卷
@@ -2613,6 +2614,9 @@ harvester:
       title: 网络
     cloudConfig:
       title: Cloud配置
+      cloudInit:
+        label: Cloud Init
+        placeholder: 请选择...
       userData:
         title: "User Data:"
         tip: '您可以指定Cloud-init相关的用户数据以在启动期间配置实例或运行配置脚本。 如果一次启动多个实例，则该配置会对所有实例生效。<a href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html" target="_blank"> 查看更多 </a>'
@@ -2764,6 +2768,8 @@ harvester:
       accessKeyId: 指定您的访问密钥ID
       secretAccessKey: 指定您的私密访问密钥
       cert: 上传自签名SSL证书
+  cloudInitPage:
+    templateType: 模板类型
   loginPage:
     howdy: 您好!
     welcome: 欢迎使用 Harvester
