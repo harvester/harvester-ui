@@ -1,9 +1,13 @@
 <script>
+import { mapGetters } from 'vuex';
 import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
 import { _CREATE, _EDIT } from '@/config/query-params';
+import { CONFIG_MAP } from '@/config/types';
+import LabeledSelect from '@/components/form/LabeledSelect';
+import { HARVESTER_CLOUD_INIT_USER, HARVESTER_CLOUD_INIT_NETWORK } from '@/config/labels-annotations';
 
 export default {
-  components: { YamlEditor },
+  components: { YamlEditor, LabeledSelect },
 
   props: {
     userScript: {
@@ -20,10 +24,17 @@ export default {
     }
   },
 
+  async fetch() {
+    this.configmaps = await this.$store.dispatch('cluster/findAll', { type: CONFIG_MAP });
+  },
+
   data() {
     return {
-      userData:    this.userScript,
-      networkData: this.networkScript
+      userData:         this.userScript,
+      networkData:      this.networkScript,
+      cloudInitUser:    '',
+      cloudInitNetwork: '',
+      configmaps:       []
     };
   },
 
@@ -36,7 +47,47 @@ export default {
     },
     isEdit() {
       return this.mode === _EDIT;
-    }
+    },
+    cloudInitConfigs() {
+      const out = {
+        user:    [],
+        network: []
+      };
+
+      for (const m of this.configmaps) {
+        const isUser = !!m.metadata?.labels?.[HARVESTER_CLOUD_INIT_USER];
+        const isNetwork = !!m.metadata?.labels?.[HARVESTER_CLOUD_INIT_NETWORK];
+        let item;
+
+        if (isUser || isNetwork) {
+          item = {
+            label: m.metadata?.name,
+            value: m.data.cloudInit
+          };
+        }
+
+        if (isUser) {
+          out.user.push(item);
+        }
+
+        if (isNetwork) {
+          out.network.push(item);
+        }
+      }
+
+      out.user.unshift({
+        label: this.t('harvester.vmPage.cloudConfig.cloudInit.placeholder'),
+        value: ''
+      });
+
+      out.network.unshift({
+        label: this.t('harvester.vmPage.cloudConfig.cloudInit.placeholder'),
+        value: ''
+      });
+
+      return out;
+    },
+    ...mapGetters({ t: 'i18n/t' })
   },
 
   watch: {
@@ -45,7 +96,26 @@ export default {
     },
     networkData(neu) {
       this.networkData = neu;
-    }
+    },
+    cloudInitUser(neu) {
+      if (!neu) {
+        this.userData = '';
+
+        return;
+      }
+
+      this.userData = neu;
+    },
+
+    cloudInitNetwork(neu) {
+      if (!neu) {
+        this.networkData = '';
+
+        return;
+      }
+
+      this.networkData = neu;
+    },
   },
 
   methods: {
@@ -120,6 +190,13 @@ export default {
       <h5>
         <t k="harvester.vmPage.cloudConfig.userData.tip" :raw="true" />
       </h5>
+
+      <div class="row mb-20">
+        <div class="col span-3">
+          <LabeledSelect v-model="cloudInitUser" :label="t('harvester.vmPage.cloudConfig.cloudInit.label')" :options="cloudInitConfigs.user" />
+        </div>
+      </div>
+
       <div class="resource-yaml">
         <YamlEditor
           ref="yamlUser"
@@ -136,6 +213,12 @@ export default {
       <h5>
         <t k="harvester.vmPage.cloudConfig.networkData.tip" :raw="true" />
       </h5>
+
+      <div class="row mb-20">
+        <div class="col span-3">
+          <LabeledSelect v-model="cloudInitNetwork" :label="t('harvester.vmPage.cloudConfig.cloudInit.label')" :options="cloudInitConfigs.network" />
+        </div>
+      </div>
 
       <div class="resource-yaml">
         <YamlEditor

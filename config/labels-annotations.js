@@ -124,6 +124,9 @@ export const HARVESTER_MAINTENANCE_STATUS = 'harvester.cattle.io/maintain-status
 export const HARVESTER_BACKUP_TARGET = 'backup.harvester.cattle.io/backupTarget';
 
 // migration
-
 export const HARVESTER_MIGRATION_STATE = 'harvester.cattle.io/migrationState';
 export const HARVESTER_MIGRATION_TARGET = 'harvester.cattle.io/migrationTargetNodeName';
+
+// cloud-init
+export const HARVESTER_CLOUD_INIT_USER = 'harvester.cattle.io/cloud-init-user';
+export const HARVESTER_CLOUD_INIT_NETWORK = 'harvester.cattle.io/cloud-init-network';

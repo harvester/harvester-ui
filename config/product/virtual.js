@@ -1,5 +1,5 @@
 import {
-  IMAGE, VM, SSH, VM_TEMPLATE, DATA_VOLUME, NODE,
+  IMAGE, VM, SSH, CONFIG_MAP, VM_TEMPLATE, DATA_VOLUME, NODE,
   HARVESTER_SETTING, NETWORK_ATTACHMENT, HARVESTER_BACKUP, HARVESTER_CLUSTER_NETWORK, HARVESTER_USER, MANAGEMENT
 } from '@/config/types';
 import { DSL } from '@/store/type-map';
@@ -99,6 +99,7 @@ export function init(store) {
     NETWORK_ATTACHMENT,
     HARVESTER_BACKUP,
     SSH,
+    CONFIG_MAP,
     HARVESTER_USER,
     HARVESTER_SETTING
   ], 'advanced');
@@ -159,6 +160,19 @@ export function init(store) {
     route:      {
       name:     'c-cluster-product-resource',
       params:   { resource: SSH }
+    },
+    exact: false,
+  });
+
+  virtualType({
+    label:      'Cloud Init Templates',
+    group:      'root',
+    namespaced: true,
+    name:       CONFIG_MAP,
+    weight:     150,
+    route:      {
+      name:     'c-cluster-product-resource',
+      params:   { resource: CONFIG_MAP }
     },
     exact: false,
   });

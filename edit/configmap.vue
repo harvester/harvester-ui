@@ -2,12 +2,11 @@
 import CreateEditView from '@/mixins/create-edit-view';
 import CruResource from '@/components/CruResource';
 import NameNsDescription from '@/components/form/NameNsDescription';
-import KeyValue from '@/components/form/KeyValue';
-import Labels from '@/components/form/Labels';
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
-import { asciiLike } from '@/utils/string';
-import { base64Encode, base64Decode } from '@/utils/crypto';
+import LabeledSelect from '@/components/form/LabeledSelect';
+import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
+import { HARVESTER_CLOUD_INIT_USER, HARVESTER_CLOUD_INIT_NETWORK } from '@/config/labels-annotations';
 
 export default {
   name: 'CruConfigMap',
@@ -15,46 +14,128 @@ export default {
   components: {
     CruResource,
     NameNsDescription,
-    KeyValue,
-    Labels,
     Tab,
     Tabbed,
+    LabeledSelect,
+    YamlEditor
   },
 
   mixins: [CreateEditView],
+
   data() {
-    const { binaryData = {}, data = {} } = this.value;
+    let type = 'user';
+    const isNetwork = !!this.value?.metadata?.labels?.[HARVESTER_CLOUD_INIT_NETWORK];
 
-    const decodedBinaryData = {};
+    if (isNetwork) {
+      type = 'network';
+    }
 
-    Object.keys(binaryData).forEach((key) => {
-      decodedBinaryData[key] = base64Decode(binaryData[key]);
-    });
-
-    return { allData: { ...decodedBinaryData, ...data } };
+    return {
+      config: this.value.data?.cloudInit || '',
+      type
+    };
   },
 
-  watch: {
-    allData(neu, old) {
-      this.$set(this.value, 'data', {});
-      this.$set(this.value, 'binaryData', {});
+  computed: {
+    editorMode() {
+      return (this.isCreate || this.isEdit) ? EDITOR_MODES.EDIT_CODE : EDITOR_MODES.VIEW_CODE;
+    },
 
-      Object.keys(neu).forEach((key) => {
-        if (this.isBinary(neu[key])) {
-          const encoded = base64Encode(neu[key]);
-
-          this.$set(this.value.binaryData, key, encoded);
-        } else {
-          this.$set(this.value.data, key, neu[key]);
+    types() {
+      return [
+        {
+          label: 'User Data',
+          value: 'user'
+        },
+        {
+          label: 'Network Data',
+          value: 'network'
         }
-      });
-    }
+      ];
+    },
+
   },
 
   methods: {
-    isBinary(value) {
-      return typeof value === 'string' && !asciiLike(value);
-    }
+    async saveConfig(buttonCb) {
+      if (this.isCreate) {
+        this.setTypeFlag();
+      }
+
+      await this.save(buttonCb);
+    },
+
+    update() {
+      this.value.data = { cloudInit: this.config };
+    },
+
+    setTypeFlag() {
+      let flag;
+
+      if (this.type === 'user') {
+        flag = { [HARVESTER_CLOUD_INIT_USER]: 'true' };
+      } else {
+        flag = { [HARVESTER_CLOUD_INIT_NETWORK]: 'true' };
+      }
+
+      this.value.metadata.labels = {
+        ...this.value.metadata.labels,
+        ...flag
+      };
+    },
+
+    onChanges(cm, changes) {
+      this.update();
+      if ( changes.length !== 1 ) {
+        return;
+      }
+
+      const change = changes[0];
+
+      if ( change.from.line !== change.to.line ) {
+        return;
+      }
+
+      let line = change.from.line;
+      let str = cm.getLine(line);
+      let maxIndent = indentChars(str);
+
+      if ( maxIndent === null ) {
+        return;
+      }
+
+      cm.replaceRange('', { line, ch: 0 }, { line, ch: 1 }, '+input');
+
+      while ( line > 0 ) {
+        line--;
+        str = cm.getLine(line);
+        const indent = indentChars(str);
+
+        if ( indent === null ) {
+          break;
+        }
+
+        if ( indent < maxIndent ) {
+          cm.replaceRange('', { line, ch: 0 }, { line, ch: 1 }, '+input');
+
+          if ( indent === 0 ) {
+            break;
+          }
+
+          maxIndent = indent;
+        }
+      }
+
+      function indentChars(str) {
+        const match = str.match(/^#(\s+)/);
+
+        if ( match ) {
+          return match[1].length;
+        }
+
+        return null;
+      }
+    },
   }
 };
 </script>
@@ -64,43 +145,38 @@ export default {
     :done-route="doneRoute"
     :mode="mode"
     :resource="value"
-    :subtypes="[]"
-    :validation-passed="true"
+    :can-yaml="false"
     :errors="errors"
-    @error="e=>errors = e"
-    @finish="save"
+    @finish="saveConfig"
     @cancel="done"
   >
     <NameNsDescription
       :value="value"
       :mode="mode"
+      :namespaced="false"
       :register-before-hook="registerBeforeHook"
     />
 
     <Tabbed :side-tabs="true">
-      <Tab name="data" :label="t('configmap.tabs.data.label')" :weight="2">
-        <KeyValue
-          key="data"
-          v-model="allData"
-          :mode="mode"
-          :protip="t('configmap.tabs.data.protip')"
-          :initial-empty-row="true"
-          :value-can-be-empty="true"
-          :read-multiple="true"
-          :read-accept="'*'"
-        />
-      </Tab>
-      <Tab
-        name="labels-and-annotations"
-        :label="t('generic.labelsAndAnnotations')"
-        :weight="-1"
-      >
-        <Labels
-          default-container-class="labels-and-annotations-container"
-          :value="value"
-          :mode="mode"
-          :display-side-by-side="false"
-        />
+      <Tab name="basics" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="2">
+        <div class="mb-20">
+          <LabeledSelect
+            v-model="type"
+            :label="t('harvester.cloudInitPage.templateType')"
+            :disabled="!isCreate"
+            :localized-label="true"
+            :options="types"
+          />
+        </div>
+        <div class="resource-yaml">
+          <YamlEditor
+            ref="yamlUser"
+            v-model="config"
+            class="yaml-editor"
+            :editor-mode="editorMode"
+            @onChanges="onChanges"
+          />
+        </div>
       </Tab>
     </Tabbed>
   </CruResource>
