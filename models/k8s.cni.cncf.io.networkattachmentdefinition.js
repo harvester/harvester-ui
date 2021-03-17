@@ -1,3 +1,5 @@
+import { HARVESTER_CLUSTER_NETWORK } from '@/config/types';
+
 export default {
   _availableActions() {
     const out = this._standardActions;
@@ -15,5 +17,11 @@ export default {
     }
 
     return config?.ipam?.type === 'static';
+  },
+
+  state() {
+    const clusterNetwork = this.$rootGetters['cluster/all'](HARVESTER_CLUSTER_NETWORK)[0] || {};
+
+    return (clusterNetwork?.defaultPhysicalNic && clusterNetwork.enable) ? 'active' : 'inactive';
   }
 };
