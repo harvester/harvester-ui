@@ -20,27 +20,27 @@ export default {
   },
 
   async fetch() {
-    let out = [];
     const store = this.$store;
     const isRancher = await store.dispatch('auth/getIsRancher');
 
     if (!isRancher) {
-      const harvesterUsers = await store.dispatch('management/findAll', { type: HARVESTER_USER });
-
-      out = harvesterUsers;
+      this.harvesterUsers = await store.dispatch('cluster/findAll', { type: HARVESTER_USER });
     } else {
-      const v3UsersPromise = store.dispatch('management/findAll', { type: NORMAN.USER, opt: { url: '/v3/users' } });
-      const managementUsersPromise = store.dispatch('management/findAll', { type: MANAGEMENT.USER });
+      const v3UsersPromise = store.dispatch('rancher/findAll', { type: NORMAN.USER, opt: { url: `/v3/${ NORMAN.USER }s` } });
+      const managementUsersPromise = store.dispatch('management/findAll', { type: MANAGEMENT.USER, opt: { url: `/v1/${ MANAGEMENT.USER }s` } });
       const [v3Users, managementUsers] = await Promise.all([v3UsersPromise, managementUsersPromise]);
 
-      out = managementUsers.filter(mu => v3Users.find(vu => mu.id === vu.id));
+      this.v3Users = v3Users;
+      this.managementUsers = managementUsers;
     }
-
-    this.rows = out;
   },
 
   data() {
-    return { rows: [] };
+    return {
+      harvesterUsers:  [],
+      v3Users:         [],
+      managementUsers: []
+    };
   },
 
   computed: {
@@ -54,6 +54,16 @@ export default {
         AGE
       ];
     },
+
+    rows() {
+      const isRancher = this.$store.dispatch('auth/getIsRancher');
+
+      if (isRancher) {
+        return this.managementUsers.filter(mu => this.v3Users.find(vu => mu.id === vu.id));
+      } else {
+        return this.harvesterUsers;
+      }
+    }
   },
 };
 </script>

@@ -69,7 +69,7 @@ export default function({
     response => response,
     (error) => {
       if (error.response && error.response.status === 401) {
-        if (error.response.config.url.includes('auth?action=login')) {
+        if (error.response.config.url.includes('auth?action=login') || error.response.config.url.includes('local?action=login')) {
           return Promise.reject(error.response);
         }
 

@@ -4,7 +4,7 @@ import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import LabeledInput from '@/components/form/LabeledInput';
 import CreateEditView from '@/mixins/create-edit-view';
-import { MANAGEMENT, HARVESTER_COMBINE_USER, NORMAN } from '@/config/types';
+import { MANAGEMENT, HARVESTER_USER, NORMAN, RBAC } from '@/config/types';
 import { exceptionToErrorsArray } from '@/utils/error';
 import { _EDIT } from '@/config/query-params';
 
@@ -27,32 +27,40 @@ export default {
     },
   },
 
+  async fetch() {
+    this.isRancher = await this.$store.dispatch('auth/getIsRancher');
+  },
+
   data() {
     this.value.isAdmin = true;
 
-    return {};
+    return { isRancher: false };
+  },
+
+  computed: {
+    isEdit() {
+      return this.mode === _EDIT;
+    }
   },
 
   methods: {
     async saveUser(buttonCb) {
-      const isRancher = await this.$store.dispatch('auth/getIsRancher');
-
-      if (!isRancher) {
+      if (!this.isRancher) {
         return this.save(buttonCb);
       }
 
       try {
-        if (this.mode === _EDIT) {
-          this.updateUser(buttonCb);
+        if (this.isEdit) {
+          await this.updateUser(buttonCb);
         } else {
-          this.createUser(buttonCb);
+          await this.createUser(buttonCb);
         }
 
         buttonCb(true);
 
         this.$router.push({
           name:   this.doneRoute,
-          params: { resource: HARVESTER_COMBINE_USER }
+          params: { resource: HARVESTER_USER }
         });
       } catch (err) {
         this.errors = exceptionToErrorsArray(err) || err;
@@ -61,7 +69,7 @@ export default {
     },
 
     async createUser() {
-      const newUser = await this.userRequest(`v1/${ MANAGEMENT.USER }`, {}, {
+      const newUser = await this.userRequest('management', `/v1/${ MANAGEMENT.USER }s`, {
         type:               MANAGEMENT.USER,
         metadata:           { generateName: 'user-' },
         enabled:            true,
@@ -70,25 +78,27 @@ export default {
         password:           this.value.password
       });
 
-      await this.userRequest(`v3/${ NORMAN.USER }/${ newUser.id }`, { action: 'setpassword' }, { newPassword: this.value.password });
-      await this.userRequest(`v1/${ MANAGEMENT.GLOBAL_ROLE_BINDINGS }`, {}, {
-        type:           MANAGEMENT.GLOBAL_ROLE_BINDINGS,
+      const setPasswordPromise = this.userRequest('rancher', `/v3/${ NORMAN.USER }s/${ newUser.id }`, { newPassword: this.value.password }, { action: 'setpassword' });
+      const setRolePromise = this.userRequest('management', `/v1/${ RBAC.GLOBAL_ROLE_BINDING }s`, {
+        type:           RBAC.GLOBAL_ROLE_BINDING,
         metadata:       { generateName: 'grb-' },
         userName:       newUser.id,
         globalRoleName: 'admin'
       });
+
+      await Promise.all([setPasswordPromise, setRolePromise]);
     },
 
-    async updateUser(buttonCb) {
-      const url = `v3/${ NORMAN.USER }/${ this.value.id }`;
+    async updateUser() {
+      const url = `/v3/${ NORMAN.USER }s/${ this.value.id }`;
       const params = { action: 'setpassword' };
       const data = { newPassword: this.value.password };
 
-      await this.userRequest(url, params, data);
+      await this.userRequest('rancher', url, data, params);
     },
 
-    userRequest(url, params, data) {
-      return this.$store.dispatch('cluster/request', {
+    userRequest(module, url, data, params) {
+      return this.$store.dispatch(`${ module }/request`, {
         method:  'POST',
         headers: {
           'content-type': 'application/json',
@@ -97,7 +107,7 @@ export default {
         url,
         params,
         data
-      }, { root: true });
+      });
     }
   },
 };
