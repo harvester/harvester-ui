@@ -8,6 +8,7 @@ export const state = function() {
     hasAuth:     true,
     loggedIn:    true,
     principalId: null,
+    isRancher:   null,
   };
 };
 
@@ -23,6 +24,10 @@ export const getters = {
   principalId(state) {
     return state.principalId;
   },
+
+  isRancher(state) {
+    return state.isRancher;
+  }
 
 };
 
@@ -48,7 +53,7 @@ export const mutations = {
 };
 
 export const actions = {
-  async getAuthModes() {
+  async getAuthModes({ commit }) {
     try {
       const res = await this.$axios({
         method: 'get',
@@ -63,18 +68,41 @@ export const actions = {
     }
   },
 
-  async login({ commit }, { data }) {
+  async getIsRancher({ dispatch, state }) {
+    if (state.isRancher !== null) {
+      return state.isRancher;
+    }
+
+    const { modes } = await dispatch('getAuthModes');
+
+    state.isRancher = (modes || []).includes('rancher');
+
+    return state.isRancher;
+  },
+
+  async login({ commit, getters, dispatch }, { data }) {
+    const body = data;
+    let url = addPrefix('/v1-public/auth?action=login');
+
+    if (getters.isRancher) {
+      body.description = 'UI Session';
+      body.responseType = 'cookie';
+      body.ttl = 57600000;
+
+      url = addPrefix('/v3-public/localProviders/local?action=login');
+    }
     try {
       const res = await this.$axios({
-        method:  'post',
-        url:     addPrefix('/v1-public/auth?action=login'),
-        data
+        url,
+        method: 'post',
+        data:   body,
       });
 
       if (res.data) {
         commit('loggedIn');
         commit('updatePrincipalId', data.username);
         this.$cookies.set('loggedIn', true);
+        firstLogin(body, dispatch);
 
         return true;
       }
@@ -104,6 +132,37 @@ export const actions = {
     commit('loggedOut');
     dispatch('onLogout', null, { root: true });
   }
+};
+
+async function firstLogin(body, dispatch) {
+  if (!getters.isRancher || !body.password) {
+    return;
+  }
+
+  const method = 'post';
+  const headers = { 'Content-Type': 'application/json' }
+
+  const firstLogin = await dispatch('rancher/request', {
+    url: '/v3/settings/first-login',
+    method,
+    headers
+  });
+
+  if (!firstLogin) {
+    return;
+  }
+
+  const { password } = body;
+
+  await dispatch('rancher/request', {
+    url: '/v3/users?action=changepassword',
+    method,
+    headers,
+    data: {
+      currentPassword: password,
+      newPassword:     password
+    },
+  });
 };
 
 function returnTo(opt, vm) {

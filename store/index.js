@@ -587,6 +587,7 @@ export const actions = {
     Object.defineProperty(rootState, '$router', { value: nuxt.app.router });
     Object.defineProperty(rootState, '$route', { value: nuxt.route });
     dispatch('prefs/loadCookies');
+    dispatch('auth/getAuthModes');
   },
 
   nuxtClientInit({ dispatch, rootState }, nuxt) {
