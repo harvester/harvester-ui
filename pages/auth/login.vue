@@ -230,7 +230,7 @@ export default {
       } catch (err) {
         const data = err.data || err.response?.data;
 
-        this.err = data?.errors?.[0] || 'An error occurred logging in.  Please try again.';
+        this.err = data?.errors?.[0] || data.message || 'An error occurred logging in.  Please try again.';
         buttonCb(false);
       }
     },

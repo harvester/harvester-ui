@@ -118,18 +118,17 @@ export const LONGHORN = {
 // Rancher Management API (via Steve)
 // Base: /v1
 export const MANAGEMENT = {
-  AUTH_CONFIG:          'management.cattle.io.authconfig',
-  CATALOG_TEMPLATE:     'management.cattle.io.catalogtemplate',
-  CATALOG:              'management.cattle.io.catalog',
-  CLUSTER:              'management.cattle.io.cluster',
-  GROUP:                'management.cattle.io.group',
-  NODE_POOL:            'management.cattle.io.nodepool',
-  NODE_TEMPLATE:        'management.cattle.io.nodetemplate',
-  PROJECT:              'management.cattle.io.project',
-  SETTING:              'management.cattle.io.setting',
-  USER:                 'management.cattle.io.user',
-  TOKEN:                'management.cattle.io.token',
-  GLOBAL_ROLE_BINDINGS: 'management.cattle.io.globalrolebindings',
+  AUTH_CONFIG:      'management.cattle.io.authconfig',
+  CATALOG_TEMPLATE: 'management.cattle.io.catalogtemplate',
+  CATALOG:          'management.cattle.io.catalog',
+  CLUSTER:          'management.cattle.io.cluster',
+  GROUP:            'management.cattle.io.group',
+  NODE_POOL:        'management.cattle.io.nodepool',
+  NODE_TEMPLATE:    'management.cattle.io.nodetemplate',
+  PROJECT:          'management.cattle.io.project',
+  SETTING:          'management.cattle.io.setting',
+  USER:             'management.cattle.io.user',
+  TOKEN:            'management.cattle.io.token',
 };
 
 export const CAPI = {
@@ -250,6 +249,3 @@ export const HARVESTER_CLUSTER_NETWORK = 'network.harvester.cattle.io.clusternet
 
 // longhorn
 export const LONGHORN_IO_ENGINE = 'longhorn.io.engine';
-
-// spoofed
-export const HARVESTER_COMBINE_USER = 'harvester.combine.user';
