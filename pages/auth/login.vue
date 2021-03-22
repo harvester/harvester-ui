@@ -81,13 +81,13 @@ export default {
     },
 
     allowLocalUser() {
-      return (this.authModes || []).includes('localUser');
+      return (this.authModes || []).includes('localUser') || (this.authModes || []).includes('rancher');
     },
 
     onlyLocalUser() {
       const modes = (this.authModes || []);
 
-      return modes.length === 1 && modes.includes('localUser');
+      return modes.length === 1 && (modes.includes('localUser') || modes.includes('rancher'));
     },
 
     dev: mapPref(DEV),
@@ -107,7 +107,7 @@ export default {
       handler(neu) {
         let mode = '';
 
-        if (neu.includes('localUser')) {
+        if (neu.includes('localUser') || neu.includes('rancher')) {
           mode = 'local';
         } else if (neu.includes('kubernetesCredentials')) {
           mode = 'kubeconfig';
