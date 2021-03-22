@@ -1,5 +1,5 @@
 <script>
-import { STATE, NAME } from '@/config/table-headers';
+import { NAME } from '@/config/table-headers';
 import SortableTable from '@/components/SortableTable';
 import Banner from '@/components/Banner';
 import Loading from '@/components/Loading';
@@ -44,7 +44,6 @@ export default {
   computed: {
     headers() {
       return [
-        { ...STATE },
         { ...NAME },
         {
           name:      'type',
@@ -97,6 +96,20 @@ export default {
         });
       },
       immediate: true
+    },
+
+    hostNetworkReady: {
+      handler(neu) {
+        const type = this.$route.params.resource;
+
+        if ((neu.length === this.hostNetworks.length) && this.hostNetworks !== 0) {
+          this.$store.commit('cluster/setConfig', {
+            type,
+            data: { disableCreateButton: true }
+          });
+        }
+      },
+      immediate: true
     }
   },
 };
@@ -131,6 +144,7 @@ export default {
         {{ item.message }}
       </Banner>
     </div>
+
     <SortableTable
       v-bind="$attrs"
       :headers="headers"
@@ -138,7 +152,6 @@ export default {
       :rows="rows"
       key-field="_key"
       v-on="$listeners"
-    >
-    </sortabletable>
+    />
   </div>
 </template>

@@ -41,6 +41,7 @@ export default {
     if (hostNetowrkResource) {
       this.hostNetowrkResource = hostNetowrkResource;
       this.nic = hostNetowrkResource.spec?.nic;
+      this.type = hostNetowrkResource.spec?.type;
       this.physicalNics = hostNetowrkResource.physicalNics;
     }
   },
@@ -49,6 +50,7 @@ export default {
     return {
       hostNetowrkResource: null,
       customName:          this.value.getAnnotationValue(HOST_CUSTOM_NAME),
+      type:                'vlan',
       nic:                 '',
       physicalNics:        []
     };
@@ -57,7 +59,7 @@ export default {
   computed: {
     nicsOptions() {
       return this.physicalNics.map( (N) => {
-        const isRecommended = N.usedByManageNetwork ? '  (Not recommended)' : '';
+        const isRecommended = N.usedByManagementNetwork ? '  (Not recommended)' : '';
 
         return {
           value: N.name,
@@ -86,6 +88,10 @@ export default {
         this.hostNetowrkResource.save();
       }
     },
+
+    update() {
+      this.$set(this.hostNetowrkResource.spec, 'nic', this.nic);
+    }
   },
 
 };
@@ -109,12 +115,12 @@ export default {
         />
       </Tab>
 
-      <Tab v-if="hostNetowrkResource" name="network" :weight="90" :label="t('harvester.hostPage.tabs.network')">
+      <Tab name="network" :weight="90" :label="t('harvester.hostPage.tabs.network')">
         <InfoBox class="wrapper">
           <div class="row warpper">
             <div class="col span-6">
               <LabeledInput
-                v-model="hostNetowrkResource.spec.type"
+                v-model="type"
                 label="Type"
                 class="mb-20"
                 :mode="mode"
@@ -124,11 +130,13 @@ export default {
 
             <div class="col span-6">
               <LabeledSelect
-                v-model="hostNetowrkResource.spec.nic"
+                v-model="nic"
                 :options="nicsOptions"
                 :label="t('harvester.fields.PhysicalNic')"
                 class="mb-20"
                 :mode="mode"
+                :disabled="!hostNetowrkResource"
+                @input="update"
               />
             </div>
           </div>

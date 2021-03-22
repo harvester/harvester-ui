@@ -548,5 +548,12 @@ export default {
     return rules;
   },
 
+  attachNetwork() {
+    const networks = this.spec?.template?.spec?.networks || [];
+    const hasMultus = networks.find( N => N.multus);
+
+    return !!hasMultus;
+  }
+
   // network, disk logic
 };

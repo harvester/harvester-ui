@@ -1,8 +1,11 @@
 <script>
 import { STATE, AGE, NAME } from '@/config/table-headers';
 import SortableTable from '@/components/SortableTable';
-import VmState from '@/components/formatter/BadgeStateFormatter';
+// import VmState from '@/components/formatter/BadgeStateFormatter';
+import VmState from '@/components/formatter/vmState';
 import MigrationState from '@/components/formatter/MigrationState';
+import { allSettled } from '@/utils/promise';
+import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK } from '@/config/types';
 
 export default {
   name: 'InstanceNode',
@@ -18,8 +21,21 @@ export default {
     },
   },
 
+  async fetch() {
+    const hash = await allSettled({
+      allNodeNetwork:      this.$store.dispatch('cluster/findAll', { type: HARVESTER_NODE_NETWORK }),
+      allClusterNetwork:   this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
+    });
+
+    this.allNodeNetwork = hash.allNodeNetwork;
+    this.allClusterNetwork = hash.allClusterNetwork;
+  },
+
   data() {
-    return {};
+    return {
+      allNodeNetwork:    [],
+      allClusterNetwork: []
+    };
   },
 
   computed: {
@@ -75,7 +91,7 @@ export default {
       >
         <template slot="cell:state" slot-scope="scope" class="state-col">
           <div class="state">
-            <VmState class="vmstate" :row="scope.row" />
+            <VmState class="vmstate" :row="scope.row" :all-node-network="allNodeNetwork" :all-cluster-network="allClusterNetwork" />
             <MigrationState :vm-resource="scope.row" :show-success="false" />
           </div>
         </template>

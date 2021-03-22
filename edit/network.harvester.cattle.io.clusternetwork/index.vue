@@ -5,6 +5,7 @@ import Tab from '@/components/Tabbed/Tab';
 import LabeledInput from '@/components/form/LabeledInput';
 import Footer from '@/components/form/Footer';
 import RadioGroup from '@/components/form/RadioGroup';
+import Tip from '@/components/Tip';
 import { HARVESTER_SETTING } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 
@@ -15,7 +16,8 @@ export default {
     Tab,
     Tabbed,
     LabeledInput,
-    RadioGroup
+    RadioGroup,
+    Tip
   },
   mixins: [CreateEditView],
   props:  {
@@ -29,7 +31,10 @@ export default {
       Vue.set(this.value, 'config', { defaultPhysicalNIC: '' });
     }
 
+    const isShowTip = this.value.enable;
+
     return {
+      isShowTip,
       errors:             [],
       isOpenVlan:         true,
       defaultPhysicalNic: ''
@@ -78,8 +83,10 @@ export default {
             v-if="value.enable"
             v-model="value.config.defaultPhysicalNIC"
             label="DefaultPhysicalNIC"
-            class="mb-20"
+            class="mb-5"
           />
+
+          <Tip v-if="isShowTip && value.enable" class="mb-20" icon="icons icon-h-question" text="The newly modified default physical NIC only applies to newly added nodes, not existing ones" />
         </div>
       </Tab>
     </Tabbed>
