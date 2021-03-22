@@ -8,6 +8,8 @@ export default {
   },
 
   displayValue() { // Select the field you want to display
-    return this?.config?.defaultPhysicalNIC || '';
+    if (this.enable) {
+      return this?.config?.defaultPhysicalNIC || '';
+    }
   },
 };

@@ -3277,6 +3277,7 @@ harvester:
     defaultVersion: Default version
   networkPage:
     message:
+      vlanInactive: 'VLAN network is inactive at "{name}"" host'
       premise: 
         prefix: 'You must configure a network in'
         middle: 'Settings'

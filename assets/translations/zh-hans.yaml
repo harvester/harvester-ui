@@ -2699,6 +2699,7 @@ harvester:
     defaultVersion: 默认版本
   networkPage:
     message:
+      vlanInactive: 'VLAN网络在主机 "{name}"" 上处于非活动状态'
       premise: 
         prefix: '您必须先配置网络'
         middle: '设置'
