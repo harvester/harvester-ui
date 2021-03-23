@@ -40,7 +40,7 @@ export default {
         {
           ...STATE,
           // value:     'id',
-          // width:      250
+          width: 200
         },
         {
           ...NAME,
