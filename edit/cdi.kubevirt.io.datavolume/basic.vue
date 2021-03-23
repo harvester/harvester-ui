@@ -131,8 +131,10 @@ export default {
 
       if (this.isVmImage && this.image) {
         imageAnnotations = { 'harvester.cattle.io/imageId': this.image };
+        this.value.pvc.volumeMode = 'Block';
       } else {
         imageAnnotations = {};
+        this.value.pvc.volumeMode = 'FileSystem';
       }
 
       const spec = {

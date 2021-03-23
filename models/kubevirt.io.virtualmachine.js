@@ -140,7 +140,7 @@ export default {
       {
         action:     'abortMigrationVM',
         enabled:    !!this.actions?.abortMigration,
-        icon:       'icon icon-fw el-icon-circle-close',
+        icon:       'icon icon-close',
         label:      'abortMigration',
       },
       ...out
