@@ -108,19 +108,33 @@ export default {
         params,
         data
       });
-    }
+    },
+
+    done() {
+      const doneParams = this.doneParams;
+
+      doneParams.resource = HARVESTER_USER;
+
+      this.$router.push({
+        name:   this.doneRoute,
+        params: doneParams
+      });
+    },
   },
 };
 </script>
 
 <template>
   <CruResource
+    :can-yaml="false"
     :done-route="doneRoute"
+    :cancel-event="true"
     :resource="value"
     :mode="mode"
     :errors="errors"
     @apply-hooks="applyHooks"
     @finish="saveUser"
+    @cancel="done"
   >
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
       <Tab name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
