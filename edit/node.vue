@@ -77,8 +77,8 @@ export default {
   },
 
   created() {
-    if (this.registerBeforeHook) {
-      this.registerBeforeHook(this.saveHostNetwork);
+    if (this.registerAfterHook) {
+      this.registerAfterHook(this.saveHostNetwork);
     }
   },
 
