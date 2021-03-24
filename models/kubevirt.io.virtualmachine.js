@@ -178,7 +178,7 @@ export default {
     const nodeName = vmi?.status?.nodeName;
     const node = this.$getters['byId'](NODE, nodeName);
 
-    return node.id;
+    return node?.id;
   },
 
   pauseVM() {
