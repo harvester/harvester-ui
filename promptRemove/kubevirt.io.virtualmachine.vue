@@ -1,5 +1,6 @@
 <script>
 import { isEmpty } from '@/utils/object';
+import Parse from 'url-parse';
 
 export default {
   name: 'PromptRemove',
@@ -87,7 +88,10 @@ export default {
             });
             removedDisks.replace(/&$/, '');
           }
-          resource.remove({ url: `${ resource.links.self }?${ removedDisks }` });
+
+          const parsed = Parse(resource.links.self);
+
+          resource.remove({ url: `${ parsed.pathname }?${ removedDisks }` });
         })).then((results) => {
           if ( goTo && !isEmpty(goTo) ) {
             parentCompnent.currentRouter.push(goTo);
