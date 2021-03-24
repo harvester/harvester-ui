@@ -173,6 +173,14 @@ export default {
     return node?.nameDisplay || '';
   },
 
+  nodeName() {
+    const vmi = this.$getters['byId'](VMI, this.id);
+    const nodeName = vmi?.status?.nodeName;
+    const node = this.$getters['byId'](NODE, nodeName);
+
+    return node.id;
+  },
+
   pauseVM() {
     return () => {
       this.doAction('pause', {});

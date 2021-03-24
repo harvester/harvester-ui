@@ -32,7 +32,7 @@ export default {
 
   computed: {
     NetworkImpassability() {
-      const nodeName = this.row.realAttachNodeName;
+      const nodeName = this.row.nodeName;
       const nn = this.allNodeNetwork.find( N => N.attachNodeName === nodeName);
 
       return (!!nn?.message || !this.enableClusterNetwork) && this.row?.attachNetwork;
