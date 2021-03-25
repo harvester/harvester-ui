@@ -15,12 +15,6 @@ export default {
     AsyncButton, Loading, ButtonGroup, LabeledInput, Banner
   },
 
-  async asyncData(ctx) {
-    const data = await ctx.store.dispatch('auth/getAuthModes');
-
-    return { authModes: data.modes };
-  },
-
   data({ $cookies }) {
     return {
       loginMode: '',
@@ -42,6 +36,14 @@ export default {
 
   computed: {
     ...mapGetters('i18n', ['selectedLocaleLabel', 'availableLocales']),
+
+    canGetAuthModes() {
+      return this.$store.getters['auth/canGetAuthModes'];
+    },
+
+    authModes() {
+      return this.$store.getters['auth/authModes'] || [];
+    },
 
     groupOptions() {
       return [
@@ -260,7 +262,7 @@ export default {
 <template>
   <main class="login">
     <div class="row mb-20">
-      <div class="col span-6">
+      <div v-if="canGetAuthModes" class="col span-6">
         <p class="text-center">
           {{ t('harvester.loginPage.howdy') }}
         </p>
@@ -345,6 +347,13 @@ export default {
           <Loading v-if="loading" />
         </div>
       </div>
+
+      <div v-else class="col span-6">
+        <p class="text-center">
+          {{ t('harvester.loginPage.loggedOut') }}
+        </p>
+      </div>
+
       <div class="col span-6 landscape"></div>
     </div>
   </main>

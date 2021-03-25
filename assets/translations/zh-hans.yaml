@@ -2751,6 +2751,7 @@ harvester:
     signIn: 登录
     loggingIn: 登录中...
     loggedIn: 登录成功
+    loggedOut: 登出成功!
     error: 错误
     mode:
       local: Local

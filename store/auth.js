@@ -1,14 +1,17 @@
 /* eslint-disable */
-import { addPrefix } from '@/utils/url';
+import { addPrefix, getPrefix } from '@/utils/url';
+
 const ERR_CLIENT = 'client';
 const ERR_SERVER = 'server';
 
 export const state = function() {
   return {
-    hasAuth:     true,
-    loggedIn:    true,
-    principalId: null,
-    isRancher:   null,
+    hasAuth:         true,
+    loggedIn:        true,
+    principalId:     null,
+    authModes:       null,
+    isRancher:       null,
+    canGetAuthModes: true,
   };
 };
 
@@ -25,8 +28,16 @@ export const getters = {
     return state.principalId;
   },
 
+  authModes(state) {
+    return state.authModes
+  },
+
   isRancher(state) {
     return state.isRancher;
+  },
+
+  canGetAuthModes(state) {
+    return state.canGetAuthModes;
   }
 
 };
@@ -49,11 +60,27 @@ export const mutations = {
 
   updatePrincipalId(state, id) {
     state.principalId = id;
+  },
+
+  canGetAuthModes(state, status) {
+    state.canGetAuthModes = status;
+  },
+
+  setAuthModes(state, modes) {
+    state.authModes = modes;
+  },
+
+  setIsRancher(state, isRancher) {
+    state.isRancher = isRancher;
   }
 };
 
 export const actions = {
-  async getAuthModes() {
+  canGetAuthModes({ commit }, { status }) {
+    commit('canGetAuthModes', status)
+  },
+
+  async getAuthModes({ commit }) {
     try {
       const res = await this.$axios({
         method: 'get',
@@ -61,6 +88,9 @@ export const actions = {
       });
 
       if (res.data) {
+        commit('setAuthModes', res.data.modes);
+        commit('setIsRancher', (res.data.modes || []).includes('rancher'))
+
         return Promise.resolve(res.data);
       }
     } catch (err) {
@@ -73,7 +103,13 @@ export const actions = {
       return state.isRancher;
     }
 
-    const { modes } = await dispatch('getAuthModes');
+    let { authModes: modes } = state;
+
+    if (!modes) {
+      const authModes = await dispatch('getAuthModes');
+
+      modes = authModes.modes;
+    }
 
     state.isRancher = (modes || []).includes('rancher');
 
@@ -104,6 +140,7 @@ export const actions = {
         commit('loggedIn');
         commit('updatePrincipalId', data.username);
         this.$cookies.set('loggedIn', true);
+        commit('canGetAuthModes', true);
         await dispatch('firstLogin', { body });
 
         return true;
@@ -162,6 +199,10 @@ export const actions = {
 
         return Promise.reject(ERR_SERVER);
       }
+    }
+
+    if (getPrefix()) {
+      commit('canGetAuthModes', false);
     }
 
     commit('loggedOut');

@@ -1,5 +1,6 @@
 import https from 'https';
 import { parse as setCookieParser } from 'set-cookie-parser';
+import { getPrefix } from '@/utils/url';
 import pkg from '../package.json';
 
 export default function({
@@ -73,7 +74,15 @@ export default function({
           return Promise.reject(error.response);
         }
 
-        redirect(401, '/auth/logout');
+        if (error.response.config.url.includes('v1-public/auth-modes')) {
+          store.dispatch('auth/canGetAuthModes', { status: false });
+        }
+
+        if (getPrefix()) {
+          redirect(401, '/auth/login');
+        } else {
+          redirect(401, '/auth/logout');
+        }
 
         return new Promise(() => {});
       }

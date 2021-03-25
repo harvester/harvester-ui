@@ -27,19 +27,19 @@ export default {
     },
   },
 
-  async fetch() {
-    this.isRancher = await this.$store.dispatch('auth/getIsRancher');
-  },
-
   data() {
     this.value.isAdmin = true;
 
-    return { isRancher: false };
+    return {};
   },
 
   computed: {
     isEdit() {
       return this.mode === _EDIT;
+    },
+
+    isRancher() {
+      return this.$store.getters['auth/isRancher'];
     }
   },
 
