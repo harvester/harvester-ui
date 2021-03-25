@@ -11,6 +11,7 @@ import EjectCDROM from '@/components/EjectCDROM/index';
 import Group from '@/components/nav/Group';
 import Footer from '@/components/nav/Footer';
 import PureHeader from '@/components/nav/PureHeader';
+import ServerUrlModal from '@/components/form/ServerUrlModal';
 import { COUNT, SCHEMA, MANAGEMENT } from '@/config/types';
 import { BASIC, FAVORITE, USED } from '@/store/type-map';
 import { addObjects, replaceWith, clear } from '@/utils/array';
@@ -28,7 +29,8 @@ export default {
     Footer,
     ActionMenu,
     Group,
-    WindowManager
+    WindowManager,
+    ServerUrlModal
   },
 
   data() {
@@ -265,6 +267,7 @@ export default {
       <PromptRemove />
       <AssignTo />
       <EjectCDROM />
+      <ServerUrlModal />
       <button v-if="dev" v-shortkey.once="['shift','l']" class="hide" @shortkey="toggleNoneLocale()" />
       <button v-if="dev" v-shortkey.once="['shift','t']" class="hide" @shortkey="toggleTheme()" />
       <button v-shortkey.once="['f8']" class="hide" @shortkey="wheresMyDebugger()" />
