@@ -3,7 +3,6 @@ import VueUploadComponent from 'vue-upload-component';
 import CruResource from '@/components/CruResource';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
-import RadioGroup from '@/components/form/RadioGroup';
 import LabeledInput from '@/components/form/LabeledInput';
 import KeyValue from '@/components/form/KeyValue';
 import NameNsDescription from '@/components/form/NameNsDescription';
@@ -23,7 +22,6 @@ export default {
     LabeledInput,
     NameNsDescription,
     KeyValue,
-    RadioGroup,
     fileLoad: VueUploadComponent
   },
 
@@ -186,14 +184,14 @@ export default {
 
       <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
         <Tab name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
-          <RadioGroup
+          <!-- <RadioGroup
             v-if="isCreate"
             v-model="uploadMode"
             name="model"
             :options="['url','file']"
             :labels="['URL', 'File']"
             :mode="mode"
-          />
+          /> -->
           <div class="row mb-20 mt-20">
             <div class="col span-12">
               <LabeledInput
