@@ -45,7 +45,7 @@ locale:
 
 nav:
   title: Harvester
-  backToRancher: Cluster Manager
+  backToRancher: Rancher Manager
   shell: Kubectl Shell
   import: Import YAML
   group:
