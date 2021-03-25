@@ -21,7 +21,9 @@ export default {
 
   async fetch() {
     const store = this.$store;
-    const isRancher = await store.dispatch('auth/getIsRancher');
+    const isRancher = store.getters['auth/isRancher'];
+
+    this.isRancher = isRancher;
 
     if (!isRancher) {
       this.harvesterUsers = await store.dispatch('cluster/findAll', { type: HARVESTER_USER });
@@ -39,7 +41,8 @@ export default {
     return {
       harvesterUsers:  [],
       v3Users:         [],
-      managementUsers: []
+      managementUsers: [],
+      isRancher:       null
     };
   },
 
@@ -56,9 +59,7 @@ export default {
     },
 
     rows() {
-      const isRancher = this.$store.dispatch('auth/getIsRancher');
-
-      if (isRancher) {
+      if (this.isRancher) {
         return this.managementUsers.filter(mu => this.v3Users.find(vu => mu.id === vu.id));
       } else {
         return this.harvesterUsers;

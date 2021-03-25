@@ -3329,6 +3329,7 @@ harvester:
     signIn: SIGN IN
     loggingIn: Logging In...
     loggedIn: Logged In
+    loggedOut: Logged Out!
     error: Error
     mode:
       local: Local

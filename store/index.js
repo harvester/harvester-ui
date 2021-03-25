@@ -599,6 +599,7 @@ export const actions = {
       dispatch('rancher/rehydrateSubscribe');
     }
 
+    dispatch('auth/getAuthModes');
     dispatch('prefs/loadCookies');
     dispatch('prefs/loadTheme');
   },
