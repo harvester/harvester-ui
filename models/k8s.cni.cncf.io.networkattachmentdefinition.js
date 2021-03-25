@@ -1,8 +1,17 @@
 export default {
   _availableActions() {
-    const out = this._standardActions;
+    let out = this._standardActions;
+    const toFilter = ['goToClone', 'cloneYaml', 'goToEditYaml', 'goToEdit', 'download'];
 
-    return out;
+    out = out.filter((action) => {
+      if (!toFilter.includes(action.action)) {
+        return action;
+      }
+    });
+
+    return [
+      ...out
+    ];
   },
 
   isIpamStatic() {
