@@ -3,7 +3,9 @@ import randomstring from 'randomstring';
 import { safeLoad, safeDump } from 'js-yaml';
 import { sortBy } from '@/utils/sort';
 import { allHash } from '@/utils/promise';
-import { STORAGE_CLASS_LABEL, HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER_DISK_NAMES } from '@/config/labels-annotations';
+import {
+  STORAGE_CLASS_LABEL, HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER_DISK_NAMES, HARVESTER_IMAGE_ID
+} from '@/config/labels-annotations';
 // import { formatSi, parseSi } from '@/utils/units';
 import { SOURCE_TYPE } from '@/config/map';
 import {
@@ -28,11 +30,6 @@ const baseSpec = {
           threads: 1
         },
         devices: {
-          inputs: [{
-            bus:  'usb',
-            name: 'tablet',
-            type: 'tablet'
-          }],
           interfaces: [{
             masquerade: {},
             model:      'virtio',
@@ -150,7 +147,7 @@ export default {
       showCloudInit:         false,
       sshAuthorizedKeys:     '',
       useCustomHostname:     false,
-      isUseMouseEnhancement:    true,
+      isUseMouseEnhancement:    false,
       hasCreateVolumes,
       networkScript,
       userScript,
@@ -235,7 +232,7 @@ export default {
           // storageClassName: this.defaultStorageClass,
           storageClassName: 'longhorn',
           image:             this.imageName,
-          volumeMode:       'Filesystem',
+          volumeMode:       'Block',
         });
       } else {
         out = _disks.map( (DISK, index) => {
@@ -268,11 +265,13 @@ export default {
             if (DVT) {
               if (DVT.spec?.source?.blank) {
                 source = SOURCE_TYPE.NEW;
-              } else if (DVT.spec?.source?.http) { // url may empty
-                source = SOURCE_TYPE.IMAGE;
-                const imageUrl = DVT.spec.source.http.url;
+              }
 
-                image = this.getImageSource(imageUrl);
+              if (!!DVT.metadata?.annotations?.[HARVESTER_IMAGE_ID]) { // url may empty
+                source = SOURCE_TYPE.IMAGE;
+                const imageId = DVT.metadata?.annotations?.[HARVESTER_IMAGE_ID];
+
+                image = this.getImageSourceById(imageId);
               }
 
               accessMode = DVT?.spec?.pvc?.accessModes?.[0];
@@ -287,7 +286,7 @@ export default {
               accessMode = dvResource?.spec?.pvc?.accessModes?.[0] || 'ReadWriteMany';
               size = dvResource?.spec?.pvc?.resources?.requests?.storage || '10Gi';
               storageClassName = dvResource?.spec?.pvc?.storageClassName;
-              volumeMode = dvResource?.spec?.pvc?.volumeMode || 'Filesystem';
+              volumeMode = dvResource?.spec?.pvc?.volumeMode || 'Block';
               volumeName = dvResource?.metadata?.name || '';
             }
           }
@@ -307,7 +306,7 @@ export default {
             container,
             accessMode,
             size,
-            volumeMode:    volumeMode || 'Filesystem',
+            volumeMode:    volumeMode || 'Block',
             image,
             type,
             storageClassName,
@@ -357,9 +356,9 @@ export default {
 
     getRootImage(spec) {
       const _dataVolumeTemplates = spec?.dataVolumeTemplates || [];
-      const imageUrl = _dataVolumeTemplates?.[0]?.spec?.source?.http?.url || '';
+      const id = _dataVolumeTemplates?.[0]?.metadata?.annotations?.[HARVESTER_IMAGE_ID] || '';
 
-      return this.getImageSource(imageUrl);
+      return this.getImageSourceById(id);
     },
 
     getCloudInit() {
@@ -412,6 +411,17 @@ export default {
       }
       const images = this.$store.getters['cluster/all'](IMAGE);
       const image = images.find( I => url === I?.status?.downloadUrl);
+
+      return image?.spec?.displayName;
+    },
+
+    getImageSourceById(id) {
+      if (!id) {
+        return;
+      }
+
+      const images = this.$store.getters['cluster/all'](IMAGE);
+      const image = images.find( I => id === I?.id );
 
       return image?.spec?.displayName;
     },
@@ -492,14 +502,18 @@ export default {
         _dataVolumeTemplate.spec.source = { blank: {} };
         break;
       case SOURCE_TYPE.IMAGE: {
-        _dataVolumeTemplate.spec.source = { http: { url: this.getUrlFromImage(R.image) } };
+        _dataVolumeTemplate.spec.source = { blank: {} };
 
         const imageResource = this.getImageResource(R.image);
         const imageId = imageResource?.id;
 
-        _dataVolumeTemplate.spec.pvc.storageClassName = `longhorn-${ imageResource.metadata?.name }`; // R.storageClassName
-        _dataVolumeTemplate.spec.pvc.volumeMode = 'Block';
-        _dataVolumeTemplate.metadata.annotations = { 'harvester.cattle.io/imageId': imageId };
+        if (imageResource?.metadata?.name) {
+          _dataVolumeTemplate.spec.pvc.storageClassName = `longhorn-${ imageResource?.metadata?.name }`; // R.storageClassName
+        } else {
+          _dataVolumeTemplate.spec.pvc.storageClassName = '';
+        }
+
+        _dataVolumeTemplate.metadata.annotations = { [HARVESTER_IMAGE_ID]: imageId };
         break;
       }
       }

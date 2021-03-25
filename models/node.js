@@ -6,7 +6,8 @@ import {
   HOST_CUSTOM_NAME,
   NODE_ROLE_MASTER,
   NODE_ROLE_CONTROL_PLANE,
-  HARVESTER_PROMOTE_STATUS
+  HARVESTER_PROMOTE_STATUS,
+  HARVESTER_MAINTENANCE_STATUS
 } from '@/config/labels-annotations.js';
 import { METRIC, POD, NODE } from '@/config/types';
 import { parseSi } from '@/utils/units';
@@ -222,6 +223,25 @@ export default {
     return !!this.spec.unschedulable;
   },
 
+  isEnteringMaintenance() {
+    return this.metadata?.annotations?.[HARVESTER_MAINTENANCE_STATUS] === 'running';
+  },
+
+  isMaintenance() {
+    return this.metadata?.annotations?.[HARVESTER_MAINTENANCE_STATUS] === 'completed';
+  },
+
+  maintenanceStatus() {
+    const isCompeted = this.row?.metadata?.annotations?.[HARVESTER_MAINTENANCE_STATUS] === 'completed';
+    const isRunning = this.row?.metadata?.annotations?.[HARVESTER_MAINTENANCE_STATUS] === 'running';
+
+    if (isRunning) {
+      return 'entering maintain';
+    } else if (isCompeted) {
+      return 'maintain';
+    }
+  },
+
   containerRuntimeVersion() {
     return this.status.nodeInfo.containerRuntimeVersion.replace('docker://', '');
   },
@@ -257,6 +277,14 @@ export default {
   },
 
   state() {
+    if (this.isEnteringMaintenance) {
+      return 'Entering maintenance mode';
+    }
+
+    if (this.isMaintenance) {
+      return 'Maintenance mode';
+    }
+
     if ( !this[PRIVATE].isDetailPage && this.isCordoned ) {
       return 'cordoned';
     }

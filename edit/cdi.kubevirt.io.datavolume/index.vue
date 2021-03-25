@@ -41,7 +41,7 @@ export default {
       spec = {
         pvc: {
           resources:   { requests: { storage: '' } },
-          volumeMode:  'Filesystem',
+          volumeMode:  'Block',
           accessModes: ['ReadWriteMany']
         },
         source: { blank: true }

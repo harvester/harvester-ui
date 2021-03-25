@@ -1,5 +1,6 @@
 import { colorForState } from '@/plugins/steve/resource-instance';
 import { getPrefix } from '@/utils/url';
+import { VMIM } from '@/config/types';
 
 const PAUSED = 'Paused';
 const PAUSED_VM_MODAL_MESSAGE = 'This VM has been paused. If you wish to unpause it, please click the Unpause button below. For further details, please check with your system administrator.';
@@ -14,6 +15,21 @@ const VMIPhase = {
 };
 
 export default {
+  vmimResource() {
+    const all = this.$rootGetters['cluster/all'](VMIM) || [];
+    const vmimList = all.filter(vmim => vmim.spec?.vmiName === this.metadata?.name);
+
+    if (vmimList.length === 0) {
+      return [];
+    }
+
+    vmimList.sort((a, b) => {
+      return a?.metadata?.creationTimestamp > b?.metadata?.creationTimestamp ? -1 : 1;
+    });
+
+    return vmimList[0];
+  },
+
   migrationState() {
     if (this.status?.migrationState?.abortStatus === 'Succeeded') {
       return {
@@ -22,21 +38,21 @@ export default {
       };
     }
 
-    if (this.status?.migrationState?.failed) {
+    if (this.vmimResource?.status?.phase === VMIPhase.Failed) {
       return {
         type:   'migration',
         status: 'failed'
       };
     }
 
-    if (this.status?.migrationState?.completed === true) {
+    if (this.vmimResource?.status?.phase === VMIPhase.Succeeded) {
       return {
         type:   'migration',
         status: 'success'
       };
     }
 
-    if (this.status?.migrationState && this.status?.migrationState?.abortStatus === undefined) {
+    if (this.vmimResource && this.status?.migrationState?.abortStatus === undefined) {
       return {
         type:   'migration',
         status: 'migrating'

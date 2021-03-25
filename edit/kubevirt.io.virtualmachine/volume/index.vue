@@ -158,7 +158,7 @@ export default {
         size:             '10Gi',
         type:             'disk',
         accessMode:       'ReadWriteMany',
-        volumeMode:       'Filesystem',
+        volumeMode:       'Block',
         volumeName:        '',
         bus:              'virtio',
         newCreateId:      randomstring.generate(10), // judge whether it is a disk that has been created

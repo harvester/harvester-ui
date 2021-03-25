@@ -233,6 +233,7 @@ export const VM_TEMPLATE = {
 };
 
 export const VMI = 'kubevirt.io.virtualmachineinstance';
+export const VMIM = 'kubevirt.io.virtualmachineinstancemigration';
 export const VM = 'kubevirt.io.virtualmachine';
 export const IMAGE = 'harvester.cattle.io.virtualmachineimage';
 export const SSH = 'harvester.cattle.io.keypair';

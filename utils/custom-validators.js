@@ -8,7 +8,7 @@ import { cronSchedule } from '@/utils/validators/cron-schedule';
 import { podAffinity } from '@/utils/validators/pod-affinity';
 import { vmNetworks, vmDisks, vmMemoryUnit } from '@/utils/validators/vm';
 import { imageUrl } from '@/utils/validators/vm-image';
-import { dataVolumeSize } from '@/utils/validators/vm-datavolumes';
+import { dataVolumeSize, dataVolumeImage } from '@/utils/validators/vm-datavolumes';
 import { backupTarget } from '@/utils/validators/setting';
 
 /**
@@ -34,5 +34,6 @@ export default {
   vmMemoryUnit,
   imageUrl,
   dataVolumeSize,
+  dataVolumeImage,
   backupTarget
 };

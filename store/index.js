@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Steve from '@/plugins/steve';
 import {
-  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, FLEET, POD, HARVESTER_SETTING, NODE, HARVESTER_RESTORE
+  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, VMIM, FLEET, POD, HARVESTER_SETTING, NODE, HARVESTER_RESTORE
 } from '@/config/types';
 import { CLUSTER as CLUSTER_PREF, NAMESPACE_FILTERS, LAST_NAMESPACE, WORKSPACE } from '@/store/prefs';
 import { allHash } from '@/utils/promise';
@@ -534,16 +534,17 @@ export const actions = {
       counts:          dispatch('cluster/findAll', { type: COUNT, opt: { url: 'counts' } }),
       namespaces:      dispatch('cluster/findAll', { type: NAMESPACE, opt: { url: 'namespaces' } }),
       vmi:             dispatch('cluster/findAll', { type: VMI, opt: { url: `${ VMI }s` } }),
-      vm:               dispatch('cluster/findAll', { type: VM, opt: { url: `${ VM }s` } }),
+      vmim:            dispatch('cluster/findAll', { type: VMIM, opt: { url: `${ VMIM }s` } }),
+      vm:              dispatch('cluster/findAll', { type: VM, opt: { url: `${ VM }s` } }),
       image:           dispatch('cluster/findAll', { type: IMAGE, opt: { url: `${ IMAGE }s` } }),
-      template:         dispatch('cluster/findAll', { type: VM_TEMPLATE.template, opt: { url: `${ VM_TEMPLATE.template }s` } }),
-      templateVersion:   dispatch('cluster/findAll', { type: VM_TEMPLATE.version, opt: { url: `${ VM_TEMPLATE.version }s` } }),
-      ssh:                dispatch('cluster/findAll', { type: SSH, opt: { url: `${ SSH }s` } }),
-      DATA_VOLUME:        dispatch('cluster/findAll', { type: DATA_VOLUME, opt: { url: `${ DATA_VOLUME }s` } }),
-      pods:               dispatch('cluster/findAll', { type: POD }),
-      setting:          dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
-      nodes:            dispatch('cluster/findAll', { type: NODE }),
-      restores:         dispatch('cluster/findAll', { type: HARVESTER_RESTORE }),
+      template:        dispatch('cluster/findAll', { type: VM_TEMPLATE.template, opt: { url: `${ VM_TEMPLATE.template }s` } }),
+      templateVersion: dispatch('cluster/findAll', { type: VM_TEMPLATE.version, opt: { url: `${ VM_TEMPLATE.version }s` } }),
+      ssh:             dispatch('cluster/findAll', { type: SSH, opt: { url: `${ SSH }s` } }),
+      DATA_VOLUME:     dispatch('cluster/findAll', { type: DATA_VOLUME, opt: { url: `${ DATA_VOLUME }s` } }),
+      pods:            dispatch('cluster/findAll', { type: POD }),
+      setting:         dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
+      nodes:           dispatch('cluster/findAll', { type: NODE }),
+      restores:        dispatch('cluster/findAll', { type: HARVESTER_RESTORE }),
 
     });
 

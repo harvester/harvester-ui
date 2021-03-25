@@ -121,20 +121,21 @@ export default {
       let source = null;
       let imageAnnotations = '';
 
-      if (this.isBlank) {
-        source = { blank: {} };
-      }
+      // if (this.isBlank) {
+      //   source = { blank: {} };
+      // }
 
+      // if (this.isVmImage) {
+      //   source = { http: { url: this.imgUrl } };
+      // }
+
+      source = { blank: {} };
+
+      // if (this.isVmImage && this.image) {
       if (this.isVmImage) {
-        source = { http: { url: this.imgUrl } };
-      }
-
-      if (this.isVmImage && this.image) {
         imageAnnotations = { 'harvester.cattle.io/imageId': this.image };
-        this.value.pvc.volumeMode = 'Block';
       } else {
         imageAnnotations = {};
-        this.value.pvc.volumeMode = 'FileSystem';
       }
 
       const spec = {

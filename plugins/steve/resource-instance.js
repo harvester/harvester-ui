@@ -83,6 +83,8 @@ export const STATES = {
   building:           { color: 'success', icon: 'dot-open' },
   completed:          { color: 'success', icon: 'dot' },
   cordoned:           { color: 'info', icon: 'tag' },
+  enteringMaintain:   { color: 'info', icon: 'tag' },
+  maintain:           { color: 'info', icon: 'tag' },
   count:              { color: 'success', icon: 'dot-open' },
   created:            { color: 'info', icon: 'tag' },
   creating:           { color: 'info', icon: 'tag' },

@@ -61,7 +61,7 @@ export default {
       }
 
       try {
-        if (networkStatus) {
+        if (networkStatus && podResource?.status?.phase !== 'Succeeded') {
           const obj = JSON.parse(networkStatus);
 
           obj.map( (O) => {

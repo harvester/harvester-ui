@@ -41,7 +41,10 @@ export default {
   computed: {
     headers() {
       return [
-        STATE,
+        {
+          ...STATE,
+          width: 250
+        },
         { ...NAME, width: 120 },
         {
           name:      'vmCPU',
@@ -103,5 +106,13 @@ export default {
 <style lang="scss">
 .bordered-table .host-instances thead th {
   vertical-align: middle;
+}
+
+.bordered-table .host-instances .state {
+  display: flex;
+
+  .vmstate {
+    margin-right: 6px;
+  }
 }
 </style>
