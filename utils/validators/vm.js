@@ -126,7 +126,7 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
         errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { prefix, message }));
       }
 
-      if (type === SOURCE_TYPE.IMAGE && !typeValue?.spec?.source?.http?.url) { // type === SOURCE_TYPE.IMAGE
+      if (type === SOURCE_TYPE.IMAGE && !typeValue?.spec?.pvc?.storageClassName) { // type === SOURCE_TYPE.IMAGE
         if (idx === 0) {
           errors.push(getters['i18n/t']('harvester.validation.vm.volume.image'));
         } else {
@@ -181,7 +181,7 @@ export function getVolumeType(V, DVTS) {
 
   if (V.dataVolume) { // maybe is new or existing or image type, but existing type can’t find DVT
     outValue = DVTS.find((DVT) => { // image type
-      return V.dataVolume.name === DVT.metadata?.name && DVT.spec?.source?.http;
+      return V.dataVolume.name === DVT.metadata?.name && DVT.metadata?.annotations && DVT.metadata?.annotations.hasOwnProperty('harvester.cattle.io/imageId');
     });
 
     if (outValue) {

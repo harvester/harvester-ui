@@ -111,6 +111,8 @@ export const HARVESTER_VOLUME_CREATEDBY = 'kubevirt.io/created-by';
 
 export const HARVESTER_UPGRADESTATE = 'harvester.cattle.io/upgradeState';
 
+export const HARVESTER_IMAGE_ID = 'harvester.cattle.io/imageId';
+
 // node role
 export const NODE_ROLE_MASTER = 'node-role.kubernetes.io/master';
 export const NODE_ROLE_CONTROL_PLANE = 'node-role.kubernetes.io/control-plane';

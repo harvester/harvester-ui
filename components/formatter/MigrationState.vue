@@ -28,7 +28,7 @@ export default {
       if (isComplete && this.showSuccess === false) {
         return '';
       } else {
-        return this.vmiResource?.migrationState?.status;
+        return this.vmiResource?.vmimResource?.status?.phase;
       }
     }
   }

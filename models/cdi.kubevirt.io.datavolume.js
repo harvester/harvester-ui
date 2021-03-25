@@ -118,13 +118,14 @@ export default {
       },
     ];
 
-    if (this.spec?.source?.http) {
+    if (this.metadata?.annotations?.hasOwnProperty('harvester.cattle.io/imageId')) {
       out.push({
         nullable:       false,
-        path:           'spec.source.http.url',
+        path:           'metadata.annotations',
         required:       true,
         translationKey: 'harvester.volumePage.image',
         type:           'string',
+        validators:     ['dataVolumeImage']
       });
     }
 

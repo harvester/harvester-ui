@@ -41,7 +41,12 @@ export default {
     },
 
     source() {
-      return this.value.spec?.source?.blank ? 'blank' : this.value?.source?.registry?.url ? 'container' : 'VM Image';
+      // return this.value.spec?.source?.blank ? 'blank' : this.value?.source?.registry?.url ? 'container' : 'VM Image';
+      if (this.value?.metadata?.annotations?.['harvester.cattle.io/imageId']) {
+        return 'VM Image';
+      } else {
+        return 'blank';
+      }
     },
 
     image() {
