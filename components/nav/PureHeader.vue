@@ -1,10 +1,24 @@
 <script>
 import { md5 } from '@/utils/crypto';
 import Identicon from 'identicon.js';
+import { allSettled } from '@/utils/promise';
+import { HARVESTER_SETTING } from '@/config/types';
+import Parse from 'url-parse';
 import UpgradeInfo from './UpgradeInfo';
 
 export default {
   components: { UpgradeInfo },
+
+  async fetch() {
+    await allSettled({ haversterSettings: this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }) });
+    const isRancher = await this.$store.dispatch('auth/getIsRancher');
+
+    this.isRancher = isRancher;
+  },
+
+  data() {
+    return { isRancher: false };
+  },
 
   computed: {
     authEnabled() {
@@ -18,6 +32,18 @@ export default {
 
       return out;
     },
+
+    backupRancher() {
+      const parse = Parse(window.history.href);
+
+      return `${ parse.protocol }//${ parse.hostname }:30444`;
+    },
+
+    enableRancher() {
+      const rancher = this.$store.getters['cluster/all'](HARVESTER_SETTING).find(O => O.metadata.name === 'rancher-enabled');
+
+      return rancher.value === 'true';
+    }
   },
 
   methods: {
@@ -40,6 +66,12 @@ export default {
 
     <div class="top">
       <UpgradeInfo />
+    </div>
+
+    <div class="back">
+      <a v-if="isRancher && enableRancher" class="btn role-tertiary" :href="backupRancher">
+        {{ t('nav.backToRancher') }}
+      </a>
     </div>
 
     <div class="user">
@@ -73,9 +105,15 @@ export default {
   HEADER {
     display: grid;
     height: 100vh;
-    grid-template-areas:  "product top user";
-    grid-template-columns: var(--nav-width) auto var(--header-height);
+    grid-template-areas:  "product top back user";
+    grid-template-columns: var(--nav-width) auto min-content var(--header-height);
     grid-template-rows:    var(--header-height);
+
+    > * {
+      display: flex;
+      align-items: center;
+      padding: 0 5px;
+    }
 
     > .product {
       grid-area: product;
@@ -103,6 +141,21 @@ export default {
       background-color: var(--header-bg);
       display: flex;
       // flex-direction: row-reverse;
+    }
+
+    > .back {
+      grid-area: back;
+      background-color: var(--header-bg);
+
+      .btn {
+        text-align: center;
+      }
+
+      .role-tertiary {
+        color: #fff !important;
+        background-color: var(--header-btn-bg);
+        border: 1px solid #008080;
+      }
     }
 
     > .user {

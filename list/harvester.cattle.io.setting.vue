@@ -19,21 +19,30 @@ export default {
       clusterNetworkSettings: this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
     });
 
+    const isRancher = this.$store.dispatch('auth/getIsRancher');
+
     this.haversterSettings = hash.haversterSettings;
     this.clusterNetworkSettings = hash.clusterNetworkSettings;
+    this.isRancher = isRancher;
   },
   data() {
     return {
       headers:                [{ ...NAME, width: 200 }, { ...SETTING_VALUE, formatter: 'settingMessage' }],
       haversterSettings:      [],
-      clusterNetworkSettings: []
+      clusterNetworkSettings: [],
+      isRancher:              []
     };
   },
   computed: {
     rows() {
-      return [...this.haversterSettings, ...this.clusterNetworkSettings];
-    },
-  }
+      const settings = this.haversterSettings.filter( (O) => {
+        return !(O.metadata.name === 'rancher-enabled' && !this.isRancher);
+      });
+
+      return [...settings, ...this.clusterNetworkSettings];
+    }
+  },
+
 };
 </script>
 
