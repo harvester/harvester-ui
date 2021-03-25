@@ -6,6 +6,7 @@ import Footer from '@/components/form/Footer';
 import CreateEditView from '@/mixins/create-edit-view';
 import NetworkSetting from './NetworkSetting';
 import BackupTarget from './BackupTarget';
+import RancherEnabled from './RancherEnabled';
 
 export default {
   name: 'Networks',
@@ -16,7 +17,8 @@ export default {
     BackupTarget,
     Tab,
     Tabbed,
-    LabeledInput
+    LabeledInput,
+    RancherEnabled
   },
 
   mixins: [CreateEditView],
@@ -50,15 +52,11 @@ export default {
     },
     isBackupTarget() {
       return this.value.metadata.name === 'backup-target';
-    }
-  },
-
-  watch: {
-    'value.value'(neu) {
-      if (!neu) {
-        delete this.value.value;
-      }
     },
+
+    isRancherEnabled() {
+      return this.value.metadata.name === 'rancher-enabled';
+    }
   },
 };
 </script>
@@ -69,9 +67,15 @@ export default {
       <Tab v-if="isNetworkSetting" name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
         <NetworkSetting v-model="value" />
       </Tab>
+
       <Tab v-if="isBackupTarget" name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
         <BackupTarget v-model="value" />
       </Tab>
+
+      <Tab v-if="isRancherEnabled" name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
+        <RancherEnabled v-model="value" />
+      </Tab>
+
       <Tab v-else name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
         <div class="row mb-20">
           <div class="col span-12">
