@@ -183,9 +183,11 @@ export default {
 
     <div class="row">
       <div class="col span-6">
-        <InputOrDisplay :name="t('harvester.vmPage.detail.details.ipAddress')" :value="value.id" :mode="mode">
-          <IPAddress v-model="value.id" :row="value" />
-        </InputOrDisplay>
+        <LabelValue :name="t('harvester.vmPage.detail.details.ipAddress')">
+          <template #value>
+            <IPAddress v-model="value.id" :row="value" />
+          </template>
+        </LabelValue>
       </div>
 
       <div class="col span-6">
