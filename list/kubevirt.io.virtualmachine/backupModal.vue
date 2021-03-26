@@ -40,16 +40,18 @@ export default {
     async save() {
       if (this.actionResources) {
         try {
-          await this.actionResources.doAction('backup', { name: this.backUpName });
+          const res = await this.actionResources.doAction('backup', { name: this.backUpName });
 
           this.$store.commit('kubevirt.io.virtualmachine/toggleBackupModal');
 
-          this.$notify({
-            duration: 5000,
-            title:    'Succeed',
-            message:  `Backup ${ this.backUpName } successfully created`,
-            type:     'success'
-          });
+          if (res._status === 200 || res._status === 204) {
+            this.$notify({
+              duration: 5000,
+              title:    'Succeed',
+              message:  `Backup ${ this.backUpName } successfully created`,
+              type:     'success'
+            });
+          }
 
           this.backUpName = '';
         } catch (err) {
