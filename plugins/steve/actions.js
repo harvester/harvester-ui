@@ -371,6 +371,7 @@ export default {
     try {
       res = await dispatch('request', opt);
     } catch (e) {
+      res = e;
       const t = rootGetters['i18n/t'];
       let message = t('generic.unknownErrorTip');
 
