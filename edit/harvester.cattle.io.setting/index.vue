@@ -68,11 +68,11 @@ export default {
         <NetworkSetting v-model="value" />
       </Tab>
 
-      <Tab v-if="isBackupTarget" name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
+      <Tab v-else-if="isBackupTarget" name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
         <BackupTarget v-model="value" />
       </Tab>
 
-      <Tab v-if="isRancherEnabled" name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
+      <Tab v-else-if="isRancherEnabled" name="detail" :label="t('harvester.vmPage.detail.tabs.basics')" class="bordered-table">
         <RancherEnabled v-model="value" />
       </Tab>
 
