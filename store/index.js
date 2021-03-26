@@ -415,20 +415,23 @@ export const actions = {
       promises['rancherSchema'] = dispatch('rancher/loadSchemas', true);
     }
 
-    if ( getters['management/schemaFor'](COUNT) ) {
-      promises['counts'] = dispatch('management/findAll', { type: COUNT });
-    }
+    const isRancher = getters['auth/isRancher'];
+    if (!isRancher) {
+      if ( getters['management/schemaFor'](COUNT) ) {
+        promises['counts'] = dispatch('management/findAll', { type: COUNT });
+      }
 
-    if ( getters['management/schemaFor'](MANAGEMENT.SETTING) ) {
-      promises['settings'] = dispatch('management/findAll', { type: MANAGEMENT.SETTING });
-    }
+      if ( getters['management/schemaFor'](MANAGEMENT.SETTING) ) {
+        promises['settings'] = dispatch('management/findAll', { type: MANAGEMENT.SETTING });
+      }
 
-    if ( getters['management/schemaFor'](NAMESPACE) ) {
-      promises['namespaces'] = dispatch('management/findAll', { type: NAMESPACE });
-    }
+      if ( getters['management/schemaFor'](NAMESPACE) ) {
+        promises['namespaces'] = dispatch('management/findAll', { type: NAMESPACE });
+      }
 
-    if ( getters['management/schemaFor'](FLEET.WORKSPACE) ) {
-      promises['workspaces'] = dispatch('management/findAll', { type: FLEET.WORKSPACE });
+      if ( getters['management/schemaFor'](FLEET.WORKSPACE) ) {
+        promises['workspaces'] = dispatch('management/findAll', { type: FLEET.WORKSPACE });
+      }
     }
 
     const res = await allHash(promises);
