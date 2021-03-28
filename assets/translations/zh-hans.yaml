@@ -44,7 +44,7 @@ locale:
 
 nav:
   title: Harvester
-  backToRancher: 返回 Rancher UI
+  backToRancher: Rancher
   shell: 命令行
   group:
     cluster: 集群
