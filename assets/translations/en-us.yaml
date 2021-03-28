@@ -267,6 +267,10 @@ assignTo:
     }
   workspace: Workspace
 
+enableMaintenance:
+  title: Enable Maintenance Mode
+  protip: The operation will migrate all virtual machines on this node to other nodes.
+
 asyncButton:
   default:
     action: Action

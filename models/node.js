@@ -269,7 +269,10 @@ export default {
   },
 
   enableMaintenanceMode() {
-    this.doAction('enableMaintenanceMode', {});
+    return (resources = this) => {
+      this.$dispatch('enableMaintenance', resources);
+    };
+    // this.doAction('enableMaintenanceMode', {});
   },
 
   disableMaintenanceMode() {

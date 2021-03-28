@@ -354,6 +354,10 @@ export default {
     commit('action-menu/toggleEjectCDROM', resources, { root: true });
   },
 
+  enableMaintenance({ commit, state }, resources = []) {
+    commit('action-menu/toggleEnableMaintenance', resources, { root: true });
+  },
+
   async resourceAction({ getters, rootGetters, dispatch }, {
     resource, actionName, body, opt,
   }) {
