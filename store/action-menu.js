@@ -2,18 +2,20 @@ import { isArray, filterBy } from '@/utils/array';
 
 export const state = function() {
   return {
-    show:             false,
-    tableSelected:    [],
-    tableAll:         [],
-    resources:        [],
-    elem:             null,
-    event:            null,
-    showPromptRemove: false,
-    showAssignTo:     false,
-    showEjectCDROM:   false,
-    toRemove:         [],
-    toAssign:         [],
-    toEject:          [],
+    show:                  false,
+    tableSelected:         [],
+    tableAll:              [],
+    resources:             [],
+    elem:                  null,
+    event:                 null,
+    showPromptRemove:      false,
+    showAssignTo:          false,
+    showEjectCDROM:        false,
+    showEnableMaintenance: false,
+    toRemove:              [],
+    toAssign:              [],
+    toEject:               [],
+    toEnable:              null,
   };
 };
 
@@ -94,6 +96,11 @@ export const mutations = {
     state.showEjectCDROM = !state.showEjectCDROM;
     state.toEject = resources;
   },
+
+  toggleEnableMaintenance(state, resources) {
+    state.showEnableMaintenance = !state.showEnableMaintenance;
+    state.toEnable = resources;
+  }
 
 };
 

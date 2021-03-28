@@ -115,6 +115,10 @@ assignTo:
     }
   workspace: 工作空间
 
+enableMaintenance:
+  title: 开启节点维护模式
+  protip: 注意!此操作会迁移当前节点上的所有虚拟机!.
+
 asyncButton:
   default:
     action: Action
