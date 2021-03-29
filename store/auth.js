@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { addPrefix } from '@/utils/url';
-import { HARVESTER_USER, HARVESTER_SETTING } from '@/config/types';
+import { HARVESTER_USER, MANAGEMENT } from '@/config/types';
 import Parse from 'url-parse';
 
 const ERR_CLIENT = 'client';
@@ -160,7 +160,7 @@ export const actions = {
             await dispatch('applyRancherFirstLogin', { data: body });
           }
   
-          if (isRancher && !isFirstLogin) {
+          if (isRancher && isFirstLogin) {
             await dispatch('applyServerUrl');
           }
         } catch (err) {
@@ -229,16 +229,15 @@ export const actions = {
 
   async applyServerUrl(ctx) {
     const { state } = ctx;
-
     state.serverUrlTimer = setInterval(async () => {
-      const settings = ctx.rootGetters['cluster/all'](HARVESTER_SETTING);
+      const settings = await ctx.dispatch('cluster/findAll', { type: MANAGEMENT.SETTING }, { root: true });
 
       if (settings.length === 0) {
         return;
       }
 
+      const serverUrl = ctx.rootGetters['cluster/byId'](MANAGEMENT.SETTING, 'server-url');
 
-      const serverUrl = ctx.rootGetters['cluster/byId'](HARVESTER_SETTING, 'server-url');
       const { origin } = Parse(window.location.href);
 
       if (serverUrl && !serverUrl?.value) {
@@ -255,7 +254,7 @@ export const actions = {
         
       } else if (!serverUrl) {
         const value = {
-          apiVersion: 'harvester.cattle.io/v1alpha1',
+          type: MANAGEMENT.SETTING,
           kind:       'Setting',
           metadata:   { name: 'server-url' },
           value:      origin
@@ -264,7 +263,7 @@ export const actions = {
         try {
           const proxyResource = await ctx.dispatch('cluster/create', value, { root: true });
 
-          await proxyResource.save({ url: 'v1/harvester.cattle.io.settings' });
+          await proxyResource.save({ url: 'v1/management.cattle.io.settings' });
 
           clearInterval(state.serverUrlTimer);
           state.serverUrlTimer = null;
@@ -275,7 +274,7 @@ export const actions = {
         clearInterval(state.serverUrlTimer);
         state.serverUrlTimer = null;
       }
-    }, 20000)
+    }, 6000)
     
   },
 
