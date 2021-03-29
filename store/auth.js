@@ -238,7 +238,8 @@ export const actions = {
 
       const serverUrl = ctx.rootGetters['cluster/byId'](MANAGEMENT.SETTING, 'server-url');
 
-      const { origin } = Parse(window.location.href);
+      const parse = Parse(window.location.href);
+      const origin = `${ parse.protocol }//${ parse.hostname }:30444`;
 
       if (serverUrl && !serverUrl?.value) {
         serverUrl.value = origin;
