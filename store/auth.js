@@ -145,7 +145,7 @@ export const actions = {
       body.username = 'admin';
 
       if (isRancher) {
-        await dispatch('applyRancherFirstLogin', { data: body });
+        body.password = 'admin';
       } else {
         body.password = 'password';
       }
@@ -163,12 +163,21 @@ export const actions = {
         commit('updatePrincipalId', data.username);
         this.$cookies.set('loggedIn', true);
         commit('canGetAuthModes', true);
-        if (!isRancher && isPasswordMode) {
-          await dispatch('applyHarvesterFirstLogin', { data: { password: passwordCopy} });
-        }
-
-        if (isRancher && !isFirstLogin) {
-          await dispatch('applyServerUrl');
+        try {
+          if (!isRancher && isPasswordMode && isFirstLogin) {
+            await dispatch('applyHarvesterFirstLogin', { data: { password: passwordCopy} });
+          }
+  
+          if (isRancher && isPasswordMode && isFirstLogin) {
+            body.password = passwordCopy;
+            await dispatch('applyRancherFirstLogin', { data: body });
+          }
+  
+          if (isRancher && !isFirstLogin) {
+            await dispatch('applyServerUrl');
+          }
+        } catch (err) {
+          return Promise.reject(err);
         }
 
         return true;
@@ -197,7 +206,6 @@ export const actions = {
     });
 
     state.isFirstLogin = firstLogin?.data?.value === 'true';
-    // state.isFirstLogin = true;
   },
 
   async applyRancherFirstLogin(ctx, { data }) {
