@@ -410,7 +410,7 @@ export const actions = {
       // }),
     };
 
-    if ( isMultiCluster ) {
+    if (isRancher) {
       promises['rancherSubscribe'] = dispatch('rancher/subscribe');
       promises['rancherSchema'] = dispatch('rancher/loadSchemas', true);
     }
