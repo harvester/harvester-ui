@@ -2,8 +2,6 @@ import { get } from '@/utils/object';
 import { ClusterNotFoundError } from '@/utils/error';
 import { applyProducts } from '@/store/type-map';
 import { NAME as VIRTUAL } from '@/config/product/virtual';
-import { HARVESTER_SETTING } from '@/config/types';
-import Parse from 'url-parse';
 
 let beforeEachSetup = false;
 
@@ -80,25 +78,5 @@ export default async function({ route, store, redirect }) {
 
       return redirect(302, '/fail-whale');
     }
-  }
-
-  // setting-url
-  const serverUrl = store.getters['cluster/byId'](HARVESTER_SETTING, 'server-url');
-  const { origin } = Parse(window.location.href);
-
-  if (serverUrl && !serverUrl?.value) {
-    serverUrl.value = origin;
-    serverUrl.save();
-  } else if (!serverUrl) {
-    const value = {
-      apiVersion: 'harvester.cattle.io/v1alpha1',
-      kind:       'Setting',
-      metadata:   { name: 'server-url' },
-      value:      origin
-    };
-
-    const proxyResource = await store.dispatch('cluster/create', value);
-
-    await proxyResource.save({ url: 'v1/harvester.cattle.io.settings' });
   }
 }
