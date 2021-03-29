@@ -372,12 +372,12 @@ export default {
             {{ t('harvester.loginPage.welcome') }}
           </h1>
 
-          <Banner class="half" color="info" labelKey="harvester.loginPage.firstLoginProtip" />
+          <t k="harvester.loginPage.firstLoginProtip" :raw="true" class="login__protip mt-10 mb-10" />
 
           <div class="half">
             <LabeledInput
               v-model="form.password"
-              :label="t('harvester.loginPage.password')"
+              :label="t('harvester.loginPage.newPassword')"
               type="password"
               class="mt-10"
               required
@@ -474,9 +474,18 @@ export default {
       place-items: center;
     }
 
+    &__protip {
+      display: block;
+
+      code {
+        background: var(--primary);
+      }
+    }
+
     .half {
       width: 50%;
     }
+
 
     .landscape {
       background-image: url('~assets/images/login-landscape.svg');
