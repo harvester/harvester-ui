@@ -3331,7 +3331,7 @@ harvester:
     username: Username
     password: Password
     confirmPassword: Confirm Password
-    firstLoginProtip: Set password for the default admin user
+    firstLoginProtip: Set password for the default <code>admin</code> user
     validation:
       notEquivalent: password is not equal
     signIn: SIGN IN

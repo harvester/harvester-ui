@@ -377,7 +377,7 @@ export default {
               {{ t('harvester.loginPage.welcome') }}
             </h1>
 
-            <Banner class="half" color="info" :label="t('harvester.loginPage.firstLoginProtip')" />
+            <Banner class="half" color="info" labelKey="harvester.loginPage.firstLoginProtip" />
 
             <div class="half">
               <LabeledInput

@@ -2753,7 +2753,7 @@ harvester:
     username: 用户名
     password: 密码
     confirmPassword: 确认密码
-    firstLoginProtip: 请为默认用户 admin 设置密码
+    firstLoginProtip: 请为默认用户 <code>admin</code> 设置密码
     validation:
       notEquivalent: 密码不一致
     signIn: 登录
