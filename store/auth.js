@@ -180,6 +180,8 @@ export const actions = {
           return Promise.reject(err);
         }
 
+        state.isFirstLogin = false;
+
         return true;
       }
     } catch (err) {
