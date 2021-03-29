@@ -478,6 +478,7 @@ export default {
       display: block;
 
       code {
+        padding: 2px 4px;
         background: var(--primary);
       }
     }
