@@ -36,6 +36,7 @@ export default {
 
   computed: {
     ...mapGetters('i18n', ['selectedLocaleLabel', 'availableLocales']),
+    ...mapGetters('auth', ['isFirstLogin']),
 
     canGetAuthModes() {
       return this.$store.getters['auth/canGetAuthModes'];
@@ -100,6 +101,18 @@ export default {
 
     showLocale() {
       return Object.keys(this.availableLocales).length > 1 || this.dev;
+    },
+
+    equalPassword() {
+      if (!this.form.password || !this.form.confirmPassword) {
+        return false;
+      }
+
+      if (this.form.password !== this.form.confirmPassword) {
+        return false;
+      }
+
+      return true;
     },
 
   },
@@ -205,7 +218,7 @@ export default {
       }
 
       if (this.localMode) {
-        if (!this.form.username || this.form.username === '') {
+        if (!this.isFirstLogin && (!this.form.username || this.form.username === '')) {
           this.err = this.getInvalidMsg(this.t('harvester.loginPage.username'));
 
           return buttonCb(false);
@@ -213,6 +226,12 @@ export default {
 
         if (!this.form.password || this.form.password === '') {
           this.err = this.getInvalidMsg(this.t('harvester.loginPage.password'));
+
+          return buttonCb(false);
+        }
+
+        if (this.isFirstLogin && this.form.confirmPassword !== this.form.password) {
+          this.err = this.t('harvester.loginPage.validation.notEquivalent');
 
           return buttonCb(false);
         }
@@ -262,91 +281,136 @@ export default {
 <template>
   <main class="login">
     <div class="row mb-20">
-      <div v-if="canGetAuthModes" class="col span-6">
-        <p class="text-center">
-          {{ t('harvester.loginPage.howdy') }}
-        </p>
-        <h1 class="text-center">
-          {{ t('harvester.loginPage.welcome') }}
-        </h1>
-        <div class="login__container">
-          <div v-if="showLocale" class="locale">
-            <v-popover
-              ref="popover"
-              placement="bottom"
-              trigger="click"
-            >
-              <a>
-                <i class="icon icon-globe"></i> {{ selectedLocaleLabel }}
-              </a>
+      <template v-if="canGetAuthModes">
+        <div v-if="!isFirstLogin" class="col span-6">
+          <p class="text-center">
+            {{ t('harvester.loginPage.howdy') }}
+          </p>
+          <h1 class="text-center">
+            {{ t('harvester.loginPage.welcome') }}
+          </h1>
+          <div class="login__container">
+            <div v-if="showLocale" class="locale">
+              <v-popover
+                ref="popover"
+                placement="bottom"
+                trigger="click"
+              >
+                <a>
+                  <i class="icon icon-globe"></i> {{ selectedLocaleLabel }}
+                </a>
 
-              <template slot="popover">
-                <ul class="list-unstyled dropdown" style="margin: -1px;">
-                  <li v-if="showNone" v-t="'locale.none'" class="p-10 hand" @click="switchLocale('none')" />
-                  <li
-                    v-for="(value, name) in availableLocales"
-                    :key="name"
-                    class="p-10 hand"
-                    @click="switchLocale(name)"
-                  >
-                    {{ value }}
-                  </li>
-                </ul>
-              </template>
-            </v-popover>
-          </div>
+                <template slot="popover">
+                  <ul class="list-unstyled dropdown" style="margin: -1px;">
+                    <li v-if="showNone" v-t="'locale.none'" class="p-10 hand" @click="switchLocale('none')" />
+                    <li
+                      v-for="(value, name) in availableLocales"
+                      :key="name"
+                      class="p-10 hand"
+                      @click="switchLocale(name)"
+                    >
+                      {{ value }}
+                    </li>
+                  </ul>
+                </template>
+              </v-popover>
+            </div>
 
-          <div v-if="!onlyLocalUser">
-            <div v-if="allowKubeCredentials" class="mt-20">
-              <div>
-                <ButtonGroup v-model="loginMode" :options="groupOptions" />
-                <i v-if="fileMode" v-tooltip="t('harvester.loginPage.tips.kubeconfigLimitations', {}, raw=true)" class="icon icon-info" />
+            <div v-if="!onlyLocalUser">
+              <div v-if="allowKubeCredentials" class="mt-20">
+                <div>
+                  <ButtonGroup v-model="loginMode" :options="groupOptions" />
+                  <i v-if="fileMode" v-tooltip="t('harvester.loginPage.tips.kubeconfigLimitations', {}, raw=true)" class="icon icon-info" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div v-if="allowKubeCredentials && !localMode" class="mt-20 half">
-            <div v-if="fileMode" class="file">
-              <div class="file__url" @click="mockBtnClicked">
-                {{ fileName }}
+            <div v-if="allowKubeCredentials && !localMode" class="mt-20 half">
+              <div v-if="fileMode" class="file">
+                <div class="file__url" @click="mockBtnClicked">
+                  {{ fileName }}
+                </div>
+                <button class="btn btn-sm role-primary">
+                  <i class="icon icon-upload" />
+                  <input
+                    ref="uploader"
+                    type="file"
+                    @change="fileChange"
+                  />
+                </button>
               </div>
-              <button class="btn btn-sm role-primary">
-                <i class="icon icon-upload" />
-                <input
-                  ref="uploader"
-                  type="file"
-                  @change="fileChange"
-                />
-              </button>
+              <div v-else>
+                <LabeledInput v-model="token" type="password" />
+              </div>
             </div>
-            <div v-else>
-              <LabeledInput v-model="token" type="password" />
+            <div v-if="allowLocalUser && localMode" class="mt-20 half">
+              <LabeledInput v-model="form.username" :label="t('harvester.loginPage.username')" required />
+              <LabeledInput
+                v-model="form.password"
+                :label="t('harvester.loginPage.password')"
+                type="password"
+                class="mt-10"
+                required
+              />
             </div>
+            <Banner v-if="err" class="mt-20 half" color="error" :label="err" />
+            <AsyncButton
+              ref="loginButton"
+              class="login__go mt-20"
+              :action-label="t('harvester.loginPage.signIn')"
+              :waiting-label="t('harvester.loginPage.loggingIn')"
+              :success-label="t('harvester.loginPage.loggedIn')"
+              :error-label="t('harvester.loginPage.error')"
+              v-bind="$attrs"
+              @click="login"
+            />
+            <Loading v-if="loading" />
           </div>
-          <div v-if="allowLocalUser && localMode" class="mt-20 half">
-            <LabeledInput v-model="form.username" :label="t('harvester.loginPage.username')" required />
-            <LabeledInput
-              v-model="form.password"
-              :label="t('harvester.loginPage.password')"
-              type="password"
-              class="mt-10"
-              required
+        </div>
+
+        <div v-else class="col span-6">
+          <div class="login__container">
+            <p class="text-center">
+              {{ t('harvester.loginPage.howdy') }}
+            </p>
+            <h1 class="text-center">
+              {{ t('harvester.loginPage.welcome') }}
+            </h1>
+
+            <Banner class="half" color="info" :label="t('harvester.loginPage.firstLoginProtip')" />
+
+            <div class="half">
+              <LabeledInput
+                v-model="form.password"
+                :label="t('harvester.loginPage.password')"
+                type="password"
+                class="mt-10"
+                required
+              />
+              <LabeledInput
+                v-model="form.confirmPassword"
+                :label="t('harvester.loginPage.confirmPassword')"
+                type="password"
+                class="mt-10"
+                required
+              />
+            </div>
+            <Banner v-if="err" class="mt-20 half" color="error" :label="err" />
+            <AsyncButton
+              ref="loginButton"
+              class="login__go mt-20"
+              :action-label="t('harvester.loginPage.continue')"
+              :waiting-label="t('harvester.loginPage.loggingIn')"
+              :success-label="t('harvester.loginPage.loggedIn')"
+              :error-label="t('harvester.loginPage.error')"
+              v-bind="$attrs"
+              :disabled="!equalPassword"
+              @click="login"
             />
           </div>
-          <Banner v-if="err" class="mt-20 half" color="error" :label="err" />
-          <AsyncButton
-            ref="loginButton"
-            class="login__go mt-20"
-            :action-label="t('harvester.loginPage.signIn')"
-            :waiting-label="t('harvester.loginPage.loggingIn')"
-            :success-label="t('harvester.loginPage.loggedIn')"
-            :error-label="t('harvester.loginPage.error')"
-            v-bind="$attrs"
-            @click="login"
-          />
-          <Loading v-if="loading" />
         </div>
-      </div>
+      </template>
+      
 
       <div v-else class="col span-6">
         <p class="text-center">
