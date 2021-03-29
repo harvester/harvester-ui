@@ -3330,6 +3330,7 @@ harvester:
     welcome: Welcome to Harvester
     username: Username
     password: Password
+    newPassword: New Password
     confirmPassword: Confirm Password
     firstLoginProtip: Set password for the default <code>admin</code> user
     validation:

@@ -2752,6 +2752,7 @@ harvester:
     welcome: 欢迎使用 Harvester
     username: 用户名
     password: 密码
+    newPassword: 新密码
     confirmPassword: 确认密码
     firstLoginProtip: 请为默认用户 <code>admin</code> 设置密码
     validation:
