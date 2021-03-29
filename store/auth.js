@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { addPrefix, getPrefix } from '@/utils/url';
+import { addPrefix } from '@/utils/url';
 import { HARVESTER_USER, HARVESTER_SETTING } from '@/config/types';
 import Parse from 'url-parse';
 
@@ -14,7 +14,6 @@ export const state = function() {
     authModes:       null,
     isRancher:       null,
     isFirstLogin:    null,
-    canGetAuthModes: true,
     serverUrlTimer:  null,
   };
 };
@@ -44,10 +43,6 @@ export const getters = {
     return state.isFirstLogin;
   },
 
-  canGetAuthModes(state) {
-    return state.canGetAuthModes;
-  }
-
 };
 
 export const mutations = {
@@ -70,10 +65,6 @@ export const mutations = {
     state.principalId = id;
   },
 
-  canGetAuthModes(state, status) {
-    state.canGetAuthModes = status;
-  },
-
   setAuthModes(state, modes) {
     state.authModes = modes;
   },
@@ -84,10 +75,6 @@ export const mutations = {
 };
 
 export const actions = {
-  canGetAuthModes({ commit }, { status }) {
-    commit('canGetAuthModes', status)
-  },
-
   async getAuthModes({ commit, dispatch }) {
     try {
       const res = await this.$axios({
@@ -162,7 +149,7 @@ export const actions = {
         commit('loggedIn');
         commit('updatePrincipalId', data.username);
         this.$cookies.set('loggedIn', true);
-        commit('canGetAuthModes', true);
+
         try {
           if (!isRancher && isPasswordMode && isFirstLogin) {
             await dispatch('applyHarvesterFirstLogin', { data: { password: passwordCopy} });
@@ -308,10 +295,6 @@ export const actions = {
 
         return Promise.reject(ERR_SERVER);
       }
-    }
-
-    if (getPrefix()) {
-      commit('canGetAuthModes', false);
     }
 
     commit('loggedOut');

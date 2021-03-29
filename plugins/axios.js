@@ -74,10 +74,6 @@ export default function({
           return Promise.reject(error.response);
         }
 
-        if (error.response.config.url.includes('v1-public/auth-modes')) {
-          store.dispatch('auth/canGetAuthModes', { status: false });
-        }
-
         if (getPrefix()) {
           redirect(401, '/auth/login');
         } else {
