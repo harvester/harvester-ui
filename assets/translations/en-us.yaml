@@ -3330,7 +3330,12 @@ harvester:
     welcome: Welcome to Harvester
     username: Username
     password: Password
+    confirmPassword: Confirm Password
+    firstLoginProtip: Set password for the default admin user
+    validation:
+      notEquivalent: password is not equal
     signIn: SIGN IN
+    continue: Continue
     loggingIn: Logging In...
     loggedIn: Logged In
     loggedOut: Logged Out!

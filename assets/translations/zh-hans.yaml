@@ -2752,7 +2752,12 @@ harvester:
     welcome: 欢迎使用 Harvester
     username: 用户名
     password: 密码
+    confirmPassword: 确认密码
+    firstLoginProtip: 请为默认用户 admin 设置密码
+    validation:
+      notEquivalent: 密码不一致
     signIn: 登录
+    continue: 确认
     loggingIn: 登录中...
     loggedIn: 登录成功
     loggedOut: 登出成功!
