@@ -409,14 +409,12 @@ export const actions = {
       //   opt:  { url: MANAGEMENT.CLUSTER }
       // }),
     };
+    const isRancher = getters['auth/isRancher'];
 
     if (isRancher) {
       promises['rancherSubscribe'] = dispatch('rancher/subscribe');
       promises['rancherSchema'] = dispatch('rancher/loadSchemas', true);
-    }
 
-    const isRancher = getters['auth/isRancher'];
-    if (!isRancher) {
       if ( getters['management/schemaFor'](COUNT) ) {
         promises['counts'] = dispatch('management/findAll', { type: COUNT });
       }
