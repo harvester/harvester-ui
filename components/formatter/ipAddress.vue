@@ -1,7 +1,7 @@
 <script>
 import _ from 'lodash';
-import { HARVESTER_NETWORK_IPS, HARVESTER_NETWORK_STATUS } from '@/config/labels-annotations';
-import { VMI, POD } from '@/config/types';
+import { HARVESTER_NETWORK_IPS } from '@/config/labels-annotations';
+import { VMI } from '@/config/types';
 import CopyToClipboardText from '@/components/CopyToClipboardText';
 
 export default {
@@ -23,7 +23,7 @@ export default {
 
   computed: {
     ip() {
-      const s = new Set([...this.vmiIp, ...this.podIp, ...this.networkAnnotationIP]);
+      const s = new Set([...this.vmiIp, ...this.networkAnnotationIP]);
 
       return _.compact([...s]);
     },
@@ -42,38 +42,38 @@ export default {
       });
     },
 
-    podIp() {
-      const vmiResources = this.$store.getters['cluster/all'](VMI);
-      const podResources = this.$store.getters['cluster/all'](POD);
+    // podIp() {
+    //   const vmiResources = this.$store.getters['cluster/all'](VMI);
+    //   const podResources = this.$store.getters['cluster/all'](POD);
 
-      const ips = new Set();
-      let networkStatus = '[]';
-      let podResource = null;
+    //   const ips = new Set();
+    //   let networkStatus = '[]';
+    //   let podResource = null;
 
-      const resource = vmiResources.find(VMI => VMI.id === this.value) || null;
+    //   const resource = vmiResources.find(VMI => VMI.id === this.value) || null;
 
-      if (resource) {
-        podResource = podResources.find( (P) => {
-          return resource?.metadata?.name === P.metadata?.ownerReferences?.[0].name;
-        });
+    //   if (resource) {
+    //     podResource = podResources.find( (P) => {
+    //       return resource?.metadata?.name === P.metadata?.ownerReferences?.[0].name;
+    //     });
 
-        networkStatus = podResource?.getAnnotationValue(HARVESTER_NETWORK_STATUS);
-      }
+    //     networkStatus = podResource?.getAnnotationValue(HARVESTER_NETWORK_STATUS);
+    //   }
 
-      try {
-        if (networkStatus && podResource?.status?.phase !== 'Succeeded') {
-          const obj = JSON.parse(networkStatus);
+    //   try {
+    //     if (networkStatus && podResource?.status?.phase !== 'Succeeded') {
+    //       const obj = JSON.parse(networkStatus);
 
-          obj.map( (O) => {
-            ips.add(...O.ips);
-          });
-        }
-      } catch (err) {
+    //       obj.map( (O) => {
+    //         ips.add(...O.ips);
+    //       });
+    //     }
+    //   } catch (err) {
 
-      }
+    //   }
 
-      return [...ips];
-    },
+    //   return [...ips];
+    // },
 
     vmiIp() {
       const vmiResources = this.$store.getters['cluster/all'](VMI);
