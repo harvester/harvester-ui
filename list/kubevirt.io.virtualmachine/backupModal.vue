@@ -78,10 +78,10 @@ export default {
     :pivot-y="0.001"
   >
     <div class="p-20">
-      <h2>{{ t('harvester.backUpPage.restoreModal.title') }}</h2>
+      <h2>{{ t('harvester.backUpPage.backupModal.addBackup') }}</h2>
       <LabeledInput
         v-model="backUpName"
-        label="Name"
+        :label="t('generic.name')"
       />
 
       <div class="footer mt-20">

@@ -79,13 +79,15 @@ export default {
       }
 
       try {
-        await this.actionResources.doAction('restore', { backupName: this.backupName, name });
+        const res = await this.actionResources.doAction('restore', { backupName: this.backupName, name });
 
-        this.$notify({
-          title:    'Succeed',
-          message:  `Restore ${ this.backupName } succeed`,
-          type:     'success'
-        });
+        if (res._status === 200 || res._status === 204) {
+          this.$notify({
+            title:    'Succeed',
+            message:  `Restore ${ this.backupName } succeed`,
+            type:     'success'
+          });
+        }
 
         this.closeRestore();
       } catch (err) {
@@ -113,8 +115,7 @@ export default {
     :pivot-y="0.001"
   >
     <div class="p-20">
-      <h2>{{ t('harvester.backUpPage.backupModal.addBackup') }}</h2>
-
+      <h2>{{ t('harvester.backUpPage.restoreModal.title') }}</h2>
       <div>
         <LabeledSelect
           v-model="backupName"
