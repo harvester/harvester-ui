@@ -1,6 +1,10 @@
 <script>
 import { VMI } from '@/config/types';
 
+const _FAILED = 'Failed';
+const _SUCCEEDED = 'Succeeded';
+const _MIGRATING = 'Migrating';
+
 export default {
   props: {
     vmResource: {
@@ -28,7 +32,17 @@ export default {
       if (isComplete && this.showSuccess === false) {
         return '';
       } else {
-        return this.vmiResource?.vmimResource?.status?.phase;
+        const phase = this.vmiResource?.vmimResource?.status?.phase;
+
+        if (phase && phase === _FAILED) {
+          return _FAILED;
+        } else if (phase && phase === _SUCCEEDED) {
+          return _SUCCEEDED;
+        } else if (phase) {
+          return _MIGRATING;
+        }
+
+        return '';
       }
     }
   }
@@ -77,7 +91,7 @@ export default {
     position: relative;
     padding: 2px 10px 1px 10px;
     font-size: 1em;
-    max-width: 150px;
+    max-width: 200px;
     font-size: .85em;
     vertical-align: middle;
   }

@@ -1,4 +1,5 @@
 <script>
+import { VMI, NODE } from '@/config/types';
 import CopyToClipboardText from '@/components/CopyToClipboardText';
 
 export default {
@@ -16,8 +17,21 @@ export default {
 
   computed: {
     nodeName() {
-      return this.row.realAttachNodeName;
-    }
+      return this.node?.nameDisplay || '';
+    },
+
+    vmi() {
+      const vmiResources = this.$store.getters['cluster/all'](VMI);
+      const resource = vmiResources.find(VMI => VMI.id === this.row.id) || null;
+
+      return resource;
+    },
+
+    node() {
+      const nodeName = this.vmi?.status?.nodeName;
+
+      return this.$store.getters['cluster/byId'](NODE, nodeName);
+    },
   },
 };
 </script>
