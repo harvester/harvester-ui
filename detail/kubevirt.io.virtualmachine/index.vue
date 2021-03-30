@@ -8,6 +8,7 @@ import OverviewDisks from './tabs/details/disks';
 import OverviewNetworks from './tabs/details/networks';
 import OverviewKeypairs from './tabs/details/keypairs';
 import OverviewCloudConfigs from './tabs/details/cloud-configs';
+import Migration from './tabs/migration';
 import Events from './tabs/events/';
 
 export default {
@@ -22,6 +23,7 @@ export default {
     OverviewNetworks,
     OverviewKeypairs,
     OverviewCloudConfigs,
+    Migration,
   },
 
   mixins: [CreateEditView],
@@ -109,9 +111,9 @@ export default {
         <Events :resource="vmi" :events="events" />
       </Tab>
 
-      <!-- <Tab name="migration" :label="t('harvester.vmPage.detail.tabs.migration')">
+      <Tab name="migration" :label="t('harvester.vmPage.detail.tabs.migration')">
         <Migration v-model="value" :vmi-resource="vmi" />
-      </Tab> -->
+      </Tab>
     </Tabbed>
   </div>
 </template>
