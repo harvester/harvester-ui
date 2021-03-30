@@ -1,5 +1,5 @@
 <script>
-import { createNamespacedHelpers } from 'vuex';
+import { createNamespacedHelpers, mapGetters } from 'vuex';
 import { exceptionToErrorsArray } from '@/utils/error';
 import LabeledInput from '@/components/form/LabeledInput';
 
@@ -14,7 +14,10 @@ export default {
     return { backUpName: '' };
   },
 
-  computed: { ...mapState(['isShowBackUp', 'actionResources']) },
+  computed: {
+    ...mapState(['isShowBackUp', 'actionResources']),
+    ...mapGetters({ t: 'i18n/t' }),
+  },
 
   watch: {
     isShowBackUp: {
@@ -44,8 +47,8 @@ export default {
           const message = this.$store.getters['i18n/t']('validation.required', { key: name });
 
           this.$notify({
+            title:    this.t('harvester.notification.title.warning'),
             duration: 5000,
-            title:    'Warning',
             message,
             type:     'warning'
           });
@@ -61,7 +64,7 @@ export default {
           if (res._status === 200 || res._status === 204) {
             this.$notify({
               duration: 5000,
-              title:    'Succeed',
+              title:    this.t('harvester.notification.title.succeed'),
               message:  `Backup ${ this.backUpName } successfully created`,
               type:     'success'
             });
@@ -70,8 +73,8 @@ export default {
           this.backUpName = '';
         } catch (err) {
           this.$notify({
+            title:    this.t('harvester.notification.title.error'),
             duration: 0,
-            title:    'Error',
             message:  err?.data || exceptionToErrorsArray(err) || err,
             type:     'error'
           });

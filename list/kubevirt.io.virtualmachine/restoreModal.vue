@@ -3,7 +3,7 @@ import randomstring from 'randomstring';
 import { exceptionToErrorsArray } from '@/utils/error';
 import { HARVESTER_BACKUP } from '@/config/types';
 import { allHash } from '@/utils/promise';
-import { createNamespacedHelpers } from 'vuex';
+import { createNamespacedHelpers, mapGetters } from 'vuex';
 import LabeledSelect from '@/components/form/LabeledSelect';
 
 const { mapState } = createNamespacedHelpers('kubevirt.io.virtualmachine');
@@ -28,6 +28,7 @@ export default {
 
   computed: {
     ...mapState(['actionResources', 'isShowRestore']),
+    ...mapGetters({ t: 'i18n/t' }),
 
     backupOption() {
       const attachBackup = this.backups.filter( (B) => {
@@ -69,9 +70,9 @@ export default {
 
       if (!this.backupName) {
         this.$notify({
+          title:    this.t('harvester.notification.title.warning'),
           duration: 5000,
-          title:    'Warning',
-          message:  this.$store.getters['i18n/t']('harvester.backUpPage.restoreModal.message.backup'),
+          message:  this.t('harvester.backUpPage.restoreModal.message.backup'),
           type:     'warning'
         });
 
@@ -83,7 +84,7 @@ export default {
 
         if (res._status === 200 || res._status === 204) {
           this.$notify({
-            title:    'Succeed',
+            title:    this.t('harvester.notification.title.succeed'),
             message:  `Restore ${ this.backupName } succeed`,
             type:     'success'
           });
@@ -92,8 +93,8 @@ export default {
         this.closeRestore();
       } catch (err) {
         this.$notify({
+          title:    this.t('harvester.notification.title.error'),
           duration: 0,
-          title:    'Error',
           message:  err?.data || exceptionToErrorsArray(err) || err,
           type:     'error'
         });

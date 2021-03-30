@@ -2771,3 +2771,10 @@ harvester:
       token: Token
     tips:
       kubeconfigLimitations: 以 Kubeconfig 方式登录不支持外部供应商的身份认证或basic-atuh的方式.
+  notification:
+    title:
+      succeed: 成功
+      success: 成功
+      info: 提示
+      warning: 警告
+      error: 错误
