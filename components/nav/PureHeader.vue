@@ -42,7 +42,7 @@ export default {
     enableRancher() {
       const rancher = this.$store.getters['cluster/all'](HARVESTER_SETTING).find(O => O.metadata.name === 'rancher-enabled');
 
-      return rancher.value === 'true';
+      return rancher?.value === 'true';
     }
   },
 
