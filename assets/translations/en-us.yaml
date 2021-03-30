@@ -3298,6 +3298,8 @@ harvester:
     restoreModal:
       title: Backup and restore
       selectBackup: Select Backup
+      message:
+        backup: Please select the backup that needs to be restored.
     createText: Restore Backup
     title: Restore Virtual Machine
     backupTargetTip: The endpoint used to access the backupstore. NFS and S3 are supported.

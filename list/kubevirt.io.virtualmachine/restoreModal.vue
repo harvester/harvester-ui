@@ -71,7 +71,7 @@ export default {
         this.$notify({
           duration: 5000,
           title:    'Warning',
-          message:  'Please select the backup that needs to be restored',
+          message:  this.$store.getters['i18n/t']('harvester.backUpPage.restoreModal.message.backup'),
           type:     'warning'
         });
 

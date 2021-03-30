@@ -39,6 +39,20 @@ export default {
 
     async save() {
       if (this.actionResources) {
+        if (!this.backUpName) {
+          const name = this.$store.getters['i18n/t']('harvester.fields.name');
+          const message = this.$store.getters['i18n/t']('validation.required', { key: name });
+
+          this.$notify({
+            duration: 5000,
+            title:    'Warning',
+            message,
+            type:     'warning'
+          });
+
+          return;
+        }
+
         try {
           const res = await this.actionResources.doAction('backup', { name: this.backUpName });
 

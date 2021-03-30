@@ -91,7 +91,7 @@ export default {
         this.metrics = await this.$store.dispatch('cluster/find', {
           type: METRIC.NODE,
           id:   this.value.id,
-          opt:  { force: true }
+          opt:  { force: true, watch: false }
         });
         this.$forceUpdate();
       }
