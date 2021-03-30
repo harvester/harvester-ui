@@ -24,6 +24,8 @@ export function init(store) {
     icon:                'compass'
   });
 
+  configureType(HARVESTER_SETTING, { isCreatable: false, showState: false });
+
   basicType(['virtual-dashboard']);
   virtualType({
     label:        'Dashboard',
@@ -101,8 +103,8 @@ export function init(store) {
     HARVESTER_SETTING
   ], 'advanced');
 
-  configureType(HARVESTER_CLUSTER_NETWORK, { realResource: HARVESTER_SETTING });
-  configureType(MANAGEMENT.USER, { realResource: HARVESTER_USER });
+  configureType(HARVESTER_CLUSTER_NETWORK, { realResource: HARVESTER_SETTING, showState: false });
+  configureType(MANAGEMENT.USER, { realResource: HARVESTER_USER, showState: false });
   componentForType(MANAGEMENT.USER, HARVESTER_USER);
   virtualType({
     label:      'VM Templates',
@@ -134,6 +136,7 @@ export function init(store) {
     exact: false,
   });
 
+  configureType(NETWORK_ATTACHMENT, { isEditable: false, showState: false });
   virtualType({
     label:      'Networks',
     group:      'root',

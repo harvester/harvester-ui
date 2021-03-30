@@ -1,7 +1,7 @@
 export default {
   _availableActions() {
     let out = this._standardActions;
-    const toFilter = ['goToClone', 'cloneYaml', 'goToEditYaml', 'goToEdit', 'download'];
+    const toFilter = ['goToClone', 'cloneYaml', 'goToViewConfig', 'goToEditYaml', 'goToEdit', 'download'];
 
     out = out.filter((action) => {
       if (!toFilter.includes(action.action)) {
