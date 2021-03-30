@@ -3349,3 +3349,10 @@ harvester:
       token: Token
     tips:
       kubeconfigLimitations: Kubeconfig Authentication method does not support external identity providers or basic authentication.
+  notification:
+    title:
+      succeed: Succeed
+      success: Success
+      info: Info
+      warning: Warning
+      error: Error
