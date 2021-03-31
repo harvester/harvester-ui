@@ -76,7 +76,7 @@ export default {
       });
       keys = keys.join('').split(',');
 
-      userData = userData.split('- >-').splice(1);
+      userData = userData?.split('- >-').splice(1);
 
       out = this.allssh.filter(ssh => keys.includes(ssh.metadata.name)).map((ssh) => {
         return {

@@ -51,7 +51,7 @@ export default {
 
   displayValue() { // Select the field you want to display
     if (this.id === 'backup-target') {
-      return this.parseValue?.endpoint;
+      return this.parseValue?.endpoint || ' ';
     }
 
     return null;
