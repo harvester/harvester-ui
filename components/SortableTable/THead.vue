@@ -85,6 +85,8 @@ export default {
         desc = !this.descending;
       }
 
+      this.sortBy = col.name;
+
       this.$emit('on-sort-change', col.name, desc);
     },
 
@@ -126,14 +128,16 @@ export default {
         :class="{ sortable: col.sort }"
         @click.prevent="changeSort($event, col)"
       >
-        <nuxt-link v-if="col.sort" :to="{query: queryFor(col)}">
+        <!-- <nuxt-link v-if="col.sort" :to="{query: queryFor(col)}"> -->
+        <a v-if="col.sort" href="javascript:void(0);">
           <span v-html="labelFor(col)" />
           <span class="icon-stack">
             <i class="icon icon-sort icon-stack-1x faded" />
             <i v-if="isCurrent(col) && !descending" class="icon icon-sort-down icon-stack-1x" />
             <i v-if="isCurrent(col) && descending" class="icon icon-sort-up icon-stack-1x" />
           </span>
-        </nuxt-link>
+        <!-- </nuxt-link> -->
+        </a>
         <span v-else>{{ labelFor(col) }}</span>
       </th>
       <th v-if="rowActions" :width="rowActionsWidth">

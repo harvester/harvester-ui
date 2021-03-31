@@ -1,5 +1,5 @@
 import { ROWS_PER_PAGE } from '@/store/prefs';
-import { PAGE } from '@/config/query-params';
+// import { PAGE } from '@/config/query-params';
 
 export default {
   computed: {
@@ -61,7 +61,8 @@ export default {
   },
 
   data() {
-    return { page: this.$route.query[PAGE] || 1 };
+    // return { page: this.$route.query[PAGE] || 1 };
+    return { page: 1 };
   },
 
   watch: {
@@ -91,11 +92,11 @@ export default {
     setPage(num) {
       this.page = num;
 
-      if ( num === 1 ) {
-        this.$router.applyQuery({ [PAGE]: undefined });
-      } else {
-        this.$router.applyQuery({ [PAGE]: num });
-      }
+      // if ( num === 1 ) {
+      //   this.$router.applyQuery({ [PAGE]: undefined });
+      // } else {
+      //   this.$router.applyQuery({ [PAGE]: num });
+      // }
     },
 
     goToPage(which) {

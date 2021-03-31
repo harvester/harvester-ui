@@ -1,4 +1,4 @@
-import { SORT_BY, DESCENDING, PAGE } from '@/config/query-params';
+// import { SORT_BY, DESCENDING, PAGE } from '@/config/query-params';
 import { sortBy } from '@/utils/sort';
 import { addObject } from '@/utils/array';
 
@@ -37,7 +37,7 @@ export default {
 
   data() {
     let sortBy = null;
-    let descending = false;
+    const descending = false;
 
     this._defaultSortBy = this.defaultSortBy;
 
@@ -64,14 +64,14 @@ export default {
       }
     }
 
-    sortBy = this.$route.query.sort;
+    // sortBy = this.$route.query.sort;
 
     // If the sort column doesn't exist or isn't specified, use default
     if ( !sortBy || !this.headers.find(x => x.name === sortBy ) ) {
       sortBy = this._defaultSortBy;
     }
 
-    descending = (typeof this.$route.query.desc) !== 'undefined';
+    // descending = (typeof this.$route.query.desc) !== 'undefined';
 
     return {
       sortBy,
@@ -85,15 +85,15 @@ export default {
       this.descending = desc;
       this.currentPage = 1;
 
-      this.$router.applyQuery({
-        [SORT_BY]:    this.sortBy,
-        [DESCENDING]: this.descending,
-        [PAGE]:       this.currentPage,
-      }, {
-        [SORT_BY]:    this._defaultSortBy,
-        [DESCENDING]: false,
-        [PAGE]:       1,
-      });
+      // this.$router.applyQuery({
+      //   [SORT_BY]:    this.sortBy,
+      //   [DESCENDING]: this.descending,
+      //   [PAGE]:       this.currentPage,
+      // }, {
+      //   [SORT_BY]:    this._defaultSortBy,
+      //   [DESCENDING]: false,
+      //   [PAGE]:       1,
+      // });
     },
   },
 };
