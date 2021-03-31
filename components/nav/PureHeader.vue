@@ -69,7 +69,7 @@ export default {
     </div>
 
     <div class="back">
-      <a v-if="isRancher && enableRancher" class="btn role-tertiary" :href="backupRancher">
+      <a v-if="isRancher && enableRancher" target="_blank" class="btn role-tertiary" :href="backupRancher">
         {{ t('nav.backToRancher') }}
       </a>
     </div>
