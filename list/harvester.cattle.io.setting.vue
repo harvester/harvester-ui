@@ -3,6 +3,7 @@ import ResourceTable from '@/components/ResourceTable';
 import { allSettled } from '@/utils/promise';
 import { NAME, SETTING_VALUE } from '@/config/table-headers';
 import { HARVESTER_SETTING, HARVESTER_CLUSTER_NETWORK } from '@/config/types';
+const BannedList = ['api-ui-source', 'auth-secret-name', 'first-login', 'no-default-admin', 'upgradable-versions', 'volume-snapshot-class'];
 
 export default {
   name:       'ListSetting',
@@ -36,7 +37,7 @@ export default {
   computed: {
     rows() {
       const settings = this.haversterSettings.filter( (O) => {
-        return !(O.metadata.name === 'rancher-enabled' && !this.isRancher);
+        return !(O.metadata.name === 'rancher-enabled' && !this.isRancher) && !BannedList.includes(O.metadata.name);
       });
 
       return [...settings, ...this.clusterNetworkSettings];

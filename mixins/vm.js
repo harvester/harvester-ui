@@ -633,7 +633,8 @@ export default {
 
       if (this.pageType !== 'vm') {
         if (!this.imageName) {
-          spec.dataVolumeTemplates[0].spec.source.http.url = TEMPORARY_VALUE;
+          // spec.dataVolumeTemplates[0].spec.source.http.url = TEMPORARY_VALUE;
+          spec.dataVolumeTemplates[0].metadata.annotations[HARVESTER_IMAGE_ID] = TEMPORARY_VALUE;
         }
       }
 

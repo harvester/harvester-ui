@@ -33,6 +33,10 @@ export default {
       parseDefaultValue = JSON.parse(this.value.default);
     }
 
+    if (!parseDefaultValue.type) {
+      parseDefaultValue.type = 's3';
+    }
+
     return {
       parseDefaultValue,
       errors: []
