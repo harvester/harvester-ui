@@ -57,6 +57,12 @@ export default {
     },
   },
 
+  data() {
+    // add for table sorting on non-hash mode
+
+    return { sortByTemp: this.sortBy };
+  },
+
   computed: {
     isAll: {
       get() {
@@ -81,17 +87,17 @@ export default {
 
       let desc = false;
 
-      if ( this.sortBy === col.name ) {
+      if ( this.sortByTemp === col.name ) {
         desc = !this.descending;
       }
 
-      this.sortBy = col.name;
+      this.sortByTemp = col.name;
 
       this.$emit('on-sort-change', col.name, desc);
     },
 
     isCurrent(col) {
-      return col.name === this.sortBy;
+      return col.name === this.sortByTemp;
     },
 
     queryFor(col) {

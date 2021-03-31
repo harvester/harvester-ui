@@ -80,11 +80,11 @@ export default {
     sortFields(old, neu) {
       if ( old.join(',') === neu.join(',') ) {
         // Nothing really changed
-        return;
+
       }
 
       // Go back to the first page when sort changes
-      this.setPage(1);
+      // this.setPage(1);
     }
   },
 
