@@ -159,7 +159,7 @@ export default {
     }
   },
 
-  title() {
+  componentTitle() {
     return 'restoreVM';
   }
 };
