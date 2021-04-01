@@ -189,7 +189,7 @@ export default {
       as:              null,
       value:           null,
       model:           null,
-      title:           ''
+      componentTitle:  ''
     };
   },
 
@@ -255,16 +255,16 @@ export default {
     showComponent: {
       async handler(neu) {
         if (!neu) {
-          this.title = this.realMode;
+          this.componentTitle = this.realMode;
 
           return;
         }
         const component = (await neu())?.default;
 
-        if (component?.title) {
-          this.title = component.title.apply(this);
+        if (component?.componentTitle) {
+          this.componentTitle = component.componentTitle.apply(this);
         } else {
-          this.title = this.realMode;
+          this.componentTitle = this.realMode;
         }
       },
       immediate: true
@@ -301,7 +301,7 @@ export default {
       :value="originalModel"
       :mode="mode"
       :real-mode="realMode"
-      :title="title"
+      :title="componentTitle"
       :as="as"
       :has-detail="hasCustomDetail"
       :has-edit="hasCustomEdit"
