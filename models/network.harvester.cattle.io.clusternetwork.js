@@ -14,7 +14,12 @@ export default {
     return out;
   },
 
-  isOpenVlan() {
+  // vlan
+  canUseVlan() {
+    return this.isVlanOpen && this.defaultPhysicalNic.length > 0;
+  },
+
+  isVlanOpen() {
     return !!this.enable;
   },
 

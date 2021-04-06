@@ -308,6 +308,7 @@ export const USERNAME = {
   name:        'username',
   labelKey:    'tableHeaders.username',
   value:       'username',
+  formatter:   'LinkDetail',
   dashIfEmpty: true,
   sort:        'username',
 };
@@ -715,4 +716,28 @@ export const SETTING_VALUE = {
   name:     'value',
   labelKey: 'harvester.tableHeaders.value',
   value:    'valueOrDefaultValue'
+};
+
+export const FINGERPRINT = {
+  name:      'Fingerprint',
+  labelKey:  'harvester.tableHeaders.fingerprint',
+  value:     'status.fingerPrint',
+};
+
+export const NETWORK_TYPE = {
+  name:      'type',
+  value:     'spec.config',
+  sort:      'spec.config',
+  type:      'type',
+  formatter: 'ParseNetworkConfig',
+  labelKey:  'tableHeaders.network.type'
+};
+
+export const NETWORK_VLAN = {
+  name:      'vlan',
+  value:     'spec.config',
+  sort:      'spec.config',
+  type:       'vlan',
+  formatter:  'ParseNetworkConfig',
+  labelKey:  'tableHeaders.network.vlan'
 };

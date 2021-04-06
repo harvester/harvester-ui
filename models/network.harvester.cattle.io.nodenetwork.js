@@ -13,5 +13,13 @@ export default {
 
   attachNodeName() {
     return this.getLabelValue('network.harvester.cattle.io/nodename');
+  },
+
+  linkMessage() {
+    return {
+      name:    this.attachNodeName,
+      message: this.message,
+      to:      `node/${ this.attachNodeName }?mode=edit`
+    };
   }
 };

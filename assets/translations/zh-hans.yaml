@@ -2518,6 +2518,7 @@ harvester:
     size: 大小
     progress: 进度
     phase: 阶段
+    message: 消息
     attachedVM: 挂载VM
     fingerprint: 唯一标识
     value: 值

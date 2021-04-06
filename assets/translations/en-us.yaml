@@ -3074,6 +3074,7 @@ harvester:
   tableHeaders:
     size: Size
     progress: Progress
+    message: Message
     phase: Phase
     attachedVM: Attached VM
     fingerprint: Fingerprint

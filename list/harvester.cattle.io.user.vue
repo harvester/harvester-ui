@@ -1,10 +1,10 @@
 <script>
-import { STATE, AGE, USERNAME } from '@/config/table-headers';
+import { AGE, USERNAME } from '@/config/table-headers';
 import SortableTable from '@/components/SortableTable';
 import { HARVESTER_USER, NORMAN, MANAGEMENT } from '@/config/types';
 
 export default {
-  name:       'ListUser',
+  name:       'LUsers',
   components: { SortableTable },
 
   props: {
@@ -12,11 +12,6 @@ export default {
       type:     Object,
       required: true,
     },
-
-    // rows: {
-    //   type:     Array,
-    //   required: true,
-    // },
   },
 
   async fetch() {
@@ -28,8 +23,9 @@ export default {
     if (!isRancher) {
       this.harvesterUsers = await store.dispatch('cluster/findAll', { type: HARVESTER_USER });
     } else {
-      const v3UsersPromise = store.dispatch('rancher/findAll', { type: NORMAN.USER, opt: { url: `/v3/${ NORMAN.USER }s` } });
-      const managementUsersPromise = store.dispatch('management/findAll', { type: MANAGEMENT.USER, opt: { url: `/v1/${ MANAGEMENT.USER }s` } });
+      const v3UsersPromise = store.dispatch('rancher/findAll', { type: NORMAN.USER });
+      const managementUsersPromise = store.dispatch('management/findAll', { type: MANAGEMENT.USER });
+
       const [v3Users, managementUsers] = await Promise.all([v3UsersPromise, managementUsersPromise]);
 
       this.v3Users = v3Users;
@@ -39,21 +35,17 @@ export default {
 
   data() {
     return {
-      harvesterUsers:  [],
       v3Users:         [],
+      harvesterUsers:  [],
       managementUsers: [],
-      isRancher:       null
+      isRancher:       false
     };
   },
 
   computed: {
     headers() {
       return [
-        { ...STATE },
-        {
-          ...USERNAME,
-          formatter: 'LinkDetail',
-        },
+        USERNAME,
         AGE
       ];
     },
@@ -74,9 +66,8 @@ export default {
     v-bind="$attrs"
     :headers="headers"
     default-sort-by="age"
-    :rows="[...rows]"
+    :rows="rows"
     key-field="_key"
     v-on="$listeners"
-  >
-  </sortabletable>
+  />
 </template>

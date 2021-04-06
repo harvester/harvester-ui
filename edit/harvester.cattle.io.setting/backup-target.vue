@@ -11,7 +11,9 @@ export default {
   components: {
     LabeledInput, LabeledSelect, Tip, Password
   },
-  mixins:     [CreateEditView],
+
+  mixins: [CreateEditView],
+
   props:      {
     value: {
       type:     Object,

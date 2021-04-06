@@ -9,9 +9,7 @@ export default {
       }
     });
 
-    return [
-      ...out
-    ];
+    return out;
   },
 
   isIpamStatic() {
@@ -24,5 +22,20 @@ export default {
     }
 
     return config?.ipam?.type === 'static';
-  }
+  },
+
+  customValidationRules() {
+    const rules = [
+      {
+        nullable:       false,
+        path:           'metadata.name',
+        required:       true,
+        minLength:      1,
+        maxLength:      63,
+        translationKey: 'harvester.fields.name'
+      },
+    ];
+
+    return rules;
+  },
 };
