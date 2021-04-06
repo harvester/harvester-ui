@@ -2448,6 +2448,8 @@ action:
   restore: 恢复
   restoreNewVM: 恢复新的虚拟机
   restoreExistingVM: 恢复现存的虚拟机
+  migrate: 迁移
+  abortMigration: 取消迁移
 
 unit:
   sec: secs
