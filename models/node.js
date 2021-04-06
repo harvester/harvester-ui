@@ -38,7 +38,7 @@ export default {
       action:     'enableMaintenanceMode',
       enabled:    this.hasAction('enableMaintenanceMode'),
       icon:       'icon icon-fw icon-unlock',
-      label:      'Enable Maintenance Mode',
+      label:      this.t('action.enableMaintenance'),
       total:      1
     };
 
@@ -46,7 +46,7 @@ export default {
       action:     'disableMaintenanceMode',
       enabled:    this.hasAction('disableMaintenanceMode'),
       icon:       'icon icon-fw icon-lock',
-      label:      'Disable Maintenance Mode',
+      label:      this.t('action.disableMaintenance'),
       total:      1
     };
 
@@ -270,9 +270,8 @@ export default {
 
   enableMaintenanceMode() {
     return (resources = this) => {
-      this.$dispatch('enableMaintenance', resources);
+      this.$commit('node/toggleMaintenanceModal', resources, { root: true });
     };
-    // this.doAction('enableMaintenanceMode', {});
   },
 
   disableMaintenanceMode() {

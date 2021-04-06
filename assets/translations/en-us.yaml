@@ -2992,8 +2992,6 @@ action:
   stop: Stop
   pause: Pause
   unpause: unpasue
-  migrate: Migrate
-  abortMigration: Abort Migration
   ejectCDROM: Eject CDROM
   launchFormTemplate: Launch instance from template
   modifyTemplate: Modify template (Create new version)
@@ -3009,6 +3007,8 @@ action:
   restoreExistingVM: Replace Existing
   migrate: Migrate
   abortMigration: Abort Migration
+  enableMaintenance: Enable Maintenance Mode
+  disableMaintenance: Disable Maintenance Mode
 
 unit:
   sec: secs

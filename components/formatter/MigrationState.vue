@@ -1,10 +1,5 @@
 <script>
 import { VMI } from '@/config/types';
-import { HARVESTER_MIGRATION_STATE } from '@/config/labels-annotations';
-
-const _FAILED = 'Failed';
-const _SUCCEEDED = 'Succeeded';
-const _MIGRATING = 'Migrating';
 
 export default {
   props: {

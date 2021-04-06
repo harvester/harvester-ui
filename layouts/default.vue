@@ -8,7 +8,6 @@ import WindowManager from '@/components/nav/WindowManager';
 import PromptRemove from '@/components/PromptRemove';
 import AssignTo from '@/components/AssignTo';
 import EjectCDROM from '@/components/EjectCDROM/index';
-import EnableMaintenance from '@/components/EnableMaintenance';
 import Group from '@/components/nav/Group';
 import Footer from '@/components/nav/Footer';
 import PureHeader from '@/components/nav/PureHeader';
@@ -26,7 +25,6 @@ export default {
     PromptRemove,
     AssignTo,
     EjectCDROM,
-    EnableMaintenance,
     PureHeader,
     Footer,
     ActionMenu,
@@ -269,7 +267,6 @@ export default {
       <PromptRemove />
       <AssignTo />
       <EjectCDROM />
-      <EnableMaintenance />
       <ServerUrlModal />
       <button v-if="dev" v-shortkey.once="['shift','l']" class="hide" @shortkey="toggleNoneLocale()" />
       <button v-if="dev" v-shortkey.once="['shift','t']" class="hide" @shortkey="toggleTheme()" />

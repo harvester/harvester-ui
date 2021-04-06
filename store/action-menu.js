@@ -11,7 +11,6 @@ export const state = function() {
     showPromptRemove:      false,
     showAssignTo:          false,
     showEjectCDROM:        false,
-    showEnableMaintenance: false,
     toRemove:              [],
     toAssign:              [],
     toEject:               [],
@@ -96,11 +95,6 @@ export const mutations = {
     state.showEjectCDROM = !state.showEjectCDROM;
     state.toEject = resources;
   },
-
-  toggleEnableMaintenance(state, resources) {
-    state.showEnableMaintenance = !state.showEnableMaintenance;
-    state.toEnable = resources;
-  }
 
 };
 
