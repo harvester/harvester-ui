@@ -9,6 +9,7 @@ import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK, VM } from '@/config/
 import { allSettled } from '@/utils/promise';
 import BackupModal from './backupModal';
 import RestoreModal from './restoreModal';
+import MigrationModal from './MigrationModal';
 
 export default {
   name:       'ListVM',
@@ -17,7 +18,8 @@ export default {
     VmState,
     MigrationState,
     BackupModal,
-    RestoreModal
+    RestoreModal,
+    MigrationModal
   },
 
   props: {
@@ -107,6 +109,7 @@ export default {
 
     <BackupModal />
     <RestoreModal />
+    <MigrationModal />
   </div>
 </template>
 

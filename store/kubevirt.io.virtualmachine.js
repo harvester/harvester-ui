@@ -2,7 +2,8 @@ export const state = function() {
   return {
     actionResources: null,
     isShowBackUp:    false,
-    isShowRestore:   false
+    isShowRestore:   false,
+    isShowMigration: false,
   };
 };
 
@@ -16,6 +17,11 @@ export const mutations = {
     state.isShowRestore = !state.isShowRestore;
     state.actionResources = resources;
   },
+
+  toggleMigrationModal(state, resources = []) {
+    state.isShowMigration = !state.isShowMigration;
+    state.actionResources = resources;
+  }
 };
 
 export const actions = {};

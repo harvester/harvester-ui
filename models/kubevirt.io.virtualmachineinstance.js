@@ -1,6 +1,7 @@
 import { colorForState } from '@/plugins/steve/resource-instance';
 import { getPrefix } from '@/utils/url';
 import { VMIM } from '@/config/types';
+import { HARVESTER_MIGRATION_STATE } from '@/config/labels-annotations';
 
 const PAUSED = 'Paused';
 const PAUSED_VM_MODAL_MESSAGE = 'This VM has been paused. If you wish to unpause it, please click the Unpause button below. For further details, please check with your system administrator.';
@@ -31,38 +32,10 @@ export default {
   },
 
   migrationState() {
-    if (this.status?.migrationState?.abortStatus === 'Succeeded') {
-      return {
-        type:   'abortMigration',
-        status: 'aborted'
-      };
-    }
-
-    if (this.vmimResource?.status?.phase === VMIPhase.Failed) {
+    if (this.metadata?.annotations?.[HARVESTER_MIGRATION_STATE]) {
       return {
         type:   'migration',
-        status: 'failed'
-      };
-    }
-
-    if (this.vmimResource?.status?.phase === VMIPhase.Succeeded) {
-      return {
-        type:   'migration',
-        status: 'success'
-      };
-    }
-
-    if (this.vmimResource && this.status?.migrationState?.abortStatus === undefined) {
-      return {
-        type:   'migration',
-        status: 'migrating'
-      };
-    }
-
-    if (this.status?.migrationState && this.status?.migrationState?.abortStatus) {
-      return {
-        type:   'abortMigration',
-        status: this.status?.migrationState?.abortStatus
+        status: this.metadata?.annotations?.[HARVESTER_MIGRATION_STATE]
       };
     }
   },

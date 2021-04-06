@@ -1,5 +1,6 @@
 <script>
 import { VMI } from '@/config/types';
+import { HARVESTER_MIGRATION_STATE } from '@/config/labels-annotations';
 
 const _FAILED = 'Failed';
 const _SUCCEEDED = 'Succeeded';
@@ -27,23 +28,7 @@ export default {
       return vmi;
     },
     state() {
-      const isComplete = this.vmiResource?.migrationState?.status === 'success' || this.vmiResource?.migrationState?.status === 'aborted';
-
-      if (isComplete && this.showSuccess === false) {
-        return '';
-      } else {
-        const phase = this.vmiResource?.vmimResource?.status?.phase;
-
-        if (phase && phase === _FAILED) {
-          return _FAILED;
-        } else if (phase && phase === _SUCCEEDED) {
-          return _SUCCEEDED;
-        } else if (phase) {
-          return _MIGRATING;
-        }
-
-        return '';
-      }
+      return this.vmiResource?.migrationState?.status || '';
     }
   }
 };
