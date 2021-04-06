@@ -2439,6 +2439,8 @@ action:
   stop: 停止
   pause: 暂停
   unpause: 取消暂停
+  migrate: 迁移
+  abortMigration: 中止迁移
   ejectCDROM: 弹出 CDROM
   launchFormTemplate: 从模板启动实例
   modifyTemplate: 修改模版 (创建新版本)
@@ -2658,7 +2660,7 @@ harvester:
         details: 详情
         environment: 环境
         events: 事件
-        migration: Migration
+        migration: 迁移
         console: 控制台
         networkInterfaces: 网络接口
         disks: 硬盘
@@ -2671,6 +2673,12 @@ harvester:
         cloudConfig: Cloud 配置
       console:
         down: 请启动虚拟机以访问控制台.
+    migrationModal:
+      title: 迁移
+      fields:
+        nodeName: 
+          label: 目标节点
+          placeholder: 请选择目标节点
   vmtemplatePage:
     nameNsDescription:
       name: 模板名称

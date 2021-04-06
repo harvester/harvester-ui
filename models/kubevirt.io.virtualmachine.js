@@ -206,8 +206,8 @@ export default {
   },
 
   migrateVM() {
-    return () => {
-      this.doAction('migrate', {});
+    return (resources = this) => {
+      this.$commit('kubevirt.io.virtualmachine/toggleMigrationModal', resources, { root: true });
     };
   },
 

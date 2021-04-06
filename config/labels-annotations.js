@@ -122,3 +122,8 @@ export const HARVESTER_MAINTENANCE_STATUS = 'harvester.cattle.io/maintain-status
 
 // backup
 export const HARVESTER_BACKUP_TARGET = 'backup.harvester.cattle.io/backupTarget';
+
+// migration
+
+export const HARVESTER_MIGRATION_STATE = 'harvester.cattle.io/migrationState';
+export const HARVESTER_MIGRATION_TARGET = 'harvester.cattle.io/migrationTargetNodeName';
