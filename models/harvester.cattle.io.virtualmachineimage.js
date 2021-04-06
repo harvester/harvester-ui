@@ -38,13 +38,14 @@ export default {
   },
 
   stateDisplay() {
-    const status = this.getStatusConditionOfType('imported')?.status;
+    const status = this.getStatusConditionOfType('Initialized')?.status;
 
-    if (status === undefined) {
-      return 'Unknown';
-    }
+    // if (status === undefined) {
+    //   return 'Unknown';
+    // }
 
-    return status === 'True' ? 'Imported' : status === 'Unknown' ? 'In-progress' : 'Failed';
+    // return status === 'True' ? 'Imported' : status === 'Unknown' ? 'In-progress' : 'Failed';
+    return status === 'True' ? 'Active' : 'Failed';
   },
 
   stateBackground() {

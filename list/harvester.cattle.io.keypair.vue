@@ -1,9 +1,9 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { STATE, NAME, AGE } from '@/config/table-headers';
+import { STATE, NAME, FINGERPRINT, AGE } from '@/config/table-headers';
 
 export default {
-  name:       'ListSSH',
+  name:       'LSSHs',
   components: { SortableTable },
 
   props: {
@@ -20,22 +20,17 @@ export default {
 
   data() {
     return {
-      headers:         [
+      headers: [
         STATE,
         {
           ...NAME,
           width: 250
         },
-        {
-          name:      'Fingerprint',
-          labelKey:  'harvester.tableHeaders.fingerprint',
-          value:     'status.fingerPrint',
-        },
+        FINGERPRINT,
         AGE
       ],
     };
   },
-
 };
 </script>
 
@@ -43,7 +38,7 @@ export default {
   <SortableTable
     v-bind="$attrs"
     :headers="headers"
-    :rows="[...rows]"
+    :rows="rows"
     key-field="_key"
     v-on="$listeners"
   />

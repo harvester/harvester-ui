@@ -940,6 +940,23 @@ export const getters = {
     };
   },
 
+  haveComponent(state, getters) {
+    return (path) => {
+      try {
+        require.resolve(`@/edit/${ path }`);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    };
+  },
+
+  importComponent(state, getters) {
+    return (path) => {
+      return () => import(`@/edit/${ path }`);
+    };
+  },
+
   importList(state, getters) {
     return (rawType) => {
       const type = getters.componentFor(rawType);

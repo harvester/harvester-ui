@@ -1,11 +1,12 @@
 <script>
-import { STATE, AGE, NAME } from '@/config/table-headers';
-import SortableTable from '@/components/SortableTable';
-// import VmState from '@/components/formatter/BadgeStateFormatter';
 import VmState from '@/components/formatter/vmState';
-import { allSettled } from '@/utils/promise';
-import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK, VM } from '@/config/types';
+import SortableTable from '@/components/SortableTable';
 import MigrationState from '@/components/formatter/MigrationState';
+
+import { STATE, AGE, NAME } from '@/config/table-headers';
+import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK, VM } from '@/config/types';
+
+import { allSettled } from '@/utils/promise';
 import BackupModal from './backupModal';
 import RestoreModal from './restoreModal';
 
@@ -51,7 +52,6 @@ export default {
       return [
         {
           ...STATE,
-          // value:     'id',
           width: 250
         },
         {

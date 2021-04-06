@@ -3,47 +3,63 @@ import ResourceTable from '@/components/ResourceTable';
 import { allSettled } from '@/utils/promise';
 import { NAME, SETTING_VALUE } from '@/config/table-headers';
 import { HARVESTER_SETTING, HARVESTER_CLUSTER_NETWORK } from '@/config/types';
-const BannedList = ['api-ui-source', 'auth-secret-name', 'first-login', 'no-default-admin', 'upgradable-versions', 'volume-snapshot-class'];
+
+const BLACK_LIST = [
+  'api-ui-source',
+  'auth-secret-name',
+  'first-login',
+  'no-default-admin',
+  'upgradable-versions',
+  'volume-snapshot-class'
+];
 
 export default {
-  name:       'ListSetting',
+  name: 'LSettings',
+
   components: { ResourceTable },
+
   props:      {
     schema: {
       type:     Object,
       required: true,
     }
   },
+
   async fetch() {
-    const hash = await allSettled({
-      haversterSettings:      this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
-      clusterNetworkSettings: this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
+    await allSettled({
+      clusterNetwork:      this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
+      haversterSettings:   this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
     });
-
-    const isRancher = this.$store.dispatch('auth/getIsRancher');
-
-    this.haversterSettings = hash.haversterSettings;
-    this.clusterNetworkSettings = hash.clusterNetworkSettings;
-    this.isRancher = isRancher;
   },
-  data() {
-    return {
-      headers:                [{ ...NAME, width: 200 }, { ...SETTING_VALUE, formatter: 'settingMessage' }],
-      haversterSettings:      [],
-      clusterNetworkSettings: [],
-      isRancher:              []
-    };
-  },
+
   computed: {
-    rows() {
-      const settings = this.haversterSettings.filter( (O) => {
-        return !(O.metadata.name === 'rancher-enabled' && !this.isRancher) && !BannedList.includes(O.metadata.name);
-      });
+    headers() {
+      return [
+        { ...NAME, width: 200 },
+        { ...SETTING_VALUE, formatter: 'settingMessage' }
+      ];
+    },
 
-      return [...settings, ...this.clusterNetworkSettings];
+    clusterNetwork() {
+      return this.$store.getters['cluster/all'](HARVESTER_CLUSTER_NETWORK);
+    },
+
+    haversterSettings() {
+      const settings = this.$store.getters['cluster/all'](HARVESTER_SETTING);
+
+      return settings.filter( (O) => {
+        return !(O.metadata.name === 'rancher-enabled' && !this.isRancher) && !BLACK_LIST.includes(O.metadata.name);
+      });
+    },
+
+    rows() {
+      return [...this.haversterSettings, ...this.clusterNetwork];
+    },
+
+    isRancher() {
+      return this.$store.getters['auth/isRancher'];
     }
   },
-
 };
 </script>
 
@@ -52,9 +68,8 @@ export default {
     v-bind="$attrs"
     :schema="schema"
     :headers="headers"
-    :rows="[...rows]"
+    :rows="rows"
     key-field="_key"
     v-on="$listeners"
-  >
-  </ResourceTable>
+  />
 </template>

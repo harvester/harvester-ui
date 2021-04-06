@@ -1,14 +1,16 @@
 <script>
-import { NAME } from '@/config/table-headers';
-import SortableTable from '@/components/SortableTable';
 import Banner from '@/components/Banner';
 import Loading from '@/components/Loading';
-import { HARVESTER_CLUSTER_NETWORK, NETWORK_ATTACHMENT, HARVESTER_NODE_NETWORK } from '@/config/types';
-import { allHash } from '@/utils/promise';
+import SortableTable from '@/components/SortableTable';
+
+import { NAME, NETWORK_TYPE, NETWORK_VLAN, AGE } from '@/config/table-headers';
+import { HARVESTER_CLUSTER_NETWORK, NETWORK_ATTACHMENT, HARVESTER_NODE_NETWORK, NODE } from '@/config/types';
+
 import { findBy } from '@/utils/array';
+import { allSettled } from '@/utils/promise';
 
 export default {
-  name:       'ListNetwork',
+  name:       'LNetworks',
   components: {
     SortableTable, Banner, Loading
   },
@@ -21,72 +23,61 @@ export default {
   },
 
   async fetch() {
-    const hash = await allHash({
-      clusterNetworkSetting:      this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
-      hostNetworks:          this.$store.dispatch('cluster/findAll', { type: HARVESTER_NODE_NETWORK }),
-      rows:                  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
+    const hash = await allSettled({
+      clusterNetworkSetting:  this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
+      hostNetworks:           this.$store.dispatch('cluster/findAll', { type: HARVESTER_NODE_NETWORK }),
+      hosts:                  this.$store.dispatch('cluster/findAll', { type: NODE }),
+      rows:                   this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
     });
 
     this.rows = hash.rows;
-    this.clusterNetworkSetting = hash.clusterNetworkSetting;
+    this.hosts = hash.hosts;
     this.hostNetworks = hash.hostNetworks;
+    this.clusterNetworkSetting = hash.clusterNetworkSetting;
   },
 
   data() {
     return {
-      clusterNetworkSetting:      [],
-      rows:                  [],
       hash:                  {},
+      rows:                  [],
+      hosts:                 [],
       hostNetworks:          [],
+      clusterNetworkSetting: [],
     };
   },
 
   computed: {
     headers() {
       return [
-        { ...NAME },
-        {
-          name:      'type',
-          value:     'spec.config',
-          sort:      'spec.config',
-          type:       'type',
-          formatter: 'ParseNetworkConfig',
-          labelKey:  'tableHeaders.network.type'
-        },
-        {
-          name:      'vlan',
-          value:     'spec.config',
-          sort:      'spec.config',
-          type:       'vlan',
-          formatter:  'ParseNetworkConfig',
-          labelKey:  'tableHeaders.network.vlan'
-        }
+        NAME,
+        NETWORK_TYPE,
+        NETWORK_VLAN,
+        AGE
       ];
     },
 
-    isAbnormal() {
-      const network = findBy((this.clusterNetworkSetting || []), 'metadata.name', 'vlan');
+    isVlanDisable() {
+      const vlan = findBy((this.clusterNetworkSetting || []), 'metadata.name', 'vlan') || {};
 
-      return !(network?.isOpenVlan && network?.defaultPhysicalNic.length > 0);
+      return !vlan.canUseVlan;
     },
 
-    hostNetworkReady() {
-      const notReadyCrd = this.hostNetworks.filter( (O) => {
-        return !O.isReady;
-      });
+    abnormalNetwork() {
+      const notReadyCrd = this.hostNetworks.filter( O => !O.isReady);
 
-      return notReadyCrd.map( (O) => {
-        return {
-          name:    O.attachNodeName,
-          message: O.message,
-          to:      `node/${ O.attachNodeName }?mode=edit`
-        };
-      });
+      return notReadyCrd.map( O => O.linkMessage);
+    },
+
+    disableCreate() {
+      const hostsLength = this.hosts.length;
+      const abnormalNetworkLength = this.abnormalNetwork.length;
+
+      return this.isVlanDisable || !(hostsLength - abnormalNetworkLength);
     }
   },
 
   watch: {
-    isAbnormal: {
+    disableCreate: {
       handler(neu) {
         const type = this.$route.params.resource;
 
@@ -94,20 +85,6 @@ export default {
           type,
           data: { disableCreateButton: neu }
         });
-      },
-      immediate: true
-    },
-
-    hostNetworkReady: {
-      handler(neu) {
-        const type = this.$route.params.resource;
-
-        if ((neu.length === this.hostNetworks.length) && this.hostNetworks !== 0) {
-          this.$store.commit('cluster/setConfig', {
-            type,
-            data: { disableCreateButton: true }
-          });
-        }
       },
       immediate: true
     }
@@ -118,10 +95,8 @@ export default {
 <template>
   <Loading v-if="$fetchState.pending" />
   <div v-else>
-    <div v-if="isAbnormal">
-      <Banner
-        color="error"
-      >
+    <template v-if="isVlanDisable">
+      <Banner color="error">
         <div>
           {{ t('harvester.networkPage.message.premise.prefix') }}
           <nuxt-link to="network.harvester.cattle.io.clusternetwork/harvester-system/vlan?mode=edit">
@@ -130,20 +105,20 @@ export default {
           {{ t('harvester.networkPage.message.premise.suffic') }}
         </div>
       </Banner>
-    </div>
+    </template>
 
-    <div v-if="hostNetworkReady.length">
+    <template v-if="abnormalNetwork.length">
       <Banner
-        v-for="item in hostNetworkReady"
+        v-for="item in abnormalNetwork"
         :key="item.name"
         color="error"
       >
         <nuxt-link :to="item.to">
-          {{ item.name }}
+          {{ item.name }}:
         </nuxt-link>
         {{ item.message }}
       </Banner>
-    </div>
+    </template>
 
     <SortableTable
       v-bind="$attrs"
