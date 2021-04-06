@@ -135,13 +135,13 @@ export default {
         action:     'migrateVM',
         enabled:    !!this.actions?.migrate,
         icon:       'icons icon-h-migrate',
-        label:      'migrate',
+        label:      this.t('action.migrate'),
       },
       {
         action:     'abortMigrationVM',
         enabled:    !!this.actions?.abortMigration,
         icon:       'icon icon-close',
-        label:      'abortMigration',
+        label:      this.t('action.abortMigration'),
       },
       ...out
     ];

@@ -3005,6 +3005,8 @@ action:
   restore: Restore
   restoreNewVM: Restore New
   restoreExistingVM: Replace Existing
+  migrate: Migrate
+  abortMigration: Abort Migration
 
 unit:
   sec: secs
