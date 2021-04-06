@@ -1,9 +1,11 @@
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { createNamespacedHelpers, mapGetters } from 'vuex';
 import AsyncButton from '@/components/AsyncButton';
 import Card from '@/components/Card';
 import Banner from '@/components/Banner';
 import { exceptionToErrorsArray } from '@/utils/error';
+
+const { mapState } = createNamespacedHelpers('node');
 
 export default {
   components: {
@@ -17,30 +19,35 @@ export default {
   },
 
   computed:   {
-    ...mapState('action-menu', ['showEnableMaintenance', 'toEnable']),
+    ...mapState(['isShowMaintenance', 'actionResources']),
     ...mapGetters({ t: 'i18n/t' }),
   },
 
   watch: {
-    showEnableMaintenance(show) {
-      if (show) {
-        this.$modal.show('enableMaintenance');
-      } else {
-        this.$modal.hide('enableMaintenance');
-      }
-    }
+    isShowMaintenance: {
+      handler(show) {
+        if (show) {
+          this.$nextTick(() => {
+            this.$modal.show('maintenance-modal');
+          });
+        } else {
+          this.$modal.hide('maintenance-modal');
+        }
+      },
+      immediate: true
+    },
   },
 
   methods: {
     close() {
-      this.$store.commit('action-menu/toggleEnableMaintenance');
+      this.$store.commit('node/toggleMaintenanceModal');
     },
 
     apply(buttonDone) {
       this.errors = [];
 
       try {
-        this.toEnable.doAction('enableMaintenanceMode', {});
+        this.actionResources.doAction('enableMaintenanceMode', {});
         buttonDone(true);
         this.close();
       } catch (e) {
@@ -55,10 +62,11 @@ export default {
 <template>
   <modal
     class="maintenance-modal"
-    name="enableMaintenance"
+    name="maintenance-modal"
     styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 100vh;"
     height="auto"
     :scrollable="true"
+    :click-to-close="false"
   >
     <Card>
       <h4 slot="title" class="text-default-text">

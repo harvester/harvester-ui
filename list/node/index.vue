@@ -3,6 +3,7 @@ import ResourceTable from '@/components/ResourceTable';
 import Poller from '@/utils/poller';
 import { STATE, NAME, AGE } from '@/config/table-headers';
 import { METRIC } from '@/config/types';
+import MaintenanceModal from './maintenanceModal';
 
 const METRICS_POLL_RATE_MS = 30000;
 const MAX_FAILURES = 2;
@@ -17,7 +18,7 @@ const HOST_IP = {
 
 export default {
   name:       'ListNode',
-  components: { ResourceTable },
+  components: { ResourceTable, MaintenanceModal },
 
   props: {
     schema: {
@@ -66,13 +67,17 @@ export default {
 </script>
 
 <template>
-  <ResourceTable
-    v-bind="$attrs"
-    :schema="schema"
-    :headers="headers"
-    :rows="[...rows]"
-    key-field="_key"
-    v-on="$listeners"
-  >
-  </ResourceTable>
+  <div>
+    <ResourceTable
+      v-bind="$attrs"
+      :schema="schema"
+      :headers="headers"
+      :rows="[...rows]"
+      key-field="_key"
+      v-on="$listeners"
+    >
+    </ResourceTable>
+
+    <MaintenanceModal />
+  </div>
 </template>

@@ -32,10 +32,12 @@ export default {
   },
 
   migrationState() {
-    if (this.metadata?.annotations?.[HARVESTER_MIGRATION_STATE]) {
+    const state = this.metadata?.annotations?.[HARVESTER_MIGRATION_STATE];
+
+    if (state) {
       return {
         type:   'migration',
-        status: this.metadata?.annotations?.[HARVESTER_MIGRATION_STATE]
+        status: state
       };
     }
   },
