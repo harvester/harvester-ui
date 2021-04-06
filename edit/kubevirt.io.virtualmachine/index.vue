@@ -57,8 +57,10 @@ export default {
 
   data() {
     const MachineType = this.value?.spec?.template?.spec?.domain?.machine?.type || '';
+    const cloneDeepVM = _.cloneDeep(this.value);
 
     return {
+      cloneDeepVM,
       count:                 1,
       realHostname:          '',
       templateName:          '',
@@ -250,7 +252,27 @@ export default {
 
     this.registerAfterHook(() => {
       if ( this.mode === 'edit' && this.value?.hasAction('restart')) {
-        this.value.doAction('restart', {});
+        const cloneDeepNewVM = _.cloneDeep(this.value);
+
+        delete cloneDeepNewVM.type;
+        delete this.cloneDeepVM.type;
+        delete cloneDeepNewVM?.metadata.annotations?.['field.cattle.io/description'];
+        delete this.cloneDeepVM?.metadata.annotations?.['field.cattle.io/description'];
+
+        const dataVolumeTemplates = this.cloneDeepVM?.spec?.dataVolumeTemplates || [];
+
+        for (let i = 0; i < dataVolumeTemplates.length; i++) {
+          delete this.cloneDeepVM.spec.dataVolumeTemplates[0]?.metadata?.creationTimestamp;
+        }
+
+        const oldValue = JSON.parse(JSON.stringify(this.cloneDeepVM));
+        const newValue = JSON.parse(JSON.stringify(cloneDeepNewVM));
+
+        const isEqual = _.isEqual(oldValue, newValue);
+
+        if (!isEqual) {
+          this.value.doAction('restart', {});
+        }
       }
     });
   },
