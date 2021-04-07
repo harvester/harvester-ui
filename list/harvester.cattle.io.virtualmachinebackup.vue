@@ -76,7 +76,7 @@ export default {
     },
 
     isEmptyValue() {
-      return !this.backupTargetResource.value;
+      return !this.backupTargetResource.value && !this.backupTargetResource?.errorBackupTargetMessage;
     },
 
     hasBakcupError() {
