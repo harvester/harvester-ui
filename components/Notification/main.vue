@@ -169,9 +169,9 @@ export default {
     transition:opacity .3s,transform .3s,left .3s,right .3s,top .4s,bottom .3s;
 
     &__icon {
-      font-size: 24px;
+      font-size: 20px;
       width: 24px;
-      margin-right: 11px;
+      margin-right: 5px;
     }
 
     &__group {
@@ -179,13 +179,14 @@ export default {
     }
 
     &__title {
+      font-size: 16px;
       margin-top: 2px;
     }
 
     &__message {
       p {
         font-family: "Fira Sans";
-        font-size: 15px;
+        font-size: 14px;
         word-break: break-all;
       }
     }
