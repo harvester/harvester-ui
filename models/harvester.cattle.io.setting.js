@@ -80,7 +80,7 @@ export default {
   bakcupError() {
     const configured = findBy((this?.status?.conditions || []), 'type', 'configured') || {};
 
-    return configured.status === 'False';
+    return configured.status === 'False' || configured.status === undefined;
   },
 
   errorBackupTargetMessage() {
