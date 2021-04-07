@@ -1,7 +1,7 @@
 <script>
 import _ from 'lodash';
 import { mapGetters } from 'vuex';
-import { safeLoad } from 'js-yaml';
+import { safeLoad, safeDump } from 'js-yaml';
 import Banner from '@/components/Banner';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
@@ -219,6 +219,30 @@ export default {
         this.$delete(this.spec.template.spec.domain.devices, 'inputs');
       }
     },
+
+    installAgent(neu) {
+      if (neu) {
+        const agentJson = {
+          package_update: true,
+          packages:       [
+            'qemu-guest-agent'
+          ],
+          runcmd: [
+            [
+              'systemctl',
+              'enable',
+              '--now',
+              'qemu-guest-agent'
+            ]
+          ]
+        };
+
+        const out = safeDump(agentJson);
+
+        this.$set(this, 'userScript', out);
+      }
+    },
+
     MachineType(neu) {
       this.$set(this.spec.template.spec.domain.machine, 'type', neu);
     }
@@ -499,6 +523,8 @@ export default {
 
           <div class="spacer"></div>
           <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" :label="t('harvester.vmPage.enableUsb')" />
+
+          <Checkbox v-model="installAgent" class="check" type="checkbox" label="Install guest agent" />
         </Tab>
       </Tabbed>
 
