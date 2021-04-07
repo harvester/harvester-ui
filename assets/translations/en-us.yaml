@@ -3036,6 +3036,10 @@ keyValue:
   valuePlaceholder: e.g. bar
 
 harvester:
+  webSocket:
+    connecting:
+      title: Error connecting to WebSocket
+      disconnectedWarning: "Disconnected from server, attempting to reconnect..."
   glance: 
     version: Harvester Version
   loading: Loading...

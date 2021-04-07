@@ -2479,6 +2479,10 @@ keyValue:
   valuePlaceholder: '例如: bar'
 
 harvester:
+  webSocket:
+    connecting:
+      title: 连接至服务器时发生错误！
+      disconnectedWarning: "断开与服务器的连接，尝试重新连接..."
   glance: 
     version: Harvester 版本
   loading: 加载中...

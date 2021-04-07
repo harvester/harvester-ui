@@ -295,6 +295,10 @@ export default class Socket extends EventTarget {
       this.state = STATE_DISCONNECTED;
     }
 
+    if (this.autoReconnect) {
+      this.dispatchEvent(new CustomEvent(EVENT_DISCONNECTED));
+    }
+
     if ( this.state === STATE_DISCONNECTED ) {
       this.dispatchEvent(new CustomEvent(EVENT_DISCONNECTED));
     } else if ( this.state === STATE_RECONNECTING ) {
