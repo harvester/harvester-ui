@@ -281,8 +281,7 @@ export const actions = {
 
   closed({ getters, state, rootGetters }) {
     // console.info(`WebSocket Closed [${ getters.storeName }]`); // eslint-disable-line no-console
-
-    if (!noticeInstance) {
+    if (!noticeInstance && state.socket?.autoReconnect) {
       const t = rootGetters['i18n/t'];
 
       noticeInstance = Notification.warning({
