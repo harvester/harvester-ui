@@ -52,14 +52,24 @@ export default {
   computed: {
     headers() {
       return [
-        {
-          ...STATE,
-          width: 250
-        },
+        STATE,
         {
           ...NAME,
-          width:         350,
+          width:         300,
           formatter:     'vmName',
+        },
+        {
+          name:      'CPU',
+          label:     'CPU',
+          value:     'spec.template.spec.domain.cpu.cores',
+          align:     'center'
+        },
+        {
+          name:      'Memory',
+          label:     'Memory',
+          value:     'spec.template.spec.domain.resources.requests.memory',
+          align:     'center',
+          labelKey:  'harvester.fields.memory'
         },
         {
           name:      'ip',
