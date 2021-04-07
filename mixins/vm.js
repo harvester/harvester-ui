@@ -365,7 +365,6 @@ export default {
     getCloudInit() {
       let out = this.userScript;
 
-      console.log('-----getCloudInit', out);
       try {
         let newInitScript = {};
 
@@ -584,20 +583,22 @@ export default {
       });
 
       if (!disks.find( D => D.name === 'cloudinitdisk')) {
-        disks.push({
-          name: 'cloudinitdisk',
-          disk: { bus: 'virtio' }
-        });
+        if (this.networkScript || this.userScript || this.sshKey.length > 0) {
+          disks.push({
+            name: 'cloudinitdisk',
+            disk: { bus: 'virtio' }
+          });
 
-        const userData = this.getCloudInit();
+          const userData = this.getCloudInit();
 
-        volumes.push({
-          name:             'cloudinitdisk',
-          cloudInitNoCloud: {
-            userData,
-            networkData: this.networkScript
-          }
-        });
+          volumes.push({
+            name:             'cloudinitdisk',
+            cloudInitNoCloud: {
+              userData,
+              networkData: this.networkScript
+            }
+          });
+        }
       }
 
       const spec = {
