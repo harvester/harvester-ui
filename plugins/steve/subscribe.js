@@ -6,10 +6,13 @@ import Socket, {
   //  EVENT_FRAME_TIMEOUT,
   EVENT_CONNECT_ERROR
 } from '@/utils/socket';
+import Notification from '@/components/Notification/main.js';
 
 export const NO_WATCH = 'NO_WATCH';
 export const TOO_OLD = 'TOO_OLD';
 export const NO_SCHEMA = 'NO_SCHEMA';
+
+let noticeInstance = null;
 
 export const actions = {
   subscribe(ctx, opt) {
@@ -170,7 +173,6 @@ export const actions = {
 
     for ( const entry of state.started.slice() ) {
       console.info(`Reconnect [${ getters.storeName }]`, entry); // eslint-disable-line no-console
-
       if ( getters.schemaFor(entry.type) ) {
         commit('setWatchStopped', entry);
         delete entry.revision;
@@ -239,6 +241,11 @@ export const actions = {
   }, event) {
     // console.info(`WebSocket Opened [${ getters.storeName }]`); // eslint-disable-line no-console
 
+    if (noticeInstance) {
+      noticeInstance.close(noticeInstance.id);
+      noticeInstance = null;
+    }
+
     const socket = event.currentTarget;
 
     this.$socket = socket;
@@ -272,8 +279,19 @@ export const actions = {
     }
   },
 
-  closed({ getters, state }) {
+  closed({ getters, state, rootGetters }) {
     // console.info(`WebSocket Closed [${ getters.storeName }]`); // eslint-disable-line no-console
+
+    if (!noticeInstance) {
+      const t = rootGetters['i18n/t'];
+
+      noticeInstance = Notification.warning({
+        duration: 0,
+        title:    t('harvester.webSocket.connecting.title'),
+        message:  t('harvester.webSocket.connecting.disconnectedWarning')
+      });
+    }
+
     clearTimeout(state.queueTimer);
     state.queueTimer = null;
   },
@@ -347,7 +365,6 @@ export const actions = {
       commit('setWatchStopped', obj);
 
       setTimeout(() => {
-        console.log('reconnect 2', obj); // eslint-disable-line no-console
         // Delay a bit so that immediate start/error/stop causes
         // only a slow infinite loop instead of a tight one.
         dispatch('watch', obj);
