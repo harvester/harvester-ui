@@ -139,6 +139,7 @@ export default {
     const imageName = this.getRootImage(spec);
 
     return {
+      installAgent:          false,
       isClone,
       baseSpec,
       spec,
@@ -364,6 +365,7 @@ export default {
     getCloudInit() {
       let out = this.userScript;
 
+      console.log('-----getCloudInit', out);
       try {
         let newInitScript = {};
 
