@@ -81,6 +81,7 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
   const _volumes = spec?.template?.spec?.volumes || [];
   const _dataVolumeTemplates = spec?.dataVolumeTemplates || [];
   const _disks = spec?.template?.spec?.domain?.devices?.disks || [];
+  const isVMTemplate = validatorArgs.includes('isVMTemplate');
 
   const allNames = new Set();
 
@@ -126,7 +127,7 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
         errors.push(getters['i18n/t']('harvester.validation.vm.volume.error', { prefix, message }));
       }
 
-      if (type === SOURCE_TYPE.IMAGE && !typeValue?.spec?.pvc?.storageClassName) { // type === SOURCE_TYPE.IMAGE
+      if (type === SOURCE_TYPE.IMAGE && !typeValue?.spec?.pvc?.storageClassName && !isVMTemplate) { // type === SOURCE_TYPE.IMAGE
         if (idx === 0) {
           errors.push(getters['i18n/t']('harvester.validation.vm.volume.image'));
         } else {

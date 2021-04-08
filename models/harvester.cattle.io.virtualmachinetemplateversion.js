@@ -116,7 +116,7 @@ export default {
       {
         nullable:       false,
         path:           'spec.vm',
-        validators:     ['vmDisks'],
+        validators:     ['vmDisks:isVMTemplate'],
       },
     ];
 

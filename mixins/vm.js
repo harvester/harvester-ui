@@ -231,7 +231,7 @@ export default {
           size:             '10Gi',
           type:             'disk',
           // storageClassName: this.defaultStorageClass,
-          storageClassName: 'longhorn',
+          storageClassName: '',
           image:             this.imageName,
           volumeMode:       'Block',
         });
@@ -264,11 +264,9 @@ export default {
             realName = volumeName;
 
             if (DVT) {
-              if (DVT.spec?.source?.blank) {
+              if (DVT.spec?.pvc?.storageClassName === 'longhorn') {
                 source = SOURCE_TYPE.NEW;
-              }
-
-              if (!!DVT.metadata?.annotations?.[HARVESTER_IMAGE_ID]) { // url may empty
+              } else if (!!DVT.metadata?.annotations?.[HARVESTER_IMAGE_ID] || DVT.spec?.source?.blank) { // url may empty
                 source = SOURCE_TYPE.IMAGE;
                 const imageId = DVT.metadata?.annotations?.[HARVESTER_IMAGE_ID];
 

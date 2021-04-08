@@ -91,7 +91,7 @@ export default {
   },
 
   mounted() {
-    const imageName = this.$route.query?.image || '';
+    const imageName = this.diskRows[0].image || '';
 
     this.imageName = imageName;
   },
