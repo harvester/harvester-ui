@@ -61,6 +61,7 @@ export default {
         {
           name:      'CPU',
           label:     'CPU',
+          sort:      ['spec.template.spec.domain.cpu.cores'],
           value:     'spec.template.spec.domain.cpu.cores',
           align:     'center'
         },
@@ -68,6 +69,7 @@ export default {
           name:      'Memory',
           label:     'Memory',
           value:     'spec.template.spec.domain.resources.requests.memory',
+          sort:      ['spec.template.spec.domain.resources.requests.memory'],
           align:     'center',
           labelKey:  'harvester.fields.memory'
         },
@@ -82,6 +84,7 @@ export default {
           name:      'node',
           label:     'Node',
           value:     'id',
+          sort:      ['nameSort'],
           formatter: 'nodeName',
           labelKey:  'tableHeaders.vm.node'
         },
