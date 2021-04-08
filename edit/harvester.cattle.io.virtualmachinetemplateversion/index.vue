@@ -1,4 +1,5 @@
 <script>
+import _ from 'lodash';
 import Checkbox from '@/components/form/Checkbox';
 import { VM_TEMPLATE } from '@/config/types';
 import VM_MIXIN from '@/mixins/vm';
@@ -67,8 +68,10 @@ export default {
     if (versionId) {
       const versionValue = choicesVersion.find( V => V.id === versionId);
 
-      this.$set(this.value, 'spec', versionValue.spec);
-      this.$set(this.value.spec, 'vm', versionValue.spec.vm);
+      const cloneDeepVersion = _.cloneDeep(versionValue);
+
+      this.$set(this.value, 'spec', cloneDeepVersion.spec);
+      this.$set(this.value.spec, 'vm', cloneDeepVersion.spec.vm);
     }
 
     return {
@@ -145,7 +148,7 @@ export default {
   },
 
   mounted() {
-    const imageName = this.$route.query?.image || '';
+    const imageName = this.diskRows[0].image || '';
 
     this.imageName = imageName;
   },
