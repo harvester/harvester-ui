@@ -570,9 +570,12 @@ export const actions = {
     commit('clusterChanged', false);
     commit('cluster/reset');
 
-    await dispatch('clusterExternal/unsubscribe');
-    commit('rancher/reset');
-    commit('catalog/reset');
+    const isRancher = getters['auth/isRancher'];
+    if (isRancher) {
+      await dispatch('rancher/unsubscribe');
+      commit('rancher/reset');
+      commit('catalog/reset');
+    }
 
     const router = state.$router;
     const route = router.currentRoute;
