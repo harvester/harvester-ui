@@ -16,6 +16,32 @@ const VMIPhase = {
 };
 
 export default {
+  _availableActions() {
+    const out = this._standardActions;
+
+    const actions = out.find((O) => {
+      return O.action === 'promptRemove';
+    });
+
+    return [actions];
+  },
+
+  stateDisplay() {
+    const phase = this?.status?.phase;
+
+    return phase === 'Failed' ? 'Terminating' : phase;
+  },
+
+  stateBackground() {
+    return colorForState(this.stateDisplay).replace('text-', 'bg-');
+  },
+
+  stateColor() {
+    const state = this.stateDisplay;
+
+    return colorForState(state);
+  },
+
   vmimResource() {
     const all = this.$rootGetters['cluster/all'](VMIM) || [];
     const vmimList = all.filter(vmim => vmim.spec?.vmiName === this.metadata?.name);

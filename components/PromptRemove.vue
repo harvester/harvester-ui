@@ -127,7 +127,11 @@ export default {
     showPromptRemove(show) {
       if (show) {
         this.$modal.show('promptRemove');
-        const { resource } = this.$route.params;
+        let { resource } = this.$route.params;
+
+        if (this.toRemove.length > 0) {
+          resource = this.toRemove[0].type;
+        }
 
         this.hasCustomRemove = this.$store.getters['type-map/hasCustomPromptRemove'](resource);
 
