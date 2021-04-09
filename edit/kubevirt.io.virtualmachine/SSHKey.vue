@@ -28,6 +28,10 @@ export default {
       type:     String,
       default: 'edit',
     },
+    disableCreate: {
+      type:    Boolean,
+      default: false
+    }
   },
 
   data() {
@@ -56,7 +60,7 @@ export default {
       });
     },
     isView() {
-      return this.mode === _VIEW;
+      return this.mode === _VIEW || this.disableCreate;
     }
   },
 
