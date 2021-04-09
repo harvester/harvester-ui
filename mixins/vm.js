@@ -6,7 +6,6 @@ import { allHash } from '@/utils/promise';
 import {
   STORAGE_CLASS_LABEL, HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER_DISK_NAMES, HARVESTER_IMAGE_ID
 } from '@/config/labels-annotations';
-// import { formatSi, parseSi } from '@/utils/units';
 import { SOURCE_TYPE } from '@/config/map';
 import {
   NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, STORAGE_CLASS, NETWORK_ATTACHMENT, POD, VM, DATA_VOLUME, NODE

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Vue from 'vue';
 import _ from 'lodash';
 import { safeLoad } from 'js-yaml';
@@ -318,18 +319,18 @@ export default {
     }
 
     if ((this.vmi || this.isVMCreated) && this.podResource) {
-      const podStatus = this.podResource.getPodStatus;
+      // const podStatus = this.podResource.getPodStatus;
 
-      if (POD_STATUS_ALL_ERROR.includes(podStatus?.status)) {
-        return {
-          ...podStatus,
-          status: 'LAUNCHER_POD_ERROR',
-          pod:    this.podResource,
-        };
-      }
+      // if (POD_STATUS_ALL_ERROR.includes(podStatus?.status)) {
+      //   return {
+      //     ...podStatus,
+      //     status: 'LAUNCHER_POD_ERROR',
+      //     pod:    this.podResource,
+      //   };
+      // }
     }
 
-    return null;
+    return this?.vmi?.status?.phase;
   },
 
   isRunning() {
