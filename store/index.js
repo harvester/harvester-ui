@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Steve from '@/plugins/steve';
 import {
-  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, VMIM, FLEET, POD, HARVESTER_SETTING, NODE, HARVESTER_RESTORE
+  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, VMIM, FLEET, POD, HARVESTER_SETTING, NODE, HARVESTER_RESTORE, NETWORK_ATTACHMENT
 } from '@/config/types';
 import { CLUSTER as CLUSTER_PREF, NAMESPACE_FILTERS, LAST_NAMESPACE, WORKSPACE } from '@/store/prefs';
 import { allHash } from '@/utils/promise';
@@ -543,7 +543,7 @@ export const actions = {
       setting:         dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
       nodes:           dispatch('cluster/findAll', { type: NODE }),
       restores:        dispatch('cluster/findAll', { type: HARVESTER_RESTORE }),
-
+      network:         dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } })
     });
 
     commit('updateNamespaces', {
