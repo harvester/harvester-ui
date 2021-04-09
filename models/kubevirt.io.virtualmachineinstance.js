@@ -27,9 +27,9 @@ export default {
   },
 
   stateDisplay() {
-    const phase = this?.status?.phase;
+    // const phase = this?.status?.phase;
 
-    return phase === 'Failed' ? 'Terminating' : phase;
+    return 'Terminating';
   },
 
   stateBackground() {
