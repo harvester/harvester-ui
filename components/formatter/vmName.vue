@@ -1,6 +1,7 @@
 <script>
 import LinkDetail from '@/components/formatter/LinkDetail';
 import ConsoleBar from '@/components/form/ConsoleBar';
+import { VMI } from '@/config/types';
 
 export default {
   components: { LinkDetail, ConsoleBar },
@@ -16,13 +17,22 @@ export default {
       required: true
     },
   },
+
+  computed: {
+    isVMI() {
+      return this.row?.type === VMI;
+    }
+  }
 };
 </script>
 
 <template>
   <div class="vm-list">
-    <span class="overflow">
+    <span v-if="!isVMI" class="overflow">
       <LinkDetail v-model="row.metadata.name" :row="row" />
+    </span>
+    <span v-else>
+      {{ row.metadata.name }}
     </span>
     <ConsoleBar :resource="row" class="console mr-10" />
   </div>

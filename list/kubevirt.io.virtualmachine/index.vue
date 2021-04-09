@@ -4,7 +4,7 @@ import SortableTable from '@/components/SortableTable';
 import MigrationState from '@/components/formatter/MigrationState';
 
 import { STATE, AGE, NAME } from '@/config/table-headers';
-import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK, VM } from '@/config/types';
+import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK, VM, VMI } from '@/config/types';
 
 import { allSettled } from '@/utils/promise';
 import BackupModal from './backupModal';
@@ -32,10 +32,12 @@ export default {
   async fetch() {
     const hash = await allSettled({
       vm:                  this.$store.dispatch('cluster/findAll', { type: VM }),
+      vmi:                  this.$store.dispatch('cluster/findAll', { type: VMI }),
       allNodeNetwork:      this.$store.dispatch('cluster/findAll', { type: HARVESTER_NODE_NETWORK }),
       allClusterNetwork:   this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
     });
 
+    this.vmiList = hash.vmi;
     this.vmList = hash.vm;
     this.allNodeNetwork = hash.allNodeNetwork;
     this.allClusterNetwork = hash.allClusterNetwork;
@@ -44,6 +46,7 @@ export default {
   data() {
     return {
       vmList:            [],
+      vmiList:           [],
       allNodeNetwork:    [],
       allClusterNetwork: []
     };
@@ -96,7 +99,13 @@ export default {
     },
 
     rows() {
-      return this.vmList;
+      const matchVMI = this.vmiList.filter((VMI) => {
+        const matchVM = this.vmList.find(VM => VM.id === VMI.id);
+
+        return !matchVM;
+      });
+
+      return [...this.vmList, ...matchVMI];
     }
   },
 };
@@ -108,7 +117,7 @@ export default {
       v-bind="$attrs"
       :headers="headers"
       default-sort-by="age"
-      :rows="[...rows]"
+      :rows="rows"
       key-field="_key"
       v-on="$listeners"
     >
