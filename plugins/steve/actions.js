@@ -94,7 +94,12 @@ export default {
     const {
       getters, dispatch, commit, rootGetters
     } = ctx;
-    const res = await dispatch('findAll', { type: SCHEMA, opt: { url: 'schemas', load: false } });
+    const res = await dispatch('findAll', {
+      type: SCHEMA,
+      opt:  {
+        url: 'schemas', load: false, force: true
+      }
+    });
     const spoofedTypes = rootGetters['type-map/allSpoofedSchemas'] ;
 
     res.data = res.data.concat(spoofedTypes);
