@@ -17,6 +17,7 @@ import CpuMemory from '@/edit/kubevirt.io.virtualmachine/CpuMemory';
 import CloudConfig from '@/edit/kubevirt.io.virtualmachine/CloudConfig';
 import ImageSelect from '@/edit/kubevirt.io.virtualmachine/Image';
 import SSHKey from '@/edit/kubevirt.io.virtualmachine/SSHKey';
+import { _VIEW, _EDIT } from '@/config/query-params';
 
 export default {
   name: 'EditVMTemplate',
@@ -42,6 +43,10 @@ export default {
       type:     Object,
       required: true,
     },
+    mode: {
+      type:    String,
+      default: _EDIT
+    }
   },
 
   data() {
@@ -98,6 +103,9 @@ export default {
     allTemplate() {
       return this.$store.getters['cluster/all'](VM_TEMPLATE.template);
     },
+    isView() {
+      return this.mode === _VIEW;
+    }
   },
 
   watch: {
@@ -237,7 +245,7 @@ export default {
           </div>
 
           <div class="mb-20">
-            <SSHKey v-model="sshKey" @update:sshKey="updateSSHKey" />
+            <SSHKey v-model="sshKey" :disable-create="isView" @update:sshKey="updateSSHKey" />
           </div>
         </Tab>
 

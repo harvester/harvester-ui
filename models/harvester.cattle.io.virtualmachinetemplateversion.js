@@ -1,11 +1,13 @@
 import _ from 'lodash';
 import { VM_TEMPLATE, VM } from '@/config/types';
-import { MODE, _CREATE } from '@/config/query-params';
+import {
+  AS, MODE, _CREATE, _VIEW, _CONFIG
+} from '@/config/query-params';
 
 export default {
   availableActions() {
     let out = this._standardActions;
-    const toFilter = ['goToClone', 'cloneYaml', 'goToEditYaml', 'goToViewYaml'];
+    const toFilter = ['goToClone', 'cloneYaml', 'goToViewConfig', 'goToEditYaml', 'goToViewYaml'];
 
     out = out.filter((action) => {
       if (!toFilter.includes(action.action)) {
@@ -31,6 +33,11 @@ export default {
         enabled:    true,
         icon:       'icon icon-fw icon-checkmark',
         label:      this.t('action.setDefaultVersion'),
+      },
+      {
+        action:  'goToViewConfig',
+        label:   this.t('action.view'),
+        icon:    'icon icon-edit',
       },
       ...out
     ];
@@ -68,6 +75,22 @@ export default {
           versionId:  this.id,
         }
       });
+    };
+  },
+
+  goToViewConfig() {
+    return (moreQuery = {}) => {
+      const location = this.detailLocation;
+
+      location.query = {
+        ...location.query,
+        [MODE]:     _VIEW,
+        [AS]:       _CONFIG,
+        templateId: this.spec.templateId,
+        ...moreQuery
+      };
+
+      this.currentRouter().push(location);
     };
   },
 
