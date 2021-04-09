@@ -1,5 +1,6 @@
 <script>
 import VMState from '@/components/formatter/BadgeStateFormatter';
+import { VMI } from '@/config/types';
 // import RestoreProgress from '@/components/formatter/restoreProgress';
 
 export default {
@@ -46,6 +47,19 @@ export default {
       const clusterNetwork = this.allClusterNetwork?.[0] || {};
 
       return clusterNetwork?.enable;
+    },
+
+    vmiResource() {
+      const vmiList = this.$store.getters['cluster/all'](VMI) || [];
+      const vmi = vmiList.find( (VMI) => {
+        return VMI?.metadata?.ownerReferences?.[0]?.uid === this.row?.metadata?.uid;
+      });
+
+      return vmi;
+    },
+
+    migrationState() {
+      return this.vmiResource?.migrationState?.status || '';
     }
   }
 };
@@ -54,7 +68,10 @@ export default {
 <template>
   <span>
     <!-- <RestoreProgress :vm="row" /> -->
-    <div class="state">
+    <span v-if="!!migrationState" :class="{'badge-state': true, [vmiResource.migrationStateBackground]: true}">
+      {{ migrationState }}
+    </span>
+    <div v-else class="state">
       <VMState :row="row" />
       <i v-if="NetworkImpassability" v-tooltip="message" class="icon icon-warning icon-lg text-warning" />
     </div>

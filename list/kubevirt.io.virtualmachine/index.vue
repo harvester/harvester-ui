@@ -1,7 +1,6 @@
 <script>
 import VmState from '@/components/formatter/vmState';
 import SortableTable from '@/components/SortableTable';
-import MigrationState from '@/components/formatter/MigrationState';
 
 import { STATE, AGE, NAME } from '@/config/table-headers';
 import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK, VM, VMI } from '@/config/types';
@@ -16,7 +15,6 @@ export default {
   components: {
     SortableTable,
     VmState,
-    MigrationState,
     BackupModal,
     RestoreModal,
     MigrationModal
@@ -124,7 +122,6 @@ export default {
       <template slot="cell:state" slot-scope="scope" class="state-col">
         <div class="state">
           <VmState class="vmstate" :row="scope.row" :all-node-network="allNodeNetwork" :all-cluster-network="allClusterNetwork" />
-          <MigrationState :vm-resource="scope.row" :show-success="false" />
         </div>
       </template>
     </sortabletable>
