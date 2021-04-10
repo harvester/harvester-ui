@@ -240,7 +240,7 @@ export default {
     if (!this?.spec) {
       return false;
     }
-    const { running, runStrategy } = this.spec;
+    const { running = null, runStrategy = null } = this.spec;
 
     if (running !== null) {
       return running;
