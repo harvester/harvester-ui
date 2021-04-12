@@ -1,4 +1,5 @@
 <script>
+import { VM } from '@/config/types';
 import { isEmpty } from '@/utils/object';
 import Parse from 'url-parse';
 
@@ -30,6 +31,9 @@ export default {
       const out = {};
 
       this.value.forEach((crd) => {
+        if (crd.type !== VM) {
+          return;
+        }
         const volumes = crd.spec.template.spec?.volumes || [];
         const names = volumes.filter(volume => volume.dataVolume ).map((volume) => {
           if (volume.dataVolume) {
@@ -74,6 +78,12 @@ export default {
         }
 
         Promise.all(this.value.map((resource) => {
+          if (resource.type !== VM) { // maybe is VMI
+            resource.remove();
+
+            return;
+          }
+
           let removedDisks = '';
 
           if (this.value.length > 1) {
