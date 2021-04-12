@@ -1,3 +1,6 @@
+import { STORAGE_CLASS } from '@/config/types';
+import { STORAGE_CLASS_LABEL } from '@/config/labels-annotations';
+
 export const PROVISIONER_OPTIONS = [
   {
     labelKey: 'storageClass.aws-ebs.title',
@@ -30,5 +33,18 @@ export default {
     const option = PROVISIONER_OPTIONS.find(o => o.value === this.provisioner);
 
     return option ? this.t(option.labelKey) : this.provisioner;
+  },
+
+  defaultStorageClass() {
+    let defalutClass = 'longhorn';
+    const storageClasses = this.$rootGetters['cluster/all'](STORAGE_CLASS);
+
+    storageClasses.map( (O) => {
+      if (O.metadata?.annotations?.[STORAGE_CLASS_LABEL.DEFAULT_CALSS] === 'true') {
+        defalutClass = O.metadata.name;
+      }
+    });
+
+    return defalutClass;
   }
 };

@@ -1,14 +1,11 @@
 import _ from 'lodash';
 import randomstring from 'randomstring';
 import { safeLoad, safeDump } from 'js-yaml';
-import { sortBy } from '@/utils/sort';
-import { allHash } from '@/utils/promise';
-import {
-  STORAGE_CLASS_LABEL, HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER_DISK_NAMES, HARVESTER_IMAGE_ID
-} from '@/config/labels-annotations';
+import { allSettled } from '@/utils/promise';
+import { HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER_DISK_NAMES, HARVESTER_IMAGE_ID } from '@/config/labels-annotations';
 import { SOURCE_TYPE } from '@/config/map';
 import {
-  NAMESPACE, PVC, VM_TEMPLATE, IMAGE, SSH, STORAGE_CLASS, NETWORK_ATTACHMENT, POD, VM, DATA_VOLUME, NODE
+  PVC, VM_TEMPLATE, IMAGE, SSH, STORAGE_CLASS, NETWORK_ATTACHMENT, POD, VM, DATA_VOLUME, NODE
 } from '@/config/types';
 
 const TEMPORARY_VALUE = '$occupancy_url';
@@ -61,16 +58,16 @@ export default {
   },
 
   async fetch() {
-    await allHash({
+    await allSettled({
       pods:               this.$store.dispatch('cluster/findAll', { type: POD }),
       nodes:              this.$store.dispatch('cluster/findAll', { type: NODE }),
       ssh:                this.$store.dispatch('cluster/findAll', { type: SSH }),
       pvcs:               this.$store.dispatch('cluster/findAll', { type: PVC }),
-      dataVolume:         this.$store.dispatch('cluster/findAll', { type: DATA_VOLUME }),
       image:              this.$store.dispatch('cluster/findAll', { type: IMAGE }),
+      dataVolume:         this.$store.dispatch('cluster/findAll', { type: DATA_VOLUME }),
+      templateVersion:    this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
       template:           this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template }),
       storageClass:       this.$store.dispatch('cluster/findAll', { type: STORAGE_CLASS, opt: { url: `${ STORAGE_CLASS }es` } }),
-      templateVersion:    this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
       networkAttachment:  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
     });
   },
@@ -161,9 +158,7 @@ export default {
 
   computed: {
     ssh() {
-      const ssh = this.$store.getters['cluster/all'](SSH);
-
-      return ssh;
+      return this.$store.getters['cluster/all'](SSH) || [];
     },
 
     memory: {
@@ -175,21 +170,6 @@ export default {
       }
     },
 
-    namespaceOptions() {
-      const choices = this.$store.getters['cluster/all'](NAMESPACE);
-
-      return sortBy(
-        choices
-          .map((obj) => {
-            return {
-              label: obj.nameDisplay,
-              value: obj.id
-            };
-          }),
-        'label'
-      );
-    },
-
     images() {
       return this.$store.getters['cluster/all'](IMAGE);
     },
@@ -199,23 +179,15 @@ export default {
     },
 
     defaultStorageClass() {
-      let defaultValue = '';
-
-      this.storageClasses.map( (O) => {
-        if (O.metadata?.annotations?.[STORAGE_CLASS_LABEL.DEFAULT_CALSS] === 'true') {
-          defaultValue = O.metadata.name;
-        }
-      });
-
-      return defaultValue;
+      return this.storageClasses?.defaultStorageClass || 'longhorn';
     },
   },
 
   methods: {
     getDiskRows(spec) {
+      const _disks = spec?.template?.spec?.domain?.devices?.disks || [];
       const _volumes = spec?.template?.spec?.volumes || [];
       const _dataVolumeTemplates = spec?.dataVolumeTemplates || [];
-      const _disks = spec?.template?.spec?.domain?.devices?.disks || [];
 
       let out = [];
 
@@ -229,9 +201,8 @@ export default {
           volumeName:       '',
           size:             '10Gi',
           type:             'disk',
-          // storageClassName: this.defaultStorageClass,
           storageClassName: '',
-          image:             this.imageName,
+          image:            this.imageName,
           volumeMode:       'Block',
         });
       } else {
@@ -251,7 +222,7 @@ export default {
 
           const type = DISK?.cdrom ? 'cd-rom' : 'disk';
 
-          if (volume?.containerDisk) { // is SOURCE_TYPE.CONTAINER
+          if (volume?.containerDisk) { // SOURCE_TYPE.CONTAINER
             source = SOURCE_TYPE.CONTAINER;
             container = volume.containerDisk.image;
           }
@@ -262,21 +233,25 @@ export default {
 
             realName = volumeName;
 
+            // If the DVT can be found, it cannot be an existing volume
             if (DVT) {
-              if (DVT.spec?.pvc?.storageClassName === 'longhorn') {
-                source = SOURCE_TYPE.NEW;
-              } else if (!!DVT.metadata?.annotations?.[HARVESTER_IMAGE_ID] || DVT.spec?.source?.blank) { // url may empty
-                source = SOURCE_TYPE.IMAGE;
+              // has annotation(HARVESTER_IMAGE_ID) => SOURCE_TYPE.IMAGE
+              if (!!DVT.metadata?.annotations?.[HARVESTER_IMAGE_ID]) {
                 const imageId = DVT.metadata?.annotations?.[HARVESTER_IMAGE_ID];
 
                 image = this.getImageSourceById(imageId);
+                source = SOURCE_TYPE.IMAGE;
+              } else {
+                source = SOURCE_TYPE.NEW;
               }
 
-              accessMode = DVT?.spec?.pvc?.accessModes?.[0];
-              size = DVT?.spec?.pvc?.resources?.requests?.storage || '10Gi';
-              volumeMode = DVT?.spec?.pvc?.volumeMode;
-              storageClassName = DVT?.spec?.pvc?.storageClassName || this.defaultStorageClass;
-            } else { // mayby is SOURCE_TYPE.ATTACH_VOLUME
+              const dataVolumeSpecPVC = DVT?.spec?.pvc || {};
+
+              volumeMode = dataVolumeSpecPVC?.volumeMode;
+              accessMode = dataVolumeSpecPVC?.accessModes?.[0];
+              size = dataVolumeSpecPVC?.resources?.requests?.storage || '10Gi';
+              storageClassName = dataVolumeSpecPVC?.storageClassName || this.defaultStorageClass;
+            } else { // SOURCE_TYPE.ATTACH_VOLUME
               const choices = this.$store.getters['cluster/all'](DATA_VOLUME);
               const dvResource = choices.find( O => O.metadata.name === volume?.dataVolume?.name);
 
@@ -316,6 +291,7 @@ export default {
         return O.name !== 'cloudinitdisk';
       });
     },
+
     getNetworkRows(spec) {
       const networks = spec?.template?.spec?.networks || [];
       const interfaces = spec?.template?.spec?.domain?.devices?.interfaces || [];
@@ -327,9 +303,7 @@ export default {
       // }
 
       const out = interfaces.map( (O, index) => {
-        const network = networks.find( (N) => {
-          return O.name === N.name;
-        });
+        const network = networks.find( N => O.name === N.name);
 
         // const netwrokAnnotation = networkAnnotition.find((N) => {
         //   return network?.multus?.networkName === N.name;
