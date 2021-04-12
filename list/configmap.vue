@@ -1,7 +1,7 @@
 <script>
 import SortableTable from '@/components/SortableTable';
-import { NAME, KEYS, AGE } from '@/config/table-headers';
-import { HARVESTER_CLOUD_INIT_USER, HARVESTER_CLOUD_INIT_NETWORK } from '@/config/labels-annotations';
+import { NAME, AGE } from '@/config/table-headers';
+import { HARVESTER_CLOUD_INIT } from '@/config/labels-annotations';
 
 export default {
   name:       'ListConfigMap',
@@ -26,7 +26,6 @@ export default {
           ...NAME,
           width: 300
         },
-        KEYS,
         {
           name:          'type',
           labelKey:      'tableHeaders.type',
@@ -41,7 +40,7 @@ export default {
   computed: {
     filterdRows() {
       return this.rows.filter((r) => {
-        return !!r.metadata?.labels?.[HARVESTER_CLOUD_INIT_USER] || !!r.metadata?.labels?.[HARVESTER_CLOUD_INIT_NETWORK];
+        return !!r.metadata?.labels?.[HARVESTER_CLOUD_INIT];
       });
     }
   },

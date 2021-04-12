@@ -3,11 +3,11 @@ import { mapGetters } from 'vuex';
 import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
 import { _CREATE, _EDIT } from '@/config/query-params';
 import { CONFIG_MAP } from '@/config/types';
-import LabeledSelect from '@/components/form/LabeledSelect';
-import { HARVESTER_CLOUD_INIT_USER, HARVESTER_CLOUD_INIT_NETWORK } from '@/config/labels-annotations';
+import Select from '@/components/form/Select';
+import { HARVESTER_CLOUD_INIT } from '@/config/labels-annotations';
 
 export default {
-  components: { YamlEditor, LabeledSelect },
+  components: { YamlEditor, Select },
 
   props: {
     userScript: {
@@ -55,11 +55,12 @@ export default {
       };
 
       for (const m of this.configmaps) {
-        const isUser = !!m.metadata?.labels?.[HARVESTER_CLOUD_INIT_USER];
-        const isNetwork = !!m.metadata?.labels?.[HARVESTER_CLOUD_INIT_NETWORK];
+        const template = m.metadata?.labels?.[HARVESTER_CLOUD_INIT];
+        const isUser = template === 'user';
+        const isNetwork = template === 'network';
         let item;
 
-        if (isUser || isNetwork) {
+        if (!!template) {
           item = {
             label: m.metadata?.name,
             value: m.data.cloudInit
@@ -193,7 +194,7 @@ export default {
 
       <div class="row mb-20">
         <div class="col span-3">
-          <LabeledSelect v-model="cloudInitUser" :label="t('harvester.vmPage.cloudConfig.cloudInit.label')" :options="cloudInitConfigs.user" />
+          <Select v-model="cloudInitUser" :clearable="true" :options="cloudInitConfigs.user" />
         </div>
       </div>
 
@@ -216,7 +217,7 @@ export default {
 
       <div class="row mb-20">
         <div class="col span-3">
-          <LabeledSelect v-model="cloudInitNetwork" :label="t('harvester.vmPage.cloudConfig.cloudInit.label')" :options="cloudInitConfigs.network" />
+          <Select v-model="cloudInitNetwork" :clearable="true" :options="cloudInitConfigs.network" />
         </div>
       </div>
 

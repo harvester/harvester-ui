@@ -3175,7 +3175,7 @@ harvester:
       title: Cloud Config
       cloudInit:
         label: Cloud Init
-        placeholder: Choose...
+        placeholder: Choose a template
       userData:
         title: "User Data:"
         tip: "You can specify user data to configure an instance or run a configuration script during launch. If you launch more than one instance at a time, the user data is available to all the instances in that reservation. <a href='https://cloudinit.readthedocs.io/en/latest/topics/examples.html' target='_blank'>Learn more</a>"

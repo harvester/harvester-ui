@@ -128,5 +128,5 @@ export const HARVESTER_MIGRATION_STATE = 'harvester.cattle.io/migrationState';
 export const HARVESTER_MIGRATION_TARGET = 'harvester.cattle.io/migrationTargetNodeName';
 
 // cloud-init
-export const HARVESTER_CLOUD_INIT_USER = 'harvester.cattle.io/cloud-init-user';
-export const HARVESTER_CLOUD_INIT_NETWORK = 'harvester.cattle.io/cloud-init-network';
+export const HARVESTER_CLOUD_INIT = 'harvesterhci.io/cloud-init-template';
+export const HARVESTER_CLOUD_INIT_CREATOR = 'harvesterhci.io/creator';

@@ -3,7 +3,7 @@ import DetailText from '@/components/DetailText';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import LabelValue from '@/components/LabelValue';
-import { HARVESTER_CLOUD_INIT_NETWORK } from '@/config/labels-annotations';
+import { HARVESTER_CLOUD_INIT } from '@/config/labels-annotations';
 
 export default {
   components: {
@@ -26,7 +26,7 @@ export default {
     type() {
       let out = 'User Data';
 
-      if (!!this.value.metadata?.labels?.[HARVESTER_CLOUD_INIT_NETWORK]) {
+      if (this.value.metadata?.labels?.[HARVESTER_CLOUD_INIT] === 'network') {
         out = 'Netwrok Data';
       }
 
