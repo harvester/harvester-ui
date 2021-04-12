@@ -181,3 +181,9 @@ export default {
     </Tabbed>
   </CruResource>
 </template>
+
+<style lang="scss" scoped>
+  .resource-yaml .yaml-editor {
+    min-height: 200px;
+  }
+</style>
