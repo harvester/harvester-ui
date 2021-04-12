@@ -165,27 +165,27 @@ export function init(store) {
   });
 
   virtualType({
-    label:      'Cloud Init Templates',
+    label:      'Users',
     group:      'root',
-    namespaced: true,
-    name:       CONFIG_MAP,
+    namespaced:  false,
+    name:       HARVESTER_USER,
     weight:     150,
     route:      {
       name:     'c-cluster-product-resource',
-      params:   { resource: CONFIG_MAP }
+      params:   { resource: HARVESTER_USER }
     },
     exact: false,
   });
 
   virtualType({
-    label:      'Users',
+    label:      'Cloud Init Templates',
     group:      'root',
-    namespaced:  false,
-    name:       HARVESTER_USER,
+    namespaced: true,
+    name:       CONFIG_MAP,
     weight:     87,
     route:      {
       name:     'c-cluster-product-resource',
-      params:   { resource: HARVESTER_USER }
+      params:   { resource: CONFIG_MAP }
     },
     exact: false,
   });

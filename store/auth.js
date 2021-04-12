@@ -163,6 +163,8 @@ export const actions = {
           if (isRancher && isFirstLogin) {
             await dispatch('applyServerUrl');
           }
+
+          this.$cookies.set('username', body.username);
         } catch (err) {
           return Promise.reject(err);
         }
@@ -282,6 +284,7 @@ export const actions = {
   async logout({ dispatch, commit }, clearToken = true) {
     if ( clearToken !== false ) {
       this.$cookies.remove('loggedIn');
+      this.$cookies.remove('username');
 
       try {
         await this.$axios({

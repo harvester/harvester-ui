@@ -6,7 +6,7 @@ import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
-import { HARVESTER_CLOUD_INIT_USER, HARVESTER_CLOUD_INIT_NETWORK } from '@/config/labels-annotations';
+import { HARVESTER_CLOUD_INIT, HARVESTER_CLOUD_INIT_CREATOR } from '@/config/labels-annotations';
 
 export default {
   name: 'CruConfigMap',
@@ -23,16 +23,9 @@ export default {
   mixins: [CreateEditView],
 
   data() {
-    let type = 'user';
-    const isNetwork = !!this.value?.metadata?.labels?.[HARVESTER_CLOUD_INIT_NETWORK];
-
-    if (isNetwork) {
-      type = 'network';
-    }
-
     return {
       config: this.value.data?.cloudInit || '',
-      type
+      type:   this.value?.metadata?.labels?.[HARVESTER_CLOUD_INIT] || 'user',
     };
   },
 
@@ -59,7 +52,11 @@ export default {
   methods: {
     async saveConfig(buttonCb) {
       if (this.isCreate) {
-        this.setTypeFlag();
+        this.value.metadata.labels = {
+          ...this.value.metadata.labels,
+          [HARVESTER_CLOUD_INIT]:         this.type,
+          [HARVESTER_CLOUD_INIT_CREATOR]: this.$cookies.get('username') || ''
+        };
       }
 
       await this.save(buttonCb);
@@ -67,21 +64,6 @@ export default {
 
     update() {
       this.value.data = { cloudInit: this.config };
-    },
-
-    setTypeFlag() {
-      let flag;
-
-      if (this.type === 'user') {
-        flag = { [HARVESTER_CLOUD_INIT_USER]: 'true' };
-      } else {
-        flag = { [HARVESTER_CLOUD_INIT_NETWORK]: 'true' };
-      }
-
-      this.value.metadata.labels = {
-        ...this.value.metadata.labels,
-        ...flag
-      };
     },
 
     onChanges(cm, changes) {
@@ -182,8 +164,22 @@ export default {
   </CruResource>
 </template>
 
-<style lang="scss" scoped>
-  .resource-yaml .yaml-editor {
-    min-height: 200px;
+<style lang="scss">
+$yaml-height: 200px;
+
+.resource-yaml {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  & .yaml-editor{
+    flex: 1;
+    min-height: $yaml-height;
+    & .code-mirror .CodeMirror {
+      position: initial;
+      height: auto;
+      min-height: $yaml-height;
+    }
   }
+}
 </style>

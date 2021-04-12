@@ -1,5 +1,5 @@
 <script>
-import { HARVESTER_CLOUD_INIT_USER } from '@/config/labels-annotations';
+import { HARVESTER_CLOUD_INIT } from '@/config/labels-annotations';
 
 export default {
   props: {
@@ -17,7 +17,7 @@ export default {
 
   computed: {
     displayLabel() {
-      if (!!this.value?.[HARVESTER_CLOUD_INIT_USER]) {
+      if (this.value?.[HARVESTER_CLOUD_INIT] === 'user') {
         return 'User Data';
       } else {
         return 'Network Data';

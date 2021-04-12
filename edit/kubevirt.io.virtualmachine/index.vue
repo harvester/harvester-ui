@@ -237,7 +237,8 @@ export default {
           ]
         };
 
-        const out = safeDump(agentJson);
+        const parsed = safeLoad(this.userScript);
+        const out = safeDump(_.merge(parsed || {}, agentJson));
 
         this.$set(this, 'userScript', out);
       }
@@ -519,7 +520,13 @@ export default {
             </div>
           </div>
 
-          <CloudConfig ref="yamlEditor" :user-script="userScript" :mode="mode" :network-script="networkScript" @updateCloudConfig="updateCloudConfig" />
+          <CloudConfig
+            ref="yamlEditor"
+            :user-script="userScript"
+            :mode="mode"
+            :network-script="networkScript"
+            @updateCloudConfig="updateCloudConfig"
+          />
 
           <div class="spacer"></div>
           <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" :label="t('harvester.vmPage.enableUsb')" />
