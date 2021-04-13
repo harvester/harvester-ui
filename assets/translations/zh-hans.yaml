@@ -2451,6 +2451,7 @@ action:
   restoreExistingVM: 恢复现存的虚拟机
   migrate: 迁移
   abortMigration: 取消迁移
+  createTemplate: 生成模板
   enableMaintenance: 开启维护模式
   disableMaintenance: 关闭维护模式
 
@@ -2687,6 +2688,10 @@ harvester:
         nodeName: 
           label: 目标节点
           placeholder: 请选择目标节点
+    createTemplate:
+      message: 
+        success: '生成模板成功！'
+        failed: '生成模板失败！'
   vmtemplatePage:
     nameNsDescription:
       name: 模板名称
