@@ -235,15 +235,16 @@ export default {
     return async () => {
       try {
         const message = this.t('harvester.vmPage.createTemplate.message.success');
+        const res = await this.doAction('createTemplate', {});
 
-        await this.doAction('createTemplate', {});
-
-        Notification({
-          title:    this.t('harvester.notification.title.succeed'),
-          duration: 5000,
-          message,
-          type:     'success'
-        })
+        if (res._status === 200 || res._status === 204) {
+          Notification({
+            title:    this.t('harvester.notification.title.succeed'),
+            duration: 5000,
+            message,
+            type:     'success'
+          })
+        }
       } catch(err) {
         const message = err?.response?.data?.message || err || this.t('harvester.vmPage.createTemplate.message.failed')
 
