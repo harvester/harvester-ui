@@ -481,11 +481,10 @@ export default {
 
         if (imageResource?.metadata?.name) {
           _dataVolumeTemplate.spec.pvc.storageClassName = `longhorn-${ imageResource?.metadata?.name }`; // R.storageClassName
-        } else {
-          _dataVolumeTemplate.spec.pvc.storageClassName = '';
+          _dataVolumeTemplate.metadata.annotations = { [HARVESTER_IMAGE_ID]: imageId };
+        } else if (this.pageType !== 'vm') {
+          _dataVolumeTemplate.metadata.annotations = { [HARVESTER_IMAGE_ID]: TEMPORARY_VALUE };
         }
-
-        _dataVolumeTemplate.metadata.annotations = { [HARVESTER_IMAGE_ID]: imageId };
         break;
       }
       }
