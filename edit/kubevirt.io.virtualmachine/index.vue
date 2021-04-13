@@ -221,27 +221,17 @@ export default {
     },
 
     installAgent(neu) {
+      let parsed = {};
+
       if (neu) {
-        const agentJson = {
-          package_update: true,
-          packages:       [
-            'qemu-guest-agent'
-          ],
-          runcmd: [
-            [
-              'systemctl',
-              'enable',
-              '--now',
-              'qemu-guest-agent'
-            ]
-          ]
-        };
-
-        const parsed = safeLoad(this.userScript);
-        const out = safeDump(_.merge(parsed || {}, agentJson));
-
-        this.$set(this, 'userScript', out);
+        parsed = this.mergeGuestAgent(_.cloneDeep(this.userScript));
+      } else {
+        parsed = this.deleteGuestAgent(_.cloneDeep(this.userScript));
       }
+
+      const out = safeDump(parsed);
+
+      this.$set(this, 'userScript', out);
     },
 
     MachineType(neu) {

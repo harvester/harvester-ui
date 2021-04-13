@@ -95,9 +95,11 @@ export default {
     userScript(neu) {
       this.userData = neu;
     },
+
     networkData(neu) {
       this.networkData = neu;
     },
+
     cloudInitUser(neu) {
       if (!neu) {
         this.userData = '';
