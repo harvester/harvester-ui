@@ -28,8 +28,11 @@ export default {
 
   stateDisplay() {
     // const phase = this?.status?.phase;
+    if (this?.metadata?.deletionTimestamp) {
+      return 'Terminating';
+    }
 
-    return 'Terminating';
+    return this?.status?.phase;
   },
 
   stateBackground() {

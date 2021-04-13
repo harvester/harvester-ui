@@ -101,7 +101,7 @@ export default {
 
           const parsed = Parse(resource.links.self);
 
-          resource.remove({ url: `${ parsed.pathname }?${ removedDisks }` });
+          resource.remove({ url: `${ parsed.pathname }?${ removedDisks }propagationPolicy=Foreground` });
         })).then((results) => {
           if ( goTo && !isEmpty(goTo) ) {
             parentCompnent.currentRouter.push(goTo);
