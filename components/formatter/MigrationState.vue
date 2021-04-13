@@ -25,7 +25,13 @@ export default {
     state() {
       return this.vmiResource?.migrationState?.status || '';
     }
-  }
+  },
+
+  watch: {
+    state(neu) {
+      this.$emit('state-changed', neu);
+    }
+  },
 };
 </script>
 

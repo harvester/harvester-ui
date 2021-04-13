@@ -1,10 +1,10 @@
 <script>
 import VMState from '@/components/formatter/BadgeStateFormatter';
-import { VMI } from '@/config/types';
+import MigrationState from '@/components/formatter/MigrationState';
 // import RestoreProgress from '@/components/formatter/restoreProgress';
 
 export default {
-  components: { VMState },
+  components: { VMState, MigrationState },
   props:      {
     value: {
       type:     String,
@@ -31,6 +31,10 @@ export default {
     }
   },
 
+  data() {
+    return { isMigrating: false };
+  },
+
   computed: {
     NetworkImpassability() {
       const nodeName = this.row?.nodeName;
@@ -48,30 +52,21 @@ export default {
 
       return clusterNetwork?.enable;
     },
+  },
 
-    vmiResource() {
-      const vmiList = this.$store.getters['cluster/all'](VMI) || [];
-      const vmi = vmiList.find( (VMI) => {
-        return VMI?.metadata?.ownerReferences?.[0]?.uid === this.row?.metadata?.uid;
-      });
-
-      return vmi;
-    },
-
-    migrationState() {
-      return this.vmiResource?.migrationState?.status || '';
+  methods: {
+    migrationStateChanged(neu) {
+      this.isMigrating = !!neu;
     }
-  }
+  },
 };
 </script>
 
 <template>
   <span>
     <!-- <RestoreProgress :vm="row" /> -->
-    <span v-if="!!migrationState" :class="{'badge-state': true, [vmiResource.migrationStateBackground]: true}">
-      {{ migrationState }}
-    </span>
-    <div v-else class="state">
+    <MigrationState v-show="isMigrating" :vm-resource="row" @state-changed="migrationStateChanged" />
+    <div v-show="!isMigrating" class="state">
       <VMState :row="row" />
       <i v-if="NetworkImpassability" v-tooltip="message" class="icon icon-warning icon-lg text-warning" />
     </div>
