@@ -79,6 +79,8 @@ export default {
     if (isClone) {
       this.value.spec.template.metadata.annotations[HARVESTER_DISK_NAMES] = '[]';
       this.value.spec.template.spec.hostname = '';
+
+      this.deleteMacAddress(this.value.spec.template);
     }
 
     let pageType = '';
@@ -827,6 +829,16 @@ export default {
       }
 
       return parsed;
+    },
+
+    deleteMacAddress(template) {
+      const interfaces = template?.spec?.domain?.devices?.interfaces || [];
+
+      for (let i = 0; i < interfaces.length; i++) {
+        if (interfaces[i].macAddress) {
+          interfaces[i].macAddress = '';
+        }
+      }
     }
   },
 
