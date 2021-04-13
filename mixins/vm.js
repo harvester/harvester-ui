@@ -738,6 +738,96 @@ export default {
     updateCloudConfig(userData, networkData) {
       this.userScript = userData;
       this.networkScript = networkData;
+    },
+
+    mergeGuestAgent(userScript) {
+      const parsed = safeLoad(_.cloneDeep(userScript)) || {};
+
+      const agentJson = {
+        package_update: true,
+        packages:       [
+          'qemu-guest-agent'
+        ],
+        runcmd: [
+          [
+            'systemctl',
+            'enable',
+            '--now',
+            'qemu-guest-agent'
+          ]
+        ]
+      };
+
+      parsed.package_update = true; // overwritten
+
+      if (Array.isArray(parsed.packages)) {
+        const agent = parsed.packages.find( P => P === 'qemu-guest-agent');
+
+        if (!agent) {
+          parsed.packages.push('qemu-guest-agent');
+        }
+      } else {
+        parsed.packages = agentJson.packages;
+      }
+
+      if (Array.isArray(parsed.runcmd)) {
+        const runcmd = parsed.runcmd.find( (S) => {
+          return S.join('-') === agentJson.runcmd[0].join('-');
+        });
+
+        if (!runcmd) {
+          parsed.runcmd.push(agentJson.runcmd[0]);
+        }
+      } else {
+        parsed.runcmd = agentJson.runcmd;
+      }
+
+      return parsed;
+    },
+
+    deleteGuestAgent(userScript) {
+      const parsed = safeLoad(_.cloneDeep(userScript)) || {};
+
+      const agentJson = {
+        package_update: true,
+        packages:       [
+          'qemu-guest-agent'
+        ],
+        runcmd: [
+          [
+            'systemctl',
+            'enable',
+            '--now',
+            'qemu-guest-agent'
+          ]
+        ]
+      };
+
+      if (Array.isArray(parsed.packages)) {
+        for (let i = 0; i < parsed.packages.length; i++) {
+          if (parsed.packages[i] === 'qemu-guest-agent') {
+            parsed.packages.splice(i, 1);
+          }
+        }
+
+        if (parsed.packages?.length === 0) {
+          delete parsed.packages;
+        }
+      }
+
+      if (Array.isArray(parsed.runcmd)) {
+        for (let i = 0; i < parsed.runcmd.length; i++) {
+          if (parsed.runcmd[i].join('-') === agentJson.runcmd[0].join('-')) {
+            parsed.runcmd.splice(i, 1);
+          }
+        }
+
+        if (parsed.runcmd.length === 0) {
+          delete parsed.runcmd;
+        }
+      }
+
+      return parsed;
     }
   },
 
