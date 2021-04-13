@@ -3012,6 +3012,7 @@ action:
   restoreExistingVM: Replace Existing
   migrate: Migrate
   abortMigration: Abort Migration
+  createTemplate: Generate Template
   enableMaintenance: Enable Maintenance Mode
   disableMaintenance: Disable Maintenance Mode
 
@@ -3269,6 +3270,10 @@ harvester:
         nodeName: 
           label: Target Node
           placeholder: Choose Target Node
+    createTemplate:
+      message: 
+        success: 'Successfully generated template!'
+        failed: 'Failed generated template!'
   vmtemplatePage:
     nameNsDescription:
       name: Template Name

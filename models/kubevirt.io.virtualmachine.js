@@ -2,6 +2,7 @@
 import Vue from 'vue';
 import _ from 'lodash';
 import { safeLoad } from 'js-yaml';
+import Notification from '@/components/Notification/main.js';
 import { colorForState } from '@/plugins/steve/resource-instance';
 import {
   VMI, POD, VM, NODE, HARVESTER_RESTORE
@@ -144,6 +145,12 @@ export default {
         icon:       'icon icon-close',
         label:      this.t('action.abortMigration'),
       },
+      {
+        action:     'createTemplate',
+        enabled:    !!this.actions?.createTemplate,
+        icon:       'icon icon-copy',
+        label:      this.t('action.createTemplate'),
+      },
       ...out
     ];
   },
@@ -221,6 +228,32 @@ export default {
   abortMigrationVM() {
     return () => {
       this.doAction('abortMigration', {});
+    };
+  },
+
+  createTemplate() {
+    return async () => {
+      try {
+        const message = this.t('harvester.vmPage.createTemplate.message.success');
+
+        await this.doAction('createTemplate', {});
+
+        Notification({
+          title:    this.t('harvester.notification.title.succeed'),
+          duration: 5000,
+          message,
+          type:     'success'
+        })
+      } catch(err) {
+        const message = err?.response?.data?.message || err || this.t('harvester.vmPage.createTemplate.message.failed')
+
+        Notification({
+          title:    this.t('harvester.notification.title.error'),
+          duration: 5000,
+          message,
+          type:     'error'
+        })
+      }
     };
   },
 
