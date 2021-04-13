@@ -418,6 +418,10 @@ export default {
       return 'Restoring';
     }
 
+    if (this.vmi && this.vmi.stateDisplay === 'Terminating') {
+      return 'Terminating';
+    } 
+
     const state =
       this.isPaused?.status ||
       this.isVMError?.status ||
