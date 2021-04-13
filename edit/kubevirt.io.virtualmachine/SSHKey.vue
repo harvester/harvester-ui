@@ -82,6 +82,10 @@ export default {
         }
       }
     },
+
+    value(neu) {
+      this.checkedSsh = neu;
+    }
   },
 
   methods: {

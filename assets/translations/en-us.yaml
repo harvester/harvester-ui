@@ -2930,8 +2930,8 @@ typeLabel:
     }
   configmap: |-
     {count, plural,
-      one { Cloud Init Template }
-      other { Cloud Init Templates }
+      one { Cloud-Init-Template }
+      other { Cloud-Init-Templates }
     }
   k8s.cni.cncf.io.networkattachmentdefinition: |-
     {count, plural,

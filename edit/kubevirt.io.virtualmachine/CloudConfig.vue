@@ -196,7 +196,7 @@ export default {
 
       <div class="row mb-20">
         <div class="col span-3">
-          <Select v-model="cloudInitUser" :clearable="true" :options="cloudInitConfigs.user" />
+          <Select v-if="isCreate || isEdit" v-model="cloudInitUser" :clearable="true" :options="cloudInitConfigs.user" />
         </div>
       </div>
 
@@ -219,7 +219,7 @@ export default {
 
       <div class="row mb-20">
         <div class="col span-3">
-          <Select v-model="cloudInitNetwork" :clearable="true" :options="cloudInitConfigs.network" />
+          <Select v-if="isCreate || isEdit" v-model="cloudInitNetwork" :clearable="true" :options="cloudInitConfigs.network" />
         </div>
       </div>
 
