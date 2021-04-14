@@ -38,13 +38,23 @@ export default {
     showPercentage: {
       type:    Boolean,
       default: false
+    },
+
+    height: {
+      type:    Number,
+      default: 15
+    },
+
+    tooltip: {
+      type:    Boolean,
+      default: false
     }
   },
 
   computed: {
     primaryColor() {
       const isLess = this.preferredDirection === PreferredDirection.LESS;
-      const threshold = isLess ? 80 : 20;
+      const threshold = isLess ? 40 : 60;
 
       const left = isLess ? this.value : threshold;
       const right = isLess ? threshold : this.value;
@@ -57,14 +67,18 @@ export default {
     },
     formattedPercentage() {
       return formatPercent(this.value);
+    },
+
+    toolTipValue() {
+      return this.tooltip && this.value?.toString();
     }
   },
 };
 </script>
 
 <template>
-  <span class="percentage-bar">
-    <Bar :percentage="value" :primary-color="primaryColor" />
+  <span v-tooltip="toolTipValue" class="percentage-bar">
+    <Bar :percentage="value" :primary-color="primaryColor" :height="height" />
     <span v-if="showPercentage" class="ml-5">{{ formattedPercentage }}</span>
   </span>
 </template>

@@ -3,9 +3,9 @@ export default {
     return this?.status?.complete || false;
   },
 
-  engineList() {
+  pvcNames() {
     const restores = this?.status?.restores || [];
-    const out = restores.map( O => O?.persistentVolumeClaimSpec?.spec?.volumeName);
+    const out = restores.map( O => O?.persistentVolumeClaimSpec?.name);
 
     return out;
   },

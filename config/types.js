@@ -250,3 +250,4 @@ export const HARVESTER_CLUSTER_NETWORK = 'network.harvester.cattle.io.clusternet
 
 // longhorn
 export const LONGHORN_IO_ENGINE = 'longhorn.io.engine';
+export const LONGHORN_IO_VOLUME = 'longhorn.io.volume';
