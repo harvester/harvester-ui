@@ -452,9 +452,9 @@ export default {
       return 'Restoring';
     }
 
-    if (this.vmi && this.vmi.stateDisplay === 'Terminating') {
+    if (this?.metadata?.deletionTimestamp) {
       return 'Terminating';
-    } 
+    }
 
     const state =
       this.isPaused?.status ||
