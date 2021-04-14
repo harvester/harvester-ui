@@ -13,6 +13,10 @@ export default {
       type:    String,
       default: '--border'
     },
+    height: {
+      type:    Number,
+      default: 15
+    }
   },
   computed: {
     indicatorStyle() {
@@ -22,7 +26,11 @@ export default {
       };
     },
     barStyle() {
-      return { backgroundColor: `var(${ this.secondaryColor })` };
+      return {
+        backgroundColor: `var(${ this.secondaryColor })`,
+        height:          `${ this.height }px`,
+        borderRadius:    `${ this.height / 2 }px`,
+      };
     }
   }
 };
@@ -36,15 +44,11 @@ export default {
 
 <style lang="scss" scoped>
 .bar {
-    $height: 15px;
-
     width: 100%;
-    height: $height;
-    border-radius: $height / 2;
     overflow: hidden;
 
     .indicator {
-        height: 100%;
+      height: 100%;
     }
 }
 </style>

@@ -1,8 +1,10 @@
 <script>
 import { allHash } from '@/utils/promise';
-import { LONGHORN_IO_ENGINE, HARVESTER_RESTORE } from '@/config/types';
+import { LONGHORN_IO_ENGINE, HARVESTER_RESTORE, PVC } from '@/config/types';
+import PercentageBar from '../PercentageBar';
 
 export default {
+  components: { PercentageBar },
   props:      {
     vm: {
       type:     Object,
@@ -12,8 +14,9 @@ export default {
 
   async fetch() {
     await allHash({
-      engines:  this.$store.dispatch('cluster/findAll', { type: LONGHORN_IO_ENGINE }),
-      restores: this.$store.dispatch('cluster/findAll', { type: HARVESTER_RESTORE }),
+      engines:         this.$store.dispatch('cluster/findAll', { type: LONGHORN_IO_ENGINE }),
+      restores:        this.$store.dispatch('cluster/findAll', { type: HARVESTER_RESTORE }),
+      PVC:      this.$store.dispatch('cluster/findAll', { type: PVC }),
     });
   },
 
@@ -34,27 +37,35 @@ export default {
 
     progress() {
       let out = 0;
-      const engineList = this.restoreResource?.engineList || [];
+      const pvcNamesList = this.restoreResource?.pvcNames || [];
+
+      const pvcs = this.$store.getters['cluster/all'](PVC);
       const engines = this.$store.getters['cluster/all'](LONGHORN_IO_ENGINE) || [];
-      const AttachEngines = engines.filter( E => engineList.includes(E.spec.backupVolume));
+
+      const AttachPVCVolumeName = pvcs.filter( (V) => {
+        return pvcNamesList.includes(V?.metadata.name);
+      }).map( V => V.spec.volumeName);
+
+      const AttachEngines = engines.filter( E => AttachPVCVolumeName.includes(E.metadata.labels.longhornvolume));
 
       AttachEngines.map( (E) => {
         out += E.restoreProgress;
       });
-      // console.log('---out', out, this.vm.actualState);
 
-      return out;
+      return out === 0 ? out : parseInt(out / pvcNamesList.length);
     },
   },
 };
 </script>
 
 <template>
-  <div v-if="isShow">
-    <span>{{ progress }}</span>
+  <div v-if="isShow" class="bar">
+    <PercentageBar v-model="progress" :height="6" preferred-direction="MORE" :tooltip="true" />
   </div>
 </template>
 
 <style lang="scss" scoped>
-
+.bar {
+  margin-bottom: 4px;
+}
 </style>
