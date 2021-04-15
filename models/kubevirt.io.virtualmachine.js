@@ -534,7 +534,7 @@ export default {
 
       if (status === VM_ERROR) {
         errorCount += 1;
-      } else if (status === 'Stopping' || status === 'Waiting' || status === 'Pending' || status === 'Starting') {
+      } else if (status === 'Stopping' || status === 'Waiting' || status === 'Pending' || status === 'Starting' || status === 'Terminating') {
         warningCount += 1;
       }
     });
