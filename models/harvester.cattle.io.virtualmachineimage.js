@@ -7,8 +7,12 @@ import {
 
 export default {
   availableActions() {
-    const out = this._standardActions;
+    let out = this._standardActions;
     const b = this.stateDisplay !== 'Failed';
+
+    const toFilter = ['goToEdit', 'goToEditYaml'];
+
+    out = out.filter( A => !toFilter.includes(A.action));
 
     return [
       {
