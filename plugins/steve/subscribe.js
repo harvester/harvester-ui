@@ -13,6 +13,7 @@ export const TOO_OLD = 'TOO_OLD';
 export const NO_SCHEMA = 'NO_SCHEMA';
 
 let noticeInstance = null;
+const closeTimer = {};
 
 export const actions = {
   subscribe(ctx, opt) {
@@ -241,6 +242,11 @@ export const actions = {
   }, event) {
     // console.info(`WebSocket Opened [${ getters.storeName }]`); // eslint-disable-line no-console
 
+    if (closeTimer[state.socket.url]) {
+      clearTimeout(state.socket.url);
+      state.socket.url = null;
+    }
+
     if (noticeInstance) {
       noticeInstance.close(noticeInstance.id);
       noticeInstance = null;
@@ -281,14 +287,20 @@ export const actions = {
 
   closed({ getters, state, rootGetters }) {
     // console.info(`WebSocket Closed [${ getters.storeName }]`); // eslint-disable-line no-console
-    if (!noticeInstance && state.socket?.autoReconnect) {
+    if (state.socket?.autoReconnect && !closeTimer[state.socket.url]) {
       const t = rootGetters['i18n/t'];
 
-      noticeInstance = Notification.warning({
-        duration: 0,
-        title:    t('harvester.webSocket.connecting.title'),
-        message:  t('harvester.webSocket.connecting.disconnectedWarning')
-      });
+      const timer = setTimeout(() => {
+        if (!noticeInstance) {
+          noticeInstance = Notification.warning({
+            duration: 0,
+            title:    t('harvester.webSocket.connecting.title'),
+            message:  t('harvester.webSocket.connecting.disconnectedWarning')
+          });
+        }
+      }, 35000);
+
+      closeTimer[state.socket.url] = timer;
     }
 
     clearTimeout(state.queueTimer);
