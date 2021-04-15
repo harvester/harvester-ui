@@ -4,7 +4,7 @@ import AsyncButton from '@/components/AsyncButton';
 import Card from '@/components/Card';
 import { exceptionToErrorsArray } from '@/utils/error';
 import LabeledSelect from '@/components/form/LabeledSelect';
-import { HOST_CUSTOM_NAME } from '@/config/labels-annotations';
+import { HOST_CUSTOM_NAME, HARVESTER_MAINTENANCE_STATUS } from '@/config/labels-annotations';
 import { NODE, VMI } from '@/config/types';
 
 const { mapState } = createNamespacedHelpers('kubevirt.io.virtualmachine');
@@ -36,7 +36,7 @@ export default {
 
       return nodes.filter((n) => {
         // do not allow to migrate to self node
-        return n.id !== this.vmi?.status?.nodeName;
+        return n.id !== this.vmi?.status?.nodeName && !n.metadata?.annotations?.[HARVESTER_MAINTENANCE_STATUS];
       }).map((n) => {
         let label = n?.metadata?.name;
         const value = n?.metadata?.name;
