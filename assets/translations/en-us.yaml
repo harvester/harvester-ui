@@ -2930,8 +2930,8 @@ typeLabel:
     }
   configmap: |-
     {count, plural,
-      one { Cloud-Init-Template }
-      other { Cloud-Init-Templates }
+      one { Cloud-init-Template }
+      other { Cloud-init-Templates }
     }
   k8s.cni.cncf.io.networkattachmentdefinition: |-
     {count, plural,
@@ -3256,6 +3256,10 @@ harvester:
         dedicatedResources: Dedicated Resources
         down: VM not running
         affinityRules: Affinity Rules
+        sourceNode: Source Node
+        targetNode: Target Node
+        started: Started
+        ended: Ended
       notAvailable: Not available
       GuestAgentNotInstalled: Guest agent required
       noOwner: No Owner

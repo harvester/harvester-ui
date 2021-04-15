@@ -3,6 +3,9 @@ import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import { EVENT, VMI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
+import BackupModal from '@/list/kubevirt.io.virtualmachine/backupModal';
+import RestoreModal from '@/list/kubevirt.io.virtualmachine/restoreModal';
+import MigrationModal from '@/list/kubevirt.io.virtualmachine/MigrationModal';
 import OverviewBasics from './tabs/details/basics';
 import OverviewDisks from './tabs/details/disks';
 import OverviewNetworks from './tabs/details/networks';
@@ -24,6 +27,9 @@ export default {
     OverviewKeypairs,
     OverviewCloudConfigs,
     Migration,
+    BackupModal,
+    RestoreModal,
+    MigrationModal
   },
 
   mixins: [CreateEditView],
@@ -115,5 +121,9 @@ export default {
         <Migration v-model="value" :vmi-resource="vmi" />
       </Tab>
     </Tabbed>
+
+    <BackupModal />
+    <RestoreModal />
+    <MigrationModal />
   </div>
 </template>

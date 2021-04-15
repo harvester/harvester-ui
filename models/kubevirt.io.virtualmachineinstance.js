@@ -63,7 +63,14 @@ export default {
   migrationState() {
     const state = this.metadata?.annotations?.[HARVESTER_MIGRATION_STATE];
 
-    if (state) {
+    if (this.vmimResource?.status?.phase === VMIPhase.Failed) {
+      return {
+        type:   'migration',
+        status: VMIPhase.Failed
+      };
+    }
+
+    if (this.vmimResource?.status?.phase && state) {
       return {
         type:   'migration',
         status: state

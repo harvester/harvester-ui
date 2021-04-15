@@ -69,19 +69,19 @@ export default {
 
       <div class="row mb-20">
         <div class="col span-6">
-          <LabelValue name="Source Node" :value="sourceNode" />
+          <LabelValue :name="t('harvester.vmPage.detail.details.sourceNode')" :value="sourceNode" />
         </div>
         <div class="col span-6">
-          <LabelValue name="Target Node" :value="targetNode" />
+          <LabelValue :name="t('harvester.vmPage.detail.details.targetNode')" :value="targetNode" />
         </div>
       </div>
 
       <div class="row mb-20">
         <div class="col span-6">
-          <LabelValue name="Started" :value="started" />
+          <LabelValue :name="t('harvester.vmPage.detail.details.started')" :value="started" />
         </div>
         <div class="col span-6">
-          <LabelValue name="Ended" :value="ended" />
+          <LabelValue :name="t('harvester.vmPage.detail.details.ended')" :value="ended" />
         </div>
       </div>
 
