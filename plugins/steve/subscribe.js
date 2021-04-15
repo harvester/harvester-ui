@@ -241,10 +241,9 @@ export const actions = {
     getters, commit, dispatch, state
   }, event) {
     // console.info(`WebSocket Opened [${ getters.storeName }]`); // eslint-disable-line no-console
-
     if (closeTimer[state.socket.url]) {
-      clearTimeout(state.socket.url);
-      state.socket.url = null;
+      clearTimeout(closeTimer[state.socket.url]);
+      closeTimer[state.socket.url] = null;
     }
 
     if (noticeInstance) {
@@ -287,7 +286,7 @@ export const actions = {
 
   closed({ getters, state, rootGetters }) {
     // console.info(`WebSocket Closed [${ getters.storeName }]`); // eslint-disable-line no-console
-    if (state.socket?.autoReconnect && !closeTimer[state.socket.url]) {
+    if (!noticeInstance && state.socket?.autoReconnect && !closeTimer[state.socket.url]) {
       const t = rootGetters['i18n/t'];
 
       const timer = setTimeout(() => {
