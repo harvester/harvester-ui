@@ -456,6 +456,10 @@ export default {
       return 'Terminating';
     }
 
+    if (!!this?.vmi?.migrationState) {
+      return this.vmi.migrationState.status
+    }
+
     const state =
       this.isPaused?.status ||
       this.isVMError?.status ||

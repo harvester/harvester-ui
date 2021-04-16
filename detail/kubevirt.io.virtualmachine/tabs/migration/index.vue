@@ -62,34 +62,28 @@ export default {
 
 <template>
   <div>
-    <div class="box-card mb-20">
-      <div slot="header" class="clearfix">
-        <MigrationState style="float: right; padding: 3px 0" :vm-resource="value" />
+    <div class="row mb-20">
+      <div class="col span-6">
+        <LabelValue :name="t('harvester.vmPage.detail.details.sourceNode')" :value="sourceNode" />
       </div>
-
-      <div class="row mb-20">
-        <div class="col span-6">
-          <LabelValue :name="t('harvester.vmPage.detail.details.sourceNode')" :value="sourceNode" />
-        </div>
-        <div class="col span-6">
-          <LabelValue :name="t('harvester.vmPage.detail.details.targetNode')" :value="targetNode" />
-        </div>
+      <div class="col span-6">
+        <LabelValue :name="t('harvester.vmPage.detail.details.targetNode')" :value="targetNode" />
       </div>
-
-      <div class="row mb-20">
-        <div class="col span-6">
-          <LabelValue :name="t('harvester.vmPage.detail.details.started')" :value="started" />
-        </div>
-        <div class="col span-6">
-          <LabelValue :name="t('harvester.vmPage.detail.details.ended')" :value="ended" />
-        </div>
-      </div>
-
-      <!-- <div class="row mb-20">
-        <div class="col span-6">
-          <LabelValue name="Message" :value="message" />
-        </div>
-      </div> -->
     </div>
+
+    <div class="row mb-20">
+      <div class="col span-6">
+        <LabelValue :name="t('harvester.vmPage.detail.details.started')" :value="started" />
+      </div>
+      <div class="col span-6">
+        <LabelValue :name="t('harvester.vmPage.detail.details.ended')" :value="ended" />
+      </div>
+    </div>
+
+    <!-- <div class="row mb-20">
+      <div class="col span-6">
+        <LabelValue name="Message" :value="message" />
+      </div>
+    </div> -->
   </div>
 </template>
