@@ -1,14 +1,10 @@
 <script>
 import LabelValue from '@/components/LabelValue';
-import MigrationState from '@/components/formatter/MigrationState';
 
 export default {
   name: 'Migration',
 
-  components: {
-    LabelValue,
-    MigrationState
-  },
+  components: { LabelValue },
 
   props: {
     value: {
