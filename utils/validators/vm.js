@@ -182,7 +182,7 @@ export function getVolumeType(V, DVTS) {
 
   if (V.dataVolume) { // maybe is new or existing or image type, but existing type can’t find DVT
     outValue = DVTS.find((DVT) => { // image type
-      return V.dataVolume.name === DVT.metadata?.name && DVT.metadata?.annotations && DVT.metadata?.annotations.hasOwnProperty('harvester.cattle.io/imageId');
+      return V.dataVolume.name === DVT.metadata?.name && DVT.metadata?.annotations && DVT.metadata?.annotations.hasOwnProperty('harvesterhci.io/imageId');
     });
 
     if (outValue) {

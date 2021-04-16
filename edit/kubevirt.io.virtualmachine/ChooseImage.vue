@@ -122,7 +122,7 @@ export default {
         </div>
 
         <div class="mt-20">
-          <nuxt-link to="/c/local/virtual/harvester.cattle.io.virtualmachineimage">
+          <nuxt-link to="/c/local/virtual/harvesterhci.io.virtualmachineimage">
             <button class="btn btn-sm bg-primary">
               Add Image
             </button>

@@ -99,7 +99,7 @@ export default {
       <Banner color="error">
         <div>
           {{ t('harvester.networkPage.message.premise.prefix') }}
-          <nuxt-link to="network.harvester.cattle.io.clusternetwork/harvester-system/vlan?mode=edit">
+          <nuxt-link to="network.harvesterhci.io.clusternetwork/harvester-system/vlan?mode=edit">
             {{ t('harvester.networkPage.message.premise.middle') }}
           </nuxt-link>
           {{ t('harvester.networkPage.message.premise.suffic') }}

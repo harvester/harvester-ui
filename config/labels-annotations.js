@@ -89,43 +89,43 @@ export const ANNOTATIONS_TO_FOLD = [
 // VM
 export const STORAGE_CLASS_LABEL = { DEFAULT_CALSS: 'storageclass.kubernetes.io/is-default-class' };
 
-export const DATA_VOLUME_OWNEDBY = 'harvester.cattle.io/owned-by';
+export const DATA_VOLUME_OWNEDBY = 'harvesterhci.io/owned-by';
 
-export const HARVESTER_CREATOR = 'harvester.cattle.io/creator';
+export const HARVESTER_CREATOR = 'harvesterhci.io/creator';
 
-export const HARVESTER_IMAGE_NAME = 'harvester.cattle.io/vmName';
+export const HARVESTER_IMAGE_NAME = 'harvesterhci.io/vmName';
 
-export const HARVESTER_DISK_NAMES = 'harvester.cattle.io/diskNames';
+export const HARVESTER_DISK_NAMES = 'harvesterhci.io/diskNames';
 
-export const HARVESTER_SSH_NAMES = 'harvester.cattle.io/sshNames';
+export const HARVESTER_SSH_NAMES = 'harvesterhci.io/sshNames';
 
-export const HARVESTER_NETWORK_IPS = 'networks.harvester.cattle.io/ips';
+export const HARVESTER_NETWORK_IPS = 'networks.harvesterhci.io/ips';
 
 export const HARVESTER_NETWORK_STATUS = 'k8s.v1.cni.cncf.io/network-status';
 
-export const HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME = 'harvester.cattle.io/customName';
+export const HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME = 'harvesterhci.io/customName';
 
-export const HOST_CUSTOM_NAME = 'harvester.cattle.io/host-custom-name';
+export const HOST_CUSTOM_NAME = 'harvesterhci.io/host-custom-name';
 
 export const HARVESTER_VOLUME_CREATEDBY = 'kubevirt.io/created-by';
 
-export const HARVESTER_UPGRADESTATE = 'harvester.cattle.io/upgradeState';
+export const HARVESTER_UPGRADESTATE = 'harvesterhci.io/upgradeState';
 
-export const HARVESTER_IMAGE_ID = 'harvester.cattle.io/imageId';
+export const HARVESTER_IMAGE_ID = 'harvesterhci.io/imageId';
 
 // node role
 export const NODE_ROLE_MASTER = 'node-role.kubernetes.io/master';
 export const NODE_ROLE_CONTROL_PLANE = 'node-role.kubernetes.io/control-plane';
-export const HARVESTER_PROMOTE_STATUS = 'harvester.cattle.io/promote-status';
-export const HARVESTER_RESTORE_NAME = 'restore.harvester.cattle.io/name';
-export const HARVESTER_MAINTENANCE_STATUS = 'harvester.cattle.io/maintain-status';
+export const HARVESTER_PROMOTE_STATUS = 'harvesterhci.io/promote-status';
+export const HARVESTER_RESTORE_NAME = 'restore.harvesterhci.io/name';
+export const HARVESTER_MAINTENANCE_STATUS = 'harvesterhci.io/maintain-status';
 
 // backup
-export const HARVESTER_BACKUP_TARGET = 'backup.harvester.cattle.io/backupTarget';
+export const HARVESTER_BACKUP_TARGET = 'backup.harvesterhci.io/backupTarget';
 
 // migration
-export const HARVESTER_MIGRATION_STATE = 'harvester.cattle.io/migrationState';
-export const HARVESTER_MIGRATION_TARGET = 'harvester.cattle.io/migrationTargetNodeName';
+export const HARVESTER_MIGRATION_STATE = 'harvesterhci.io/migrationState';
+export const HARVESTER_MIGRATION_TARGET = 'harvesterhci.io/migrationTargetNodeName';
 
 // cloud-init
 export const HARVESTER_CLOUD_INIT = 'harvesterhci.io/cloud-init-template';

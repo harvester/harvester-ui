@@ -69,7 +69,7 @@ export default {
 
   methods: {
     async beforeSave(buttonCb) {
-      this.value.setLabel('networks.harvester.cattle.io/type', this.type);
+      this.value.setLabel('networks.harvesterhci.io/type', this.type);
       if (!this.vlanId) {
         this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Vlan ID' })];
         buttonCb(false);

@@ -110,7 +110,7 @@ export default {
       };
     }
 
-    const sshKeyName = spec?.template?.metadata?.annotations?.['harvester.cattle.io/sshNames'] || '[]';
+    const sshKeyName = spec?.template?.metadata?.annotations?.['harvesterhci.io/sshNames'] || '[]';
     const sshKey = JSON.parse(sshKeyName) || [];
 
     const hasCreateVolumes = [];

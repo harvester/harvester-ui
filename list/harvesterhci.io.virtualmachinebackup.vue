@@ -92,7 +92,7 @@ export default {
     hasBakcupError: {
       handler(neu) {
         const type = this.$route.params.resource;
-        const setting = !!neu ? '' : 'harvester.cattle.io.setting/backup-target?mode=edit';
+        const setting = !!neu ? '' : 'harvesterhci.io.setting/backup-target?mode=edit';
 
         this.$store.commit('cluster/setConfig', {
           type,
@@ -116,7 +116,7 @@ export default {
     >
       <div v-if="isEmptyValue">
         {{ t('harvester.backUpPage.message.noSetting.prefix') }}
-        <nuxt-link to="harvester.cattle.io.setting/backup-target?mode=edit">
+        <nuxt-link to="harvesterhci.io.setting/backup-target?mode=edit">
           {{ t('harvester.backUpPage.message.noSetting.middle') }}
         </nuxt-link>
         {{ t('harvester.backUpPage.message.noSetting.suffic') }}
@@ -124,7 +124,7 @@ export default {
 
       <div v-else>
         {{ t('harvester.backUpPage.message.errorTip.prefix') }}
-        <nuxt-link to="harvester.cattle.io.setting/backup-target?mode=edit">
+        <nuxt-link to="harvesterhci.io.setting/backup-target?mode=edit">
           {{ t('harvester.backUpPage.message.errorTip.middle') }}
         </nuxt-link> {{ t('harvester.backUpPage.message.errorTip.suffic') }} {{ errorMessage }}
       </div>

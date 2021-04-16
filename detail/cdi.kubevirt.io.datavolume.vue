@@ -42,7 +42,7 @@ export default {
 
     source() {
       // return this.value.spec?.source?.blank ? 'blank' : this.value?.source?.registry?.url ? 'container' : 'VM Image';
-      if (this.value?.metadata?.annotations?.['harvester.cattle.io/imageId']) {
+      if (this.value?.metadata?.annotations?.['harvesterhci.io/imageId']) {
         return 'VM Image';
       } else {
         return 'blank';
@@ -54,7 +54,7 @@ export default {
       // const source = this.value.spec?.source?.blank ? 'blank' : this.value.spec?.source?.registry?.url ? 'container' : 'VM Image'; // eslint-disable-line
       // const image = source === 'VM Image' ? this.value.spec?.source?.http?.url : '-'; // eslint-disable-line
 
-      const imageId = this.value?.metadata?.annotations?.['harvester.cattle.io/imageId'] || '';
+      const imageId = this.value?.metadata?.annotations?.['harvesterhci.io/imageId'] || '';
       const imageResource = imageList.find( I => imageId === I.id);
 
       return imageResource?.spec?.displayName || '-';

@@ -33,7 +33,7 @@ export default {
     },
 
     type() {
-      return this.value.getLabelValue('networks.harvester.cattle.io/type') || '-';
+      return this.value.getLabelValue('networks.harvesterhci.io/type') || '-';
     },
 
     vlanId() {

@@ -133,7 +133,7 @@ export default {
 
       // if (this.isVmImage && this.image) {
       if (this.isVmImage) {
-        imageAnnotations = { 'harvester.cattle.io/imageId': this.image };
+        imageAnnotations = { 'harvesterhci.io/imageId': this.image };
       } else {
         imageAnnotations = {};
       }

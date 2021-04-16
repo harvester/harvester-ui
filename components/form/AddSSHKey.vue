@@ -108,7 +108,7 @@ export default {
         return;
       }
 
-      const SSH = 'harvester.cattle.io.keypair';
+      const SSH = 'harvesterhci.io.keypair';
 
       try {
         await this.$store.dispatch('cluster/request', {
@@ -119,7 +119,7 @@ export default {
           },
           url:  `v1/${ SSH }`,
           data: {
-            apiVersion: 'vm.cattle.io/v1alpha1',
+            apiVersion: 'vm.cattle.io/v1beta1',
             kind:       'KeyPair',
             metadata:   { name: this.sshName },
             spec:       { publicKey: this.publicKey },
