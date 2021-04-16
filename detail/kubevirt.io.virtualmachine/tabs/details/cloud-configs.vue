@@ -23,7 +23,10 @@ export default {
   computed: {
     cloudData() {
       const volumes = this.value?.spec?.template?.spec?.volumes;
-      const out = {};
+      const out = {
+        userData:    '',
+        networkData: ''
+      };
 
       volumes.forEach((v) => {
         if (v.cloudInitNoCloud) {
