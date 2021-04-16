@@ -39,7 +39,7 @@ export default {
 
   methods: {
     update() {
-      this.value.setAnnotation('networks.harvester.cattle.io/type', this.type);
+      this.value.setAnnotation('networks.harvesterhci.io/type', this.type);
       const value = JSON.stringify(this.parseDefaultValue);
 
       this.$set(this.value, 'value', value);

@@ -42,7 +42,7 @@ export default {
 
     imageName() {
       const imageList = this.$store.getters['cluster/all'](IMAGE) || [];
-      const imageId = this.value?.virtualMachineSpec?.dataVolumeTemplates?.[0]?.metadata?.annotations?.['harvester.cattle.io/imageId'] || '';
+      const imageId = this.value?.virtualMachineSpec?.dataVolumeTemplates?.[0]?.metadata?.annotations?.['harvesterhci.io/imageId'] || '';
       const image = imageList.find( I => imageId === I.id);
 
       return image?.spec?.displayName || '-';

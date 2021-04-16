@@ -8,11 +8,11 @@ import { allHash } from '@/utils/promise';
 import CreateEditView from '@/mixins/create-edit-view';
 import { HARVESTER_BACKUP_CONTENT } from '@/config/types';
 
-import OverviewKeypairs from '@/detail/harvester.cattle.io.virtualmachinebackup/keypairs';
+import OverviewKeypairs from '@/detail/harvesterhci.io.virtualmachinebackup/keypairs';
 import Volume from '@/edit/kubevirt.io.virtualmachine/volume';
 import Network from '@/edit/kubevirt.io.virtualmachine/network';
 import CloudConfig from '@/edit/kubevirt.io.virtualmachine/CloudConfig';
-import OverviewBasics from '@/detail/harvester.cattle.io.virtualmachinebackup/basic';
+import OverviewBasics from '@/detail/harvesterhci.io.virtualmachinebackup/basic';
 
 export default {
   name: 'BackupDetail',

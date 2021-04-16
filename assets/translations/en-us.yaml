@@ -2918,12 +2918,12 @@ typeLabel:
       one { Virtual Machine }
       other { Virtual Machines }
     }
-  harvester.cattle.io.virtualmachineimage: |-
+  harvesterhci.io.virtualmachineimage: |-
     {count, plural,
       one { Image }
       other { Images }
     }
-  harvester.cattle.io.keypair: |-
+  harvesterhci.io.keypair: |-
     {count, plural,
       one { SSH Key }
       other { SSH Keys }
@@ -2943,22 +2943,22 @@ typeLabel:
       one { Volume }
       other { Volumes }
     }
-  harvester.cattle.io.user:  |-
+  harvesterhci.io.user:  |-
     {count, plural,
       one { User }
       other { Users }
     }
-  harvester.cattle.io.setting:  |-
+  harvesterhci.io.setting:  |-
     {count, plural,
       one { Setting }
       other { Settings }
     }
-  harvester.cattle.io.virtualmachinetemplateversion: |-
+  harvesterhci.io.virtualmachinetemplateversion: |-
     {count, plural,
       one { Template }
       other { Templates }
     }
-  'harvester.cattle.io.virtualmachinebackup': |-
+  'harvesterhci.io.virtualmachinebackup': |-
     {count, plural,
       one { Backup }
       other { Backups }

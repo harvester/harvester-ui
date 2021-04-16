@@ -9,7 +9,7 @@ import { exceptionToErrorsArray } from '@/utils/error';
 import { HARVESTER_BACKUP, HARVESTER_RESTORE, VM } from '@/config/types';
 
 const createObject = {
-  apiVersion: 'harvester.cattle.io/v1alpha1',
+  apiVersion: 'harvesterhci.io/v1beta1',
   kind:       'VirtualMachineRestore',
   metadata:   { name: '', namespace: 'default' },
   type:       HARVESTER_RESTORE,

@@ -2302,16 +2302,16 @@ typeLabel:
   rbac.authorization.k8s.io.rolebinding: 角色绑定
   rbac.authorization.k8s.io.role: 角色
   kubevirt.io.virtualmachine: 虚拟机
-  harvester.cattle.io.virtualmachineimage: 镜像
-  harvester.cattle.io.keypair: SSH 密钥
+  harvesterhci.io.virtualmachineimage: 镜像
+  harvesterhci.io.keypair: SSH 密钥
   configmap: Cloud Init 模板
-  harvester.cattle.io.virtualmachinetemplateversion: 虚拟机模板
+  harvesterhci.io.virtualmachinetemplateversion: 虚拟机模板
   k8s.cni.cncf.io.networkattachmentdefinition: 网络
   cdi.kubevirt.io.datavolume: 卷
-  harvester.cattle.io.user: 用户
-  harvester.cattle.io.setting: 设置
+  harvesterhci.io.user: 用户
+  harvesterhci.io.setting: 设置
   node: 主机
-  harvester.cattle.io.virtualmachinebackup: 备份
+  harvesterhci.io.virtualmachinebackup: 备份
   cis.cattle.io.clusterscan: |-
     {count, plural,
       one { 扫描 }

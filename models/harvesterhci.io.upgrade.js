@@ -1,5 +1,5 @@
 import { NODE } from '@/config/types';
-const LATEST_UPGRADE_RESOURCE = 'harvester.cattle.io/latestUpgrade';
+const LATEST_UPGRADE_RESOURCE = 'harvesterhci.io/latestUpgrade';
 
 export default {
   isCurrentUpgrade() {

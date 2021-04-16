@@ -228,25 +228,25 @@ export const CIS = {
 
 // vm
 export const VM_TEMPLATE = {
-  template: 'harvester.cattle.io.virtualmachinetemplate',
-  version:  'harvester.cattle.io.virtualmachinetemplateversion'
+  template: 'harvesterhci.io.virtualmachinetemplate',
+  version:  'harvesterhci.io.virtualmachinetemplateversion'
 };
 
 export const VMI = 'kubevirt.io.virtualmachineinstance';
 export const VMIM = 'kubevirt.io.virtualmachineinstancemigration';
 export const VM = 'kubevirt.io.virtualmachine';
-export const IMAGE = 'harvester.cattle.io.virtualmachineimage';
-export const SSH = 'harvester.cattle.io.keypair';
+export const IMAGE = 'harvesterhci.io.virtualmachineimage';
+export const SSH = 'harvesterhci.io.keypair';
 export const NETWORK_ATTACHMENT = 'k8s.cni.cncf.io.networkattachmentdefinition';
 export const DATA_VOLUME = 'cdi.kubevirt.io.datavolume';
-export const HARVESTER_USER = 'harvester.cattle.io.user';
-export const HARVESTER_SETTING = 'harvester.cattle.io.setting';
-export const HARVESTER_UPGRADE = 'harvester.cattle.io.upgrade';
-export const HARVESTER_BACKUP = 'harvester.cattle.io.virtualmachinebackup';
-export const HARVESTER_RESTORE = 'harvester.cattle.io.virtualmachinerestore';
-export const HARVESTER_BACKUP_CONTENT = 'harvester.cattle.io.virtualmachinebackupcontent';
-export const HARVESTER_NODE_NETWORK = 'network.harvester.cattle.io.nodenetwork';
-export const HARVESTER_CLUSTER_NETWORK = 'network.harvester.cattle.io.clusternetwork';
+export const HARVESTER_USER = 'harvesterhci.io.user';
+export const HARVESTER_SETTING = 'harvesterhci.io.setting';
+export const HARVESTER_UPGRADE = 'harvesterhci.io.upgrade';
+export const HARVESTER_BACKUP = 'harvesterhci.io.virtualmachinebackup';
+export const HARVESTER_RESTORE = 'harvesterhci.io.virtualmachinerestore';
+export const HARVESTER_BACKUP_CONTENT = 'harvesterhci.io.virtualmachinebackupcontent';
+export const HARVESTER_NODE_NETWORK = 'network.harvesterhci.io.nodenetwork';
+export const HARVESTER_CLUSTER_NETWORK = 'network.harvesterhci.io.clusternetwork';
 
 // longhorn
 export const LONGHORN_IO_ENGINE = 'longhorn.io.engine';

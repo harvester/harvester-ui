@@ -121,11 +121,11 @@ export default {
           'content-type': 'application/json',
           accept:         'application/json',
         },
-        url:  `v1/harvester.cattle.io.virtualmachinetemplateversions`,
+        url:  `v1/harvesterhci.io.virtualmachinetemplateversions`,
         data: {
-          apiVersion: 'harvester.cattle.io/v1alpha1',
-          kind:       'harvester.cattle.io.virtualmachinetemplateversion',
-          type:       'harvester.cattle.io.virtualmachinetemplateversion',
+          apiVersion: 'harvesterhci.io/v1beta1',
+          kind:       'harvesterhci.io.virtualmachinetemplateversion',
+          type:       'harvesterhci.io.virtualmachinetemplateversion',
           spec:       {
             templateId: `harvester-system/${ this.value.metadata.name }`,
             keyPairIds: this.keyPairIds,

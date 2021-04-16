@@ -144,7 +144,7 @@ export default {
         try {
           const res = await this.value.save({ extend: { isRes: true } });
 
-          const fileUrl = `v1/harvester.cattle.io.virtualmachineimages/${ res.id }?action=upload` || '';
+          const fileUrl = `v1/harvesterhci.io.virtualmachineimages/${ res.id }?action=upload` || '';
 
           this.files[0].postAction = fileUrl;
           this.$refs.upload.active = true;
@@ -216,7 +216,7 @@ export default {
                   class="btn bg-primary"
                   :drop="true"
                   :multiple="false"
-                  post-action="v1/harvester.cattle.io.virtualmachineimages/default/image-7bv9j?action=upload"
+                  post-action="v1/harvesterhci.io.virtualmachineimages/default/image-7bv9j?action=upload"
                   :headers="headers"
                   @input-filter="inputFilter"
                   @input-file="inputFile"

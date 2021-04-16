@@ -118,7 +118,7 @@ export default {
       },
     ];
 
-    if (this.metadata?.annotations?.hasOwnProperty('harvester.cattle.io/imageId')) {
+    if (this.metadata?.annotations?.hasOwnProperty('harvesterhci.io/imageId')) {
       out.push({
         nullable:       false,
         path:           'metadata.annotations',

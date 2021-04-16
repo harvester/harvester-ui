@@ -26,7 +26,7 @@ export function dataVolumeImage(annotations, getters, errors) {
   const t = getters['i18n/t'];
   const key = t('harvester.fields.image');
 
-  if (!annotations?.['harvester.cattle.io/imageId']) {
+  if (!annotations?.['harvesterhci.io/imageId']) {
     errors.push(t('validation.required', { key }));
   }
 

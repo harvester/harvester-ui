@@ -24,7 +24,7 @@ export default {
     } catch (error) {
       parseDefaultValue = JSON.parse(this.value.default);
     }
-    const type = this.value.getAnnotationValue('networks.harvester.cattle.io/type');
+    const type = this.value.getAnnotationValue('networks.harvesterhci.io/type');
 
     return {
       type,
