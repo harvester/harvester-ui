@@ -828,6 +828,14 @@ export default {
         }
       }
 
+      if (!parsed.runcmd) {
+        delete parsed.package_update;
+      }
+
+      if (!Object.keys(parsed).length > 0) {
+        return '';
+      }
+
       return parsed;
     },
 

@@ -29,6 +29,8 @@ export default {
   },
 
   data() {
+    console.log('----lim', this.userScript);
+
     return {
       userData:         this.userScript,
       networkData:      this.networkScript,
@@ -93,6 +95,7 @@ export default {
 
   watch: {
     userScript(neu) {
+      console.log('---neu', neu);
       this.userData = neu;
     },
 
@@ -123,6 +126,7 @@ export default {
 
   methods: {
     update() {
+      console.log('---this.userData', this.userData);
       this.$emit('updateCloudConfig', this.userData, this.networkData);
     },
     onChanges(cm, changes) {
