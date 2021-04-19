@@ -54,7 +54,7 @@ export default {
   computed: {
     primaryColor() {
       const isLess = this.preferredDirection === PreferredDirection.LESS;
-      const threshold = isLess ? 40 : 60;
+      const threshold = isLess ? 80 : 20;
 
       const left = isLess ? this.value : threshold;
       const right = isLess ? threshold : this.value;
