@@ -228,8 +228,11 @@ export default {
       } else {
         parsed = this.deleteGuestAgent(_.cloneDeep(this.userScript));
       }
+      let out = safeDump(parsed);
 
-      const out = safeDump(parsed);
+      if (parsed === '') {
+        out = undefined;
+      }
 
       this.$set(this, 'userScript', out);
     },
