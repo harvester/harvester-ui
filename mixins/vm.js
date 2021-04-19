@@ -828,7 +828,7 @@ export default {
         }
       }
 
-      if (!parsed.runcmd) {
+      if (!parsed.packages) {
         delete parsed.package_update;
       }
 
