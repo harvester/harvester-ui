@@ -9,13 +9,14 @@ import { SOURCE_TYPE, InterfaceOption } from '@/config/map';
 import ModalWithCard from '@/components/ModalWithCard';
 import { _VIEW, _EDIT } from '@/config/query-params';
 import InfoBox from '@/components/InfoBox';
+import Banner from '@/components/Banner';
 import UnitInput from '@/components/form/UnitInput';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 
 export default {
   components: {
-    InfoBox, LabeledInput, UnitInput, LabeledSelect, ModalWithCard
+    InfoBox, LabeledInput, UnitInput, LabeledSelect, ModalWithCard, Banner
   },
 
   props:      {
@@ -139,6 +140,14 @@ export default {
           }),
         'label'
       );
+    },
+
+    showVolumeTip() {
+      if (this.rows.length === 1 && this.rows[0].type === 'cd-rom' && /.iso$/.test(this.rows[0].image)) {
+        return true;
+      }
+
+      return false;
     }
   },
 
@@ -255,6 +264,7 @@ export default {
           />
         </div>
       </InfoBox>
+      <Banner v-if="showVolumeTip" color="warning" :label="t('harvester.vmPage.volume.volumeTip')" />
     </div>
     <div v-if="!isView">
       <button type="button" class="btn btn-sm bg-primary mr-15 mb-10" @click="addVolume(SOURCE_TYPE.NEW)">
