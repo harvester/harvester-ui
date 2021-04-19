@@ -3276,8 +3276,13 @@ harvester:
           label: Target Node
           placeholder: Choose Target Node
     createTemplate:
+      title: 'Generate Template'
+      fields: 
+        name: 'Name'
+        description: 'Description'
       message: 
-        success: 'Successfully generated template!'
+        tip: Please enter a template name!
+        success: 'Successfully generated ({ templateName }) template!'
         failed: 'Failed generated template!'
   vmtemplatePage:
     nameNsDescription:

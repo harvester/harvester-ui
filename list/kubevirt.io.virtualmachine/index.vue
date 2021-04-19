@@ -9,6 +9,7 @@ import { allSettled } from '@/utils/promise';
 import BackupModal from './backupModal';
 import RestoreModal from './restoreModal';
 import MigrationModal from './MigrationModal';
+import CloneTemplate from './cloneTemplate';
 
 export default {
   name:       'ListVM',
@@ -17,7 +18,8 @@ export default {
     VmState,
     BackupModal,
     RestoreModal,
-    MigrationModal
+    MigrationModal,
+    CloneTemplate
   },
 
   props: {
@@ -129,6 +131,7 @@ export default {
     <BackupModal />
     <RestoreModal />
     <MigrationModal />
+    <CloneTemplate />
   </div>
 </template>
 
