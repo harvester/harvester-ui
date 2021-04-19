@@ -8,7 +8,7 @@ import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK } from '@/config/type
 import BackupModal from '@/list/kubevirt.io.virtualmachine/backupModal';
 import RestoreModal from '@/list/kubevirt.io.virtualmachine/restoreModal';
 import MigrationModal from '@/list/kubevirt.io.virtualmachine/MigrationModal';
-import CloneTemplate from '@/list/kubevirt.io.virtualmachine/CloneTemplate';
+import CloneTemplate from '@/list/kubevirt.io.virtualmachine/cloneTemplate';
 
 export default {
   name: 'InstanceNode',
