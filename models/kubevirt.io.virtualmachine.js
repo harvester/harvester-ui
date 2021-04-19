@@ -474,6 +474,38 @@ export default {
     return state;
   },
 
+  warningMessage() {
+    const vmFailureCond = this.getStatusConditionOfType('Failure');
+
+    if (vmFailureCond) {
+      return {
+        status:  VM_ERROR,
+        message: vmFailureCond.message,
+      };
+    }
+
+
+    const vmiFailureCond = this?.vmi?.getStatusConditionOfType('Failure');
+
+    if (vmiFailureCond) {
+      return { status: 'VMI error', detailedMessage: vmiFailureCond.message };
+    }
+
+    if ((this.vmi || this.isVMCreated) && this.podResource) {
+      const podStatus = this.podResource.getPodStatus;
+
+      if (POD_STATUS_ALL_ERROR.includes(podStatus?.status)) {
+        return {
+          ...podStatus,
+          status: 'LAUNCHER_POD_ERROR',
+          pod:    this.podResource,
+        };
+      }
+    }
+
+    return null;
+  },
+
   stateDisplay() {
     return this.actualState;
   },
