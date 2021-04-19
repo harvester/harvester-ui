@@ -3158,6 +3158,7 @@ harvester:
       placeholder: default to the virtual machine name.
     createRunning: Start virtual machine on creation
     volume:
+      volumeTip: The VM only contains a cd-rom volume. You may want to add additional disk volumes.
       macTip: "Protip: MAC address as seen inside the guest system."
       type: Type
       size: Size

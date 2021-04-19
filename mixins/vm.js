@@ -848,6 +848,16 @@ export default {
         if (this.diskRows.length > 0) {
           const _diskRows = _.cloneDeep(this.diskRows);
 
+          const isIso = /.iso$/.test(neu);
+
+          if (isIso) {
+            _diskRows[0].type = 'cd-rom';
+            _diskRows[0].bus = 'sata';
+          } else {
+            _diskRows[0].type = 'disk';
+            _diskRows[0].bus = 'virtio';
+          }
+
           _diskRows[0].image = neu;
           this.$set(this, 'diskRows', _diskRows);
         }

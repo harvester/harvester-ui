@@ -2599,6 +2599,7 @@ harvester:
     title: 虚拟机
     createRunning: 创建时启动虚拟机
     volume:
+      volumeTip: VM仅包含一个cd-rom卷。 您可能要添加其他磁盘卷。
       macTip: 提示：安装的操作系统内显示的MAC地址
       type: 类型
       size: 大小

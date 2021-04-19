@@ -42,14 +42,14 @@ export default {
   },
 
   stateDisplay() {
-    const status = this.getStatusConditionOfType('Initialized')?.status;
+    const Initialized = this.getStatusConditionOfType('Initialized');
 
     // if (status === undefined) {
     //   return 'Unknown';
     // }
 
     // return status === 'True' ? 'Imported' : status === 'Unknown' ? 'In-progress' : 'Failed';
-    return status === 'True' ? 'Active' : 'Failed';
+    return Initialized?.status === 'True' ? 'Active' : Initialized?.message ? 'Failed' : 'In-progress';
   },
 
   stateBackground() {
