@@ -2694,8 +2694,13 @@ harvester:
           label: 目标节点
           placeholder: 请选择目标节点
     createTemplate:
+      title: '生成模版'
+      fields: 
+        name: 名称
+        description: 描述
       message: 
-        success: '生成模板成功！'
+        tip: '请输入模版名称！'
+        success: '生成模板 ({ templateName }) 成功！'
         failed: '生成模板失败！'
   vmtemplatePage:
     nameNsDescription:
