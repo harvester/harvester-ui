@@ -10,7 +10,7 @@ export default {
     let out = this._standardActions;
     const b = this.stateDisplay !== 'Failed';
 
-    const toFilter = ['goToEdit', 'goToEditYaml'];
+    const toFilter = ['goToEditYaml'];
 
     out = out.filter( A => !toFilter.includes(A.action));
 
