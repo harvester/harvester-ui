@@ -9,6 +9,7 @@ import NameNsDescription from '@/components/form/NameNsDescription';
 import CreateEditView from '@/mixins/create-edit-view';
 import Cookie from 'js-cookie';
 import customValidators from '@/utils/custom-validators';
+import { _EDIT } from '@/config/query-params';
 
 const filesFormat = ['gz', 'qcow', 'qcow2', 'raw', 'img', 'xz', 'iso'];
 
@@ -62,6 +63,10 @@ export default {
   computed: {
     uploadFileName() {
       return this.files[0]?.name || '';
+    },
+
+    isEdit() {
+      return this.mode === _EDIT;
     }
   },
 
@@ -170,6 +175,7 @@ export default {
       :resource="value"
       :mode="mode"
       :errors="errors"
+      :can-yaml="false"
       @apply-hooks="applyHooks"
       @finish="saveImage"
     >
@@ -198,6 +204,7 @@ export default {
                 v-if="uploadMode === 'url'"
                 v-model="url"
                 :mode="mode"
+                :disabled="isEdit"
                 class="labeled-input--tooltip"
                 required
               >
