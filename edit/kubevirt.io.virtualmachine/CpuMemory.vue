@@ -21,6 +21,11 @@ export default {
       type:     String,
       default: 'edit',
     },
+
+    disabled: {
+      type:    Boolean,
+      default: false
+    }
   },
 
   data() {
@@ -83,6 +88,7 @@ export default {
           :increment="1"
           :input-exponent="0"
           required
+          :disabled="disabled"
           :mode="mode"
           class="mb-20"
         />
@@ -99,6 +105,7 @@ export default {
           :mode="mode"
           :input-exponent="3"
           :output-exponent="3"
+          :disabled="disabled"
           required
           class="mb-20"
         />

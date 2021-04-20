@@ -17,7 +17,7 @@ import CpuMemory from '@/edit/kubevirt.io.virtualmachine/CpuMemory';
 import CloudConfig from '@/edit/kubevirt.io.virtualmachine/CloudConfig';
 import ImageSelect from '@/edit/kubevirt.io.virtualmachine/Image';
 import SSHKey from '@/edit/kubevirt.io.virtualmachine/SSHKey';
-import { _VIEW, _EDIT } from '@/config/query-params';
+import { _VIEW, _EDIT, _CONFIG } from '@/config/query-params';
 
 export default {
   name: 'EditVMTemplate',
@@ -52,8 +52,14 @@ export default {
   data() {
     const choicesTemplate = this.$store.getters['cluster/all'](VM_TEMPLATE.template);
     const choicesVersion = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
-    const templateId = this.$route.query.templateId;
-    const versionId = this.$route.query.versionId;
+    let templateId = this.$route.query.templateId;
+    let versionId = this.$route.query.versionId;
+
+    if (this.$route.query?.as === _CONFIG) {
+      templateId = this?.value?.spec?.templateId;
+      versionId = this?.value?.id;
+    }
+
     let templateValue = choicesTemplate.find( V => V.id === templateId) || null;
     let templateSpec = templateValue?.spec;
 
@@ -100,6 +106,11 @@ export default {
     isVersionEdit() {
       return Boolean(this.$route.query.templateId);
     },
+
+    isConfig() {
+      return this.$route.query?.as === _CONFIG;
+    },
+
     allTemplate() {
       return this.$store.getters['cluster/all'](VM_TEMPLATE.template);
     },
@@ -228,17 +239,17 @@ export default {
     >
       <div class="row mb-20">
         <div class="col span-6">
-          <LabeledInput v-model="templateValue.metadata.name" :disabled="isVersionEdit" :label="t('harvester.templatePage.name')" required />
+          <LabeledInput v-model="templateValue.metadata.name" :disabled="isVersionEdit || isConfig" :label="t('harvester.templatePage.name')" required />
         </div>
         <div class="col span-6">
-          <LabeledInput v-model="templateValue.spec.description" :label="t('harvester.templatePage.description')" />
+          <LabeledInput v-model="templateValue.spec.description" :disabled="isConfig" :label="t('harvester.templatePage.description')" />
         </div>
       </div>
 
       <Checkbox v-if="isVersionEdit" v-model="isDefaultVersion" class="mb-20" :label="t('harvester.templatePage.defaultVersion')" type="checkbox" />
       <Tabbed :side-tabs="true" @changed="onTabChanged">
         <Tab name="Basics" :label="t('harvester.vmPage.detail.tabs.basics')">
-          <CpuMemory :cpu="spec.template.spec.domain.cpu.cores" :memory="memory" @updateCpuMemory="updateCpuMemory" />
+          <CpuMemory :cpu="spec.template.spec.domain.cpu.cores" :memory="memory" :disabled="isConfig" @updateCpuMemory="updateCpuMemory" />
 
           <div class="mb-20">
             <ImageSelect v-model="imageName" :disk-rows="diskRows" :required="false" :disabled="!isCreate" />
