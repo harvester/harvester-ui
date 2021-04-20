@@ -6,7 +6,7 @@ import Banner from '@/components/Banner';
 import Card from '@/components/Card';
 import { clone } from '@/utils/object';
 import { SSH } from '@/config/types';
-import { _VIEW } from '@/config/query-params';
+import { _VIEW, _CONFIG } from '@/config/query-params';
 
 export default {
   components: {
@@ -46,6 +46,10 @@ export default {
   },
 
   computed: {
+    isConfig() {
+      return this.$route.query?.as === _CONFIG;
+    },
+
     ssh() {
       return this.$store.getters['cluster/all'](SSH);
     },
@@ -175,6 +179,7 @@ export default {
             :mode="mode"
             :multiple="true"
             :searchable="true"
+            :disabled="isConfig"
             :options="sshOption"
             @input="update"
           />
