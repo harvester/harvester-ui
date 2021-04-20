@@ -26,6 +26,11 @@ const baseSpec = {
           threads: 1
         },
         devices: {
+          inputs: [{
+            bus:  'usb',
+            name: 'tablet',
+            type: 'tablet'
+          }],
           interfaces: [{
             masquerade: {},
             model:      'virtio',
@@ -146,7 +151,7 @@ export default {
       showCloudInit:         false,
       sshAuthorizedKeys:     '',
       useCustomHostname:     false,
-      isUseMouseEnhancement:    false,
+      isUseMouseEnhancement: true,
       hasCreateVolumes,
       networkScript,
       userScript,
