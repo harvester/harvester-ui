@@ -65,7 +65,7 @@ export default {
             this.$notify({
               duration: 5000,
               title:    this.t('harvester.notification.title.succeed'),
-              message:  `Backup ${ this.backUpName } successfully created`,
+              message:  this.t('harvester.vmPage.backupModal.success', { backUpName: this.backUpName }),
               type:     'success'
             });
           }
@@ -99,6 +99,7 @@ export default {
       <LabeledInput
         v-model="backUpName"
         :label="t('generic.name')"
+        required
       />
 
       <div class="footer mt-20">

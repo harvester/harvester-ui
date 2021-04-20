@@ -85,7 +85,7 @@ export default {
         if (res._status === 200 || res._status === 204) {
           this.$notify({
             title:    this.t('harvester.notification.title.succeed'),
-            message:  `Restore ${ this.backupName } succeed`,
+            message:  this.t('harvester.vmPage.restoreModal.success', { name: this.backupName }),
             type:     'success'
           });
         }
@@ -123,6 +123,7 @@ export default {
           :label="t('harvester.backUpPage.restoreModal.selectBackup')"
           :localized-label="true"
           :options="backupOption"
+          required
         />
       </div>
 
