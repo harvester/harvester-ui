@@ -3275,6 +3275,10 @@ harvester:
         nodeName: 
           label: Target Node
           placeholder: Choose Target Node
+    backupModal:
+      success: 'Backup { backUpName } successfully created.'
+    restoreModal:
+      success: 'Restore { name } successfully created.'
     createTemplate:
       title: 'Generate Template'
       fields: 
@@ -3282,7 +3286,7 @@ harvester:
         description: 'Description'
       message: 
         tip: Please enter a template name!
-        success: 'Successfully generated ({ templateName }) template!'
+        success: 'Template { templateName } successfully created.'
         failed: 'Failed generated template!'
   vmtemplatePage:
     nameNsDescription:

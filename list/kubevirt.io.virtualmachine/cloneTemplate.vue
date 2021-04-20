@@ -112,6 +112,7 @@ export default {
           v-model="templateName"
           class="mb-20"
           :label="t('harvester.vmPage.createTemplate.fields.name')"
+          required
         />
 
         <LabeledInput

@@ -2693,6 +2693,10 @@ harvester:
         nodeName: 
           label: 目标节点
           placeholder: 请选择目标节点
+    backupModal:
+      success: '备份 { backUpName } 创建成功.'
+    restoreModal:
+      success: '恢复 { name } 虚拟机成功.'
     createTemplate:
       title: '生成模版'
       fields: 
@@ -2700,7 +2704,7 @@ harvester:
         description: 描述
       message: 
         tip: '请输入模版名称！'
-        success: '生成模板 ({ templateName }) 成功！'
+        success: '模板 { templateName } 创建成功.'
         failed: '生成模板失败！'
   vmtemplatePage:
     nameNsDescription:
