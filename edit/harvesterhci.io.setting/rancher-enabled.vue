@@ -13,15 +13,26 @@ export default {
     },
   },
   data() {
-    return { errors: [] };
+    const enableRancher = this?.value?.value || this?.value?.default;
+
+    return {
+      errors: [],
+      enableRancher
+    };
   },
+
+  watch: {
+    enableRancher(neu) {
+      this.$set(this.value, 'value', neu);
+    }
+  }
 };
 </script>
 
 <template>
   <div id="rancherEnable">
     <RadioGroup
-      v-model="value.value"
+      v-model="enableRancher"
       class="mb-20"
       name="model"
       :options="['true','false']"
