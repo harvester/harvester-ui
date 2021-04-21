@@ -84,12 +84,6 @@ export default {
     }
   },
 
-  created() {
-    this.registerAfterHook(() => {
-      this.saveVersion();
-    });
-  },
-
   mounted() {
     const imageName = this.diskRows[0].image || '';
 
@@ -98,94 +92,14 @@ export default {
 
   methods: {
     async saveVMT(buttonCb) {
-      const isPass = this.verifyBefSave(buttonCb);
-
-      if (!isPass) {
-        return;
-      }
-
-      if (this.isCreate) {
-        delete this.value.metadata.namespace;
-      }
       await this.save(buttonCb);
-
-      this.normalizeSpec();
     },
 
-    async saveVersion() {
-      this.normalizeSpec();
-
-      const versionInfo = await this.$store.dispatch('management/request', {
-        method:  'POST',
-        headers: {
-          'content-type': 'application/json',
-          accept:         'application/json',
-        },
-        url:  `v1/harvesterhci.io.virtualmachinetemplateversions`,
-        data: {
-          apiVersion: 'harvesterhci.io/v1beta1',
-          kind:       'harvesterhci.io.virtualmachinetemplateversion',
-          type:       'harvesterhci.io.virtualmachinetemplateversion',
-          spec:       {
-            templateId: `harvester-system/${ this.value.metadata.name }`,
-            keyPairIds: this.keyPairIds,
-            vm:         { ...this.spec }
-          }
-        },
-      });
-
-      try {
-        if (this.isDefaultVersion) {
-          this.defaultVersionId = versionInfo.id;
-          this.setVersion(this.defaultVersionId, () => {});
-        }
-      } catch (err) {
-        const message = err.message;
-
-        this.errors = [message];
-      }
-    },
-
-    verifyBefSave(buttonCb) {
-      if (!this.spec.template.spec.domain.cpu.cores) {
-        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Cpu' })];
-        buttonCb(false);
-
-        return false;
-      }
-
-      if (!this.memory.match(/[0-9]/)) {
-        this.errors = [this.$store.getters['i18n/t']('validation.required', { key: 'Memory' })];
-        buttonCb(false);
-
-        return false;
-      }
-
-      return true;
-    },
-
-    async setVersion(id, buttonCb) {
-      this.value.spec.defaultVersionId = id;
-      try {
-        const data = [{
-          op: 'replace', path: '/spec/defaultVersionId', value: id
-        }];
-
-        await this.value.patch( data, { url: this.value.linkFor('view') });
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.log(err);
-      }
-    },
-    validateMax(value) {
-      if (value > 100) {
-        this.$set(this.spec.template.spec.domain.cpu, 'cores', 100);
-      }
-    },
     updateCpuMemory(cpu, memory) {
       this.$set(this.spec.template.spec.domain.cpu, 'cores', cpu);
       this.$set(this, 'memory', memory);
     },
+
     onTabChanged({ tab }) {
       if (tab.name === 'advanced' && this.$refs.yamlEditor?.refresh) {
         this.$refs.yamlEditor.refresh();

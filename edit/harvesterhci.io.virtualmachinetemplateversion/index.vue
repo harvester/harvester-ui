@@ -70,7 +70,10 @@ export default {
       };
 
       templateValue = {
-        metadata: { name: '' },
+        metadata: {
+          name:      '',
+          namespace: 'default'
+        },
         spec:     templateSpec,
         type:     VM_TEMPLATE.template
       };
@@ -175,13 +178,14 @@ export default {
   methods: {
     async saveVMT(buttonCb) {
       this.normalizeSpec();
-      if (this.isCreate) { // namespace does not need
-        delete this.value.metadata.namespace;
-      }
 
       const proxyTemplate = await this.$store.dispatch('cluster/create', this.templateValue);
       const templates = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template });
       const template = templates.find( O => O.metadata.name === proxyTemplate.metadata.name);
+
+      if (this.isCreate) {
+        this.value.metadata.namespace = proxyTemplate.metadata.namespace;
+      }
 
       if (!template) {
         if (proxyTemplate?.metadata?.name) {
@@ -196,6 +200,8 @@ export default {
 
           return;
         }
+      } else {
+        template.save();
       }
 
       cleanForNew(this.value);
@@ -206,8 +212,9 @@ export default {
       });
 
       const name = proxyTemplate.metadata.name || template.metadata.name;
+      const namespace = proxyTemplate.metadata.namespace || template.metadata.namespace;
 
-      this.$set(this.value.spec, 'templateId', `harvester-system/${ name }`);
+      this.$set(this.value.spec, 'templateId', `${ namespace }/${ name }`);
       this.$set(this.value.spec, 'keyPairIds', this.keyPairIds);
       this.$set(this.value.spec, 'vm', this.spec);
       await this.save(buttonCb);
@@ -217,6 +224,7 @@ export default {
       this.$set(this.spec.template.spec.domain.cpu, 'cores', cpu);
       this.$set(this, 'memory', memory);
     },
+
     onTabChanged({ tab }) {
       if (tab.name === 'advanced' && this.$refs.yamlEditor?.refresh) {
         this.$refs.yamlEditor.refresh();
