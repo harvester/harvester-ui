@@ -68,6 +68,10 @@ export default {
         out.push(this.row.warningMessage?.message);
       }
 
+      if (this.row?.migrationMessage) {
+        out.push(this.row?.migrationMessage.message);
+      }
+
       return out;
     }
   },

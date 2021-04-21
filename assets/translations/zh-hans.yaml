@@ -2688,6 +2688,7 @@ harvester:
       console:
         down: 请启动虚拟机以访问控制台.
     migrationModal:
+      failedMessage: 最新迁移失败!
       title: 迁移
       fields:
         nodeName: 
