@@ -457,7 +457,7 @@ export default {
       return 'Terminating';
     }
 
-    if (!!this?.vmi?.migrationState) {
+    if (!!this?.vmi?.migrationState && this.vmi.migrationState.status !== 'Failed') {
       return this.vmi.migrationState.status
     }
 
@@ -504,6 +504,16 @@ export default {
       }
     }
 
+    return null;
+  },
+
+  migrationMessage() {
+    if (!!this?.vmi?.migrationState && this.vmi.migrationState.status === 'Failed') {
+      return {
+        ...this.actualState,
+        message: this.t('harvester.vmPage.migrationModal.failedMessage')
+      }
+    }
     return null;
   },
 

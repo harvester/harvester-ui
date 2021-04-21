@@ -16,16 +16,23 @@ export default {
 <template>
   <div class="tip">
     <span class="my-icon" :class="icon"></span>
-    <span>{{ text }}</span>
+    <span class="text">{{ text }}</span>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .tip {
   color: var(--disabled-text);
+  display: flex;
+  align-items: center;
 }
 
 .my-icon {
-  font-size: 15px;
+  font-size: 16px;
+  margin-right: 2px;
+}
+
+.text {
+  font-size: 14px;
 }
 </style>

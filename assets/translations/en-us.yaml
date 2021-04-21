@@ -3270,6 +3270,7 @@ harvester:
       console:
         down: This Virtual Machine is down. Please start it to access its console.
     migrationModal:
+      failedMessage: Latest migration failed!
       title: Migration
       fields:
         nodeName: 
