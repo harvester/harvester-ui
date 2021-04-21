@@ -35,6 +35,10 @@ export default {
       this.value.metadata = { name: '' };
     }
 
+    if (!this.value?.metadata?.namespace) {
+      this.value.metadata.namespace = 'default';
+    }
+
     return { publicKey: this.value.spec.publicKey || '' };
   },
 
