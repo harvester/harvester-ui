@@ -5,7 +5,6 @@ import { NAME, SETTING_VALUE } from '@/config/table-headers';
 import { HARVESTER_SETTING, HARVESTER_CLUSTER_NETWORK } from '@/config/types';
 
 const BLACK_LIST = [
-  'api-ui-source',
   'auth-secret-name',
   'first-login',
   'no-default-admin',
