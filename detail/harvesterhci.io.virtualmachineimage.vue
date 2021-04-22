@@ -27,7 +27,7 @@ export default {
 
   computed: {
     formattedValue() {
-      return getFileSize(this.value?.status?.downloadedBytes) || '-';
+      return getFileSize(this.value?.status?.size) || '-';
     },
 
     url() {
