@@ -746,8 +746,14 @@ export default {
       this.networkScript = networkData;
     },
 
-    mergeGuestAgent(userScript) {
-      const parsed = safeLoad(_.cloneDeep(userScript)) || {};
+    mergeGuestAgent(userScript = '') {
+      let parsed;
+
+      try {
+        parsed = safeLoad(_.cloneDeep(userScript)) || {};
+      } catch (err) {
+        parsed = {};
+      }
 
       const agentJson = {
         package_update: true,
@@ -764,7 +770,9 @@ export default {
         ]
       };
 
-      parsed.package_update = true; // overwritten
+      if (parsed?.['package_update']) {
+        parsed.package_update = true; // overwritten
+      }
 
       if (Array.isArray(parsed.packages)) {
         const agent = parsed.packages.find( P => P === 'qemu-guest-agent');
