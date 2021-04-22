@@ -39,7 +39,7 @@ export default {
         :labels="['Enable', 'Disable']"
       />
 
-      <LabelValue v-if="value.enable" name="DefaultPhysicalNIC" :value="value.config.defaultPhysicalNIC" />
+      <LabelValue v-if="value.enable" name="Default Physical NIC" :value="value.config.defaultPhysicalNIC" />
     </Tab>
   </Tabbed>
 </template>
