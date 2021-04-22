@@ -2,7 +2,8 @@
 import ResourceTable from '@/components/ResourceTable';
 import Poller from '@/utils/poller';
 import { STATE, NAME, AGE } from '@/config/table-headers';
-import { METRIC } from '@/config/types';
+import { METRIC, NODE } from '@/config/types';
+import { allSettled } from '@/utils/promise';
 import MaintenanceModal from './maintenanceModal';
 
 const METRICS_POLL_RATE_MS = 30000;
@@ -25,20 +26,53 @@ export default {
       type:     Object,
       required: true,
     },
+  },
 
-    rows: {
-      type:     Array,
-      required: true,
-    },
+  async fetch() {
+    const hash = await allSettled({
+      metrics:  this.$store.dispatch('cluster/findAll', { type: METRIC.NODE }),
+      nodes:   this.$store.dispatch('cluster/findAll', { type: NODE }),
+    });
+
+    this.rows = hash.nodes;
   },
 
   data() {
-    return { metricPoller: new Poller(this.loadMetrics, METRICS_POLL_RATE_MS, MAX_FAILURES) };
+    return {
+      rows:          [],
+      metricPoller: new Poller(this.loadMetrics, METRICS_POLL_RATE_MS, MAX_FAILURES)
+    };
   },
 
   computed: {
     headers() {
-      return [STATE, NAME, HOST_IP, AGE];
+      return [
+        STATE,
+        NAME,
+        HOST_IP,
+        {
+          name:          'cpu',
+          labelKey:      'node.detail.glance.consumptionGauge.cpu',
+          value:         'id',
+          width:         230,
+          formatter:     'CPUUsed',
+        },
+        {
+          name:          'memory',
+          labelKey:      'node.detail.glance.consumptionGauge.memory',
+          value:         'id',
+          width:         230,
+          formatter:     'MemoryUsed',
+        },
+        {
+          name:          'storage',
+          labelKey:      'node.detail.glance.consumptionGauge.storage',
+          value:         'id',
+          width:         230,
+          formatter:     'StorageUsed',
+        },
+        AGE,
+      ];
     },
   },
 
