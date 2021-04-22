@@ -3,7 +3,7 @@ import { mapState } from 'vuex';
 import { stringify } from '@/utils/error';
 
 export default {
-  layout: 'plain',
+  layout: 'default',
 
   data() {
     const home = this.$router.resolve({ name: 'index' }).href;
