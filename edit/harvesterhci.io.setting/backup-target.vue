@@ -113,7 +113,7 @@ export default {
           v-model="parseDefaultValue.bucketName"
           class="mb-20"
           :mode="mode"
-          label="BucketName"
+          label="Bucket Name"
           required
         />
 
@@ -121,7 +121,7 @@ export default {
           v-model="parseDefaultValue.bucketRegion"
           class="mb-20"
           :mode="mode"
-          label="BucketRegion"
+          label="Bucket Region"
           required
         />
 
@@ -130,7 +130,7 @@ export default {
           :placeholder="t('harvester.settingPage.placeholder.accessKeyId')"
           class="mb-20"
           :mode="mode"
-          label="AccessKeyId"
+          label="Access Key Id"
           required
         />
 
@@ -139,7 +139,7 @@ export default {
           class="mb-20"
           :mode="mode"
           :placeholder="t('harvester.settingPage.placeholder.secretAccessKey')"
-          label="SecretAccessKey"
+          label="Secret Access Key"
           required
         />
 
@@ -153,7 +153,7 @@ export default {
           label="Certificate"
         />
 
-        <LabeledSelect v-model="parseDefaultValue.virtualHostedStyle" class="mb-20" label="VirtualHostedStyle" :options="virtualHostedStyleType" @input="update" />
+        <LabeledSelect v-model="parseDefaultValue.virtualHostedStyle" class="mb-20" label="Virtual Hosted-Style" :options="virtualHostedStyleType" @input="update" />
       </template>
     </div>
   </div>

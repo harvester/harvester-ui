@@ -82,7 +82,7 @@ export default {
           <LabeledInput
             v-if="value.enable"
             v-model="value.config.defaultPhysicalNIC"
-            label="DefaultPhysicalNIC"
+            label="Default Physical NIC"
             class="mb-5"
           />
 
