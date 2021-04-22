@@ -13,10 +13,10 @@ export function generateZip(files) {
   const zip = new JSZip();
 
   for ( const fileName in files) {
-    zip.file(fileName, files[fileName]);
+    if (files[fileName]?.data) {
+      zip.file(fileName, files[fileName].data);
+    }
   }
 
-  return zip.generateAsync({ type: 'blob' }).then((contents) => {
-    return contents;
-  });
+  return zip.generateAsync({ type: 'blob' });
 }
