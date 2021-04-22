@@ -2561,8 +2561,8 @@ harvester:
         docker: '"Docker 镜像" 是必填项'
 
     image:
-      ruleTip: '仅支持镜像后缀为 .img, .iso, .qcow2, .raw, 以及上述镜像的压缩格式(例如: .tar, .gz, .xz)'
-      ruleFileTip: '仅支持镜像后缀为 .img, .iso, .qcow2, .raw, 以及上述镜像的压缩格式(例如: .tar, .gz, .xz)'
+      ruleTip: '仅支持镜像后缀为 .img, .iso, .qcow2, .raw'
+      ruleFileTip: '仅支持镜像后缀为 .img, .iso, .qcow2, .raw'
     volume:
       sizeRange: '"大小" 必须是介于 1 和 999999 之间的整数'
   promptRemove:
