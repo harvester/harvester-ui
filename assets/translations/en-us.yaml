@@ -3150,6 +3150,8 @@ harvester:
     restartTip: Saving edits will cause the VM to restart.
     sshTitle: Add Public SSH Key
     imageTip: An external URL to the .iso, .img, .qcow2 or .raw that the virtual machine should be created from.
+    multipleVMInstance:
+      nameNsDescription: Name prefix for each instance
     hostName: 
       label: Host Name
       placeholder: default to the virtual machine name.
@@ -3206,7 +3208,7 @@ harvester:
     nameNsDescription:
       name:
         singleLabel: Name
-        multipleLabel: Prefix Name
+        multipleLabel: Name Prefix
     machineTypeTip: 'Specify a processor architecture to emulate. To see a list of supported architectures, run: qemu-system-x86_64 -cpu ?'
     detail:
       tabs:

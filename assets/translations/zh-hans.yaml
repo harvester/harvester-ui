@@ -2590,6 +2590,8 @@ harvester:
     enableUsb: 启动 USB Tablet 增强
     sshTitle: 添加SSH公钥
     imageTip: 创建虚拟机所需的.iso，.img，.qcow2或.raw的外部镜像地址
+    multipleVMInstance:
+      nameNsDescription: 每个实例的名称前缀
     hostName: 
       label: 主机名
       placeholder: 默认为虚拟机名称
