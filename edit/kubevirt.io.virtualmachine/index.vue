@@ -426,6 +426,7 @@ export default {
         :has-extra="!isSingle"
         :name-label="nameLabel"
         :namespaced="false"
+        :name-placeholder="isSingle ? 'nameNsDescription.name.placeholder' : 'harvester.vmPage.multipleVMInstance.nameNsDescription'"
         :extra-columns="isSingle ? [] :['type']"
       >
         <template v-slot:type>
