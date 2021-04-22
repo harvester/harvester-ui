@@ -9,6 +9,7 @@ generic:
   comingSoon: 即将推出
   copy: 复制
   create: 创建
+  delete: 删除
   created: 创建时间
   customize: 定制
   default: 默认
@@ -2696,6 +2697,11 @@ harvester:
         nodeName: 
           label: 目标节点
           placeholder: 请选择目标节点
+    modal:
+      ejectCDROM:
+        title: 弹出 CDROM
+        warnTip: 弹出卷将导致重新启动虚拟机.
+        operationTip: '选择您要删除的卷:'
     backupModal:
       success: '备份 { backUpName } 创建成功.'
     restoreModal:

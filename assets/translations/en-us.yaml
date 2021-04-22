@@ -9,6 +9,7 @@ generic:
   comingSoon: Coming Soon
   copy: Copy
   create: Create
+  delete: Delete
   created: Created
   customize: Customize
   default: Default
@@ -3278,6 +3279,11 @@ harvester:
         nodeName: 
           label: Target Node
           placeholder: Choose Target Node
+    modal:
+      ejectCDROM:
+        title: Eject CDROM
+        warnTip: Eject volume will restart the virtual machine.
+        operationTip: 'Select the volume you want to delete:'
     backupModal:
       success: 'Backup { backUpName } successfully created.'
     restoreModal:
