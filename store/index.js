@@ -4,7 +4,7 @@ import {
   COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, VMIM, FLEET, POD, HARVESTER_SETTING, NODE, HARVESTER_RESTORE, NETWORK_ATTACHMENT
 } from '@/config/types';
 import { CLUSTER as CLUSTER_PREF, NAMESPACE_FILTERS, LAST_NAMESPACE, WORKSPACE } from '@/store/prefs';
-import { allHash } from '@/utils/promise';
+import { allSettled } from '@/utils/promise';
 import { ClusterNotFoundError, ApiError } from '@/utils/error';
 import { sortBy } from '@/utils/sort';
 import { filterBy, findBy } from '@/utils/array';
@@ -392,7 +392,7 @@ export const actions = {
       // Maybe not Rancher
     }
 
-    await allHash({
+    await allSettled({
       prefs:      dispatch('prefs/loadServer'),
       schemas: Promise.all([
         dispatch('management/subscribe'),
@@ -432,7 +432,7 @@ export const actions = {
       }
     }
 
-    const res = await allHash(promises);
+    const res = await allSettled(promises);
 
     commit('managementChanged', {
       ready: true,
@@ -527,7 +527,7 @@ export const actions = {
 
     const VMI = 'kubevirt.io.virtualmachineinstance';
 
-    const res = await allHash({
+    const res = await allSettled({
       // projects:   isMultiCluster && dispatch('management/findAll', projectArgs),
       counts:          dispatch('cluster/findAll', { type: COUNT, opt: { url: 'counts' } }),
       namespaces:      dispatch('cluster/findAll', { type: NAMESPACE, opt: { url: 'namespaces' } }),

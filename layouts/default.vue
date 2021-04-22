@@ -271,7 +271,7 @@ export default {
       <button v-if="dev" v-shortkey.once="['shift','l']" class="hide" @shortkey="toggleNoneLocale()" />
       <button v-if="dev" v-shortkey.once="['shift','t']" class="hide" @shortkey="toggleTheme()" />
       <button v-shortkey.once="['f8']" class="hide" @shortkey="wheresMyDebugger()" />
-      <button v-shortkey.once="['`']" class="hide" @shortkey="toggleShell" />
+      <!-- <button v-shortkey.once="['`']" class="hide" @shortkey="toggleShell" /> -->
     </main>
 
     <div class="wm">
