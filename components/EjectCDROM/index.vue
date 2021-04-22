@@ -20,7 +20,6 @@ export default {
     isDeleteDisabled() {
       return this.diskNames.length === 0;
     }
-
   },
 
   watch: {
@@ -67,26 +66,28 @@ export default {
   >
     <Card>
       <h4 slot="title" class="text-default-text">
-        Eject CDROM
+        {{ t('harvester.vmPage.modal.ejectCDROM.title') }}
       </h4>
 
       <div slot="body" class="pl-10 pr-10">
-        <span class="text-info">Select the volume you want to delete:</span>
+        <span class="text-info">
+          {{ t('harvester.vmPage.modal.ejectCDROM.operationTip') }}
+        </span>
         <CDROMS v-model="toEject" class="mt-15" @change="updateNames" />
 
-        <Banner color="info">
-          <span>Eject volume will restart the virtual machine.</span>
+        <Banner color="warning">
+          <span>{{ t('harvester.vmPage.modal.ejectCDROM.warnTip') }}</span>
         </Banner>
       </div>
 
       <template slot="actions">
         <div class="actions">
           <button class="btn role-secondary" @click="close">
-            Cancel
+            {{ t('generic.cancel') }}
           </button>
 
-          <button class="btn bg-error" :disabled="isDeleteDisabled" @click="remove">
-            Delete
+          <button class="btn bg-error ml-20" :disabled="isDeleteDisabled" @click="remove">
+            {{ t('generic.delete') }}
           </button>
         </div>
       </template>
@@ -94,7 +95,7 @@ export default {
   </modal>
 </template>
 
-<style lang='scss'>
+<style lang='scss' scoped>
   .eject-modal {
     border-radius: var(--border-radius);
     overflow: scroll;
@@ -105,6 +106,8 @@ export default {
 
     .actions {
       display: flex;
+      width: 100%;
+      justify-content: center;
     }
   }
 </style>
