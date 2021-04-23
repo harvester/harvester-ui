@@ -1,11 +1,12 @@
 <script>
 import { AGE, USERNAME } from '@/config/table-headers';
+import Loading from '@/components/Loading';
 import SortableTable from '@/components/SortableTable';
 import { HARVESTER_USER, NORMAN, MANAGEMENT } from '@/config/types';
 
 export default {
   name:       'LUsers',
-  components: { SortableTable },
+  components: { SortableTable, Loading },
 
   props: {
     schema: {
@@ -62,7 +63,9 @@ export default {
 </script>
 
 <template>
+  <Loading v-if="$fetchState.pending" />
   <SortableTable
+    v-else
     v-bind="$attrs"
     :headers="headers"
     default-sort-by="age"

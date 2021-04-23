@@ -2,12 +2,15 @@
 import { allHash } from '@/utils/promise';
 import Banner from '@/components/Banner';
 import { STATE, AGE, NAME } from '@/config/table-headers';
+import Loading from '@/components/Loading';
 import SortableTable from '@/components/SortableTable';
 import { HARVESTER_BACKUP, HARVESTER_SETTING } from '@/config/types';
 
 export default {
   name:       'ListBackup',
-  components: { SortableTable, Banner },
+  components: {
+    SortableTable, Banner, Loading
+  },
 
   props: {
     schema: {
@@ -109,7 +112,8 @@ export default {
 </script>
 
 <template>
-  <div>
+  <Loading v-if="$fetchState.pending" />
+  <div v-else>
     <Banner
       v-if="hasBakcupError"
       color="error"
