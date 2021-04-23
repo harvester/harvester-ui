@@ -6,6 +6,10 @@ export default {
     const toFilter = ['goToEdit', 'cloneYaml', 'goToClone', 'goToEditYaml', 'download'];
 
     const out = this._standardActions.filter((action) => {
+      if (action.altAction === 'remove') {
+        action.bulkable = false;
+      }
+
       if (!toFilter.includes(action.action)) {
         return action;
       }
