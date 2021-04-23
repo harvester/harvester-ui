@@ -101,8 +101,8 @@ export default {
       return `${ domain.cpu.cores } vCPU , ${ domain.resources.requests.memory } Memory`;
     },
 
-    timeZone() {
-      return this.resource?.status?.guestOSInfo?.timezone;
+    kernelRelease() {
+      return this.resource?.status?.guestOSInfo?.kernelRelease;
     },
 
     operatingSystem() {
@@ -236,7 +236,7 @@ export default {
     </div>
     <div class="row">
       <div class="col span-6">
-        <LabelValue :name="t('harvester.vmPage.detail.details.timeZone')" :value="timeZone || t('harvester.vmPage.detail.GuestAgentNotInstalled')" />
+        <LabelValue :name="t('harvester.vmPage.detail.details.kernelRelease')" :value="kernelRelease || t('harvester.vmPage.detail.GuestAgentNotInstalled')" />
       </div>
 
       <div class="col span-6">

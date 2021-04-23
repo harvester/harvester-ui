@@ -1399,7 +1399,7 @@ node:
           architecture: Architecture
           bootID: Boot ID
           containerRuntimeVersion: Container Runtime Version
-          kernelVersion: Kernel Version
+          kernelRelease: Kernel Version
           kubeProxyVersion: Kube Proxy Version
           kubeletVersion: Kubelet Version
           machineID: Machine ID
@@ -3251,7 +3251,7 @@ harvester:
         description: Description
         operatingSystem: Operating System
         template: Template
-        timeZone: Time Zone
+        kernelRelease: Kernel Release
         owner: Owner
         workloadProfile: Workload Profile
         nodeSelector: Node Selector
