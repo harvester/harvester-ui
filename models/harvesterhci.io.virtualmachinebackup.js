@@ -58,7 +58,7 @@ export default {
 
     if (this?.status?.readyToUse) {
       out = 'Ready';
-    } else if (this.getConditionStatus('Progressing') === 'True') {
+    } else if (this.getConditionStatus('InProgress') === 'True') {
       out = 'Progressing';
     } else if (this.getConditionStatus('Ready') !== 'True') {
       out = 'error';
