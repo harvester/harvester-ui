@@ -5,6 +5,7 @@ import UnitInput from '@/components/form/UnitInput';
 import { sortBy } from '@/utils/sort';
 import { formatSi, parseSi } from '@/utils/units';
 import { IMAGE } from '@/config/types';
+import { HARVESTER_IMAGE_ID } from '@/config/labels-annotations';
 import { InterfaceOption } from '@/config/map';
 
 export default {
@@ -22,6 +23,11 @@ export default {
       }
     },
 
+    resource: {
+      type:     Object,
+      required: true
+    },
+
     mode: {
       type:    String,
       default: ''
@@ -29,7 +35,7 @@ export default {
   },
 
   data() {
-    const source = this.value?.source?.blank ? 'blank' : this.value?.source?.registry?.url ? 'container' : 'url';
+    const source = !!this.resource?.metadata?.annotations?.[HARVESTER_IMAGE_ID] ? 'url' : 'blank';
     const image = source === 'url' ? this.$store.getters['cluster/all'](IMAGE).find( (I) => {
       return I?.status?.downloadUrl === this.value?.source?.http?.url;
     })?.id : '';
@@ -133,7 +139,7 @@ export default {
 
       // if (this.isVmImage && this.image) {
       if (this.isVmImage) {
-        imageAnnotations = { 'harvesterhci.io/imageId': this.image };
+        imageAnnotations = { [HARVESTER_IMAGE_ID]: this.image };
       } else {
         imageAnnotations = {};
       }

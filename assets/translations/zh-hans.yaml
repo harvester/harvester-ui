@@ -2740,6 +2740,7 @@ harvester:
       new: New
       vmImage: VM Image
     image: 镜像
+    imageName: 镜像
   imagePage:
     url: 镜像地址
     size: 大小

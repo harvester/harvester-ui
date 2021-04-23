@@ -3322,6 +3322,7 @@ harvester:
       new: New
       vmImage: VM Image
     image: Select an Image
+    imageName: Image Name
   imagePage:
     url: URL
     size: Size

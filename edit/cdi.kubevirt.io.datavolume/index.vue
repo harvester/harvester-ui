@@ -83,7 +83,14 @@ export default {
 
       <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
         <Tab name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
-          <Basic ref="vs" v-model="spec" :mode="mode" class="mb-20" @update:annotation="value.setAnnotations" />
+          <Basic
+            ref="vs"
+            v-model="spec"
+            :resource="value"
+            :mode="mode"
+            class="mb-20"
+            @update:annotation="value.setAnnotations"
+          />
         </Tab>
         <Tab name="labels" :label="t('labels.labels.title')" :weight="2" class="bordered-table">
           <KeyValue
