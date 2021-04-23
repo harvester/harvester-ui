@@ -35,9 +35,10 @@ export const getters = {
         return [];
       }
 
-      const firstNode = all[0];
+      // const firstNode = all[0];
 
-      selected = firstNode ? [firstNode] : [];
+      // selected = firstNode ? [firstNode] : [];
+      selected = [];
       disableAll = true;
     }
 
@@ -45,15 +46,15 @@ export const getters = {
 
     // Find and add all the actions for all the nodes so that we know
     // what all the possible actions are
-    for ( const node of all ) {
-      if (node.availableActions) {
-        for ( const act of node.availableActions ) {
-          if ( act.bulkable ) {
-            _add(map, act, false);
-          }
-        }
-      }
-    }
+    // for ( const node of all ) {
+    //   if (node.availableActions) {
+    //     for ( const act of node.availableActions ) {
+    //       if ( act.bulkable ) {
+    //         _add(map, act, false);
+    //       }
+    //     }
+    //   }
+    // }
 
     // Go through all the selected items and add the actions (which were already identified above)
     // as availalable for some (or all) of the selected nodes
