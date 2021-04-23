@@ -2663,7 +2663,7 @@ harvester:
         bootOrder: 启动顺序
         CDROMs: CD-ROMs
         operatingSystem: 操作系统
-        timeZone: 时区
+        kernelRelease: 内核版本
         flavor: 规格
         down: 虚拟机未启动
         sourceNode: 源节点
