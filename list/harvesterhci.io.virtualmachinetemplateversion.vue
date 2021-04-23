@@ -1,13 +1,16 @@
 <script>
 import { STATE, AGE, NAME } from '@/config/table-headers';
 import { VM_TEMPLATE } from '@/config/types';
+import Loading from '@/components/Loading';
 import SortableTable from '@/components/SortableTable';
 import { allHash } from '@/utils/promise';
 import LiveData from '@/components/formatter/LiveDate';
 
 export default {
   name:       'ListTemplate',
-  components: { SortableTable, LiveData },
+  components: {
+    SortableTable, LiveData, Loading
+  },
 
   props: {
     schema: {
@@ -94,7 +97,9 @@ export default {
 </script>
 
 <template>
+  <Loading v-if="$fetchState.pending" />
   <SortableTable
+    v-else
     v-bind="$attrs"
     :headers="headers"
     :sub-rows="true"

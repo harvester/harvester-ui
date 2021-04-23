@@ -6,6 +6,7 @@ import { STATE, AGE, NAME } from '@/config/table-headers';
 import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK, VM, VMI } from '@/config/types';
 
 import { allSettled } from '@/utils/promise';
+import Loading from '@/components/Loading';
 import BackupModal from './backupModal';
 import RestoreModal from './restoreModal';
 import MigrationModal from './MigrationModal';
@@ -14,6 +15,7 @@ import CloneTemplate from './cloneTemplate';
 export default {
   name:       'ListVM',
   components: {
+    Loading,
     SortableTable,
     VmState,
     BackupModal,
@@ -112,7 +114,8 @@ export default {
 </script>
 
 <template>
-  <div>
+  <Loading v-if="$fetchState.pending" />
+  <div v-else>
     <SortableTable
       v-bind="$attrs"
       :headers="headers"
