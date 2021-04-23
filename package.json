@@ -2,7 +2,7 @@
   "name": "harvester-ui",
   "version": "master",
   "description": "Rancher Dashboard",
-  "repository": "https://github.com/rancher/harvester-ui",
+  "repository": "https://github.com/harvester/harvester-ui",
   "license": "Apache-2.0",
   "author": "Rancher Labs, Inc.",
   "private": true,

@@ -1,5 +1,5 @@
 # harvester-ui
-[![Build Status](http://drone-publish.rancher.io/api/badges/rancher/harvester-ui/status.svg)](http://drone-publish.rancher.io/rancher/harvester-ui)
+[![Build Status](http://drone-publish.rancher.io/api/badges/harvester/harvester-ui/status.svg)](http://drone-publish.rancher.io/harvester/harvester-ui)
 
 Harvester UI.  For the other Rancher UI see [rancher/ui](https://github.com/rancher/ui).
 
