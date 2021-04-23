@@ -130,7 +130,7 @@ export default {
           :placeholder="t('harvester.settingPage.placeholder.accessKeyId')"
           class="mb-20"
           :mode="mode"
-          label="Access Key Id"
+          label="Access Key ID"
           required
         />
 
