@@ -29,12 +29,12 @@ $ yarn generate
  make run-host
 
  cd harvester-ui
- docker build -f Dockerfile.dev -t rancher/harvester-ui:dev
+ docker build -f Dockerfile.dev -t harvester/harvester-ui:dev
  docker run -v $(pwd):/src \
    -v dashboard_node:/src/node_modules \
    -p 8005:8005 \
    -e API=http://172.17.0.1:8989 \
-   rancher/harvester-ui:dev
+   harvester/harvester-ui:dev
  
  # The first time will take forever installing node_modules into the volume; it will be faster next time.
  #
