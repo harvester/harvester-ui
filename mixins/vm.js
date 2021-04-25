@@ -770,9 +770,7 @@ export default {
         ]
       };
 
-      if (parsed?.['package_update']) {
-        parsed.package_update = true; // overwritten
-      }
+      parsed.package_update = true; // overwritten
 
       if (Array.isArray(parsed.packages)) {
         const agent = parsed.packages.find( P => P === 'qemu-guest-agent');
