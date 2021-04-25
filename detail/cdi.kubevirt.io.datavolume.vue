@@ -89,7 +89,7 @@ export default {
         </div>
 
         <div v-if="source !== 'blank'" class="col span-4">
-          <LabelValue :name="t('harvester.volumePage.imageName')" :value="image" />
+          <LabelValue :name="t('harvester.volumePage.image')" :value="image" />
         </div>
 
         <div class="col span-4">
