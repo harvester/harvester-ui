@@ -3072,7 +3072,7 @@ harvester:
     port: Port
     protocol: Protocol
     remove: REMOVE
-    count: count
+    count: Count
     PhysicalNic: Physical NIC
     cpu: Cpu
     memory: Memory
