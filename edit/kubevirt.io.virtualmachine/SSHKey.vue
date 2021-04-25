@@ -127,11 +127,9 @@ export default {
             'content-type': 'application/json',
             accept:         'application/json',
           },
-          url:  `v1/${ SSH }`,
+          url:  `v1/${ SSH }s`,
           data: {
-            apiVersion: 'vm.cattle.io/v1beta1',
-            kind:       'KeyPair',
-            metadata:   { name: this.sshName },
+            metadata:   { name: this.sshName, namespace: 'default' },
             spec:       { publicKey: this.publicKey },
             type:       SSH
           },
