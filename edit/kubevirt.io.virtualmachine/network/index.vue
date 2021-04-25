@@ -107,6 +107,10 @@ export default {
         newCreateId:      randomstring.generate(10),
       };
 
+      if (this.networkName === MANAGEMENT_NETWORK) {
+        neu.isPod = true;
+      }
+
       this.rows.push(neu);
       this.$emit('input', this.rows);
       this.rows[this.rows.length - 1].networkName = this.networkName;
