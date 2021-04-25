@@ -7,6 +7,7 @@ import { formatSi, parseSi } from '@/utils/units';
 import { IMAGE } from '@/config/types';
 import { HARVESTER_IMAGE_ID } from '@/config/labels-annotations';
 import { InterfaceOption } from '@/config/map';
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -54,6 +55,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ t: 'i18n/t' }),
+
     isCreate() {
       return this.mode === 'create';
     },
@@ -119,6 +122,16 @@ export default {
         return I.id === this.image;
       })
       ?.status?.downloadUrl;
+    },
+
+    imageLabel() {
+      const t = this.t;
+
+      if (this.mode === 'view') {
+        return t('harvester.volumePage.imageName');
+      }
+
+      return t('harvester.volumePage.image');
     }
   },
 
@@ -201,7 +214,7 @@ export default {
     <LabeledSelect
       v-if="isVmImage"
       v-model="image"
-      :label="t('harvester.volumePage.image')"
+      :label="imageLabel"
       :options="ImageOption"
       :disabled="!isCreate"
       required
