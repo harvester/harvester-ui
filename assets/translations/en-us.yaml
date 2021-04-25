@@ -2931,8 +2931,8 @@ typeLabel:
     }
   configmap: |-
     {count, plural,
-      one { Cloud-init-Template }
-      other { Cloud-init-Templates }
+      one { Cloud-init Template }
+      other { Cloud-init Templates }
     }
   k8s.cni.cncf.io.networkattachmentdefinition: |-
     {count, plural,
@@ -3321,8 +3321,7 @@ harvester:
     sourceOptions:
       new: New
       vmImage: VM Image
-    image: Select an Image
-    imageName: Image Name
+    image: Image
   imagePage:
     url: URL
     size: Size
