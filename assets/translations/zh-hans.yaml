@@ -2305,7 +2305,7 @@ typeLabel:
   kubevirt.io.virtualmachine: 虚拟机
   harvesterhci.io.virtualmachineimage: 镜像
   harvesterhci.io.keypair: SSH 密钥
-  configmap: Cloud Init 模板
+  configmap: Cloud 配置模板
   harvesterhci.io.virtualmachinetemplateversion: 虚拟机模板
   k8s.cni.cncf.io.networkattachmentdefinition: 网络
   cdi.kubevirt.io.datavolume: 卷
@@ -2703,9 +2703,9 @@ harvester:
         warnTip: 弹出卷将导致重新启动虚拟机.
         operationTip: '选择您要删除的卷:'
     backupModal:
-      success: '备份 { backUpName } 创建成功.'
+      success: '已启动备份 { backUpName }.'
     restoreModal:
-      success: '恢复 { name } 虚拟机成功.'
+      success: '虚拟机{ name }恢复成功.'
     createTemplate:
       title: '生成模版'
       fields: 
