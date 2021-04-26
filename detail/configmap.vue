@@ -54,7 +54,7 @@ export default {
         <LabelValue :name="t('harvester.cloudInitPage.templateType')" :value="type" />
       </div>
       <div class="resource-yaml">
-        <DetailText :value="template.value" :label="template.key" :binary="template.binary" />
+        <DetailText :value="template.value" label=" " :binary="template.binary" />
       </div>
     </Tab>
   </Tabbed>
