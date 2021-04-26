@@ -2931,8 +2931,8 @@ typeLabel:
     }
   configmap: |-
     {count, plural,
-      one { Cloud-init Template }
-      other { Cloud-init Templates }
+      one { Cloud Config Template }
+      other { Cloud Config Templates }
     }
   k8s.cni.cncf.io.networkattachmentdefinition: |-
     {count, plural,
@@ -3285,7 +3285,7 @@ harvester:
         warnTip: Eject volume will restart the virtual machine.
         operationTip: 'Select the volume you want to delete:'
     backupModal:
-      success: 'Backup { backUpName } successfully created.'
+      success: 'Backup { backUpName } has been initiated.'
     restoreModal:
       success: 'Restore { name } successfully created.'
     createTemplate:
