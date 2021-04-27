@@ -74,7 +74,7 @@ export default {
           name:      'Memory',
           label:     'Memory',
           value:     'spec.template.spec.domain.resources.requests.memory',
-          sort:      ['spec.template.spec.domain.resources.requests.memory'],
+          sort:      ['memorySort'],
           align:     'center',
           labelKey:  'harvester.fields.memory'
         },
