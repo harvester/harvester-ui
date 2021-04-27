@@ -92,6 +92,13 @@ export default {
     return [DESCRIPTION].concat(ANNOTATIONS_TO_IGNORE_REGEX);
   },
 
+  // sort
+  volumeSort() {
+    const volume = this?.spec?.pvc?.resources?.requests?.storage || 0;
+
+    return parseInt(volume);
+  },
+
   customValidationRules() {
     const out = [
       {

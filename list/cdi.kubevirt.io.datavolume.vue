@@ -45,7 +45,7 @@ export default {
           name:      'size',
           labelKey:  'harvester.tableHeaders.size',
           value:     'spec.pvc.resources.requests.storage',
-          sort:      'spec.pvc.resources.requests.storage',
+          sort:      'volumeSort',
         },
         // {
         //   name:      'accessMode',
