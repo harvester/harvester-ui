@@ -1,5 +1,6 @@
 <script>
 import { allHash } from '@/utils/promise';
+import debounce from 'lodash/debounce';
 
 import Socket, {
   EVENT_CONNECTED,
@@ -28,6 +29,7 @@ export default {
       isOpening:   false,
       backlog:     [],
       firstTime:   true,
+      queue:       []
     };
   },
 
@@ -39,6 +41,24 @@ export default {
         fontSize:     12,
       };
     },
+  },
+
+  watch: {
+    queue: {
+      handler: debounce(async function(neu) {
+        if (neu.length === 0) {
+          return;
+        }
+
+        const msg = await Promise.all(neu);
+
+        (msg || []).forEach((m) => {
+          this.terminal.write(m);
+        });
+
+        this.queue = [];
+      }, 5)
+    }
   },
 
   beforeDestroy() {
@@ -164,10 +184,8 @@ export default {
         this.$emit('close');
       });
 
-      this.socket.addEventListener(EVENT_MESSAGE, async(e) => {
-        const msg = await e.detail.data.text();
-
-        this.terminal.write(msg);
+      this.socket.addEventListener(EVENT_MESSAGE, (e) => {
+        this.queue.push(e.detail.data.text());
       });
 
       this.socket.connect();
