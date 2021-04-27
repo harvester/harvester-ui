@@ -815,8 +815,8 @@ glance:
     total:
       label: |-
         {count, plural,
-          =1 { Node }
-          other { Total Nodes }
+          =1 { Host }
+          other { Total Hosts }
         }
   pods: Pods
   provider: Provider
