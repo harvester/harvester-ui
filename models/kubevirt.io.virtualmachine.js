@@ -647,6 +647,12 @@ export default {
     const hasMultus = networks.find( N => N.multus);
 
     return !!hasMultus;
+  },
+
+  memorySort() {
+    const memory = this?.spec?.template?.spec?.domain?.resources?.requests?.memory || 0;
+
+    return parseInt(memory)
   }
 
   // network, disk logic
