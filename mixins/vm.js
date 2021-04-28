@@ -159,7 +159,8 @@ export default {
       pageType,
       imageName,
       diskRows,
-      networkRows
+      networkRows,
+      autoChangeForImage:     true
     };
   },
 
@@ -869,14 +870,17 @@ export default {
 
           const isIso = /.iso$/.test(neu);
 
-          if (isIso) {
-            _diskRows[0].type = 'cd-rom';
-            _diskRows[0].bus = 'sata';
-          } else {
-            _diskRows[0].type = 'disk';
-            _diskRows[0].bus = 'virtio';
+          if (this.autoChangeForImage) {
+            if (isIso) {
+              _diskRows[0].type = 'cd-rom';
+              _diskRows[0].bus = 'sata';
+            } else {
+              _diskRows[0].type = 'disk';
+              _diskRows[0].bus = 'virtio';
+            }
           }
 
+          this.autoChangeForImage = true;
           _diskRows[0].image = neu;
           this.$set(this, 'diskRows', _diskRows);
         }

@@ -368,6 +368,10 @@ export default {
       const networkRows = this.getNetworkRows(spec);
       const imageName = this.getRootImage(spec);
 
+      if (imageName) {
+        this.autoChangeForImage = false;
+      }
+
       this.$set(this.value, 'spec', spec);
       this.$set(this, 'spec', spec);
       this.$set(this, 'diskRows', diskRows);
