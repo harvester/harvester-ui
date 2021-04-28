@@ -50,17 +50,6 @@ export default {
       const out = sortBy(
         choices
           .filter(C => C.metadata.namespace === 'default')
-          .filter((C) => {
-            let canUse = true;
-
-            this.rows.map((O) => {
-              if (O.networkName === C.metadata.name) {
-                canUse = false;
-              }
-            });
-
-            return canUse;
-          })
           .map((obj) => {
             return {
               label: obj.metadata.name,

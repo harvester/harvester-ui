@@ -1,5 +1,4 @@
 <script>
-import _ from 'lodash';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import LabeledInput from '@/components/form/LabeledInput';
 import InputOrDisplay from '@/components/InputOrDisplay';
@@ -86,29 +85,6 @@ export default {
 
       return this.isMasquerade ? masquerade : other;
     },
-    NTOption() {
-      const out = _.cloneDeep(this.networkOption);
-
-      if ((this.value.networkName !== MANAGEMENT_NETWORK) && this.value.networkName) {
-        out.push({
-          label: this.value.networkName,
-          value: this.value.networkName
-        });
-      }
-
-      if (this.value.networkName === MANAGEMENT_NETWORK) {
-        const mangment = out.find( O => O.value === MANAGEMENT_NETWORK);
-
-        if (!mangment) {
-          out.push({
-            label: MANAGEMENT_NETWORK,
-            value: MANAGEMENT_NETWORK
-          });
-        }
-      }
-
-      return out;
-    }
   },
 
   watch: {
@@ -170,7 +146,7 @@ export default {
           <LabeledSelect
             v-model="value.networkName"
             :label="t('harvester.fields.network')"
-            :options="NTOption"
+            :options="networkOption"
             :mode="mode"
             required
             :disabled="isDisabled"
