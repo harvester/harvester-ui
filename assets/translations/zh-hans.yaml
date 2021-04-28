@@ -2689,7 +2689,7 @@ harvester:
         networks: 网络
         basics: 基本信息
         configurations: 配置
-        instance: 虚拟机实例
+        instance: 虚拟机
         monitor: 监控数据
         keypairs: 公共密钥
         cloudConfig: Cloud 配置
