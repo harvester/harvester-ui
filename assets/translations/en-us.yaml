@@ -3231,7 +3231,7 @@ harvester:
         configurations: Configurations
         inventory: Inventory
         hostBasic: Basic Attributes
-        instance: VM Instance
+        instance: Virtual Machines
         monitor: Monitor Data
         keypairs: SSH Keys
         cloudConfig: Cloud Config
