@@ -3149,8 +3149,8 @@ harvester:
     upgradeTip: Please select the version you want to upgrade to
     currentVersion: CURRENT VERSION
     versionLabel: AVAILABLE COMPATIBLE VERSIONS
-    upgradeNode: Upgrading Node
-    upgradeSysService: Upgrading system service
+    upgradeNode: Upgrading Nodes
+    upgradeSysService: Upgrading System Services
   vmPage:
     enableUsb: Enable USB Tablet
     restartTip: Saving edits will cause the VM to restart.
