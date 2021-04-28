@@ -28,6 +28,7 @@ export default {
       upgradeMessage:  [],
       errors:          '',
       selectMode:     true,
+      version:        ''
     };
   },
 
@@ -46,9 +47,9 @@ export default {
       return serverVersion.currentVersion || '';
     },
 
-    version() {
-      return this.versionOptions[0]?.value || '';
-    }
+    // version() {
+    //   return this.versionOptions[0]?.value || '';
+    // }
   },
 
   watch: {
@@ -59,15 +60,20 @@ export default {
 
         const currentResource = list.find( O => !!O.isCurrentUpgrade);
 
-        if (!currentResource) {
-          upgradeMessage = [];
-        } else {
-          upgradeMessage = currentResource.upgradeMessage;
-        }
+        upgradeMessage = currentResource ? currentResource.upgradeMessage : [];
 
         this.$set(this, 'upgradeMessage', upgradeMessage);
       },
       deep: true
+    },
+
+    versionOptions: {
+      handler(neu) {
+        const version = neu[0]?.value || '';
+
+        this.version = version;
+      },
+      deep: true,
     }
   },
 

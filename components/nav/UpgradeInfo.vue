@@ -3,11 +3,12 @@ import { HARVESTER_UPGRADE } from '@/config/types';
 import { HARVESTER_UPGRADESTATE } from '@/config/labels-annotations';
 import { allHash } from '@/utils/promise';
 import ProgressBarList from '@/components/ProgressBarList';
+import GraphCircle from '@/components/graph/Circle';
 
 export default {
   name: 'UpgradeInfo',
 
-  components: { ProgressBarList },
+  components: { ProgressBarList, GraphCircle },
 
   async fetch() {
     const res = await allHash({ upgrade: this.$store.dispatch('cluster/findAll', { type: HARVESTER_UPGRADE }) });
@@ -43,9 +44,11 @@ export default {
     nodesPercent() {
       return this.currentResource?.nodeTotalPercent || 0;
     },
-  },
 
-  methods: {}
+    totalPercent() {
+      return (this.currentResource?.totalPercent / 100) || 0;
+    }
+  }
 };
 </script>
 
@@ -57,7 +60,7 @@ export default {
       }"
     >
       <div class="upgrade tooltip-target">
-        <span class="icon icon-dot-open"></span>
+        <GraphCircle :stroke-width="14" primary-stroke-color="#ffeb01" secondary-stroke-color="white" :percentage="totalPercent" />
       </div>
 
       <template slot="popover">
@@ -79,17 +82,9 @@ export default {
 }
 
 .upgrade {
-  margin-left: 40px;
-  width: 38px;
-  height: 55px;
-  display: flex;
-  align-items: center;
-
-  .icon {
-    font-size: 24px;
-    color: #fff;
-    margin-top: -4px;
-    cursor: pointer;
-  }
+  margin: 5px 0px 0px 30px;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
 }
 </style>

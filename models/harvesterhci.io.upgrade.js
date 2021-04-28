@@ -117,10 +117,12 @@ export default {
         if (conditions[i].status === 'True') {
           percent = 100;
           state = 'Succeeded';
+        } else {
+          percent = 50;
         }
 
         message.push({
-          name:    'systemService',
+          name:    'system services',
           state,
           percent,
           message: conditions[i]?.message
@@ -130,12 +132,19 @@ export default {
 
     if (message.length === 0) {
       message.push({
-        name: 'systemService',
+        name: 'system services',
         state,
         percent,
       });
     }
 
     return message;
+  },
+
+  totalPercent() {
+    const nodePercent = this.nodeTotalPercent * this.nodeUpgradeMessage.length;
+    const servicePercent = this.sysServiceUpgradeMessage?.[0].percent;
+
+    return Math.floor((nodePercent + servicePercent) / (this.nodeUpgradeMessage.length + 1));
   }
 };
