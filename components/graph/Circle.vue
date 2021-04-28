@@ -125,7 +125,7 @@ export default {
       style="font-size: 25; dominant-baseline:  middle; text-anchor:middle;"
       :fill="`url(#${primaryStrokeColorId})`"
     >
-      {{ parsePercentage }}
+      {{ parsePercentage }}%
     </text>
 
   </svg>
