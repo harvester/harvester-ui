@@ -3049,6 +3049,11 @@ harvester:
       disconnectedWarning: "Disconnected from server, attempting to reconnect..."
   glance: 
     version: Harvester Version
+  bundleModal:
+    title: Generate Support Bundle
+    url: Issue URL
+    description: Description
+    requiredDesc: Description is required!
   loading: Loading...
   copyed: Copied!
   close: Close

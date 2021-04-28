@@ -2488,6 +2488,11 @@ harvester:
       disconnectedWarning: "断开与服务器的连接，尝试重新连接..."
   glance: 
     version: Harvester 版本
+  bundleModal:
+    title: 创建支持包
+    url: Issue地址
+    description: 描述
+    requiredDesc: 描述是必填项!
   loading: 加载中...
   copyed: 已复制!
   close: 关闭

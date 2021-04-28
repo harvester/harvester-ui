@@ -31,6 +31,10 @@ export default {
       type:    Number,
       default: 90
     },
+    showText: {
+      type:    Boolean,
+      default: false
+    }
   },
   data() {
     return { id: id++ };
@@ -70,6 +74,10 @@ export default {
     },
     secondaryStrokeColorId() {
       return `secondary-${ id }`;
+    },
+
+    parsePercentage() {
+      return parseInt(this.percentage * 100) || 0;
     }
   }
 };
@@ -107,6 +115,24 @@ export default {
         :stroke-dashoffset="circumferance * (1 - percentage)"
         fill="none"
       />
+
     </g>
+
+    <text
+      v-if="showText"
+      :x="center"
+      :y="center"
+      style="font-size: 25; dominant-baseline:  middle; text-anchor:middle;"
+      :fill="`url(#${primaryStrokeColorId})`"
+    >
+      {{ parsePercentage }}
+    </text>
+
   </svg>
 </template>
+
+<style lang="scss" scoped>
+svg.text {
+  fill: red
+}
+</style>

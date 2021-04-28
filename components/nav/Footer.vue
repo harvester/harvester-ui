@@ -3,12 +3,14 @@ import { mapGetters } from 'vuex';
 import { options } from '@/config/footer';
 import { mapPref, DEV } from '@/store/prefs';
 import { HARVESTER_SETTING } from '@/config/types';
+import SupportBundle from './SupportBundle';
 
 const UNKNOWN = 'unknown';
 const UI_VERSION = process.env.VERSION || UNKNOWN;
 const UI_COMMIT = process.env.COMMIT || UNKNOWN;
 
 export default {
+  components: { SupportBundle },
   data() {
     // const match = fullVersion.match(/^(.*)-([0-9a-f]{40})-(.*)$/);
 
@@ -70,6 +72,7 @@ export default {
       <a v-t="name" :href="value" target="_blank" />
     </div>
 
+    <SupportBundle />
     <div class="space" />
 
     <div v-if="showLocale">
