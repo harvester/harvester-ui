@@ -3292,7 +3292,7 @@ harvester:
     backupModal:
       success: 'Backup { backUpName } has been initiated.'
     restoreModal:
-      success: 'Restore { name } successfully created.'
+      success: 'Restore { name } created successfully.'
     createTemplate:
       title: 'Generate Template'
       fields: 
@@ -3300,7 +3300,7 @@ harvester:
         description: 'Description'
       message: 
         tip: Please enter a template name!
-        success: 'Template { templateName } successfully created.'
+        success: 'Template { templateName } created successfully.'
         failed: 'Failed generated template!'
   vmtemplatePage:
     nameNsDescription:
