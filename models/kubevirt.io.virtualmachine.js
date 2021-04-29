@@ -116,7 +116,7 @@ export default {
         enabled:    !!this.actions?.backup,
         icon:       'icons icon-h-restore-existing',
         label:      this.t('action.backup'),
-        bulkable:   true,
+        // bulkable:   true,
         external:   true,
       },
       {
@@ -124,7 +124,7 @@ export default {
         enabled:    !!this.actions?.restore,
         icon:       'icons icon-h-restore-new',
         label:      this.t('action.restore'),
-        bulkable:   true,
+        // bulkable:   true,
         external:   true,
       },
       {
