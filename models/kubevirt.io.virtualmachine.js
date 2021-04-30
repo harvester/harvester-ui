@@ -117,7 +117,7 @@ export default {
         icon:       'icons icon-h-restore-existing',
         label:      this.t('action.backup'),
         // bulkable:   true,
-        external:   true,
+        // external:   true,
       },
       {
         action:     'restoreVM',
@@ -125,7 +125,7 @@ export default {
         icon:       'icons icon-h-restore-new',
         label:      this.t('action.restore'),
         // bulkable:   true,
-        external:   true,
+        // external:   true,
       },
       {
         action:     'ejectCDROM',
