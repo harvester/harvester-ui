@@ -1,6 +1,6 @@
 <script>
 import { PVC } from '@/config/types';
-import { removeObject } from '@/utils/array.js';
+import { removeObject, removeObjects, addObjects } from '@/utils/array.js';
 import ButtonDropdown from '@/components/ButtonDropdown';
 import Mount from '@/edit/workload/storage/Mount';
 import { _VIEW } from '@/config/query-params';
@@ -32,6 +32,13 @@ export default {
       default: null,
     },
 
+    container: {
+      type:     Object,
+      default: () => {
+        return {};
+      },
+    },
+
     // namespaced configmaps and secrets
     configMaps: {
       type:    Array,
@@ -50,10 +57,7 @@ export default {
   },
 
   async fetch() {
-    const pvcs = await this.$store.dispatch('cluster/findAll', { type: PVC });
-    const namespace = this.namespace || this.$store.getters['defaultNamespace'];
-
-    this.pvcs = pvcs.filter(pvc => pvc.metadata.namespace === namespace);
+    this.pvcs = await this.$store.dispatch('cluster/findAll', { type: PVC });
   },
 
   data() {
@@ -63,6 +67,12 @@ export default {
   computed: {
     isView() {
       return this.mode === _VIEW;
+    },
+
+    namespacedPVCs() {
+      const namespace = this.namespace || this.$store.getters['defaultNamespace'];
+
+      return this.pvcs.filter(pvc => pvc.metadata.namespace === namespace);
     },
 
     volumeTypeOpts() {
@@ -92,15 +102,32 @@ export default {
     },
 
     pvcNames() {
-      return this.pvcs.map(pvc => pvc.metadata.name);
+      return this.namespacedPVCs.map(pvc => pvc.metadata.name);
     },
+    // only show volumes mounted in current container
+    containerVolumes: {
+      get() {
+        const { volumeMounts = [] } = this.container;
+        const names = volumeMounts.reduce((total, each) => {
+          total.push(each.name);
+
+          return total;
+        }, []);
+
+        return this.value.volumes.filter((volume) => {
+          return names.includes(volume.name);
+        });
+      },
+      set(neu, old = []) {
+        removeObjects(this.value.volumes, old);
+        addObjects(this.value.volumes, neu);
+      }
+    }
   },
 
   created() {
-    const container = this.value?.containers[0];
-
-    if (!container.volumeMounts) {
-      this.$set(container, 'volumeMounts', []);
+    if (!this.container.volumeMounts) {
+      this.$set(this.container, 'volumeMounts', []);
     }
     if (!this.value.volumes) {
       this.$set(this.value, 'volumes', []);
@@ -109,25 +136,31 @@ export default {
 
   methods: {
     addVolume(type) {
+      const name = `vol${ this.value.volumes.length }`;
+
       if (type === 'createPVC') {
         this.value.volumes.push({
           _type:                 'createPVC',
           persistentVolumeClaim: {},
-          name:                  `vol${ this.value.volumes.length }`,
+          name,
         });
       } else if (type === 'csi') {
         this.value.volumes.push({
           _type: type,
           csi:   { volumeAttributes: {} },
-          name:  `vol${ this.value.volumes.length }`,
+          name,
         });
       } else {
         this.value.volumes.push({
           _type:  type,
           [type]: {},
-          name:   `vol${ this.value.volumes.length }`,
+          name,
         });
       }
+      if (!this.container.volumeMounts) {
+        this.$set(this.container, 'volumeMounts', []);
+      }
+      this.container.volumeMounts.push({ name });
     },
 
     removeVolume(vol) {
@@ -203,7 +236,7 @@ export default {
 
 <template>
   <div>
-    <ArrayListGrouped v-model="value.volumes">
+    <ArrayListGrouped v-model="containerVolumes">
       <template #default="props">
         <h3>{{ headerFor(volumeType(props.row.value)) }}</h3>
         <div class="bordered-section">
@@ -227,7 +260,7 @@ export default {
             />
           </div>
         </div>
-        <Mount :pod-spec="value" :name="props.row.value.name" :mode="mode" />
+        <Mount :container="container" :pod-spec="value" :name="props.row.value.name" :mode="mode" />
       </template>
       <template #add>
         <ButtonDropdown

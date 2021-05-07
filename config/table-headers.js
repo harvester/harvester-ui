@@ -1,3 +1,4 @@
+import { CATTLE_PUBLIC_ENDPOINTS } from '@/config/labels-annotations';
 import { NODE as NODE_TYPE } from '@/config/types';
 
 // Note: 'id' is always the last sort, so you don't have to specify it here.
@@ -65,6 +66,21 @@ export const STORAGE_CLASS_PROVISIONER = {
   name:     'storage_class_provisioner',
   labelKey: 'tableHeaders.storage_class_provisioner',
   value:    'provisionerDisplay',
+  sort:     ['provisioner'],
+};
+
+export const STORAGE_CLASS_DEFAULT = {
+  name:      'storage_class_default',
+  labelKey:  'tableHeaders.default',
+  value:     'isDefault',
+  sort:      ['isDefault'],
+  formatter: 'Checked',
+};
+
+export const PERSISTENT_VOLUME_SOURCE = {
+  name:     'persistent_volume_source',
+  labelKey: 'tableHeaders.persistentVolumeSource',
+  value:    'source',
   sort:     ['provisioner'],
 };
 
@@ -175,8 +191,14 @@ export const AGE = {
   sort:      'metadata.creationTimestamp:desc',
   search:    false,
   formatter: 'LiveDate',
-  width:     75,
+  width:     100,
   align:     'right'
+};
+
+export const AGE_NORMAN = {
+  ...AGE,
+  value:     'created',
+  sort:      'created:desc',
 };
 
 export const CREATION_DATE = {
@@ -185,6 +207,14 @@ export const CREATION_DATE = {
   value:     'metadata.creationTimestamp',
   sort:      ['date'],
   formatter: 'Date'
+};
+
+export const DESCRIPTION = {
+  name:     'description',
+  labelKey: 'tableHeaders.description',
+  align:    'left',
+  sort:     ['description'],
+  width:    300,
 };
 
 export const IMAGE = {
@@ -369,6 +399,14 @@ export const TYPE = {
   width:    100,
 };
 
+export const SUB_TYPE = {
+  name:     'subType',
+  labelKey: 'tableHeaders.subType',
+  value:    'subTypeDisplay',
+  sort:     ['subTypeDisplay'],
+  width:    120,
+};
+
 export const STATUS = {
   name:     'status',
   labelKey: 'tableHeaders.status',
@@ -427,70 +465,20 @@ export const CLUSTER_CREATOR_DEFAULT = {
   formatter: 'IconIsDefault'
 };
 
-export const RBAC_HEADERS = [
-  {
-    name:      'create',
-    labelKey:  'tableHeaders.rbac.create',
-    value:     'create',
-    align:     'center',
-    formatter: 'IconIsDefault',
-  },
-  {
-    name:      'delete',
-    labelKey:  'tableHeaders.rbac.delete',
-    value:     'delete',
-    align:     'center',
-    formatter: 'IconIsDefault',
-  },
-  {
-    name:      'get',
-    labelKey:  'tableHeaders.rbac.get',
-    value:     'get',
-    align:     'center',
-    formatter: 'IconIsDefault',
-  },
-  {
-    name:      'list',
-    labelKey:  'tableHeaders.rbac.list',
-    value:     'list',
-    align:     'center',
-    formatter: 'IconIsDefault',
-  },
-  {
-    name:      'patch',
-    labelKey:  'tableHeaders.rbac.patch',
-    value:     'patch',
-    align:     'center',
-    formatter: 'IconIsDefault',
-  },
-  {
-    name:      'update',
-    labelKey:  'tableHeaders.rbac.update',
-    value:     'update',
-    align:     'center',
-    formatter: 'IconIsDefault',
-  },
-  {
-    name:      'watch',
-    labelKey:  'tableHeaders.rbac.watch',
-    value:     'watch',
-    align:     'center',
-    formatter: 'IconIsDefault',
-  }
-];
-
 export const RBAC_DEFAULT = {
   name:      'default',
   labelKey:  'tableHeaders.default',
   value:     'default',
-  formatter: 'Checked'
+  formatter: 'Checked',
+  sort:      ['default']
 };
 
 export const RBAC_BUILTIN = {
   name:      'builtin',
   labelKey:  'tableHeaders.builtin',
   value:     'builtin',
-  formatter: 'Checked'
+  formatter: 'Checked',
+  sort:      ['builtin']
 };
 
 export const RESOURCE = {
@@ -599,10 +587,11 @@ export const WORKSPACE = {
 export const WORKLOAD_IMAGES = { ...POD_IMAGES, value: '' };
 
 export const WORKLOAD_ENDPOINTS = {
-  name:      'workloadEndpoints',
-  labelKey:  'tableHeaders.endpoints',
-  value:     'endpoints',
-  formatter: 'WorkloadEndpoints'
+  name:        'workloadEndpoints',
+  labelKey:    'tableHeaders.endpoints',
+  value:       `$['metadata']['annotations']['${ CATTLE_PUBLIC_ENDPOINTS }']`,
+  formatter:   'Endpoints',
+  dashIfEmpty: true,
 };
 
 export const FLEET_SUMMARY = {
@@ -740,4 +729,117 @@ export const NETWORK_VLAN = {
   type:       'vlan',
   formatter:  'ParseNetworkConfig',
   labelKey:  'tableHeaders.network.vlan'
+};
+
+export const GROUP_NAME = {
+  name:      'group-name',
+  label:     'Group Name',
+  value:     'id',
+  sort:      ['name'],
+  search:    ['name'],
+  formatter: 'Principal',
+  width:     350
+};
+
+export const GROUP_ROLE_NAME = {
+  name:      'group-role-names',
+  label:     'Group Role Names',
+  value:     'id',
+  formatter: 'PrincipalGroupBindings',
+};
+
+export const HPA_REFERENCE = {
+  name:      'reference',
+  label:     'Workload',
+  value:     'spec.scaleTargetRef.name',
+  sort:      'spec.scaleTargetRef.name',
+};
+
+export const MIN_REPLICA = {
+  name:      'minimum-replica',
+  label:     'Minimum Replicas',
+  value:     'spec.minReplicas',
+  sort:      'spec.minReplicas',
+};
+
+export const MAX_REPLICA = {
+  name:      'maximum-replica',
+  label:     'Maximum Replicas',
+  value:     'spec.maxReplicas',
+  sort:      'spec.maxReplicas',
+};
+
+export const CURRENT_REPLICA = {
+  name:      'current-replica',
+  label:     'Current Replicas',
+  value:     'status.currentReplicas',
+  sort:      'status.currentReplicas',
+};
+
+export const EXPIRY_STATE = {
+  ...STATE,
+  value:     '$',
+  formatter: 'LiveExpiryBadgeState',
+};
+
+export const ACCESS_KEY = {
+  name:     'id',
+  labelKey: 'tableHeaders.accessKey',
+  align:    'left',
+  sort:     ['name'],
+  width:    200,
+};
+
+export const SCOPE = {
+  name:        'scope',
+  value:       'clusterName',
+  labelKey:    'tableHeaders.scope',
+  dashIfEmpty: true,
+  align:       'left',
+  sort:        ['scope'],
+  width:       100,
+};
+
+export const SCOPE_NORMAN = {
+  ...SCOPE,
+  value:       'clusterId',
+  sort:        ['clusterId'],
+};
+
+export const EXPIRES = {
+  name:          'expires',
+  value:         'expiresAt',
+  labelKey:      'tableHeaders.expires',
+  align:         'left',
+  sort:          ['expiresAt'],
+  width:         200,
+  formatter:     'LiveExpiryDate'
+};
+
+export const RESTART = {
+  name:      'restart',
+  label:     'Restart',
+  value:     'restartRequired',
+  sort:      ['restartRequired', 'nameSort'],
+  formatter: 'Checked',
+  width:     75,
+};
+
+export const FEATURE_DESCRIPTION = {
+  name:     'description',
+  labelKey: 'tableHeaders.description',
+  value:    'status.description',
+  align:    'left',
+  sort:     ['status.description'],
+  width:    300,
+};
+
+export const FEATURE_STATE = {
+  name:      'state',
+  labelKey:  'tableHeaders.state',
+  sort:      ['stateSort', 'nameSort'],
+  value:     'stateDisplay',
+  width:     100,
+  default:   'unknown',
+  formatter: 'BadgeStateFormatter',
 };

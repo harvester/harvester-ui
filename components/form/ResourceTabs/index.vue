@@ -36,6 +36,11 @@ export default {
       type:    String,
       default: _VIEW,
     },
+
+    defaultTab: {
+      type:    String,
+      default: null,
+    },
   },
 
   async fetch() {
@@ -63,6 +68,10 @@ export default {
 
     showEvents() {
       return this.isView && !this.$fetchState.pending && this.hasEvents && this.events.length;
+    },
+
+    showRelated() {
+      return this.isView && !this.$fetchState.pending;
     },
 
     eventHeaders() {
@@ -114,7 +123,7 @@ export default {
 </script>
 
 <template>
-  <Tabbed v-bind="$attrs">
+  <Tabbed v-bind="$attrs" :default-tab="defaultTab">
     <slot />
 
     <Tab v-if="showConditions" label-key="resourceTabs.conditions.tab" name="conditions" :weight="-1">
@@ -133,7 +142,7 @@ export default {
       />
     </Tab>
 
-    <Tab name="related" label-key="resourceTabs.related.tab" :weight="-3">
+    <Tab v-if="showRelated" name="related" label-key="resourceTabs.related.tab" :weight="-3">
       <h3 v-t="'resourceTabs.related.from'" />
       <RelatedResources :ignore-types="[value.type]" :value="value" direction="from" />
 

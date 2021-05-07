@@ -73,7 +73,7 @@ export default {
         ['nameDisplay']
       );
 
-      if (this.$store.getters['isMultiCluster']) {
+      if (this.$store.getters['isRancher']) {
         const cluster = this.$store.getters['currentCluster'];
         let projects = this.$store.getters['management/all'](
           MANAGEMENT.PROJECT
@@ -344,11 +344,19 @@ export default {
   </div>
 </template>
 
-<style type="scss" scoped>
+<style lang="scss" scoped>
 .filter {
   min-width: 220px;
   max-width: 100%;
   display: inline-block;
+}
+
+.filter {
+  ::v-deep .vs__dropdown-menu {
+    li.vs__dropdown-option {
+      padding: 4px 5px;
+    }
+  }
 }
 
 .filter.show-masked ::v-deep .unlabeled-select:not(.masked-dropdown) {
@@ -380,10 +388,10 @@ export default {
 
 .filter ::v-deep .unlabeled-select {
   background-color: transparent;
+  border: 0;
 }
 
 .filter ::v-deep .unlabeled-select:not(.focused) {
-  border: var(--outline-width) solid transparent;
   min-height: 0;
 }
 
@@ -399,14 +407,15 @@ export default {
   margin: 4px;
   user-select: none;
   cursor: default;
-  background: rgba(255, 255, 255, 0.25);
-  border: solid white thin;
-  color: white;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--header-border);
+  color: var(--header-btn-text);
   height: calc(var(--header-height) - 26px);
+  width: initial;
 }
 
 .filter ::v-deep .unlabeled-select .vs__search::placeholder {
-  color: white;
+  color: var(--header-btn-text);
 }
 
 .filter ::v-deep .unlabeled-select INPUT:hover {
@@ -424,12 +433,12 @@ export default {
 }
 
 .filter ::v-deep .unlabeled-select .vs__deselect:after {
-  color: white;
+  color: var(--header-btn-text);
 }
 
 .filter ::v-deep .unlabeled-select .v-select .vs__actions:after {
-  fill: white !important;
-  color: white !important;
+  fill: var(--header-btn-text) !important;
+  color: var(--header-btn-text) !important;
 }
 
 .filter ::v-deep .unlabeled-select INPUT[type='search'] {

@@ -20,3 +20,16 @@ export function generateZip(files) {
 
   return zip.generateAsync({ type: 'blob' });
 }
+
+export function downloadUrl(url, id = '__downloadIframe') {
+  let iframe = document.getElementById(id);
+
+  if ( !iframe ) {
+    iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.id = id;
+    document.body.appendChild(iframe);
+  }
+
+  iframe.src = url;
+}

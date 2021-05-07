@@ -30,6 +30,10 @@ export default {
       type:    String,
       default: 'sideLabel',
     },
+    disabledField: {
+      type:    String,
+      default: 'disabled',
+    },
 
     noDataKey: {
       type:    String,
@@ -45,7 +49,15 @@ export default {
   },
 
   methods: {
+    isDisabled(idx) {
+      return this.rows[idx][this.disabledField] === true;
+    },
+
     select(row, idx) {
+      if ( this.isDisabled(idx) ) {
+        return;
+      }
+
       this.$emit('clicked', row, idx);
     }
   },
@@ -58,10 +70,10 @@ export default {
       v-for="(r, idx) in rows"
       :key="r[keyField]"
       class="item"
-      :class="{'has-description': !!r[descriptionField], [colorFor(r, idx)]: true}"
+      :class="{'has-description': !!r[descriptionField], [colorFor(r, idx)]: true, disabled: r[disabledField] === true}"
       @click="select(r, idx)"
     >
-      <div class="side-label">
+      <div class="side-label" :class="{'indicator': !r[sideLabelField] }">
         <label v-if="r[sideLabelField]">{{ r[sideLabelField] }}</label>
       </div>
       <div class="logo">
@@ -85,6 +97,7 @@ export default {
   $side: 15px;
   $margin: 10px;
   $logo: 60px;
+  $hover-border-width: 1px;
 
   .grid {
     display: flex;
@@ -118,34 +131,36 @@ export default {
       margin: $margin;
       padding: $margin;
       position: relative;
-      border-radius: calc( 1.5 * var(--border-radius));
+      //border-radius: calc( 1.5 * var(--border-radius));
+      border: 1px solid var(--border);
 
-      &:hover {
+      &:hover:not(.disabled) {
         box-shadow: 0 0 30px var(--shadow);
         transition: box-shadow 0.1s ease-in-out;
         cursor: pointer;
       }
 
       .side-label {
-        transform: rotate(180deg);
         position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        min-width: calc(1.5 * var(--border-radius));
-        width: $side;
-        border-top-right-radius: calc( 1.5 * var(--border-radius));
-        border-bottom-right-radius: calc( 1.5 * var(--border-radius));
+        top: 10px;
+        right: 10px;
+        padding: 2px 10px;
+
+        &.indicator {
+          top: 0;
+          right: 0;
+          left: 0;
+        }
 
         label {
+          font-size: 12px;
+          line-height: 12px;
           text-align: center;
-          writing-mode: tb;
-          height: 100%;
-          padding: 0 2px;
           display: block;
           white-space: no-wrap;
           text-overflow: ellipsis;
         }
+
       }
 
       .logo {
@@ -168,77 +183,75 @@ export default {
         }
       }
 
-      .side-label {
-        font-size: 10px;
-      }
-
       &.rancher {
-        background: var(--app-rancher-bg);
-
         .side-label {
           background-color: var(--app-rancher-accent);
           color: var(--app-rancher-accent-text);
         }
-        &:hover {
-          background: var(--app-rancher-accent);
+        &:hover:not(.disabled) {
+          border-color: var(--app-rancher-accent);
         }
       }
 
       &.partner {
-        background: var(--app-partner-bg);
         .side-label {
           background-color: var(--app-partner-accent);
           color: var(--app-partner-accent-text);
         }
-        &:hover {
-          background: var(--app-partner-accent);
+        &:hover:not(.disabled) {
+          border-color: var(--app-partner-accent);
         }
       }
 
       // @TODO figure out how to templatize these
       &.color1 {
-        background: var(--app-color1-bg);
         .side-label { background-color: var(--app-color1-accent); color: var(--app-color1-accent-text); }
-        &:hover { background: var(--app-color1-accent); }
+        &:hover:not(.disabled) { border-color: var(--app-color1-accent); }
       }
       &.color2 {
-        background: var(--app-color2-bg);
         .side-label { background-color: var(--app-color2-accent); color: var(--app-color2-accent-text); }
-        &:hover { background: var(--app-color2-accent); }
+        &:hover:not(.disabled) { border-color: var(--app-color2-accent); }
       }
       &.color3 {
-        background: var(--app-color3-bg);
         .side-label { background-color: var(--app-color3-accent); color: var(--app-color3-accent-text); }
-        &:hover { background: var(--app-color3-accent); }
+        &:hover:not(.disabled) { border-color: var(--app-color3-accent); }
       }
       &.color4 {
-        background: var(--app-color4-bg);
         .side-label { background-color: var(--app-color4-accent); color: var(--app-color4-accent-text); }
-        &:hover { background: var(--app-color4-accent); }
+        &:hover:not(.disabled) { border-color: var(--app-color4-accent); }
       }
       &.color5 {
         background: var(--app-color5-bg);
         .side-label { background-color: var(--app-color5-accent); color: var(--app-color5-accent-text); }
-        &:hover { background: var(--app-color5-accent); }
+        &:hover:not(.disabled) { border-color: var(--app-color5-accent); }
       }
       &.color6 {
         background: var(--app-color6-bg);
         .side-label { background-color: var(--app-color6-accent); color: var(--app-color6-accent-text); }
-        &:hover { background: var(--app-color6-accent); }
+        &:hover:not(.disabled) { border-color: var(--app-color6-accent); }
       }
       &.color7 {
         background: var(--app-color7-bg);
         .side-label { background-color: var(--app-color7-accent); color: var(--app-color7-accent-text); }
-        &:hover { background: var(--app-color7-accent); }
+        &:hover:not(.disabled) { border-color: var(--app-color7-accent); }
       }
       &.color8 {
         background: var(--app-color8-bg);
         .side-label { background-color: var(--app-color8-accent); color: var(--app-color8-accent-text); }
-        &:hover { background: var(--app-color8-accent); }
+        &:hover:not(.disabled) { border-color: var(--app-color8-accent); }
       }
 
-      &:hover {
+      &:hover:not(.disabled) {
         background-position: right center;
+        border-left-width: $hover-border-width;
+        //padding-left: $margin+(-$hover-border-width);
+        .logo {
+          left: 1px+$side+$margin+(-$hover-border-width);
+        }
+        .name {
+          margin-left: $side+$logo+$margin+1px+(-$hover-border-width);
+
+        }
       }
 
       .name {
@@ -267,6 +280,11 @@ export default {
         text-overflow: ellipsis;
         color: var(--text-muted);
       }
+    }
+
+    .disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
 </style>

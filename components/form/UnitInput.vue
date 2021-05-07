@@ -56,6 +56,16 @@ export default {
       type:     String,
       default: null
     },
+
+    required: {
+      type:    Boolean,
+      default: false,
+    },
+
+    min: {
+      type:    [Number, String],
+      default: 0
+    }
   },
 
   computed: {
@@ -105,12 +115,13 @@ export default {
     :value="userValue"
     v-bind="$attrs"
     type="number"
-    min="0"
+    :min="min"
     :mode="mode"
     :label="label"
     :label-key="labelKey"
     :tooltip="tooltip"
     :tooltip-key="tooltipKey"
+    :required="required"
     @input="update($event)"
   >
     <template #suffix>

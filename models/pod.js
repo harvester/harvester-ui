@@ -48,34 +48,28 @@ const stateReasonResolver = {
 };
 
 export default {
-  availableActions() {
+  _availableActions() {
     const out = this._standardActions;
-
-    const removeAction = findBy(out, 'altAction', ' remove');
-    let idx = out.length - 1;
-
-    if ( removeAction ) {
-      idx = out.indexOf(removeAction);
-    }
 
     const openShell = {
       action:     'openShell',
-      enabled:    true,
+      enabled:    !!this.links.view && this.isRunning,
       icon:       'icon icon-fw icon-chevron-right',
       label:      'Execute Shell',
       total:      1,
     };
     const openLogs = {
       action:     'openLogs',
-      enabled:    true,
+      enabled:    !!this.links.view,
       icon:       'icon icon-fw icon-chevron-right',
       label:      'View Logs',
       total:      1,
     };
 
-    insertAt(out, idx, openShell);
-    insertAt(out, idx + 1, openLogs);
-    insertAt(out, idx + 2, { divider: true });
+    // Add backwards, each one to the top
+    insertAt(out, 0, { divider: true });
+    insertAt(out, 0, openLogs);
+    insertAt(out, 0, openShell);
 
     return out;
   },
@@ -138,11 +132,9 @@ export default {
   },
 
   imageNames() {
-    return this.spec.containers.reduce((all, container) => {
-      all.push(container.image);
-
-      return all;
-    }, []);
+    return this.spec.containers.map(container => container.image).map((image) => {
+      return image.replace(/^(index\.)?docker.io\/(library\/)?/, '').replace(/:latest$/, '');
+    });
   },
 
   workloadRef() {

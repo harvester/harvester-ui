@@ -90,6 +90,9 @@ export default {
 
   methods: {
     setPage(num) {
+      if (this.page === num) {
+        return;
+      }
       this.page = num;
 
       // if ( num === 1 ) {

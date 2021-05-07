@@ -1,6 +1,6 @@
 <script>
 import Tag from '@/components/Tag';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 import DetailText from '@/components/DetailText';
 import { _VIEW } from '@/config/query-params';
 
@@ -32,7 +32,7 @@ export default {
       return [
         ...(this.moreDetails || []),
         ...(this.value?.details || []),
-      ];
+      ].filter(x => !!`${ x.content }`);
     },
 
     labels() {
@@ -135,9 +135,9 @@ export default {
     $spacing: 5px;
 
     &:not(.empty) {
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 10px;
+      padding-top: 5px;
+      border-top: 1px solid var(--border);
+      margin-top: 10px;
     }
 
     .tags {

@@ -22,6 +22,19 @@ export default {
       default() {
         return ['group'];
       },
+    },
+
+    searchGroupTypes: {
+      type:    String,
+      default: null,
+      validator(val) {
+        return val === null || val === 'group' || val === 'user';
+      }
+    },
+
+    retainSelection: {
+      type:    Boolean,
+      default: false
     }
   },
 
@@ -68,7 +81,9 @@ export default {
   methods: {
     add(id) {
       this.$emit('add', id);
-      this.newValue = '';
+      if (!this.retainSelection) {
+        this.newValue = '';
+      }
     },
 
     onSearch(str, loading, vm) {
@@ -97,7 +112,10 @@ export default {
           type:       NORMAN.PRINCIPAL,
           actionName: 'search',
           opt:        { url: '/v3/principals?action=search' },
-          body:       { name: str }
+          body:       {
+            name:          str,
+            principalType: this.searchGroupTypes
+          }
         });
 
         if ( this.searchStr === str ) {
@@ -113,18 +131,18 @@ export default {
   }
 };
 </script>
-}
-</script>
 
 <template>
   <LabeledSelect
     v-model="newValue"
     :mode="mode"
-    label="Add Member"
+    :label="retainSelection ? `Select Member` : `Add Member`"
     placeholder="Start typing to search for principals"
     :options="options"
     :searchable="true"
     :filterable="false"
+    class="select-principal"
+    :class="{'retain-selection': retainSelection}"
     @input="add"
     @search="onSearch"
   >
@@ -137,5 +155,22 @@ export default {
     <template #option="option">
       <Principal :key="option.label" :value="option.label" :use-muted="false" />
     </template>
+
+    <template v-if="retainSelection" #selected-option="option">
+      <Principal :key="option.label" :value="option.label" :use-muted="false" class="mt-10 mb-10" />
+    </template>
   </LabeledSelect>
 </template>
+
+<style lang="scss" scoped>
+  .select-principal {
+    &.retain-selection {
+      min-height: 86px;
+      &.focused {
+        .principal {
+          display: none;
+        }
+      }
+    }
+  }
+</style>

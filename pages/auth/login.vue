@@ -404,7 +404,7 @@ export default {
           />
         </div>
       </div>
-      
+
       <div class="col span-6 landscape"></div>
     </div>
   </main>
@@ -486,7 +486,6 @@ export default {
     .half {
       width: 50%;
     }
-
 
     .landscape {
       background-image: url('~assets/images/login-landscape.svg');

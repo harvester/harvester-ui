@@ -10,10 +10,10 @@ export const CHART_NAME = 'rancher-monitoring';
 
 export function init(store) {
   const {
+    product,
     basicType,
     headers,
     mapType,
-    product,
     spoofedType,
     virtualType,
     weightType,
@@ -33,17 +33,18 @@ export function init(store) {
 
   product({
     ifHaveType: PODMONITOR, // possible RBAC issue here if mon turned on but user doesn't have view/read roles on pod monitors
-    icon:       'monitoring'
+    icon:       'monitoring',
+    weight:     90,
   });
 
   virtualType({
-    label:      'Overview',
-    group:      'Root',
+    label:      'Monitoring',
     namespaced: false,
     name:       'monitoring-overview',
     weight:     105,
     route:      { name: 'c-cluster-monitoring' },
-    exact:      true
+    exact:      true,
+    overview:   true,
   });
 
   spoofedType({
@@ -168,16 +169,40 @@ export function init(store) {
     getInstances: () => getAllRoutes(store.dispatch)
   });
 
+  virtualType({
+    label:         'Routes and Receivers',
+    group:         'monitoring',
+    name:     'route-receiver',
+    icon:     'globe',
+  });
+
+  virtualType({
+    label:         'Monitors',
+    group:         'monitoring',
+    name:     'monitor',
+    icon:     'globe',
+  });
+
+  configureType('route-receiver', { showListMasthead: false });
+  configureType('monitor', { showListMasthead: false });
   configureType(ROUTE, { showState: false, showAge: false });
   configureType(RECEIVER, { showState: false, showAge: false });
 
   basicType([
     'monitoring-overview',
-    RECEIVER,
-    ROUTE,
-    SERVICEMONITOR,
-    PODMONITOR,
-  ]);
+    'monitor',
+    'route-receiver',
+  ], 'monitoring');
+
+  // virtualType({
+  //   label:      'Advanced',
+  //   group:      'monitoring-overview',
+  //   namespaced: false,
+  //   name:       'monitoring-advanced',
+  //   weight:     105,
+  //   route:      { name: 'c-cluster-monitoring' },
+  //   exact:      true
+  // });
 
   basicType([
     PROMETHEUSRULE,

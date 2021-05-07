@@ -1,7 +1,7 @@
 <script>
 import debounce from 'lodash/debounce';
 import { typeOf } from '@/utils/sort';
-import { removeAt } from '@/utils/array';
+import { removeAt, removeObject } from '@/utils/array';
 import { asciiLike } from '@/utils/string';
 import { base64Encode, base64Decode } from '@/utils/crypto';
 import { downloadFile } from '@/utils/download';
@@ -62,7 +62,7 @@ export default {
     keyPlaceholder: {
       type: String,
       default() {
-        return this.$store.getters['i18n/t']('keyValue.valuePlaceholder');
+        return this.$store.getters['i18n/t']('keyValue.keyPlaceholder');
       },
     },
 
@@ -111,6 +111,31 @@ export default {
     valueConcealed: {
       type:    Boolean,
       default: false,
+    },
+
+    // On initial reading of the existing value, this function is called
+    // and can return false to say that a value is not supported for editing.
+    // This is mainly useful for resources like envVars that have a valueFrom
+    // you want to preserve but not support editing
+    supported: {
+      type:    Function,
+      default: v => true,
+    },
+
+    // For asMap=false, preserve (copy) these keys from the original value into the emitted value.
+    // Also usefule for valueFrom as above.
+    preserveKeys: {
+      type:    Array,
+      default: null,
+    },
+
+    extraColumns: {
+      type:    Array,
+      default: () => [],
+    },
+    defaultAddData: {
+      type:    Object,
+      default: () => {},
     },
 
     addLabel: {
@@ -175,46 +200,70 @@ export default {
   },
 
   data() {
-    // @TODO base64 and binary support for as Array (!asMap)
-    if ( !this.asMap ) {
-      const rows = (this.value || []).slice() ;
-
-      rows.map((row) => {
-        row.binary = !asciiLike(row[this.valueName]);
-      });
-
-      return { rows };
-    }
-
-    const input = this.value || {};
     const rows = [];
 
-    Object.keys(input).forEach((key) => {
-      let value = input[key];
+    if ( this.asMap ) {
+      const input = this.value || {};
 
-      if ( this.valueBase64 ) {
-        value = base64Decode(value);
-      }
-      rows.push({
-        key,
-        value,
-        binary: !asciiLike(value),
+      Object.keys(input).forEach((key) => {
+        let value = input[key];
+
+        if ( this.valueBase64 ) {
+          value = base64Decode(value);
+        }
+        rows.push({
+          key,
+          value,
+          binary:    !asciiLike(value),
+          supported: true,
+        });
       });
-    });
+    } else {
+      const input = this.value || [];
+
+      for ( const row of input ) {
+        let value = row[this.valueName] || '';
+
+        if ( this.valueBase64 ) {
+          value = base64Decode(value);
+        }
+
+        const entry = {
+          [this.keyName]:   row[this.keyName] || '',
+          [this.valueName]: value,
+          binary:           !asciiLike(value),
+          supported:        this.supported(row),
+        };
+
+        for ( const k of this.preserveKeys ) {
+          if ( typeof row[k] !== 'undefined' ) {
+            entry[k] = row[k];
+          }
+        }
+
+        rows.push(entry);
+      }
+    }
 
     if ( !rows.length && this.initialEmptyRow ) {
-      rows.push({ [this.keyName]: '', [this.valueName]: '' });
+      rows.push({
+        [this.keyName]:   '',
+        [this.valueName]: '',
+        binary:           false,
+        supported:        true
+      });
     }
 
     return { rows };
   },
+
   computed: {
     isView() {
       return this.mode === _VIEW;
     },
 
-    threeColumns() {
-      return this.removeAllowed;
+    containerStyle() {
+      return `grid-template-columns: repeat(${ 2 + this.extraColumns.length }, 1fr)${ this.removeAllowed ? ' 50px' : '' };`;
     },
   },
 
@@ -225,12 +274,19 @@ export default {
   methods: {
     asciiLike,
     add(key = '', value = '') {
-      this.rows.push({
+      const obj = {
+        ...this.defaultAddData,
         [this.keyName]:   key,
         [this.valueName]: value,
-        binary:           !asciiLike(value),
-      });
+      };
+
+      obj.binary = !asciiLike(value);
+      obj.supported = true;
+
+      this.rows.push(obj);
+
       this.queueUpdate();
+
       this.$nextTick(() => {
         const keys = this.$refs.key;
         const lastKey = keys[keys.length - 1];
@@ -267,49 +323,59 @@ export default {
     },
 
     update() {
-      if ( !this.asMap ) {
-        this.$emit('input', this.rows.map((row) => {
-          let value = row.value;
+      let out;
+
+      if ( this.asMap ) {
+        out = {};
+        const keyName = this.keyName;
+        const valueName = this.valueName;
+
+        for ( const row of this.rows ) {
+          let value = (row[valueName] || '');
+          const key = (row[keyName] || '').trim();
+
+          if (value && typeOf(value) === 'object') {
+            out[key] = JSON.parse(JSON.stringify(value));
+          } else {
+            value = (value || '').trim();
+
+            if ( value && this.valueBase64 ) {
+              value = base64Encode(value);
+            }
+            if ( key && (value || this.valueCanBeEmpty) ) {
+              out[key] = value;
+            }
+          }
+        }
+      } else {
+        const preserveKeys = this.preserveKeys || [];
+
+        removeObject(preserveKeys, this.keyName);
+        removeObject(preserveKeys, this.valueName);
+
+        out = this.rows.map((row) => {
+          let value = row[this.valueName];
 
           if ( this.base64Encode ) {
             value = base64Encode(value);
           }
 
-          return {
-            [this.keyName]:   row.key,
+          const entry = {
+            [this.keyName]:   row[this.keyName],
             [this.valueName]: value,
           };
-        }));
 
-        return;
-      }
-
-      const out = {};
-      const keyName = this.keyName;
-      const valueName = this.valueName;
-
-      if (!this.rows.length) {
-        this.$emit('input', out);
-      }
-
-      for ( const row of this.rows ) {
-        let value = (row[valueName] || '');
-        const key = (row[keyName] || '').trim();
-
-        if (value && typeOf(value) === 'object') {
-          out[key] = JSON.parse(JSON.stringify(value));
-        } else {
-          value = (value || '').trim();
-
-          if ( value && this.valueBase64 ) {
-            value = base64Encode(value);
+          for ( const k of preserveKeys ) {
+            if ( typeof row[k] !== 'undefined' ) {
+              entry[k] = row[k];
+            }
           }
-          if ( key && (value || this.valueCanBeEmpty) ) {
-            out[key] = value;
-          }
-        }
-        this.$emit('input', out);
+
+          return entry;
+        });
       }
+
+      this.$emit('input', out);
     },
 
     onPaste(index, event, pastedValue) {
@@ -354,19 +420,31 @@ export default {
       </slot>
     </div>
 
-    <div class="kv-container" :class="{'extra-column':threeColumns}">
-      <template v-if="rows.length">
-        <label class="text-label">
-          {{ keyLabel }}
-          <i v-if="protip" v-tooltip="protip" class="icon icon-info" />
-        </label>
-        <label class="text-label">
-          {{ valueLabel }}
-        </label>
-        <span v-if="threeColumns" />
+    <div class="kv-container" :style="containerStyle">
+      <label class="text-label">
+        {{ keyLabel }}
+        <i v-if="protip && !isView" v-tooltip="protip" class="icon icon-info" />
+      </label>
+      <label class="text-label">
+        {{ valueLabel }}
+      </label>
+      <label v-for="c in extraColumns" :key="c">
+        <slot :name="'label:'+c">{{ c }}</slot>
+      </label>
+      <slot v-if="removeAllowed" name="remove">
+        <span />
+      </slot>
+
+      <template v-if="!rows.length && isView">
+        <div class="kv-item key text-muted">
+          &mdash;
+        </div>
+        <div class="kv-item key text-muted">
+          &mdash;
+        </div>
       </template>
 
-      <template v-for="(row,i) in rows">
+      <template v-for="(row,i) in rows" v-else>
         <div :key="i+'key'" class="kv-item key">
           <slot
             name="key"
@@ -395,7 +473,10 @@ export default {
             :valueName="valueName"
             :queueUpdate="queueUpdate"
           >
-            <div v-if="row.binary">
+            <div v-if="!row.supported">
+              {{ t('detailText.unsupported', null, true) }}
+            </div>
+            <div v-else-if="row.binary">
               {{ t('detailText.binary', {n: row.value.length || 0}, true) }}
             </div>
             <TextAreaAutoGrow
@@ -404,7 +485,7 @@ export default {
               :class="{'conceal': valueConcealed}"
               :mode="mode"
               :placeholder="valuePlaceholder"
-              :min-height="54"
+              :min-height="61"
               :spellcheck="false"
               @input="queueUpdate"
             />
@@ -422,9 +503,13 @@ export default {
           </slot>
         </div>
 
+        <div v-for="c in extraColumns" :key="i + c">
+          <slot :name="'col:' + c" :row="row" :queue-update="queueUpdate" />
+        </div>
+
         <div v-if="removeAllowed" :key="i" class="kv-item remove">
           <slot name="removeButton" :remove="remove" :row="row">
-            <button type="button" :disabled="isView" class="btn bg-transparent role-link" @click="remove(i)">
+            <button type="button" :disabled="isView" class="btn role-link" @click="remove(i)">
               {{ removeLabel || t('generic.remove') }}
             </button>
           </slot>
@@ -432,15 +517,15 @@ export default {
       </template>
     </div>
 
-    <div v-if="addAllowed || readAllowed" class="footer">
+    <div v-if="(addAllowed || readAllowed) && !isView" class="footer">
       <slot name="add" :add="add">
-        <button v-if="addAllowed" :disabled="isView" type="button" class="btn btn-sm role-tertiary add" @click="add()">
+        <button v-if="addAllowed" type="button" class="btn role-tertiary add" @click="add()">
           {{ addLabel }}
         </button>
         <FileSelector
           v-if="readAllowed"
           :disabled="isView"
-          class="btn-sm role-tertiary"
+          class="role-tertiary"
           :label="t('generic.readFromFile')"
           :include-file-name="true"
           @selected="onFileSelected"
@@ -462,15 +547,10 @@ export default {
   .kv-container{
     display: grid;
     align-items: center;
-    grid-template-columns: auto 1fr;
     column-gap: 20px;
 
     label {
       margin-bottom: 0;
-    }
-
-    &.extra-column {
-       grid-template-columns: 1fr 1fr 100px;
     }
 
     & .kv-item {
@@ -478,6 +558,10 @@ export default {
       margin: 10px 0px 10px 0px;
       &.key {
         align-self: flex-start;
+      }
+
+      &.value textarea{
+        padding: 21px 10px 10px 10px;
       }
 
       .text-monospace:not(.conceal) {

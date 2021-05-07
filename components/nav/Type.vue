@@ -5,6 +5,7 @@ const showFavoritesFor = [FAVORITE, USED];
 
 export default {
   components: { Favorite },
+
   props:      {
     type: {
       type:     Object,
@@ -13,7 +14,12 @@ export default {
     isRoot: {
       type:    Boolean,
       default: false,
-    }
+    },
+
+    depth: {
+      type:    Number,
+      default: 0,
+    },
   },
   data() {
     return {
@@ -48,15 +54,17 @@ export default {
     :key="type.name"
     :to="type.route"
     tag="li"
-    class="child"
-    :class="{'root': isRoot}"
+    class="child nav-type"
+    :class="{'root': isRoot, [`depth-${depth}`]: true}"
     :exact="type.exact"
   >
     <a
+      @click="$emit('selected')"
       @mouseenter="setNear(true)"
       @mouseleave="setNear(false)"
     >
-      <span class="label" v-html="type.labelDisplay || type.label" />
+      <span v-if="type.labelKey" class="label"><t :k="type.labelKey" /></span>
+      <span v-else class="label" v-html="type.labelDisplay || type.label" />
       <span v-if="showFavorite || showCount" class="count">
         <Favorite v-if="showFavorite" :resource="type.name" />
         {{ type.count }}
@@ -70,8 +78,9 @@ export default {
     margin: 0 var(--outline) 0 0;
 
     .label {
+      align-items: center;
       grid-area: label;
-      display: block;
+      display: flex;
       overflow: hidden;
       text-overflow: ellipsis;
       ::v-deep .highlight {
@@ -81,7 +90,6 @@ export default {
       }
       ::v-deep .icon {
         position: relative;
-        top: -1px;
         color: var(--muted);
       }
     }
@@ -92,13 +100,15 @@ export default {
       grid-column-gap: 5px;
       font-size: 14px;
       line-height: 24px;
-      padding: 7.5px 7px 7.5px 20px;
-      margin: 0 2px 0 -3px;
+      padding: 7.5px 7px 7.5px 10px;
+      margin: 0 0 0 -3px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: var(--body-text);
+
       &:hover {
-        background: var(--dropdown-hover-bg);
+        background: var(--nav-hover);
         text-decoration: none;
         ::v-deep .icon {
           color: var(--body-text);
@@ -109,14 +119,24 @@ export default {
       grid-area: favorite;
       font-size: 12px;
       position: relative;
-      top: -1px;
     }
     .count {
       grid-area: count;
       font-size: 12px;
       text-align: right;
       justify-items: center;
-      line-height: 20px;
+      padding-right: 4px;
+    }
+
+    &.nav-type:not(.depth-0) {
+      A {
+        font-size: 13px;
+        padding: 5.5px 7px 5.5px 10px;
+      }
+
+      ::v-deep .label I {
+        padding-right: 2px;
+      }
     }
 
     &.root {
@@ -125,4 +145,5 @@ export default {
       }
     }
   }
+
 </style>

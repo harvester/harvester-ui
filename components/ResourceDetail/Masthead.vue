@@ -48,6 +48,11 @@ export default {
       default: false
     },
 
+    storeOverride: {
+      type:    String,
+      default: null,
+    },
+
     resource: {
       type:    String,
       default: null,
@@ -61,12 +66,17 @@ export default {
     title: {
       type:    String,
       default: 'create'
+    },
+
+    parentRouteOverride: {
+      type:    String,
+      default: null,
     }
   },
 
   computed: {
     schema() {
-      const inStore = this.$store.getters['currentProduct'].inStore;
+      const inStore = this.storeOverride || this.$store.getters['currentProduct'].inStore;
 
       return this.$store.getters[`${ inStore }/schemaFor`]( this.resource );
     },
@@ -172,6 +182,10 @@ export default {
           product,
         }
       };
+
+      if (this.parentRouteOverride) {
+        location.name = this.parentRouteOverride;
+      }
 
       const out = {
         displayName, location, ...typeOptions
@@ -351,21 +365,23 @@ export default {
       </slot>
     </header>
 
-    <Banner v-if="banner && isView && !parent.hideBanner" class="state-banner mb-20" :color="banner.color" :label="banner.message" />
+    <Banner v-if="banner && isView && !parent.hideBanner" class="state-banner mb-10" :color="banner.color" :label="banner.message" />
     <Banner
       v-if="managedWarning.show"
       color="warning"
       class="mb-20"
       :label="t('resourceDetail.masthead.managedWarning', managedWarning)"
     />
+
+    <slot />
   </div>
 </template>
 
 <style lang='scss' scoped>
   .masthead {
-    padding-bottom: 10px;
+    padding-bottom: 5px;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
 
   HEADER {
@@ -405,4 +421,18 @@ export default {
     position: relative;
     top: -2px;
   }
+
+  .left-right-split {
+    display: grid;
+    align-items: center;
+
+    .left-half {
+      grid-column: 1;
+    }
+
+    .right-half {
+      grid-column: 2;
+    }
+  }
+
 </style>

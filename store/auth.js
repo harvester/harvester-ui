@@ -127,6 +127,7 @@ export const actions = {
 
       url = addPrefix('/v3-public/localProviders/local?action=login');
     }
+    let returnToUrl = `${ window.location.origin }/verify-auth`;
 
     if (isFirstLogin && isPasswordMode) {
       body.username = 'admin';
@@ -154,12 +155,12 @@ export const actions = {
           if (!isRancher && isPasswordMode && isFirstLogin) {
             await dispatch('applyHarvesterFirstLogin', { data: { password: passwordCopy} });
           }
-  
+
           if (isRancher && isPasswordMode && isFirstLogin) {
             body.password = passwordCopy;
             await dispatch('applyRancherFirstLogin', { data: body });
           }
-  
+
           if (isRancher && isFirstLogin) {
             await dispatch('applyServerUrl');
           }
@@ -220,7 +221,7 @@ export const actions = {
     if (!userResource) {
       return;
     }
-    
+
     userResource.password = data.password;
     await this.$axios({
       url: `/v1/${HARVESTER_USER}s/${userResource.id}`,
@@ -254,7 +255,7 @@ export const actions = {
         } catch(e) {
           console.log(e);
         }
-        
+
       } else if (!serverUrl) {
         const value = {
           type: MANAGEMENT.SETTING,
@@ -278,7 +279,7 @@ export const actions = {
         state.serverUrlTimer = null;
       }
     }, 6000)
-    
+
   },
 
   async logout({ dispatch, commit }, clearToken = true) {
@@ -304,33 +305,3 @@ export const actions = {
     dispatch('onLogout', null, { root: true });
   }
 };
-
-function returnTo(opt, vm) {
-  let { route = `/auth/verify` } = opt;
-
-  if ( vm.$router.options && vm.$router.options.base ) {
-    const routerBase = vm.$router.options.base;
-
-    if ( routerBase !== '/' ) {
-      route = `${ routerBase.replace(/\/+$/, '') }/${ route.replace(/^\/+/, '') }`;
-    }
-  }
-
-  let returnToUrl = `${ window.location.origin }${ route }`;
-
-  const parsed = parseUrl(window.location.href);
-
-  if ( parsed.query.spa !== undefined ) {
-    returnToUrl = addParam(returnToUrl, SPA, _FLAGGED);
-  }
-
-  if ( opt.backTo ) {
-    returnToUrl = addParam(returnToUrl, BACK_TO, opt.backTo);
-  }
-
-  if (opt.config) {
-    returnToUrl = addParam(returnToUrl, 'config', opt.config);
-  }
-
-  return returnToUrl;
-}

@@ -387,7 +387,7 @@ export const actions = {
       return;
     }
 
-    // console.debug(`Create Event [${ state.config.namespace }]`, data.type, data.id); // eslint-disable-line no-console
+    // console.log(`Create Event [${ state.config.namespace }]`, data.type, data.id); // eslint-disable-line no-console
 
     state.queue.push({
       action: 'dispatch',
@@ -401,7 +401,7 @@ export const actions = {
       return;
     }
 
-    // console.debug(`Change Event [${ state.config.namespace }]`, data.type, data.id); // eslint-disable-line no-console
+    // console.log(`Change Event [${ state.config.namespace }]`, data.type, data.id); // eslint-disable-line no-console
 
     state.queue.push({
       action: 'dispatch',
@@ -417,7 +417,7 @@ export const actions = {
       return;
     }
 
-    // console.debug(`Remove Event [${ state.config.namespace }]`, data.type, data.id); // eslint-disable-line no-console
+    // console.log(`Remove Event [${ state.config.namespace }]`, data.type, data.id); // eslint-disable-line no-console
 
     const obj = getters.byId(data.type, data.id);
 

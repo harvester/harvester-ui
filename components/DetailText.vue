@@ -107,6 +107,7 @@ export default {
     },
 
     bodyHtml() {
+      // Includes escapeHtml()
       return nlToBr(this.body);
     },
 
@@ -155,7 +156,7 @@ export default {
       :class="{'conceal': concealed}"
     />
 
-    <span v-else :class="{'conceal': concealed, 'monospace': monospace && !isBinary}" v-html="monospace ? body : bodyHtml" />
+    <span v-else :class="{'conceal': concealed, 'monospace': monospace && !isBinary}" v-html="bodyHtml" />
 
     <template v-if="!isBinary && !jsonStr && isLong && !expanded">
       <a href="#" @click.prevent="expand">{{ plusMore }}</a>
@@ -167,7 +168,7 @@ export default {
 
 <style lang='scss' scoped>
 .with-copy {
-  border: solid thin var(--border);
+  border: solid 1px var(--border);
   border-radius: var(--border-radius);
   padding: 10px;
   position: relative;

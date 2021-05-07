@@ -4,15 +4,18 @@ import {
   WORKLOAD, WORKLOAD_TYPES, SERVICE, HPA, NETWORK_POLICY, PV, PVC, STORAGE_CLASS, POD,
   RBAC,
   MANAGEMENT,
+  NORMAN,
 } from '@/config/types';
 
 import {
   STATE, NAME as NAME_COL, NAMESPACE as NAMESPACE_COL, AGE, KEYS,
   INGRESS_DEFAULT_BACKEND, INGRESS_TARGET, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM,
-  SPEC_TYPE, TARGET_PORT, SELECTOR, NODE as NODE_COL, TYPE, WORKLOAD_IMAGES, POD_IMAGES, USER_ID, USERNAME, USER_DISPLAY_NAME, USER_PROVIDER, WORKLOAD_ENDPOINTS, STORAGE_CLASS_PROVISIONER
+  SPEC_TYPE, TARGET_PORT, SELECTOR, NODE as NODE_COL, TYPE, WORKLOAD_IMAGES, POD_IMAGES,
+  USER_ID, USERNAME, USER_DISPLAY_NAME, USER_PROVIDER, WORKLOAD_ENDPOINTS, STORAGE_CLASS_DEFAULT,
+  STORAGE_CLASS_PROVISIONER, PERSISTENT_VOLUME_SOURCE,
+  HPA_REFERENCE, MIN_REPLICA, MAX_REPLICA, CURRENT_REPLICA,
+  ACCESS_KEY, DESCRIPTION, EXPIRES, EXPIRY_STATE, SUB_TYPE, AGE_NORMAN, SCOPE_NORMAN,
 } from '@/config/table-headers';
-
-import { copyResourceValues, SUBTYPES } from '@/models/rbac.authorization.k8s.io.roletemplate';
 
 import { DSL } from '@/store/type-map';
 
@@ -24,14 +27,12 @@ export function init(store) {
     basicType,
     ignoreType,
     mapGroup,
-    mapType,
     weightGroup,
     weightType,
     headers,
     virtualType,
     componentForType,
     configureType,
-    spoofedType
   } = DSL(store, NAME);
 
   product({
@@ -41,8 +42,9 @@ export function init(store) {
     icon:                'compass'
   });
 
-  basicType(['cluster-dashboard']);
+  basicType(['cluster-dashboard', 'cluster-tools']);
   basicType([
+    'cluster-dashboard',
     NAMESPACE,
     NODE,
   ], 'cluster');
@@ -70,16 +72,16 @@ export function init(store) {
   ], 'workload');
   basicType([
     RBAC.ROLE,
+    RBAC.CLUSTER_ROLE,
     RBAC.ROLE_BINDING,
     RBAC.CLUSTER_ROLE_BINDING,
-    RBAC.SPOOFED.ROLE_TEMPLATE
   ], 'rbac');
 
   weightGroup('cluster', 99, true);
   weightGroup('workload', 98, true);
-  weightGroup('serviceDiscovery', 97, true);
-  weightGroup('storage', 96, true);
-  weightGroup('rbac', 95, true);
+  weightGroup('serviceDiscovery', 96, true);
+  weightGroup('storage', 95, true);
+  weightGroup('rbac', 94, true);
   weightType(POD, -1, true);
 
   for (const key in WORKLOAD_TYPES) {
@@ -114,9 +116,13 @@ export function init(store) {
   mapGroup('argoproj.io', 'Argo');
   mapGroup('logging.banzaicloud.io', 'Logging');
   mapGroup(/.*resources\.cattle\.io.*/, 'Backup-Restore');
+  mapGroup(/^(.*\.)?cluster\.x-k8s\.io$/, 'Cluster API');
+  mapGroup(/^provisioning\.cattle\.io$/, 'Rancher Provisioning');
+  mapGroup(/^rke(-node)?\.cattle\.io$/, 'RKE Provisioning');
 
   configureType(NODE, { isCreatable: false, isEditable: false });
   configureType(WORKLOAD_TYPES.JOB, { isEditable: false, match: WORKLOAD_TYPES.JOB });
+  configureType(PVC, { isEditable: false });
 
   configureType('workload', {
     displayName: 'Workload',
@@ -127,18 +133,13 @@ export function init(store) {
     resource: WORKLOAD_TYPES.DEPLOYMENT
   });
 
+  headers(PV, [STATE, NAME_COL, PERSISTENT_VOLUME_SOURCE, AGE]);
   headers(CONFIG_MAP, [NAME_COL, NAMESPACE_COL, KEYS, AGE]);
   headers(SECRET, [
     STATE,
     NAME_COL,
     NAMESPACE_COL,
-    {
-      name:      'type',
-      label:     'Type',
-      value:     'typeDisplay',
-      sort:      ['typeDisplay', 'nameSort'],
-      width:     120,
-    },
+    SUB_TYPE,
     {
       name:      'data',
       label:     'Data',
@@ -150,6 +151,7 @@ export function init(store) {
   headers(INGRESS, [STATE, NAME_COL, NAMESPACE_COL, INGRESS_TARGET, INGRESS_DEFAULT_BACKEND, AGE]);
   headers(NODE, [STATE, NAME_COL, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM, AGE]);
   headers(SERVICE, [STATE, NAME_COL, NAMESPACE_COL, SPEC_TYPE, TARGET_PORT, SELECTOR, AGE]);
+  headers(HPA, [STATE, NAME_COL, HPA_REFERENCE, MIN_REPLICA, MAX_REPLICA, CURRENT_REPLICA, AGE]);
 
   headers(WORKLOAD, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, TYPE, 'Ready', AGE]);
   headers(WORKLOAD_TYPES.DEPLOYMENT, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, 'Ready', 'Up-to-date', 'Available', AGE]);
@@ -160,7 +162,7 @@ export function init(store) {
   headers(WORKLOAD_TYPES.CRON_JOB, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, 'Schedule', 'Last Schedule', AGE]);
   headers(WORKLOAD_TYPES.REPLICATION_CONTROLLER, [STATE, NAME_COL, NAMESPACE_COL, WORKLOAD_IMAGES, WORKLOAD_ENDPOINTS, 'Ready', 'Current', 'Desired', AGE]);
   headers(POD, [STATE, NAME_COL, NAMESPACE_COL, POD_IMAGES, 'Ready', 'Restarts', 'IP', NODE_COL, AGE]);
-  headers(STORAGE_CLASS, [STATE, NAME_COL, STORAGE_CLASS_PROVISIONER, AGE]);
+  headers(STORAGE_CLASS, [STATE, NAME_COL, STORAGE_CLASS_PROVISIONER, STORAGE_CLASS_DEFAULT, AGE]);
 
   headers(RBAC.ROLE, [
     STATE,
@@ -184,6 +186,15 @@ export function init(store) {
     AGE
   ]);
 
+  headers(NORMAN.TOKEN, [
+    EXPIRY_STATE,
+    ACCESS_KEY,
+    DESCRIPTION,
+    SCOPE_NORMAN,
+    EXPIRES,
+    AGE_NORMAN
+  ]);
+
   virtualType({
     label:       'Cluster Dashboard',
     group:      'Root',
@@ -192,6 +203,7 @@ export function init(store) {
     weight:      100,
     route:       { name: 'c-cluster-explorer' },
     exact:       true,
+    overview:    true,
   });
 
   virtualType({
@@ -206,45 +218,21 @@ export function init(store) {
       name:     'c-cluster-product-resource',
       params:   { resource: WORKLOAD }
     },
+    overview: true,
   });
 
-  spoofedType({
-    label:             'Role Template',
-    type:              RBAC.SPOOFED.ROLE_TEMPLATE,
-    collectionMethods: ['POST'],
-    schemas:           [
-      {
-        id:                RBAC.SPOOFED.ROLE_TEMPLATE,
-        type:              'schema',
-        resourceFields:    { filters: { type: 'string' } },
-        collectionMethods: ['POST'],
-      }
-    ],
-    getInstances: async() => {
-      const allPrmises = SUBTYPES.map(type => store.dispatch('cluster/findAll', { type } ));
-      const all = await Promise.all(allPrmises);
+  // Ignore these types as they are managed through the settings product
+  ignoreType(MANAGEMENT.FEATURE);
+  ignoreType(MANAGEMENT.SETTING);
 
-      return all
-        .flat()
-        .map((template) => {
-          const instance = {
-            id:              template.id,
-            kind:            template.kind,
-            type:            RBAC.SPOOFED.ROLE_TEMPLATE,
-            status:          template.status,
-            links:           {
-              self: template.links.self,
-              view: template.links.view
-            },
-            template
-          };
+  // Don't show Tokens/API Keys in the side navigation
+  ignoreType(MANAGEMENT.TOKEN);
+  ignoreType(NORMAN.TOKEN);
 
-          copyResourceValues(template, instance);
+  // Ignore these types as they are managed through the auth product
+  ignoreType(MANAGEMENT.USER);
 
-          return instance;
-        });
-    }
-  });
-
-  mapType(RBAC.SPOOFED.ROLE_TEMPLATE, 'Role Template');
+  // Ignore these types as they are managed through the auth product
+  ignoreType(MANAGEMENT.GLOBAL_ROLE);
+  ignoreType(MANAGEMENT.ROLE_TEMPLATE);
 }

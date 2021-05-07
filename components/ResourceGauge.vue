@@ -1,7 +1,6 @@
 <script>
 import CountGauge from '@/components/CountGauge';
 import { NAME as VIRTUAL } from '@/config/product/virtual';
-
 export function colorToCountName(color) {
   switch (color) {
   case 'text-success':
@@ -13,17 +12,13 @@ export function colorToCountName(color) {
     return 'errorCount';
   }
 }
-
 export function resourceCounts(store, resource) {
   const inStore = store.getters['currentProduct'].inStore;
   // const clusterCounts = store.getters[`${ inStore }/all`](resource)[0].counts;
   // const summary = clusterCounts[resource].summary;
-
   const resourceAll = store.getters[`${ inStore }/all`](resource);
-
   const warningCount = resourceAll?.[0]?.warningCount || 0;
   const errorCount = resourceAll?.[0]?.errorCount || 0;
-
   const counts = {
     total:        resourceAll.length || 0,
     useful:       resourceAll.length || 0,
@@ -35,7 +30,6 @@ export function resourceCounts(store, resource) {
   //   const color = colorForState(entry[0]);
   //   const count = entry[1];
   //   const countName = colorToCountName(color);
-
   //   counts['useful'] -= count;
   //   counts[countName] += count;
   // });
@@ -44,7 +38,6 @@ export function resourceCounts(store, resource) {
 
   return counts;
 }
-
 export default {
   components: { CountGauge },
   props:      {
@@ -57,26 +50,22 @@ export default {
       required: true
     },
   },
-
   computed: {
     resourceCounts() {
       return resourceCounts(this.$store, this.resource);
     },
-
     location() {
       return {
         name:     'c-cluster-product-resource',
         params:   { product: VIRTUAL, resource: this.resource }
       };
     },
-
     name() {
       const inStore = this.$store.getters['currentProduct'].inStore;
       const schema = this.$store.getters[`${ inStore }/schemaFor`](this.resource);
 
       return this.$store.getters['type-map/labelFor'](schema, this.resourceCounts.useful);
     },
-
     input() {
       return {
         name:            this.name,
@@ -86,10 +75,8 @@ export default {
       };
     },
   },
-
 };
 </script>
-
 <template>
   <CountGauge class="resource-gauge-two" v-bind="input" />
 </template>

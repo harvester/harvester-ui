@@ -12,10 +12,13 @@ export const STEVE = {
 // Auth (via Norman)
 // Base: /v3
 export const NORMAN = {
-  AUTH_CONFIG: 'authconfig',
-  PRINCIPAL:   'principal',
-  USER:        'user',
-  TOKEN:        'token',
+  AUTH_CONFIG:   'authconfig',
+  CLUSTER_TOKEN: 'clusterregistrationtoken',
+  GROUP:         'group',
+  PRINCIPAL:     'principal',
+  SPOOFED:       { GROUP_PRINCIPAL: 'group.principal' },
+  TOKEN:         'token',
+  USER:          'user',
 };
 
 // Public (via Norman)
@@ -25,6 +28,7 @@ export const PUBLIC = { AUTH_PROVIDER: 'authprovider' };
 // Common native k8s types (via Steve)
 // Base: /k8s/clusters/<id>/v1/
 export const API_GROUP = 'apiGroups';
+export const API_SERVICE = 'apiregistration.k8s.io.apiservice';
 export const CONFIG_MAP = 'configmap';
 export const COUNT = 'count';
 export const EVENT = 'event';
@@ -50,9 +54,6 @@ export const RBAC = {
   CLUSTER_ROLE:         'rbac.authorization.k8s.io.clusterrole',
   ROLE_BINDING:         'rbac.authorization.k8s.io.rolebinding',
   CLUSTER_ROLE_BINDING: 'rbac.authorization.k8s.io.clusterrolebinding',
-  GLOBAL_ROLE:          'management.cattle.io.globalrole',
-  GLOBAL_ROLE_BINDING:  'management.cattle.io.globalrolebinding',
-  SPOOFED:              { ROLE_TEMPLATE: 'rbac.authorization.k8s.io.roletemplate' }
 };
 
 export const WORKLOAD = 'workload';
@@ -67,6 +68,12 @@ export const WORKLOAD_TYPES = {
   REPLICA_SET:            'apps.replicaset',
   REPLICATION_CONTROLLER: 'replicationcontroller'
 };
+
+const {
+  DAEMON_SET, CRON_JOB, JOB, ...scalableWorkloads
+} = WORKLOAD_TYPES;
+
+export const SCALABLE_WORKLOAD_TYPES = scalableWorkloads;
 
 export const METRIC = {
   NODE: 'metrics.k8s.io.nodemetrics',
@@ -118,24 +125,32 @@ export const LONGHORN = {
 // Rancher Management API (via Steve)
 // Base: /v1
 export const MANAGEMENT = {
-  AUTH_CONFIG:      'management.cattle.io.authconfig',
-  CATALOG_TEMPLATE: 'management.cattle.io.catalogtemplate',
-  CATALOG:          'management.cattle.io.catalog',
-  CLUSTER:          'management.cattle.io.cluster',
-  GROUP:            'management.cattle.io.group',
-  NODE_POOL:        'management.cattle.io.nodepool',
-  NODE_TEMPLATE:    'management.cattle.io.nodetemplate',
-  PROJECT:          'management.cattle.io.project',
-  SETTING:          'management.cattle.io.setting',
-  USER:             'management.cattle.io.user',
-  TOKEN:            'management.cattle.io.token',
+  AUTH_CONFIG:                   'management.cattle.io.authconfig',
+  CATALOG_TEMPLATE:              'management.cattle.io.catalogtemplate',
+  CATALOG:                       'management.cattle.io.catalog',
+  CLUSTER:                       'management.cattle.io.cluster',
+  CLUSTER_ROLE_TEMPLATE_BINDING: 'management.cattle.io.clusterroletemplatebinding',
+  FEATURE:                       'management.cattle.io.feature',
+  GROUP:                         'management.cattle.io.group',
+  NODE_POOL:                     'management.cattle.io.nodepool',
+  NODE_TEMPLATE:                 'management.cattle.io.nodetemplate',
+  PROJECT:                       'management.cattle.io.project',
+  PROJECT_ROLE_TEMPLATE_BINDING: 'management.cattle.io.projectroletemplatebinding',
+  ROLE_TEMPLATE:                 'management.cattle.io.roletemplate',
+  SETTING:                       'management.cattle.io.setting',
+  USER:                          'management.cattle.io.user',
+  TOKEN:                         'management.cattle.io.token',
+  GLOBAL_ROLE:                   'management.cattle.io.globalrole',
+  GLOBAL_ROLE_BINDING:           'management.cattle.io.globalrolebinding',
+  POD_SECURITY_POLICY_TEMPLATE:  'management.cattle.io.podsecuritypolicytemplate',
 };
 
 export const CAPI = {
-  CAPI_CLUSTER: 'cluster.x-k8s.io.cluster',
-  RKE_CLUSTER:  'cluster.cattle.io.rkecluster',
-  NODE_CONFIG:  'node-config.cattle.io',
-  SPOOFED:      { NODE_CONFIG: 'node-config.cattle.io' }
+  CAPI_CLUSTER:       'cluster.x-k8s.io.cluster',
+  MACHINE_DEPLOYMENT: 'cluster.x-k8s.io.machinedeployment',
+  MACHINE_SET:        'cluster.x-k8s.io.machineset',
+  MACHINE:            'cluster.x-k8s.io.machine',
+  RANCHER_CLUSTER:    'provisioning.cattle.io.cluster',
 };
 
 // --------------------------------------
@@ -223,7 +238,6 @@ export const CIS = {
   CLUSTER_SCAN_PROFILE: 'cis.cattle.io.clusterscanprofile',
   BENCHMARK:            'cis.cattle.io.clusterscanbenchmark',
   REPORT:               'cis.cattle.io.clusterscanreport'
-
 };
 
 // vm

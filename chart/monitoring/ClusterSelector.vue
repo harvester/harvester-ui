@@ -78,6 +78,12 @@ const CLUSTER_TYPES = [
       'rke2Etcd',
     ],
   },
+  {
+    group:      'rke',
+    id:         'rke.windows',
+    label:      'cluster.provider.rkeWindows',
+    configKeys: ['rkeControllerManager', 'rkeScheduler', 'rkeProxy', 'rkeEtcd'],
+  },
 ];
 
 export default {
@@ -158,6 +164,16 @@ export default {
       if (clusterType.group === 'k3s') {
         this.$set(this.value.prometheus.prometheusSpec.resources.limits, 'memory', '2500Mi');
         this.$set(this.value.prometheus.prometheusSpec.resources.requests, 'memory', '1750Mi');
+      }
+
+      if (clusterType.id === 'rke.windows') {
+        if (!this.value.global.cattle.windows) {
+          this.$set(this.value.global.cattle, 'windows', { enabled: true });
+        } else {
+          this.value.global.cattle.windows.enabled = true;
+        }
+      } else if (oldClusterType && oldClusterType.id === 'rke.windows') {
+        delete this.value.global.cattle.windows;
       }
     },
   },

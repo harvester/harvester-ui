@@ -6,6 +6,9 @@ import UnitInput from '@/components/form/UnitInput';
 import Banner from '@/components/Banner';
 import FileSelector from '@/components/form/FileSelector';
 
+const DEFAULT_NON_TLS_PORT = 389;
+const DEFAULT_TLS_PORT = 636;
+
 export default {
   components: {
     RadioGroup,
@@ -59,8 +62,19 @@ export default {
       if (neu) {
         this.model.starttls = false;
       }
+
+      const expectedCurrentDefault = neu ? DEFAULT_NON_TLS_PORT : DEFAULT_TLS_PORT;
+      const newDefault = neu ? DEFAULT_TLS_PORT : DEFAULT_NON_TLS_PORT;
+
+      // Note: The defualt port value is a number
+      // If the user edits this value, the type will be a string
+      // Thus, we will only change the value when the user toggles the TLS flag if they have
+      // NOT edited the port value in any way
+      if (this.model.port === expectedCurrentDefault) {
+        this.value.port = newDefault;
+      }
     }
-  }
+  },
 
 };
 </script>
@@ -72,12 +86,24 @@ export default {
         <div class="col span-6">
           <LabeledInput v-model="hostname" required :mode="mode" :label="t('authConfig.ldap.hostname')" />
         </div>
-        <div class="col span-5">
-          <LabeledInput v-model="model.port" required :mode="mode" :label="t('authConfig.ldap.port')" />
+        <div class="col span-4">
+          <LabeledInput
+            :value="model.port"
+            type="number"
+            required
+            :min="0"
+            :step="1"
+            :mode="mode"
+            :label="t('authConfig.ldap.port')"
+            @input="e=>$set(model, 'port', e.replace(/[^0-9]*/g, ''))"
+          />
         </div>
 
-        <div class="col span-1">
+        <div class="col">
           <Checkbox v-model="model.tls" :mode="mode" class="full-height" :label="t('authConfig.ldap.tls')" />
+        </div>
+        <div class="col span-1">
+          <Checkbox v-model="model.starttls" :tooltip="t('authConfig.ldap.starttls.tip')" :mode="mode" class="full-height" :label="t('authConfig.ldap.starttls.label')" />
         </div>
       </div>
       <div v-if="model.tls || model.starttls" class="row mb-20">
@@ -90,18 +116,13 @@ export default {
         <div class="col span-6">
           <UnitInput v-model="model.connectionTimeout" required :mode="mode" :label="t('authConfig.ldap.serverConnectionTimeout')" suffix="milliseconds" />
         </div>
-        <div v-if="type==='openldap'" class="col span-6">
-          <Checkbox v-model="model.starttls" :tooltip="t('authConfig.ldap.starttls.tip')" :mode="mode" class="full-height" :label="t('authConfig.ldap.starttls.label')" />
-        </div>
-        <div v-if="type==='activedirectory'" class="col span-6">
-          <LabeledInput v-model="model.defaultLoginDomain" required :mode="mode" :label="t('authConfig.ldap.defaultLoginDomain')" />
-        </div>
       </div>
       <Banner color="info" :label="t('authConfig.ldap.serviceAccountInfo')" />
       <div class="row mb-20">
         <div v-if="type==='activedirectory'" class="col span-6">
           <LabeledInput v-model="model.serviceAccountUsername" required :mode="mode" :label="t('authConfig.ldap.serviceAccountDN')" />
         </div>
+
         <div v-else class="col span-6">
           <LabeledInput v-model="model.serviceAccountDistinguishedName" required :mode="mode" :label="t('authConfig.ldap.serviceAccountDN')" />
         </div>
@@ -109,12 +130,24 @@ export default {
           <LabeledInput v-model="model.serviceAccountPassword" required type="password" :mode="mode" :label="t('authConfig.ldap.serviceAccountPassword')" />
         </div>
       </div>
+      <div v-if="type==='activedirectory'" class="row mb-20">
+        <div class="col span-6">
+          <LabeledInput
+            v-model="model.defaultLoginDomain"
+            :hoover-tooltip="true"
+            :tooltip="t('authConfig.ldap.defaultLoginDomain.hint')"
+            :placeholder="t('authConfig.ldap.defaultLoginDomain.placeholder')"
+            :mode="mode"
+            :label="t('authConfig.ldap.defaultLoginDomain.label')"
+          />
+        </div>
+      </div>
       <div class="row mb-20">
         <div class="col span-6">
           <LabeledInput v-model="model.userSearchBase" required :mode="mode" :label="t('authConfig.ldap.userSearchBase.label')" :placeholder="t('authConfig.ldap.userSearchBase.placeholder')" />
         </div>
         <div class="col span-6">
-          <LabeledInput v-model="model.groupSearchBase" type="password" :mode="mode" :placeholder="t('authConfig.ldap.groupSearchBase.placeholder')" :label="t('authConfig.ldap.groupSearchBase.label')" />
+          <LabeledInput v-model="model.groupSearchBase" :mode="mode" :placeholder="t('authConfig.ldap.groupSearchBase.placeholder')" :label="t('authConfig.ldap.groupSearchBase.label')" />
         </div>
       </div>
 
@@ -189,7 +222,7 @@ export default {
         <div class="col span-6">
           <LabeledInput v-model="model.disabledStatusBitmask" :mode="mode" :label="t('authConfig.ldap.disabledStatusBitmask')" />
         </div>
-        <div class=" col span-6">
+        <div v-if="type!=='shibboleth'" class=" col span-6">
           <RadioGroup
             v-model="model.nestedGroupMembershipEnabled"
             :mode="mode"

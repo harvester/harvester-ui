@@ -55,11 +55,10 @@ export default {
 
   data() {
     const params = { ...this.$route.params };
-    const resource = params.resource;
 
     const formRoute = { name: `${ this.$route.name }-create`, params };
 
-    const hasEditComponent = this.$store.getters['type-map/hasCustomEdit'](resource);
+    const hasEditComponent = this.$store.getters['type-map/hasCustomEdit'](this.resource);
 
     const yamlRoute = {
       name:  `${ this.$route.name }-create`,
@@ -135,7 +134,7 @@ export default {
         return this.isYamlCreatable;
       }
 
-      return this.schema && this._isCreatable && this.$store.getters['type-map/optionsFor'](this.$route.params.resource).canYaml;
+      return this.schema && this._isCreatable && this.$store.getters['type-map/optionsFor'](this.resource).canYaml;
     },
 
     _isCreatable() {
@@ -148,7 +147,7 @@ export default {
         return false;
       }
 
-      return this.$store.getters['type-map/optionsFor'](this.$route.params.resource).isCreatable;
+      return this.$store.getters['type-map/optionsFor'](this.resource).isCreatable;
     },
 
     _createLocation() {

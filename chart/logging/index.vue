@@ -17,16 +17,22 @@ export default {
   computed: {
     ...mapGetters(['currentCluster']),
     provider() {
-      return this.currentCluster.status.provider;
+      return (this.currentCluster.status.provider || '').split('.')[0];
     }
   },
 
   created() {
-    this.$set(this.value, 'additionalLoggingSources', this.value.additionalLoggingSources || {});
-    this.$set(this.value.additionalLoggingSources, this.provider, this.value.additionalLoggingSources[this.provider] || {});
-    this.$set(this.value.additionalLoggingSources[this.provider], 'enabled', true);
-    this.$set(this.value.additionalLoggingSources[this.provider], 'fluentbit', this.value.additionalLoggingSources[this.provider].fluentbit || {});
-    this.$set(this.value.additionalLoggingSources[this.provider].fluentbit, 'mountPath', this.value.additionalLoggingSources[this.provider].fluentbit.mountPath || '');
+    const provider = this.provider;
+
+    if ( !this.value._setSources ) {
+      // Save a note so that form -> yaml -> form doesn't reset these
+      Object.defineProperty(this.value, '_setSources', { enumerable: false, value: true });
+
+      this.$set(this.value, 'additionalLoggingSources', this.value.additionalLoggingSources || {});
+      this.$set(this.value.additionalLoggingSources, provider, this.value.additionalLoggingSources[provider] || {});
+      this.$set(this.value.additionalLoggingSources[provider], 'enabled', true);
+      this.$set(this.value, 'global', this.value.global || {});
+    }
   },
 };
 </script>
@@ -40,7 +46,7 @@ export default {
     </div>
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.additionalLoggingSources[provider].fluentbit.mountPath" :label="t('logging.install.fluentbitMountPath')" />
+        <LabeledInput v-model="value.global.dockerRootDirectory" :label="t('logging.install.dockerRootDirectory')" />
       </div>
     </div>
     <div class="row">

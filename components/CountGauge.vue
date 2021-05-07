@@ -19,7 +19,7 @@ export default {
     },
     primaryColorVar: {
       type:     String,
-      required: true
+      default: null,
     },
     warningCount: {
       type:    Number,
@@ -32,6 +32,10 @@ export default {
     location: {
       type:    Object,
       default: null
+    },
+    plain: {
+      type:    Boolean,
+      default: false
     }
   },
 
@@ -65,9 +69,10 @@ export default {
 </script>
 
 <template>
-  <GradientBox class="count-gauge" :class="{clickable}" :primary-color-var="primaryColorVar" @click.native="visitLocation()">
+  <GradientBox class="count-gauge" :class="{clickable}" :primary-color-var="primaryColorVar" :plain="plain" @click.native="visitLocation()">
     <div class="graphical">
-      <GraphCircle :primary-stroke-color="`rgba(var(${primaryColorVar}))`" secondary-stroke-color="rgb(var(--resource-gauge-back-circle))" :percentage="percentage" />
+      <GraphCircle v-if="percentage > 0" :primary-stroke-color="`rgba(var(${primaryColorVar}))`" secondary-stroke-color="rgb(var(--resource-gauge-back-circle))" :percentage="percentage" />
+      <GraphCircle v-if="percentage === 0" :primary-stroke-color="`rgba(var(${primaryColorVar}))`" secondary-stroke-color="rgb(var(--resource-gauge-back-circle))" class="zero" :percentage="100" />
     </div>
     <div class="data">
       <h1>{{ useful }}</h1>
@@ -85,6 +90,11 @@ export default {
 </template>
 
 <style lang="scss">
+    .zero {
+      circle {
+        stroke: var(--gauge-zero);
+      }
+    }
     .count-gauge {
         $padding: 10px;
 
@@ -118,8 +128,8 @@ export default {
         h1 {
           font-size: 40px;
           line-height: 36px;
-          border-bottom: 1px solid var(--gauge-divider);
           padding-bottom: $padding / 2;
+          margin-bottom: 0;
         }
 
         @media only screen and (min-width: map-get($breakpoints, '--viewport-7')) {

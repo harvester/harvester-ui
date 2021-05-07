@@ -7,11 +7,6 @@ import { _VIEW } from '@/config/query-params';
 export default {
   components: { AsyncButton },
   props:      {
-    doneRoute: {
-      type:     String,
-      required: true,
-    },
-
     mode: {
       type:    String,
       default: 'create',
@@ -36,6 +31,11 @@ export default {
     confirmBackRequired: {
       type:    Boolean,
       default: true,
+    },
+
+    showCancel: {
+      type:    Boolean,
+      default: true
     },
   },
 
@@ -73,10 +73,10 @@ export default {
 
 <template>
   <div class="cru-resource-footer">
-    <slot name="prefix" />
+    <slot name="footer-prefix" />
     <slot name="cancel">
       <button
-        v-if="!isView"
+        v-if="!isView && showCancel"
         type="button"
         class="btn role-secondary"
         @click="confirmCancelRequired ? checkCancel(true) : $emit('cancel-confirmed', true)"

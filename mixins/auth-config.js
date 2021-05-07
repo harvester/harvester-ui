@@ -1,10 +1,22 @@
+import { _EDIT } from '@/config/query-params';
 import { NORMAN, MANAGEMENT } from '@/config/types';
+import { AFTER_SAVE_HOOKS, BEFORE_SAVE_HOOKS } from '@/mixins/child-hook';
 import { addObject, findBy } from '@/utils/array';
+import { set } from '@/utils/object';
 
 export default {
+  beforeCreate() {
+    const { query } = this.$route;
+
+    if (query.mode !== _EDIT) {
+      this.$router.applyQuery({ mode: _EDIT });
+    }
+  },
+
   async fetch() {
     const NAME = this.$route.params.id;
-    const originalModel = await this.$store.dispatch('rancher/find', {
+
+    this.originalModel = await this.$store.dispatch('rancher/find', {
       type: NORMAN.AUTH_CONFIG,
       id:   NAME,
       opt:  { url: `/v3/${ NORMAN.AUTH_CONFIG }/${ NAME }`, force: true }
@@ -19,16 +31,29 @@ export default {
     if ( serverUrl ) {
       this.serverSetting = serverUrl.value;
     }
-
-    this.model = await this.$store.dispatch(`rancher/clone`, { resource: originalModel });
-    if (NAME === 'shibboleth' && !this.model.openLdapConfig) {
-      this.model.openLdapConfig = {};
-      this.showLdap = false;
+    this.model = await this.$store.dispatch(`rancher/clone`, { resource: this.originalModel });
+    if (this.model.openLdapConfig) {
+      this.showLdap = true;
+    }
+    if (this.value.configType === 'saml') {
+      if (!this.model.rancherApiHost || !this.model.rancherApiHost.length) {
+        this.$set(this.model, 'rancherApiHost', this.serverUrl);
+      }
+    }
+    if (!this.model.enabled) {
+      this.applyDefaults();
     }
   },
 
   data() {
-    return { isEnabling: false };
+    return {
+      isEnabling:    false,
+      editConfig:    false,
+      model:         null,
+      serverSetting: null,
+      errors:        null,
+      originalModel: null,
+    };
   },
 
   computed: {
@@ -46,13 +71,17 @@ export default {
     },
 
     serverUrl() {
-      if ( this.serverSetting ) {
-        return this.serverSetting;
-      } else if ( process.client ) {
+      if (process.client) {
+        // Client-side rendered: use the current window location
         return window.location.origin;
       }
 
-      return '';
+      // Server-side rendered
+      return this.serverSetting || '';
+    },
+
+    baseUrl() {
+      return `${ this.model.tls ? 'https://' : 'http://' }${ this.model.hostname }`;
     },
 
     principal() {
@@ -69,11 +98,18 @@ export default {
 
     AUTH_CONFIG() {
       return MANAGEMENT.AUTH_CONFIG;
+    },
+
+    showCancel() {
+      return this.editConfig || !this.model.enabled;
     }
   },
 
   methods: {
+
     async save(btnCb) {
+      await this.applyHooks(BEFORE_SAVE_HOOKS);
+
       const configType = this.value.configType;
 
       this.errors = [];
@@ -87,18 +123,18 @@ export default {
       if (!obj) {
         obj = this.model;
       }
-
       try {
-        if ( !wasEnabled ) {
+        if (this.editConfig || !wasEnabled) {
           if (configType === 'oauth') {
             const code = await this.$store.dispatch('auth/test', { provider: this.model.id, body: this.model });
 
-            this.model.enabled = true;
             obj.code = code;
-          }
-          if (configType === 'saml') {
+          } if (configType === 'saml') {
             if (!this.model.accessMode) {
               this.model.accessMode = 'unrestricted';
+            }
+            if (this.model.openLdapConfig && !this.showLdap) {
+              delete this.model.openLdapConfig;
             }
             await this.model.save();
             await this.$store.dispatch('auth/test', { provider: this.model.id, body: this.model });
@@ -108,7 +144,7 @@ export default {
             if (!this.model.accessMode) {
               this.model.accessMode = 'unrestricted';
             }
-            await this.model.doAction('testAndApply', obj);
+            await this.model.doAction('testAndApply', obj, { redirectUnauthorized: false });
           }
           // Reload principals to get the new ones from the provider
           this.principals = await this.$store.dispatch('rancher/findAll', {
@@ -121,16 +157,19 @@ export default {
             addObject(this.model.allowedPrincipalIds, this.me.id);
           }
         }
-        await this.model.save();
+        if (wasEnabled && configType === 'oauth') {
+          await this.model.save({ ignoreFields: ['oauthCredential', 'serviceAccountCredential'] });
+        } else {
+          await this.model.save();
+        }
         await this.reloadModel();
         this.isEnabling = false;
+        this.editConfig = false;
+        await this.applyHooks(AFTER_SAVE_HOOKS);
+
         btnCb(true);
-        if ( wasEnabled ) {
-          this.done();
-        }
-        // this.$router.applyQuery( { mode: 'view' } );
       } catch (err) {
-        this.errors = [err];
+        this.errors = Array.isArray(err) ? err : [err];
         btnCb(false);
         this.model.enabled = wasEnabled;
         this.isEnabling = false;
@@ -148,7 +187,7 @@ export default {
           await clone.save();
         }
         await this.reloadModel();
-
+        this.showLdap = false;
         btnCb(true);
       } catch (err) {
         this.errors = [err];
@@ -167,5 +206,42 @@ export default {
 
       return this.model;
     },
+
+    goToEdit() {
+      this.editConfig = true;
+    },
+
+    cancel() {
+      // go back to provider selection screen
+      if (!this.model.enabled) {
+        this.$router.go(-1);
+      } else {
+        // must be cancelling edit of an enabled config; reset any changes and return to add users/groups view for that config
+        this.$store.dispatch(`rancher/clone`, { resource: this.originalModel }).then((cloned) => {
+          this.model = cloned;
+          this.editConfig = false;
+        });
+      }
+    },
+
+    applyDefaults() {
+      switch (this.value.configType) {
+      case 'saml':
+        set(this.model, 'accessMode', 'unrestricted');
+        break;
+      case 'ldap':
+        set(this.model, 'servers', []);
+        set(this.model, 'accessMode', 'unrestricted');
+        set(this.model, 'starttls', false);
+        if (this.model.id === 'activedirectory') {
+          set(this.model, 'disabledStatusBitmask', 2);
+        } else {
+          set(this.model, 'disabledStatusBitmask', 0);
+        }
+        break;
+      default:
+        break;
+      }
+    }
   },
 };

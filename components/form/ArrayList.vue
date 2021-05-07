@@ -278,9 +278,9 @@ export default {
     <div v-else>
       <slot name="empty" />
     </div>
-    <div v-if="showAdd" class="footer">
+    <div v-if="showAdd && !isView" class="footer">
       <slot v-if="showAdd" name="add">
-        <button type="button" :disabled="isView" class="btn role-tertiary add" @click="add()">
+        <button type="button" class="btn role-tertiary add" @click="add()">
           {{ addLabel }}
         </button>
       </slot>
@@ -289,8 +289,6 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-  $remove: 75;
-
   .title {
     margin-bottom: 10px;
 
@@ -298,7 +296,7 @@ export default {
 
   .box {
     display: grid;
-    grid-template-columns: auto #{$remove}px;
+    grid-template-columns: auto $array-list-remove-margin;
     align-items: center;
 
     margin-bottom: 10px;

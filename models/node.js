@@ -3,19 +3,20 @@ import { formatPercent } from '@/utils/string';
 import {
   NODE_ROLES,
   RKE,
+  CAPI as CAPI_ANNOTATIONS,
   HOST_CUSTOM_NAME,
   NODE_ROLE_MASTER,
   NODE_ROLE_CONTROL_PLANE,
   HARVESTER_PROMOTE_STATUS,
   HARVESTER_MAINTENANCE_STATUS
 } from '@/config/labels-annotations.js';
-import { METRIC, POD, NODE } from '@/config/types';
+import { METRIC, POD, NODE, CAPI } from '@/config/types';
 import { parseSi } from '@/utils/units';
 import { PRIVATE } from '@/plugins/steve/resource-proxy';
 import findLast from 'lodash/findLast';
 
 export default {
-  availableActions() {
+  _availableActions() {
     const cordon = {
       action:     'cordon',
       enabled:    this.hasLink('update') && this.isWorker && !this.isCordoned,
@@ -204,19 +205,19 @@ export default {
   },
 
   isPidPressureOk() {
-    return this.hasCondition('PIDPressure', 'False');
+    return this.isCondition('PIDPressure', 'False');
   },
 
   isDiskPressureOk() {
-    return this.hasCondition('DiskPressure', 'False');
+    return this.isCondition('DiskPressure', 'False');
   },
 
   isMemoryPressureOk() {
-    return this.hasCondition('MemoryPressure', 'False');
+    return this.isCondition('MemoryPressure', 'False');
   },
 
   isKubeletOk() {
-    return this.hasCondition('Ready');
+    return this.isCondition('Ready');
   },
 
   isCordoned() {
@@ -370,7 +371,21 @@ export default {
 
   isMaster() {
     return this.metadata?.labels?.[NODE_ROLE_MASTER] === 'true' || this.metadata?.labels?.[NODE_ROLE_CONTROL_PLANE] === 'true';
-  }
+  },
+
+  confirmRemove() {
+    return true;
+  },
+
+  // You need to preload CAPI.MACHINEs to use this
+  provisionedMachine() {
+    const namespace = this.metadata?.annotations?.[CAPI_ANNOTATIONS.CLUSTER_NAMESPACE];
+    const name = this.metadata?.annotations?.[CAPI_ANNOTATIONS.MACHINE_NAME];
+
+    if ( namespace && name ) {
+      return this.$rootGetters['management/byId'](CAPI.MACHINE, `${ namespace }/${ name }`);
+    }
+  },
 };
 
 function calculatePercentage(allocatable, capacity) {

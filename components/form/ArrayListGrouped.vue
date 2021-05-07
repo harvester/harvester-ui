@@ -16,12 +16,12 @@ export default {
 <template>
   <ArrayList class="array-list-grouped" v-bind="$attrs" @input="$emit('input', $event)" @add="$emit('add')">
     <template v-slot:columns="scope">
-      <InfoBox class="pt-40">
+      <InfoBox :class="{'pt-40': !isDisabled}">
         <slot v-bind="scope"></slot>
       </InfoBox>
     </template>
     <template v-slot:remove-button="scope">
-      <button v-if="!isDisabled" type="button" class="btn role-link close" @click="scope.remove">
+      <button v-if="!isDisabled" type="button" class="btn role-link close btn-sm" @click="scope.remove">
         <i class="icon icon-2x icon-x" />
       </button>
       <span v-else></span>

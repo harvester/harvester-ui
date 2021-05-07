@@ -11,16 +11,16 @@ export default {
       type:     Object,
       required: true
     },
-    opts: {
-      type:    Object,
+    reference: {
+      type:    String,
       default: null,
     }
   },
 
   computed: {
     to() {
-      if ( this.row && this.opts?.reference ) {
-        return get(this.row, this.opts.reference);
+      if ( this.row && this.reference ) {
+        return get(this.row, this.reference);
       }
 
       return this.row?.detailLocation;
@@ -34,5 +34,6 @@ export default {
     <n-link v-if="to" :to="to">
       {{ value }}
     </n-link>
+    <span v-else>{{ value }}</span>
   </span>
 </template>

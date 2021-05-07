@@ -22,10 +22,8 @@ export function formatSi(inValue, {
 
   let out = '';
 
-  if ( val < 10 && maxPrecision >= 2 ) {
-    out = `${ Math.round(val * 100) / 100 }`;
-  } else if ( val < 100 && maxPrecision >= 1) {
-    out = `${ Math.round(val * 10) / 10 }`;
+  if ( val < 10 && maxPrecision >= 1 ) {
+    out = `${ Math.round(val * (10 ** maxPrecision) ) / (10 ** maxPrecision) }`;
   } else {
     out = `${ Math.round(val) }`;
   }
@@ -124,6 +122,31 @@ export function getFileSize(size) {
   } // G
 
   return `${ (size / num ** 4).toFixed(2) }T`; // T
+}
+
+export const MEMORY_PARSE_RULES = {
+  memory: {
+    format: {
+      addSuffix:        true,
+      firstSuffix:      'B',
+      increment:        1024,
+      maxExponent:      99,
+      maxPrecision:     2,
+      minExponent:      0,
+      startingExponent: 0,
+      suffix:           'iB',
+    }
+  }
+};
+
+export function createMemoryFormat(n) {
+  const exponent = exponentNeeded(n, MEMORY_PARSE_RULES.memory.format.increment);
+
+  return {
+    ...MEMORY_PARSE_RULES.memory.format,
+    maxExponent: exponent,
+    minExponent: exponent,
+  };
 }
 
 export default {

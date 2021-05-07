@@ -1,11 +1,12 @@
 import Vue from 'vue';
 import {
-  NAMESPACE, NAME, REPO, REPO_TYPE, CHART, VERSION, _VIEW
+  NAMESPACE, NAME, REPO, REPO_TYPE, CHART, VERSION, _VIEW, FROM_TOOLS, _FLAGGED
 } from '@/config/query-params';
 import { CATALOG as CATALOG_ANNOTATIONS, FLEET } from '@/config/labels-annotations';
-import { compare, sortable } from '@/utils/version';
+import { compare, isPrerelease, sortable } from '@/utils/version';
 import { filterBy } from '@/utils/array';
 import { CATALOG } from '@/config/types';
+import { SHOW_PRE_RELEASE } from '@/store/prefs';
 
 export default {
   showMasthead() {
@@ -24,7 +25,7 @@ export default {
     };
   },
 
-  availableActions() {
+  _availableActions() {
     const out = this._standardActions;
 
     const upgrade = {
@@ -61,6 +62,10 @@ export default {
     };
   },
 
+  currentVersion() {
+    return this.spec?.chart?.metadata?.version;
+  },
+
   upgradeAvailable() {
     // false = does not apply (managed by fleet)
     // null = no upgrade found
@@ -77,18 +82,26 @@ export default {
       return null;
     }
 
-    const clusterProvider = this.$rootGetters['currentCluster'].status.provider || 'other';
+    const isWindows = this.$rootGetters['currentCluster'].providerOs === 'windows';
+    const showPreRelease = this.$rootGetters['prefs/get'](SHOW_PRE_RELEASE);
+
     const thisVersion = this.spec?.chart?.metadata?.version;
-    const newestChart = chart.versions?.[0];
+    let versions = chart.versions;
+
+    if (!showPreRelease) {
+      versions = chart.versions.filter(v => !isPrerelease(v.version));
+    }
+
+    const newestChart = versions?.[0];
     const newestVersion = newestChart?.version;
 
     if ( !thisVersion || !newestVersion ) {
       return null;
     }
 
-    if (clusterProvider === 'rke.windows' && newestChart?.annotations?.['catalog.cattle.io/os'] === 'linux') {
+    if (isWindows && newestChart?.annotations?.['catalog.cattle.io/os'] === 'linux') {
       return null;
-    } else if (clusterProvider !== 'rke.windows' && newestChart?.annotations?.['catalog.cattle.io/os'] === 'windows') {
+    } else if (!isWindows && newestChart?.annotations?.['catalog.cattle.io/os'] === 'windows') {
       return null;
     }
 
@@ -110,7 +123,7 @@ export default {
   },
 
   goToUpgrade() {
-    return (forceVersion) => {
+    return (forceVersion, fromTools) => {
       const match = this.matchingChart(true);
       const versionName = this.spec?.chart?.metadata?.version;
       const query = {
@@ -123,6 +136,10 @@ export default {
         query[REPO] = match.repoName;
         query[REPO_TYPE] = match.repoType;
         query[CHART] = match.chartName;
+      }
+
+      if ( fromTools ) {
+        query[FROM_TOOLS] = _FLAGGED;
       }
 
       this.currentRouter().push({

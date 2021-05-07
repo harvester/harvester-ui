@@ -10,12 +10,28 @@ export default {
       default: null,
     }
   },
+  /*
+      userValue is a string respresentation of args array, with spaces between each array item and single quotes around any items with whitespace
+      value input of ["-c", "sleep 600"]
+      is displayed as: "-c 'sleep 600'"
 
+      user input of "-c "sleep 600"" or "-c 'sleep 600'"
+      causes $emit 'input' of ["-c", "sleep 600"]
+  */
   data() {
     let userValue = '';
 
     if ( this.value ) {
-      userValue = this.value.join(' ');
+      userValue = this.value.reduce((str, each) => {
+        if (each.includes(' ')) {
+          str += `'${ each }'`;
+        } else {
+          str += each;
+        }
+        str += ' ';
+
+        return str;
+      }, '').trim();
     }
 
     return { userValue };
@@ -26,9 +42,8 @@ export default {
       let out = null;
 
       if ( userValue ) {
-        out = userValue.match(/(\"[^\"]+\")|\S+/g).map(string => string.replace(/^"|"$/g, ''));
+        out = userValue.match(/('[^']+')|("[^"]+")|\S+/g).map(string => string.replace(/^'|'$|^"|"$/g, ''));
       }
-
       this.$emit('input', out);
     },
   }

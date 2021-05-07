@@ -1,4 +1,5 @@
 HTML, BODY {
+  font-family: $body-font;
   font-size: 14px;
 }
 
@@ -6,7 +7,6 @@ H1, H2, H3, H4, H5, H6 {
   color: var(--body-text);
   font-style: normal;
   font-weight: 400;
-  letter-spacing: 0em;
   margin: 0 0 10px 0;
 }
 
@@ -32,22 +32,19 @@ H5 {
 
 H6 {
   font-size: 12px;
-  letter-spacing: .25em;
   text-transform: uppercase;
 }
 
 P {
   font-weight: 400;
   font-style: normal;
-  letter-spacing: 0em;
   margin: 0;
 }
 
 //code
 code, samp, kbd, .monospace {
-  font-family: "Courier New", Courier, monospace, sans-serif;
+  font-family: $mono-font;
   text-align: left;
-  // color: var(--secondary);
 }
 
 pre {
@@ -59,8 +56,10 @@ pre {
 }
 
 code {
-  background: var(--box-bg);
-  padding: 2.5px 10px;
+  background-color: var(--box-bg);
+  display: inline-block;
+  padding: 5px;
+  border: 1px solid var(--border);
   border-radius: var(--border-radius);
 }
 

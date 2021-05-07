@@ -30,7 +30,7 @@ export default {
       default: false
     },
 
-    tabsUseHistoryReplace: {
+    useHash: {
       type:    Boolean,
       default: true,
     }
@@ -207,10 +207,10 @@ export default {
       <ul v-if="sideTabs && showTabsAddRemove" class="tab-list-footer">
         <li>
           <button type="button" class="btn bg-transparent" @click="tabAddClicked">
-            <i class="icon icon-plus" />
+            <i class="icon icon-plus icon-lg" />
           </button>
           <button type="button" class="btn bg-transparent" @click="tabRemoveClicked">
-            <i class="icon icon-minus" />
+            <i class="icon icon-minus icon-lg" />
           </button>
         </li>
       </ul>
@@ -324,12 +324,12 @@ export default {
           }
 
           button:first-of-type {
-            border-top: solid thin var(--border);
-            border-right: solid thin var(--border);
+            border-top: solid 1px var(--border);
+            border-right: solid 1px var(--border);
             border-top-right-radius: 0;
           }
           button:last-of-type {
-            border-top: solid thin var(--border);
+            border-top: solid 1px var(--border);
             border-top-left-radius: 0;
           }
 

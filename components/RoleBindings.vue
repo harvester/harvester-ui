@@ -79,7 +79,7 @@ export default {
     } else if ( this.roleScope === SCOPE_CLUSTER ) {
       hash.allRoles = this.$store.dispatch(`${ inStore }/findAll`, { type: RBAC.CLUSTER_ROLE });
     // } else if ( this.roleScope === SCOPE_GLOBAL ) {
-    // hash.allRoles = this.$store.dispatch('management/findAll', { type: RBAC.GLOBAL_ROLE });
+    // hash.allRoles = this.$store.dispatch('management/findAll', { type: MANAGEMENT.GLOBAL_ROLE });
     } else {
       throw new Error('Unknown roleScope');
     }
@@ -89,7 +89,7 @@ export default {
     } else if ( this.bindingScope === SCOPE_CLUSTER ) {
       hash.allBindings = this.$store.dispatch(`${ inStore }/findAll`, { type: RBAC.CLUSTER_ROLE_BINDING });
     // } else if ( this.bindingScope === SCOPE_GLOBAL ) {
-    // hash.allBindings = this.$store.dispatch('management/findAll', { type: RBAC.GLOBAL_ROLE_BINDING });
+    // hash.allBindings = this.$store.dispatch('management/findAll', { type: MANAGEMENT.GLOBAL_ROLE_BINDING });
     } else {
       throw new Error('Unknown scope');
     }
@@ -317,7 +317,7 @@ export default {
         type = RBAC.CLUSTER_ROLE_BINDING;
         apiGroup = 'rbac.authorization.k8s.io';
       // } else if ( this.bindingScope === SCOPE_GLOBAL ) {
-      //   type = RBAC.GLOBAL_ROLE_BINDING;
+      //   type = MANAGEMENT.GLOBAL_ROLE_BINDING;
       //   inStore = 'management'
       //   apiGroup = 'management.cattle.io' ?
       } else {
@@ -403,7 +403,7 @@ export default {
         />
       </div>
       <div class="remove">
-        <button v-t="'generic.remove'" :disabled="isView" type="button" class="btn bg-transparent role-link" @click="remove(row)" />
+        <button v-t="'generic.remove'" :disabled="isView" type="button" class="btn role-link" @click="remove(row)" />
       </div>
     </div>
     <div>

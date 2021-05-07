@@ -1,11 +1,15 @@
 <script>
 import Loading from '@/components/Loading';
+import DashboardMetrics from '@/components/DashboardMetrics';
 import { mapGetters } from 'vuex';
 import isEmpty from 'lodash/isEmpty';
 import SortableTable from '@/components/SortableTable';
 import { allHash } from '@/utils/promise';
 import Poller from '@/utils/poller';
-import { parseSi, formatSi, exponentNeeded, UNITS } from '@/utils/units';
+import AlertTable from '@/components/AlertTable';
+import {
+  parseSi, formatSi, exponentNeeded, UNITS, createMemoryFormat, MEMORY_PARSE_RULES
+} from '@/utils/units';
 import {
   NAME,
   REASON,
@@ -21,44 +25,41 @@ import {
   NODE,
   SERVICE,
   PV,
-  WORKLOAD_TYPES
+  WORKLOAD_TYPES,
+  COUNT,
+  CATALOG,
 } from '@/config/types';
-import SimpleBox from '@/components/SimpleBox';
-import ResourceGauge, { resourceCounts } from '@/components/ResourceGauge';
-import CountGauge from '@/components/CountGauge';
-import Glance from '@/components/Glance';
 import { findBy } from '@/utils/array';
+import Tabbed from '@/components/Tabbed';
+import Tab from '@/components/Tabbed/Tab';
+import { allDashboardsExist } from '@/utils/grafana';
+import EtcdInfoBanner from '@/components/EtcdInfoBanner';
+import ResourceSummary, { resourceCounts } from './ResourceSummary';
 import HardwareResourceGauge from './HardwareResourceGauge';
-
-const PARSE_RULES = {
-  memory: {
-    format: {
-      addSuffix:        true,
-      firstSuffix:      'B',
-      increment:        1024,
-      maxExponent:      99,
-      maxPrecision:     2,
-      minExponent:      0,
-      startingExponent: 0,
-      suffix:           'iB',
-    }
-  }
-};
 
 const METRICS_POLL_RATE_MS = 30000;
 const MAX_FAILURES = 2;
 
 const RESOURCES = [NAMESPACE, INGRESS, PV, WORKLOAD_TYPES.DEPLOYMENT, WORKLOAD_TYPES.STATEFUL_SET, WORKLOAD_TYPES.JOB, WORKLOAD_TYPES.DAEMON_SET, SERVICE];
 
+const CLUSTER_METRICS_DETAIL_URL = '/api/v1/namespaces/cattle-monitoring-system/services/http:rancher-monitoring-grafana:80/proxy/d/rancher-cluster-nodes-1/rancher-cluster-nodes?orgId=1';
+const CLUSTER_METRICS_SUMMARY_URL = '/api/v1/namespaces/cattle-monitoring-system/services/http:rancher-monitoring-grafana:80/proxy/d/rancher-cluster-1/rancher-cluster?orgId=1';
+const K8S_METRICS_DETAIL_URL = '/api/v1/namespaces/cattle-monitoring-system/services/http:rancher-monitoring-grafana:80/proxy/d/rancher-k8s-components-nodes-1/rancher-kubernetes-components-nodes?orgId=1';
+const K8S_METRICS_SUMMARY_URL = '/api/v1/namespaces/cattle-monitoring-system/services/http:rancher-monitoring-grafana:80/proxy/d/rancher-k8s-components-1/rancher-kubernetes-components?orgId=1';
+const ETCD_METRICS_DETAIL_URL = '/api/v1/namespaces/cattle-monitoring-system/services/http:rancher-monitoring-grafana:80/proxy/d/rancher-etcd-nodes-1/rancher-etcd-nodes?orgId=1';
+const ETCD_METRICS_SUMMARY_URL = '/api/v1/namespaces/cattle-monitoring-system/services/http:rancher-monitoring-grafana:80/proxy/d/rancher-etcd-1/rancher-etcd?orgId=1';
+
 export default {
   components: {
-    CountGauge,
-    Glance,
+    EtcdInfoBanner,
+    DashboardMetrics,
     HardwareResourceGauge,
     Loading,
-    ResourceGauge,
-    SimpleBox,
+    ResourceSummary,
     SortableTable,
+    Tab,
+    Tabbed,
+    AlertTable
   },
 
   async fetch() {
@@ -75,6 +76,10 @@ export default {
       hash.nodePools = this.$store.dispatch('management/findAll', { type: MANAGEMENT.NODE_POOL });
     }
 
+    this.showClusterMetrics = await allDashboardsExist(this.$store.dispatch, this.currentCluster.id, [CLUSTER_METRICS_DETAIL_URL, CLUSTER_METRICS_SUMMARY_URL]);
+    this.showK8sMetrics = await allDashboardsExist(this.$store.dispatch, this.currentCluster.id, [K8S_METRICS_DETAIL_URL, K8S_METRICS_SUMMARY_URL]);
+    this.showEtcdMetrics = this.isRKE && await allDashboardsExist(this.$store.dispatch, this.currentCluster.id, [ETCD_METRICS_DETAIL_URL, ETCD_METRICS_SUMMARY_URL]);
+
     const res = await allHash(hash);
 
     for ( const k in res ) {
@@ -83,10 +88,11 @@ export default {
   },
 
   data() {
+    const clusterCounts = this.$store.getters[`cluster/all`](COUNT);
     const reason = {
       ...REASON,
       ...{ canBeVariable: true },
-      width: 100
+      width: 120
     };
 
     const eventHeaders = [
@@ -120,15 +126,25 @@ export default {
     ];
 
     return {
-      metricPoller:      null,
+      metricPoller:        null,
       eventHeaders,
       nodeHeaders,
-      constraints:       [],
-      events:            [],
-      nodeMetrics:       [],
-      nodePools:         [],
-      nodeTemplates:     [],
-      nodes:             [],
+      constraints:         [],
+      events:              [],
+      nodeMetrics:         [],
+      nodePools:           [],
+      nodeTemplates:       [],
+      nodes:               [],
+      showClusterMetrics: false,
+      showK8sMetrics:     false,
+      showEtcdMetrics:    false,
+      CLUSTER_METRICS_DETAIL_URL,
+      CLUSTER_METRICS_SUMMARY_URL,
+      K8S_METRICS_DETAIL_URL,
+      K8S_METRICS_SUMMARY_URL,
+      ETCD_METRICS_DETAIL_URL,
+      ETCD_METRICS_SUMMARY_URL,
+      clusterCounts
     };
   },
 
@@ -150,6 +166,10 @@ export default {
       return this.t(`cluster.provider.${ provider }`);
     },
 
+    isRKE() {
+      return ['rke', 'rke2', 'rke.windows'].includes(this.currentCluster.status.provider);
+    },
+
     accessibleResources() {
       return RESOURCES.filter(resource => this.$store.getters['cluster/schemaFor'](resource));
     },
@@ -157,8 +177,6 @@ export default {
     totalCountGaugeInput() {
       const totalInput = {
         name:            this.t('clusterIndexPage.resourceGauge.totalResources'),
-        location:        null,
-        primaryColorVar: `--sizzle-${ this.accessibleResources.length }`,
         total:           0,
         useful:          0,
         warningCount:    0,
@@ -227,21 +245,20 @@ export default {
     },
 
     ramUsed() {
-      return this.createMemoryValues(this.currentCluster?.status?.capacity?.memory, this.metricAggregations.memory);
+      return this.createMemoryValues(this.currentCluster?.status?.capacity?.memory, this.metricAggregations?.memory);
     },
 
-    showReservedMetrics() {
-      // As long as we have at least one reserved value > 0 we should show these metrics
-      const reservedSum = [this.cpuReserved, this.podsUsed, this.ramReserved].reduce((agg, cur) => {
-        return agg + (cur.total || 0) + (cur.useful || 0);
-      }, 0);
-
-      return reservedSum > 0;
+    hasMonitoring() {
+      return !!this.clusterCounts?.[0]?.counts?.[CATALOG.APP]?.namespaces?.['cattle-monitoring-system'];
     },
 
-    showLiveMetrics() {
-      return this.cpuUsed.useful > 0 && this.cpuUsed.total > 0;
-    }
+    canAccessNodes() {
+      return !!this.clusterCounts?.[0]?.counts?.[NODE];
+    },
+
+    canAccessDeployments() {
+      return !!this.clusterCounts?.[0]?.counts?.[WORKLOAD_TYPES.DEPLOYMENT];
+    },
   },
 
   mounted() {
@@ -253,7 +270,7 @@ export default {
     createMemoryValues(total, useful) {
       const parsedTotal = parseSi((total || '0').toString());
       const parsedUseful = parseSi((useful || '0').toString());
-      const format = this.createMemoryFormat(parsedTotal);
+      const format = createMemoryFormat(parsedTotal);
       const formattedTotal = formatSi(parsedTotal, format);
       const formattedUseful = formatSi(parsedUseful, format);
 
@@ -264,20 +281,10 @@ export default {
       };
     },
 
-    createMemoryFormat(n) {
-      const exponent = exponentNeeded(n, PARSE_RULES.memory.format.increment);
-
-      return {
-        ...PARSE_RULES.memory.format,
-        maxExponent: exponent,
-        minExponent: exponent,
-      };
-    },
-
     createMemoryUnits(n) {
-      const exponent = exponentNeeded(n, PARSE_RULES.memory.format.increment);
+      const exponent = exponentNeeded(n, MEMORY_PARSE_RULES.memory.format.increment);
 
-      return `${ UNITS[exponent] }${ PARSE_RULES.memory.format.suffix }`;
+      return `${ UNITS[exponent] }${ MEMORY_PARSE_RULES.memory.format.suffix }`;
     },
 
     showActions() {
@@ -320,7 +327,7 @@ export default {
 
 <template>
   <Loading v-if="$fetchState.pending" />
-  <section v-else>
+  <section v-else class="dashboard">
     <header>
       <div class="title">
         <h1>
@@ -331,47 +338,51 @@ export default {
         </div>
       </div>
     </header>
-    <Glance
-      :slots="['displayProvider', 'kubernetesVersion', 'totalNodes', 'created']"
+    <div
       class="cluster-dashboard-glance"
     >
-      <template #displayProvider>
-        <div class="title-content">
-          <h1>{{ displayProvider }}</h1>
-          <label>{{ t('glance.provider') }}</label>
-        </div>
-        <div class="logo">
-          <img class="os-provider-logo" :src="currentCluster.providerOsLogo" />
-        </div>
-      </template>
-      <template #kubernetesVersion>
-        <h1>{{ currentCluster.kubernetesVersion }}</h1>
-        <label>{{ t('glance.version') }}</label>
-      </template>
-      <template #totalNodes>
-        <h1>{{ (nodes || []).length }}</h1>
-        <label>{{ t('glance.nodes.total.label', { count: (nodes || []).length }) }}</label>
-      </template>
-      <template #created>
-        <h1><LiveDate :value="currentCluster.metadata.creationTimestamp" :add-suffix="true" :show-tooltip="true" /></h1>
-        <label>{{ t('glance.created') }}</label>
-      </template>
-    </Glance>
+      <div>
+        <label>{{ t('glance.provider') }}: </label>
+        <span>
+          {{ displayProvider }}</span>
+      </div>
+      <div>
+        <label>{{ t('glance.version') }}: </label>
+        <span v-if="currentCluster.kubernetesVersionExtension" style="font-size: 0.5em">{{ currentCluster.kubernetesVersionExtension }}</span>
+        <span>{{ currentCluster.kubernetesVersionBase }}</span>
+      </div>
+      <div>
+        <label>{{ t('glance.created') }}: </label>
+        <span><LiveDate :value="currentCluster.metadata.creationTimestamp" :add-suffix="true" :show-tooltip="true" /></span>
+      </div>
+      <div :style="{'flex':1}" />
+      <div v-if="hasMonitoring && false">
+        <n-link :to="{name: 'c-cluster-monitoring'}">
+          {{ t('glance.monitoringDashboard') }}
+        </n-link>
+      </div>
+    </div>
+
     <div class="resource-gauges">
-      <CountGauge v-bind="totalCountGaugeInput" />
-      <ResourceGauge v-for="(resource, i) in accessibleResources" :key="resource" :resource="resource" :primary-color-var="`--sizzle-${i}`" />
+      <ResourceSummary :spoofed-counts="totalCountGaugeInput" />
+      <ResourceSummary v-if="canAccessNodes" resource="node" />
+      <ResourceSummary v-if="canAccessDeployments" resource="apps.deployment" />
     </div>
-    <div v-if="showReservedMetrics" class="hardware-resource-gauges">
-      <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.podsUsed')" :total="podsUsed.total" :useful="podsUsed.useful" />
-      <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.coresReserved')" :total="cpuReserved.total" :useful="cpuReserved.useful" />
-      <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.ramReserved')" :total="ramReserved.total" :useful="ramReserved.useful" :units="ramReserved.units" />
+
+    <h3 class="mt-40">
+      {{ t('clusterIndexPage.sections.capacity.label') }}
+    </h3>
+    <div class="hardware-resource-gauges">
+      <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.pods')" :used="podsUsed" />
+      <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.cores')" :reserved="cpuReserved" :used="cpuUsed" />
+      <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.ram')" :reserved="ramReserved" :used="ramUsed" :units="ramReserved.units" />
     </div>
-    <div v-if="showLiveMetrics" class="hardware-resource-gauges live">
-      <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.coresUsed')" :total="cpuUsed.total" :useful="cpuUsed.useful" />
-      <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.ramUsed')" :total="ramUsed.total" :useful="ramUsed.useful" :units="ramUsed.units" />
-    </div>
-    <SimpleBox class="events" :title="t('clusterIndexPage.sections.events.label')">
+
+    <div class="mb-40 mt-40">
+      <h3>{{ hasMonitoring ?t('clusterIndexPage.sections.alerts.label') :t('clusterIndexPage.sections.events.label') }}</h3>
+      <AlertTable v-if="hasMonitoring" />
       <SortableTable
+        v-else
         :rows="events"
         :headers="eventHeaders"
         key-field="id"
@@ -391,31 +402,57 @@ export default {
           </div>
         </template>
       </SortableTable>
-    </SimpleBox>
+    </div>
+    <Tabbed class="mt-30">
+      <Tab v-if="showClusterMetrics" name="cluster-metrics" :label="t('clusterIndexPage.sections.clusterMetrics.label')" :weight="2">
+        <template #default="props">
+          <DashboardMetrics
+            v-if="props.active"
+            :detail-url="CLUSTER_METRICS_DETAIL_URL"
+            :summary-url="CLUSTER_METRICS_SUMMARY_URL"
+            graph-height="825px"
+          />
+        </template>
+      </Tab>
+      <Tab v-if="showK8sMetrics" name="k8s-metrics" :label="t('clusterIndexPage.sections.k8sMetrics.label')" :weight="1">
+        <template #default="props">
+          <DashboardMetrics
+            v-if="props.active"
+            :detail-url="K8S_METRICS_DETAIL_URL"
+            :summary-url="K8S_METRICS_SUMMARY_URL"
+            graph-height="550px"
+          />
+        </template>
+      </Tab>
+      <Tab v-if="showEtcdMetrics" name="etcd-metrics" :label="t('clusterIndexPage.sections.etcdMetrics.label')" :weight="0">
+        <template #default="props">
+          <DashboardMetrics
+            v-if="props.active"
+            class="etcd-metrics"
+            :detail-url="ETCD_METRICS_DETAIL_URL"
+            :summary-url="ETCD_METRICS_SUMMARY_URL"
+            graph-height="550px"
+          >
+            <EtcdInfoBanner />
+          </DashboardMetrics>
+        </template>
+      </Tab>
+    </Tabbed>
   </section>
 </template>
 
 <style lang="scss" scoped>
-.glance.cluster-dashboard-glance ::v-deep {
-  .tile:first-child {
-    flex-direction: row;
+.cluster-dashboard-glance {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0px;
+  display: flex;
 
-    .title-content,
-    .logo {
-      flex: 1;
-    }
+  &>*{
+    margin-right: 40px;
 
-    .title-content {
-      &:first-child {
-        flex-basis: 75%;
-      }
-    }
-
-    .logo {
-      display: flex;
-      justify-content: flex-end;
-      align-self: center;
-      padding-right: 20px;
+    & SPAN {
+       font-weight: bold
     }
   }
 }
@@ -432,8 +469,14 @@ export default {
   margin-top: 30px;
 }
 
-.os-provider-logo {
-  height: 40px;
-  width: 40px;
+.graph-options {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.etcd-metrics ::v-deep .external-link {
+  top: -102px;
 }
 </style>

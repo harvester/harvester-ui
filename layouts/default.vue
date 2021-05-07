@@ -3,30 +3,29 @@ import debounce from 'lodash/debounce';
 import { mapState, mapGetters } from 'vuex';
 import { mapPref, DEV, EXPANDED_GROUPS, FAVORITE_TYPES } from '@/store/prefs';
 import ActionMenu from '@/components/ActionMenu';
-import Jump from '@/components/nav/Jump';
 import WindowManager from '@/components/nav/WindowManager';
 import PromptRemove from '@/components/PromptRemove';
 import AssignTo from '@/components/AssignTo';
 import EjectCDROM from '@/components/EjectCDROM/index';
 import Group from '@/components/nav/Group';
-import Footer from '@/components/nav/Footer';
 import PureHeader from '@/components/nav/PureHeader';
 import ServerUrlModal from '@/components/form/ServerUrlModal';
 import { COUNT, SCHEMA, MANAGEMENT } from '@/config/types';
 import { BASIC, FAVORITE, USED } from '@/store/type-map';
-import { addObjects, replaceWith, clear } from '@/utils/array';
+import { addObjects, replaceWith, clear, addObject } from '@/utils/array';
 import { NAME as EXPLORER } from '@/config/product/explorer';
 import isEqual from 'lodash/isEqual';
+import { ucFirst } from '@/utils/string';
+import { getVersionInfo } from '@/utils/version';
+import { sortBy } from '@/utils/sort';
 
 export default {
 
   components: {
-    Jump,
     PromptRemove,
     AssignTo,
     EjectCDROM,
     PureHeader,
-    Footer,
     ActionMenu,
     Group,
     WindowManager,
@@ -34,15 +33,18 @@ export default {
   },
 
   data() {
-    return { groups: [] };
+    const { displayVersion } = getVersionInfo(this.$store);
+
+    return { groups: [], displayVersion };
   },
 
   middleware: ['authenticated'],
 
   computed: {
     ...mapState(['managementReady', 'clusterReady']),
-    ...mapGetters(['productId', 'namespaceMode']),
+    ...mapGetters(['productId', 'namespaceMode', 'isExplorer']),
     ...mapGetters({ locale: 'i18n/selectedLocaleLabel' }),
+    ...mapGetters('type-map', ['activeProducts']),
 
     namespaces() {
       return this.$store.getters['namespaces']();
@@ -81,10 +83,6 @@ export default {
       }
 
       return {};
-    },
-
-    showJump() {
-      return this.productId === EXPLORER;
     },
   },
 
@@ -150,6 +148,12 @@ export default {
   },
 
   methods: {
+    collapseAll() {
+      this.$refs.groups.forEach((grp) => {
+        grp.isExpanded = false;
+      });
+    },
+
     getGroups() {
       if ( !this.clusterReady ) {
         clear(this.groups);
@@ -158,7 +162,7 @@ export default {
       }
 
       const clusterId = this.$store.getters['clusterId'];
-      const productId = this.$store.getters['productId'];
+      const currentProduct = this.$store.getters['productId'];
       const currentType = this.$route.params.resource || '';
       let namespaces = null;
 
@@ -168,26 +172,59 @@ export default {
 
       const namespaceMode = this.$store.getters['namespaceMode'];
       const out = [];
-      const modes = [BASIC];
+      const loadProducts = this.isExplorer ? [EXPLORER] : [];
+      const productMap = this.activeProducts.reduce((acc, p) => {
+        return { ...acc, [p.name]: p };
+      }, {});
 
-      if ( productId === EXPLORER ) {
-        modes.push(FAVORITE);
-        modes.push(USED);
+      if ( this.isExplorer ) {
+        for ( const product of this.activeProducts ) {
+          if ( product.inStore === 'cluster' ) {
+            addObject(loadProducts, product.name);
+          }
+        }
       }
-      for ( const mode of modes ) {
-        const types = this.$store.getters['type-map/allTypes'](productId, mode) || {};
-        const more = this.$store.getters['type-map/getTree'](productId, mode, types, clusterId, namespaceMode, namespaces, currentType);
 
-        addObjects(out, more);
+      // This should already have come into the list from above, but in case it hasn't...
+      addObject(loadProducts, currentProduct);
+
+      for ( const productId of loadProducts ) {
+        const modes = [BASIC];
+
+        if ( productId === EXPLORER ) {
+          modes.push(FAVORITE);
+          modes.push(USED);
+        }
+
+        for ( const mode of modes ) {
+          const types = this.$store.getters['type-map/allTypes'](productId, mode) || {};
+          const more = this.$store.getters['type-map/getTree'](productId, mode, types, clusterId, namespaceMode, namespaces, currentType);
+
+          if ( productId === EXPLORER || !this.isExplorer ) {
+            addObjects(out, more);
+          } else {
+            const root = more.find(x => x.name === 'root');
+            const other = more.filter(x => x.name !== 'root');
+
+            const group = {
+              name:     productId,
+              label:    this.$store.getters['i18n/withFallback'](`product.${ productId }`, null, ucFirst(productId)),
+              children: [...(root?.children || []), ...other],
+              weight:   productMap[productId]?.weight || 0,
+            };
+
+            addObject(out, group);
+          }
+        }
       }
 
-      replaceWith(this.groups, ...out);
+      replaceWith(this.groups, ...sortBy(out, ['weight:desc', 'label']));
     },
 
     expanded(name) {
       const currentType = this.$route.params.resource || '';
 
-      return this.expandedGroups.includes(name) || name === currentType;
+      return name === currentType;
     },
 
     toggleNoneLocale() {
@@ -196,6 +233,16 @@ export default {
 
     toggleTheme() {
       this.$store.dispatch('prefs/toggleTheme');
+    },
+
+    toggle(id, expanded, skip) {
+      if (expanded && !skip) {
+        this.$refs.groups.forEach((grp) => {
+          if (grp.id !== id && grp.canCollapse) {
+            grp.isExpanded = false;
+          }
+        });
+      }
     },
 
     wheresMyDebugger() {
@@ -207,7 +254,7 @@ export default {
     async toggleShell() {
       const clusterId = this.$route.params.cluster;
 
-      if ( !clusterId || !this.$store.getters['isMultiCluster'] ) {
+      if ( !clusterId ) {
         return;
       }
 
@@ -240,28 +287,39 @@ export default {
   <div v-if="managementReady" class="dashboard-root">
     <PureHeader />
 
-    <nav v-if="clusterReady">
-      <Jump v-if="showJump" class="m-10" />
-      <template v-for="(g, idx) in groups">
-        <Group
-          :key="idx"
-          id-prefix=""
-          class="package"
-          :expanded="expanded"
-          :group="g"
-          :can-collapse="!g.isRoot"
-          :show-header="!g.isRoot"
-        >
-          <template #header>
-            <h6>{{ g.label }}</h6>
-          </template>
-        </Group>
-      </template>
+    <nav v-if="clusterReady" class="side-nav">
+      <div class="nav">
+        <template v-for="(g, idx) in groups">
+          <Group
+            ref="groups"
+            :key="idx"
+            id-prefix=""
+            class="package"
+            :expanded="expanded"
+            :group="g"
+            :can-collapse="!g.isRoot"
+            :show-header="!g.isRoot"
+            @on-toggle="toggle"
+          >
+            <template #header>
+              <h6>{{ g.label }}</h6>
+            </template>
+          </Group>
+        </template>
+      </div>
+      <n-link tag="div" class="tools" :to="{name: 'c-cluster-explorer-tools'}">
+        <a class="tools-button" @click="collapseAll()">
+          <i class="icon icon-gear" />
+          <span>{{ t('nav.clusterTools') }}</span>
+        </a>
+      </n-link>
+      <div class="version text-muted">
+        {{ displayVersion }}
+      </div>
     </nav>
 
     <main v-if="clusterReady">
       <nuxt class="outlet" />
-      <Footer />
 
       <ActionMenu />
       <PromptRemove />
@@ -279,7 +337,16 @@ export default {
     </div>
   </div>
 </template>
-
+<style lang="scss" scoped>
+  .side-nav {
+    display: flex;
+    flex-direction: column;
+    .nav {
+      flex: 1;
+      overflow-y: auto;
+    }
+  }
+</style>
 <style lang="scss">
   .dashboard-root {
     display: grid;
@@ -291,7 +358,7 @@ export default {
       "wm       wm";
 
     grid-template-columns: var(--nav-width)     auto;
-    grid-template-rows:    var(--header-height) auto var(--wm-height, 0px);
+    grid-template-rows:    var(--header-height) auto  var(--wm-height, 0px);
 
     > HEADER {
       grid-area: header;
@@ -301,22 +368,12 @@ export default {
       grid-area: nav;
       position: relative;
       background-color: var(--nav-bg);
+      border-right: var(--nav-border-size) solid var(--nav-border);
       overflow-y: auto;
-
-      .package.depth-0 {
-        &.expanded > .body {
-          margin-bottom: 5px;
-        }
-      }
-
-      .header {
-        background: transparent;
-        padding-left: 10px;
-      }
 
       H6, .root.child .label {
         margin: 0;
-        letter-spacing: 0.1em;
+        letter-spacing: normal;
         line-height: initial;
 
         A { padding-left: 0; }
@@ -330,6 +387,44 @@ export default {
         }
       }
     }
+
+    NAV .tools {
+      display: flex;
+      margin: 10px;
+      text-align: center;
+
+      A {
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        color: var(--body-text);
+        display: flex;
+        justify-content: center;
+        outline: 0;
+        flex: 1;
+        padding: 10px;
+
+        &:hover {
+          background: var(--nav-hover);
+          text-decoration: none;
+        }
+
+        > I {
+          margin-right: 4px;
+        }
+      }
+
+      &.nuxt-link-active:not(:hover) {
+        A {
+          background-color: var(--nav-active);
+        }
+      }
+    }
+
+    NAV .version {
+      cursor: default;
+      margin: 0 10px 10px 10px;
+    }
   }
 
   MAIN {
@@ -339,9 +434,8 @@ export default {
     .outlet {
       display: flex;
       flex-direction: column;
-      padding: 20px 20px 70px 20px;
+      padding: 20px;
       min-height: 100%;
-      margin-bottom: calc(-1 * var(--footer-height) - 1px);
     }
 
     FOOTER {
@@ -378,8 +472,11 @@ export default {
         align-self: center;
         text-align: right;
       }
-    }
 
+      .role-multi-action {
+        padding: 0 $input-padding-sm;
+      }
+    }
   }
 
   .wm {

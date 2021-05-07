@@ -1,4 +1,5 @@
 import https from 'https';
+import { CSRF } from '@/config/cookies';
 import { parse as setCookieParser } from 'set-cookie-parser';
 import { getPrefix } from '@/utils/url';
 import pkg from '../package.json';
@@ -11,7 +12,7 @@ export default function({
   $axios.defaults.timeout = 20000;
 
   $axios.onRequest((config) => {
-    const csrf = $cookies.get('CSRF');
+    const csrf = $cookies.get(CSRF, { parseJSON: false });
 
     if ( csrf ) {
       config.headers['x-api-csrf'] = csrf;

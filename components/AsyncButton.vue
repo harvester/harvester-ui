@@ -40,7 +40,7 @@ export default {
 
     actionColor: {
       type:    String,
-      default: 'bg-primary',
+      default: 'role-primary',
     },
     waitingColor: {
       type:    String,
@@ -177,8 +177,10 @@ export default {
 
   methods: {
     clicked($event) {
-      $event.stopPropagation();
-      $event.preventDefault();
+      if ($event) {
+        $event.stopPropagation();
+        $event.preventDefault();
+      }
 
       if ( this.isDisabled ) {
         return;

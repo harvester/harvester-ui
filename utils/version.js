@@ -1,4 +1,6 @@
 import { sortableNumericSuffix } from '@/utils/sort';
+import semver from 'semver';
+import { MANAGEMENT } from '@/config/types';
 
 export function parse(str) {
   str = `${ str }`;
@@ -60,4 +62,37 @@ function comparePart(in1, in2) {
   }
 
   return in1.localeCompare(in2);
+}
+
+export function isPrerelease(version) {
+  if (!semver.valid(version)) {
+    version = semver.clean(version, { loose: true });
+  }
+
+  return !!semver.prerelease(version);
+}
+
+export function isDevBuild(version) {
+  if ( ['dev', 'master', 'head'].includes(version) || version.endsWith('-head') || version.match(/-rc\d+$/) ) {
+    return true;
+  }
+
+  return false;
+}
+
+export function getVersionInfo(store) {
+  const setting = store.getters['management/byId'](MANAGEMENT.SETTING, 'server-version');
+  const fullVersion = setting?.value || 'unknown';
+  let displayVersion = fullVersion;
+
+  const match = fullVersion.match(/^(.*)-([0-9a-f]{40})-(.*)$/);
+
+  if ( match ) {
+    displayVersion = match[2].substr(0, 7);
+  }
+
+  return {
+    displayVersion,
+    fullVersion
+  };
 }

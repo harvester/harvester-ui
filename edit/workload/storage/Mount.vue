@@ -28,13 +28,16 @@ export default {
       default: () => {
         return {};
       }
+    },
+
+    container: {
+      type:     Object,
+      required: true
     }
   },
 
   data() {
-    const container = this.podSpec.containers[0];
-
-    const volumeMounts = (container.volumeMounts || []).filter(mount => mount.name === this.name);
+    const volumeMounts = (this.container.volumeMounts || []).filter(mount => mount.name === this.name);
 
     return { volumeMounts };
   },
@@ -49,10 +52,8 @@ export default {
 
   watch: {
     volumeMounts(neu) {
-      const container = this.podSpec.containers[0];
-
-      container.volumeMounts = (container.volumeMounts || []).filter(mount => mount.name && (mount.name !== this.name));
-      container.volumeMounts.push(...neu);
+      this.container.volumeMounts = (this.container.volumeMounts || []).filter(mount => mount.name && (mount.name !== this.name));
+      this.container.volumeMounts.push(...neu);
     },
 
     name(neu) {
@@ -111,7 +112,7 @@ export default {
       </div>
     </div>
     <div class="row">
-      <button v-if="mode!=='view'" type="button" class="btn btn-sm role-tertiary" @click="volumeMounts.push({name})">
+      <button v-if="mode!=='view'" type="button" class="btn role-tertiary" @click="volumeMounts.push({name})">
         {{ t('workload.storage.addMount') }}
       </button>
     </div>

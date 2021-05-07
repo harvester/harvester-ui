@@ -153,21 +153,27 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-  .sortable > A {
+   .sortable > SPAN {
     display: inline-block;
     white-space: nowrap;
+    &:hover,
+    &:active {
+      text-decoration: underline;
+      color: var(--body-text);
+    }
   }
 
   thead {
     tr {
       background-color: var(--sortable-table-header-bg);
+      border-bottom: 1px solid var(--sortable-table-top-divider);
       color: var(--body-text);
       text-align: left;
     }
   }
 
   th {
-    padding: 12px 5px;
+    padding: 8px 5px;
     font-weight: normal;
     border: 0;
     color: var(--body-text);

@@ -53,15 +53,17 @@ const STRING_LIKE_TYPES = [
 const DNS_LIKE_TYPES = ['dnsLabel', 'dnsLabelRestricted', 'hostname'];
 
 const REMAP_STATE = {
-  disabled:      'inactive',
-  notapplied:    'Not Applied',
-  notready:      'Not Ready',
-  waitapplied:   'Wait Applied',
-  outofsync:     'Out of Sync',
-  'in-progress': 'In Progress',
-  gitupdating:   'Git Updating',
-  errapplied:    'Err Applied',
-  waitcheckin:   'Wait Check-In',
+  disabled:                 'inactive',
+  notapplied:               'Not Applied',
+  notready:                 'Not Ready',
+  waitapplied:              'Wait Applied',
+  outofsync:                'Out of Sync',
+  'in-progress':            'In Progress',
+  gitupdating:              'Git Updating',
+  errapplied:               'Err Applied',
+  waitcheckin:              'Wait Check-In',
+  off:                      'Disabled',
+  waitingforinfrastructure: 'Waiting for Infra',
 };
 
 const DEFAULT_COLOR = 'warning';
@@ -120,6 +122,7 @@ export const STATES = {
   paused:             { color: 'info', icon: 'info' },
   pending:            { color: 'info', icon: 'tag' },
   provisioning:       { color: 'info', icon: 'dot' },
+  provisioned:        { color: 'success', icon: 'dot' },
   purged:             { color: 'error', icon: 'purged' },
   purging:            { color: 'info', icon: 'purged' },
   ready:              { color: 'success', icon: 'dot-open' },
@@ -632,6 +635,12 @@ export default {
   },
 
   hasCondition() {
+    return (condition) => {
+      return this.isCondition(condition, null);
+    };
+  },
+
+  isCondition() {
     return (condition, withStatus = 'True') => {
       if ( !this.status || !this.status.conditions ) {
         return false;
@@ -654,7 +663,7 @@ export default {
   waitForCondition() {
     return (name, withStatus = 'True', timeoutMs = DEFAULT_WAIT_TMIMEOUT, intervalMs = DEFAULT_WAIT_INTERVAL) => {
       return this.waitForTestFn(() => {
-        return this.hasCondition(name, withStatus);
+        return this.isCondition(name, withStatus);
       }, `condition ${ name }=${ withStatus }`, timeoutMs, intervalMs);
     };
   },
@@ -758,6 +767,10 @@ export default {
   // ------------------------------------------------------------------
 
   canDelete() {
+    return this._canDelete;
+  },
+
+  _canDelete() {
     return this.hasLink('remove') && this.$rootGetters['type-map/optionsFor'](this.type).isRemovable;
   },
 
@@ -866,13 +879,17 @@ export default {
   },
 
   save() {
+    return this._save;
+  },
+
+  _save() {
     return async(opt = {}) => {
       const optClone = _.cloneDeep(opt);
 
       delete this.__rehydrate;
       const forNew = !this.id;
 
-      const errors = await this.validationErrors(this);
+      const errors = await this.validationErrors(this, opt.ignoreFields);
 
       if (!isEmpty(errors)) {
         return Promise.reject(errors);
@@ -1145,7 +1162,7 @@ export default {
         const link = item.hasLink('rioview') ? 'rioview' : 'view';
 
         return item.followLink(link, { headers: { accept: 'application/yaml' } } ).then((data) => {
-          files[`resources/${ names[idx] }`] = data;
+          files[`resources/${ names[idx] }`] = data.data || data;
         });
       });
 
@@ -1173,6 +1190,10 @@ export default {
     return (resources = this) => {
       this.$dispatch('promptRemove', resources);
     };
+  },
+
+  confirmRemove() {
+    return false;
   },
 
   applyDefaults() {
@@ -1218,6 +1239,12 @@ export default {
       } catch (e) {
         return null;
       }
+    };
+  },
+
+  cleanForNew() {
+    return () => {
+      cleanForNew(this);
     };
   },
 
@@ -1278,6 +1305,10 @@ export default {
           data:     res,
           existing: (isCreate ? this : undefined)
         });
+      }
+
+      if (this.isSpoofed) {
+        await this.$dispatch('cluster/findAll', { type: this.type, opt: { force: true } }, { root: true });
       }
     };
   },
@@ -1475,6 +1506,10 @@ export default {
   },
 
   details() {
+    return this._details;
+  },
+
+  _details() {
     const details = [];
 
     if (this.owners?.length > 0) {

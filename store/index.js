@@ -10,7 +10,7 @@ import { sortBy } from '@/utils/sort';
 import { filterBy, findBy } from '@/utils/array';
 import { BOTH, CLUSTER_LEVEL, NAMESPACED } from '@/store/type-map';
 import { NAME as EXPLORER } from '@/config/product/explorer';
-import { TIMED_OUT } from '@/config/query-params';
+import { TIMED_OUT, LOGGED_OUT } from '@/config/query-params';
 
 // Disables strict mode for all store instances to prevent warning about changing state outside of mutations
 // becaues it's more efficient to do that sometimes.
@@ -28,6 +28,7 @@ export const state = () => {
     managementReady:  false,
     clusterReady:     false,
     isMultiCluster:   false,
+    isRancher:        false,
     namespaceFilters: [],
     allNamespaces:    null,
     allWorkspaces:    null,
@@ -46,6 +47,10 @@ export const getters = {
 
   isMultiCluster(state) {
     return state.isMultiCluster === true;
+  },
+
+  isRancher(state) {
+    return state.isRancher === true;
   },
 
   clusterId(state) {
@@ -81,7 +86,13 @@ export const getters = {
   },
 
   isExplorer(state, getters) {
-    return getters.currentProduct?.name === EXPLORER;
+    const product = getters.currentProduct;
+
+    if ( !product ) {
+      return false;
+    }
+
+    return product.name === EXPLORER || product.inStore === 'cluster';
   },
 
   defaultClusterId(state, getters) {
@@ -316,12 +327,19 @@ export const getters = {
 
     return '/';
   },
+
+  featureFlag(state, getters, rootState, rootGetters) {
+    return (name) => {
+      return rootGetters['management/byId'](MANAGEMENT.FEATURE, name)?.enabled || false;
+    };
+  },
 };
 
 export const mutations = {
-  managementChanged(state, { ready, isMultiCluster }) {
+  managementChanged(state, { ready, isMultiCluster, isRancher }) {
     state.managementReady = ready;
     state.isMultiCluster = isMultiCluster;
+    state.isRancher = isRancher;
   },
 
   clusterChanged(state, ready) {
@@ -453,6 +471,7 @@ export const actions = {
     state, commit, dispatch, getters
   }, id) {
     const isMultiCluster = getters['isMultiCluster'];
+    const isRancher = getters['isRancher'];
 
     if ( state.clusterReady && state.clusterId && state.clusterId === id ) {
       // Do nothing, we're already connected/connecting to this cluster
@@ -489,7 +508,7 @@ export const actions = {
       return;
     }
 
-    console.log(`Loading ${ isMultiCluster ? 'ECM ' : '' }cluster...`); // eslint-disable-line no-console
+    // console.log(`Loading ${ isMultiCluster ? 'ECM ' : '' }cluster...`); // eslint-disable-line no-console
 
     // See if it really exists
     // const cluster = await dispatch('management/find', {
@@ -568,6 +587,7 @@ export const actions = {
 
     await dispatch('cluster/unsubscribe');
     commit('clusterChanged', false);
+    commit('setCluster', null);
     commit('cluster/reset');
 
     const isRancher = getters['auth/isRancher'];
@@ -583,7 +603,9 @@ export const actions = {
     if ( route.name === 'index' ) {
       router.replace('/auth/login');
     } else {
-      router.replace(`/auth/login?${ TIMED_OUT }`);
+      const QUERY = (LOGGED_OUT in route.query) ? LOGGED_OUT : TIMED_OUT;
+
+      router.replace(`/auth/login?${ QUERY }`);
     }
   },
 
@@ -600,7 +622,8 @@ export const actions = {
 
     dispatch('management/rehydrateSubscribe');
     dispatch('cluster/rehydrateSubscribe');
-    if ( rootState.isMultiCluster ) {
+
+    if ( rootState.isRancher ) {
       dispatch('rancher/rehydrateSubscribe');
     }
 

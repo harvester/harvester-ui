@@ -48,12 +48,42 @@ export default {
     tooltip: {
       type:    Boolean,
       default: false
+    },
+    /**
+     * Optional map of percentage:color class stops to apply to bar
+     */
+
+    colorStops: {
+      type:    Object,
+      default: null
     }
   },
 
   computed: {
     primaryColor() {
       const isLess = this.preferredDirection === PreferredDirection.LESS;
+
+      if (this.colorStops) {
+        const thresholds = Object.keys(this.colorStops).sort();
+
+        if (isLess) {
+          let i = thresholds.length - 1;
+
+          while (this.value < thresholds[i]) {
+            i--;
+          }
+
+          return this.colorStops[thresholds[i]];
+        } else {
+          let i = 0;
+
+          while (this.value > thresholds[i]) {
+            i++;
+          }
+
+          return this.colorStops[thresholds[i]];
+        }
+      }
       const threshold = isLess ? 80 : 20;
 
       const left = isLess ? this.value : threshold;
@@ -79,7 +109,7 @@ export default {
 <template>
   <span v-tooltip="toolTipValue" class="percentage-bar">
     <Bar :percentage="value" :primary-color="primaryColor" :height="height" />
-    <span v-if="showPercentage" class="ml-5">{{ formattedPercentage }}</span>
+    <span v-if="showPercentage" class="ml-5 percentage-value">{{ formattedPercentage }}</span>
   </span>
 </template>
 
@@ -87,5 +117,9 @@ export default {
 .percentage-bar {
   display: flex;
   flex-direction: row;
+
+  .percentage-value {
+    word-break: keep-all;
+  }
 }
 </style>

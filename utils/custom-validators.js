@@ -10,6 +10,7 @@ import { vmNetworks, vmDisks, vmMemoryUnit } from '@/utils/validators/vm';
 import { imageUrl } from '@/utils/validators/vm-image';
 import { dataVolumeSize, dataVolumeImage } from '@/utils/validators/vm-datavolumes';
 import { backupTarget } from '@/utils/validators/setting';
+import { roleTemplateRules } from '@/utils/validators/role-template';
 
 /**
 * Custom validation functions beyond normal scalr types
@@ -35,5 +36,6 @@ export default {
   imageUrl,
   dataVolumeSize,
   dataVolumeImage,
-  backupTarget
+  backupTarget,
+  roleTemplateRules
 };

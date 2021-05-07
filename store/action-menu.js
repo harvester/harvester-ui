@@ -1,4 +1,4 @@
-import { isArray, filterBy } from '@/utils/array';
+import { filterBy, isArray } from '@/utils/array';
 
 export const state = function() {
   return {
@@ -11,9 +11,11 @@ export const state = function() {
     showPromptRemove:      false,
     showAssignTo:          false,
     showEjectCDROM:        false,
+    showPromptUpdate:      false,
     toRemove:              [],
     toAssign:              [],
     toEject:               [],
+    toUpdate:              [],
     toEnable:              null,
   };
 };
@@ -73,10 +75,15 @@ export const mutations = {
     state.elem = null;
   },
 
-  togglePromptRemove(state, resources = []) {
-    state.showPromptRemove = !state.showPromptRemove;
-    if (!isArray(resources)) {
-      resources = [resources];
+  togglePromptRemove(state, resources) {
+    if (!resources) {
+      state.showPromptRemove = false;
+      resources = [];
+    } else {
+      state.showPromptRemove = !state.showPromptRemove;
+      if (!isArray(resources)) {
+        resources = [resources];
+      }
     }
     state.toRemove = resources;
   },
@@ -96,6 +103,20 @@ export const mutations = {
     state.toEject = resources;
   },
 
+  togglePromptUpdate(state, resources) {
+    if (!resources) {
+      // Clearing the resources also hides the prompt
+      state.showPromptUpdate = false;
+    } else {
+      state.showPromptUpdate = !state.showPromptUpdate;
+    }
+
+    if (!isArray(resources)) {
+      resources = [resources];
+    }
+
+    state.toUpdate = resources;
+  }
 };
 
 export const actions = {

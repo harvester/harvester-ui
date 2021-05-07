@@ -2,16 +2,16 @@
 import Loading from '@/components/Loading';
 import CreateEditView from '@/mixins/create-edit-view';
 import CruResource from '@/components/CruResource';
-import InfoBox from '@/components/InfoBox';
 import RadioGroup from '@/components/form/RadioGroup';
 import LabeledInput from '@/components/form/LabeledInput';
 import Banner from '@/components/Banner';
-import AsyncButton from '@/components/AsyncButton';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import AllowedPrincipals from '@/components/auth/AllowedPrincipals';
 import { NORMAN, MANAGEMENT } from '@/config/types';
 import { findBy } from '@/utils/array';
 import AuthConfig from '@/mixins/auth-config';
+import AuthBanner from '@/components/auth/AuthBanner';
+import InfoBox from '@/components/InfoBox';
 
 const NAME = 'github';
 
@@ -19,13 +19,13 @@ export default {
   components: {
     Loading,
     CruResource,
-    InfoBox,
     RadioGroup,
     LabeledInput,
     Banner,
     CopyToClipboard,
     AllowedPrincipals,
-    AsyncButton
+    AuthBanner,
+    InfoBox
   },
 
   mixins: [CreateEditView, AuthConfig],
@@ -49,11 +49,8 @@ export default {
 
   data() {
     return {
-      model:         null,
       targetType:    'public',
       targetUrl:     null,
-      serverSetting: null,
-      errors:        null,
     };
   },
 
@@ -70,16 +67,6 @@ export default {
 
     baseUrl() {
       return `${ this.model.tls ? 'https://' : 'http://' }${ this.model.hostname }`;
-    },
-
-    serverUrl() {
-      if ( this.serverSetting ) {
-        return this.serverSetting;
-      } else if ( process.client ) {
-        return window.location.origin;
-      }
-
-      return '';
     },
 
     principal() {
@@ -114,6 +101,7 @@ export default {
         description:  'Enable GitHub',
       };
     }
+
   },
 
   watch: {
@@ -143,6 +131,7 @@ export default {
   <Loading v-if="$fetchState.pending" />
   <div v-else>
     <CruResource
+      :cancel-event="true"
       :done-route="doneRoute"
       :mode="mode"
       :resource="model"
@@ -151,22 +140,18 @@ export default {
       :finish-button-mode="model.enabled ? 'edit' : 'enable'"
       :can-yaml="false"
       :errors="errors"
+      :show-cancel="showCancel"
       @error="e=>errors = e"
       @finish="save"
-      @cancel="done"
+      @cancel="cancel"
     >
-      <template v-if="model.enabled && !isSaving">
-        <Banner color="success clearfix">
-          <div class="pull-left mt-10">
-            {{ t('authConfig.stateBanner.enabled', tArgs) }}
-          </div>
-          <div class="pull-right">
-            <AsyncButton mode="disable" size="sm" action-color="bg-error" @click="disable" />
-          </div>
-        </Banner>
-
-        <div>Server: {{ baseUrl }}</div>
-        <div>Client ID: {{ value.clientId }}</div>
+      <template v-if="model.enabled && !isEnabling && !editConfig">
+        <AuthBanner :t-args="tArgs" :disable="disable" :edit="goToEdit">
+          <template slot="rows">
+            <tr><td>{{ t(`authConfig.${ NAME }.table.server`) }}: </td><td>{{ baseUrl }}</td></tr>
+            <tr><td>{{ t(`authConfig.${ NAME }.table.clientId`) }}: </td><td>{{ value.clientId }}</td></tr>
+          </template>
+        </AuthBanner>
 
         <hr />
 
@@ -174,7 +159,7 @@ export default {
       </template>
 
       <template v-else>
-        <Banner :label="t('authConfig.stateBanner.disabled', tArgs)" color="warning" />
+        <Banner v-if="!model.enabled" :label="t('authConfig.stateBanner.disabled', tArgs)" color="warning" />
 
         <h3 v-t="`authConfig.${NAME}.target.label`" />
         <RadioGroup
@@ -199,20 +184,31 @@ export default {
           </div>
         </div>
 
-        <InfoBox v-if="!model.enabled" class="mt-20 mb-20 p-10">
-          <ul v-html="t(`authConfig.${NAME}.form.prefix`, tArgs, true)" />
-          <ul>
+        <InfoBox :step="1" class="step-box">
+          <ul class="step-list">
+            <li v-html="t(`authConfig.${NAME}.form.prefix.1`, tArgs, true)" />
+            <li v-html="t(`authConfig.${NAME}.form.prefix.2`, tArgs, true)" />
+            <li v-html="t(`authConfig.${NAME}.form.prefix.3`, tArgs, true)" />
+          </ul>
+        </InfoBox>
+        <InfoBox :step="2" class="step-box">
+          <ul class="step-list">
             <li>
               {{ t(`authConfig.${NAME}.form.instruction`, tArgs, true) }}
-              <ul>
+              <ul class="mt-10">
                 <li><b>{{ t(`authConfig.${NAME}.form.app.label`) }}</b>: <span v-html="t(`authConfig.${NAME}.form.app.value`, tArgs, true)" /></li>
                 <li><b>{{ t(`authConfig.${NAME}.form.homepage.label`) }}</b>: {{ serverUrl }} <CopyToClipboard label-as="tooltip" :text="serverUrl" class="icon-btn" action-color="bg-transparent" /></li>
                 <li><b>{{ t(`authConfig.${NAME}.form.description.label`) }}</b>: <span v-html="t(`authConfig.${NAME}.form.description.value`, tArgs, true)" /></li>
-                <li><b>{{ t(`authConfig.${NAME}.form.app.label`) }}</b>: {{ serverUrl }} <CopyToClipboard :text="serverUrl" label-as="tooltip" class="icon-btn" action-color="bg-transparent" /></li>
+                <li><b>{{ t(`authConfig.${NAME}.form.calllback.label`) }}</b>: {{ serverUrl }} <CopyToClipboard :text="serverUrl" label-as="tooltip" class="icon-btn" action-color="bg-transparent" /></li>
               </ul>
             </li>
           </ul>
-          <ul v-html="t(`authConfig.${NAME}.form.suffix`, tArgs, true)" />
+        </InfoBox>
+        <InfoBox :step="3" class="mb-20">
+          <ul class="step-list">
+            <li v-html="t(`authConfig.${NAME}.form.suffix.1`, tArgs, true)" />
+            <li v-html="t(`authConfig.${NAME}.form.suffix.2`, tArgs, true)" />
+          </ul>
         </InfoBox>
 
         <div class="row mb-20">
@@ -241,3 +237,9 @@ export default {
     </CruResource>
   </div>
 </template>
+
+<style lang="scss" scoped>
+  .step-list li:not(:last-child) {
+    margin-bottom: 8px;
+  }
+</style>

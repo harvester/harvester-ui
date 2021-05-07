@@ -7,11 +7,9 @@ import LabeledInput from '@/components/form/LabeledInput';
 import Checkbox from '@/components/form/Checkbox';
 import Banner from '@/components/Banner';
 import AllowedPrincipals from '@/components/auth/AllowedPrincipals';
-import AsyncButton from '@/components/AsyncButton';
 import FileSelector from '@/components/form/FileSelector';
+import AuthBanner from '@/components/auth/AuthBanner';
 import config from '@/edit/auth/ldap/config';
-
-const AUTH_TYPE = 'ldap';
 
 export default {
   components: {
@@ -22,25 +20,16 @@ export default {
     AllowedPrincipals,
     Checkbox,
     FileSelector,
-    AsyncButton,
-    config
+    config,
+    AuthBanner
   },
 
   mixins: [CreateEditView, AuthConfig],
   data() {
-    return {
-      model:         null,
-      errors:        null,
-      serverSetting: null,
-      showLdap:      false
-    };
+    return { showLdap: false };
   },
 
   computed: {
-    baseUrl() {
-      return `${ this.model.tls ? 'https://' : 'http://' }${ this.model.hostname }`;
-    },
-
     tArgs() {
       return {
         baseUrl:   this.serverSetting,
@@ -49,14 +38,39 @@ export default {
       };
     },
 
-    AUTH_TYPE() {
-      return AUTH_TYPE;
-    },
-
     toSave() {
       return { enabled: true, ...this.model };
-    }
+    },
+
   },
+  watch: {
+    showLdap(neu, old) {
+      if (neu && !this.model.openLdapConfig) {
+        const config = {
+          connectionTimeout:            5000,
+          groupDNAttribute:             'entryDN',
+          groupMemberMappingAttribute:  'member',
+          groupMemberUserAttribute:     'entryDN',
+          groupNameAttribute:           'cn',
+          groupObjectClass:             'groupOfNames',
+          groupSearchAttribute:         'cn',
+          nestedGroupMembershipEnabled: false,
+          port:                         389,
+          servers:                      [],
+          starttls:                     false,
+          tls:                          false,
+          disabledStatusBitmask:          0,
+          userLoginAttribute:           'uid',
+          userMemberAttribute:          'memberOf',
+          userNameAttribute:            'cn',
+          userObjectClass:              'inetOrgPerson',
+          userSearchAttribute:          'uid|sn|givenName'
+        };
+
+        this.$set(this.model, 'openLdapConfig', config);
+      }
+    }
+  }
 };
 </script>
 
@@ -64,6 +78,7 @@ export default {
   <Loading v-if="$fetchState.pending" />
   <div v-else>
     <CruResource
+      :cancel-event="true"
       :done-route="doneRoute"
       :mode="mode"
       :resource="model"
@@ -72,26 +87,22 @@ export default {
       :finish-button-mode="model.enabled ? 'edit' : 'enable'"
       :can-yaml="false"
       :errors="errors"
+      :show-cancel="showCancel"
       @error="e=>errors = e"
       @finish="save"
-      @cancel="done"
+      @cancel="cancel"
     >
-      <template v-if="model.enabled && !isEnabling">
-        <Banner color="success clearfix">
-          <div class="pull-left mt-10">
-            {{ t('authConfig.stateBanner.enabled', tArgs) }}
-          </div>
-          <div class="pull-right">
-            <AsyncButton mode="disable" size="sm" action-color="bg-error" @click="disable" />
-          </div>
-        </Banner>
-
-        <div>{{ t(`authConfig.saml.displayName`) }}: {{ model.displayNameField }}</div>
-        <div>{{ t(`authConfig.saml.userName`) }}:{{ model.userNameField }}</div>
-        <div>{{ t(`authConfig.saml.UID`) }}: {{ model.uidField }}</div>
-        <div>{{ t(`authConfig.saml.entityID`) }}: {{ model.entityID }}</div>
-        <div>{{ t(`authConfig.saml.api`) }}: {{ model.rancherApiHost }}</div>
-        <div>{{ t(`authConfig.saml.groups`) }}: {{ model.groupsField }}</div>
+      <template v-if="model.enabled && !isEnabling && !editConfig">
+        <AuthBanner :t-args="tArgs" :disable="disable" :edit="goToEdit">
+          <template slot="rows">
+            <tr><td>{{ t(`authConfig.saml.displayName`) }}: </td><td>{{ model.displayNameField }}</td></tr>
+            <tr><td>{{ t(`authConfig.saml.userName`) }}: </td><td>{{ model.userNameField }}</td></tr>
+            <tr><td>{{ t(`authConfig.saml.UID`) }}: </td><td>{{ model.uidField }}</td></tr>
+            <tr><td>{{ t(`authConfig.saml.entityID`) }}: </td><td>{{ model.entityID }}</td></tr>
+            <tr><td>{{ t(`authConfig.saml.api`) }}: </td><td>{{ model.rancherApiHost }}</td></tr>
+            <tr><td>{{ t(`authConfig.saml.groups`) }}: </td><td>{{ model.groupsField }}</td></tr>
+          </template>
+        </AuthBanner>
 
         <hr />
 
@@ -99,6 +110,8 @@ export default {
       </template>
 
       <template v-else>
+        <Banner v-if="!model.enabled" :label="t('authConfig.stateBanner.disabled', tArgs)" color="warning" />
+
         <h3>{{ t(`authConfig.saml.${NAME}`) }}</h3>
         <div class="row mb-20">
           <div class="col span-6">
@@ -138,12 +151,11 @@ export default {
           </div>
         </div>
         <div class="row mb-20">
-          <div class="col span-6">
+          <div v-if="NAME === 'keycloak' || NAME === 'ping'" class="col span-6">
             <LabeledInput
               v-model="model.entityID"
               :label="t(`authConfig.saml.entityID`)"
               :mode="mode"
-              required
             />
           </div>
           <div class="col span-6">
@@ -160,7 +172,8 @@ export default {
           <div class="col span-4">
             <LabeledInput
               v-model="model.spKey"
-              :label="t(`authConfig.saml.key`)"
+              :label="t(`authConfig.saml.key.label`)"
+              :placeholder="t(`authConfig.saml.key.placeholder`)"
               :mode="mode"
               required
               type="multiline"
@@ -170,7 +183,8 @@ export default {
           <div class="col span-4">
             <LabeledInput
               v-model="model.spCert"
-              :label="t(`authConfig.saml.cert`)"
+              :label="t(`authConfig.saml.cert.label`)"
+              :placeholder="t(`authConfig.saml.cert.placeholder`)"
               :mode="mode"
               required
               type="multiline"
@@ -180,7 +194,8 @@ export default {
           <div class="col span-4">
             <LabeledInput
               v-model="model.idpMetadataContent"
-              :label="t(`authConfig.saml.metadata`)"
+              :label="t(`authConfig.saml.metadata.label`)"
+              :placeholder="t(`authConfig.saml.metadata.placeholder`)"
               :mode="mode"
               required
               type="multiline"

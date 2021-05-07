@@ -7,6 +7,9 @@ import { findBy, addObject, filterBy } from '@/utils/array';
 import { stringify } from '@/utils/error';
 import { proxyFor } from '@/plugins/steve/resource-proxy';
 import { sortBy } from '@/utils/sort';
+import { importChart } from '@/utils/dynamic-importer';
+import { ensureRegex } from '@/utils/string';
+import { isPrerelease } from '@/utils/version';
 
 const ALLOWED_CATEGORIES = [
   'Storage',
@@ -20,6 +23,13 @@ const ALLOWED_CATEGORIES = [
   'Applications',
 ];
 
+const CERTIFIED_SORTS = {
+  [CATALOG_ANNOTATIONS._RANCHER]:      1,
+  [CATALOG_ANNOTATIONS._EXPERIMENTAL]: 1,
+  [CATALOG_ANNOTATIONS._PARTNER]:      2,
+  other:                               3,
+};
+
 export const state = function() {
   return {
     loaded:          {},
@@ -27,9 +37,7 @@ export const state = function() {
     namespacedRepos: [],
     charts:          {},
     versionInfos:    {},
-    config: {
-      namespace: 'catalog'
-    }
+    config:          { namespace: 'catalog' }
   };
 };
 
@@ -57,37 +65,39 @@ export const getters = {
 
   charts(state, getters, rootState, rootGetters) {
     const repoKeys = getters.repos.map(x => x._key);
-    const cluster = rootGetters['currentCluster']
+    const cluster = rootGetters['currentCluster'];
 
     // Filter out charts for repos that are no longer in the store, rather
     // than trying to clear them when a repo is removed.
     // And ones that are for the wrong kind of cluster
     const out = Object.values(state.charts).filter((chart) => {
-       if ( !repoKeys.includes(chart.repoKey) ) {
-         return false;
-       }
+      if ( !repoKeys.includes(chart.repoKey) ) {
+        return false;
+      }
 
-       if ( chart.scope && chart.scope !== cluster.scope ) {
-         return false;
-       }
+      if ( chart.scope && chart.scope !== cluster.scope ) {
+        return false;
+      }
 
-       return true;
+      return true;
     });
 
     return sortBy(out, ['certifiedSort', 'repoName', 'chartName']);
   },
 
   chart(state, getters) {
-    return ({ repoType, repoName, chartName, preferRepoType, preferRepoName, includeHidden }) => {
+    return ({
+      repoType, repoName, chartName, preferRepoType, preferRepoName, includeHidden
+    }) => {
       let matching = filterBy(getters.charts, {
         repoType,
         repoName,
         chartName,
-        deprecated: false, 
+        deprecated: false,
       });
 
       if ( includeHidden === false ) {
-        matching = matching.filter((x) => !x.hidden)
+        matching = matching.filter(x => !x.hidden);
       }
 
       if ( !matching.length ) {
@@ -125,13 +135,15 @@ export const getters = {
   },
 
   versionSatisfying(state, getters) {
-    return ({ repoType, repoName, constraint, chartVersion }) => {
+    return ({
+      repoType, repoName, constraint, chartVersion
+    }) => {
       let name, wantVersion;
       const idx = constraint.indexOf('=');
 
       if ( idx > 0 ) {
-        name = constraint.substr(0,idx);
-        wantVersion = normalizeVersion(constraint.substr(idx+1));
+        name = constraint.substr(0, idx);
+        wantVersion = normalizeVersion(constraint.substr(idx + 1));
       } else {
         name = constraint;
         wantVersion = 'latest';
@@ -140,7 +152,7 @@ export const getters = {
       name = name.toLowerCase().trim();
       chartVersion = normalizeVersion(chartVersion);
 
-      const matching = getters.charts.filter((chart) => chart.chartName.toLowerCase().trim() == name);
+      const matching = getters.charts.filter(chart => chart.chartName.toLowerCase().trim() === name);
 
       if ( !matching.length ) {
         return;
@@ -156,9 +168,9 @@ export const getters = {
       if ( wantVersion === 'latest' ) {
         version = chart.versions[0];
       } else if ( wantVersion === 'match' || wantVersion === 'matching' ) {
-        version = chart.versions.find((v) => normalizeVersion(v.version) === chartVersion);
+        version = chart.versions.find(v => normalizeVersion(v.version) === chartVersion);
       } else {
-        version = chart.versions.find((v) => normalizeVersion(v.version) === wantVersion);
+        version = chart.versions.find(v => normalizeVersion(v.version) === wantVersion);
       }
 
       if ( version ) {
@@ -169,7 +181,7 @@ export const getters = {
 
   versionProviding(state, getters) {
     return ({ repoType, repoName, gvr }) => {
-      const matching = getters.charts.filter((chart) => chart.provides.includes(gvr) )
+      const matching = getters.charts.filter(chart => chart.provides.includes(gvr) );
 
       if ( !matching.length ) {
         return;
@@ -179,7 +191,7 @@ export const getters = {
         preferSameRepo(matching, repoType, repoName);
       }
 
-      const version = matching[0].versions.find((version) => version.annotations?.[CATALOG_ANNOTATIONS.PROVIDES] === gvr);
+      const version = matching[0].versions.find(version => version.annotations?.[CATALOG_ANNOTATIONS.PROVIDES] === gvr);
 
       if ( version ) {
         return clone(version);
@@ -211,6 +223,7 @@ export const getters = {
     return (name) => {
       try {
         require.resolve(`@/chart/${ name }`);
+
         return true;
       } catch (e) {
         return false;
@@ -220,7 +233,7 @@ export const getters = {
 
   importComponent(state, getters) {
     return (name) => {
-      return () => import(`@/chart/${ name }`);
+      return importChart(name);
     };
   },
 };
@@ -237,7 +250,7 @@ export const mutations = {
     state.namespacedRepos = namespaced;
   },
 
-  setCharts(state, { charts, errors, loaded }) {
+  setCharts(state, { charts, errors = [], loaded = [] }) {
     state.charts = charts;
     state.errors = errors;
 
@@ -253,9 +266,12 @@ export const mutations = {
 
 export const actions = {
   async load(ctx, { force, reset } = {}) {
-  const { state, getters, rootGetters, commit, dispatch } = ctx;
+    const {
+      state, getters, rootGetters, commit, dispatch
+    } = ctx;
 
     let promises = {};
+
     if ( rootGetters['cluster/schemaFor'](CATALOG.CLUSTER_REPO) ) {
       promises.cluster = dispatch('cluster/findAll', { type: CATALOG.CLUSTER_REPO }, { root: true });
     }
@@ -270,11 +286,12 @@ export const actions = {
 
     const repos = getters['repos'];
     const loaded = [];
+
     promises = {};
 
     for ( const repo of repos ) {
       if ( (force === true || !getters.isLoaded(repo)) && repo.canLoad ) {
-        console.info('Loading index for repo', repo.name, `(${repo._key})`); // eslint-disable-line no-console
+        console.info('Loading index for repo', repo.name, `(${ repo._key })`); // eslint-disable-line no-console
         promises[repo._key] = repo.followLink('index');
       }
     }
@@ -324,37 +341,40 @@ export const actions = {
     const key = `${ repoType }/${ repoName }/${ chartName }/${ versionName }`;
     let info = state.versionInfos[key];
 
-    try {
-      if ( !info ) {
-        const repo = getters['repo']({ repoType, repoName });
+    if ( !info ) {
+      const repo = getters['repo']({ repoType, repoName });
 
-        if ( !repo ) {
-          throw new Error('Repo not found');
-        }
-
-        info = await repo.followLink('info', {
-          url: addParams(repo.links.info, {
-            chartName,
-            version: versionName
-          })
-        });
-
-        commit('cacheVersion', { key, info });
+      if ( !repo ) {
+        throw new Error('Repo not found');
       }
 
-      return info;
-    } catch (e) {
-      console.log(e);
-      debugger;
-    }
-  },
-};
+      info = await repo.followLink('info', {
+        url: addParams(repo.links.info, {
+          chartName,
+          version: versionName
+        })
+      });
 
-const CERTIFIED_SORTS = {
-  [CATALOG_ANNOTATIONS._RANCHER]:      1,
-  [CATALOG_ANNOTATIONS._EXPERIMENTAL]: 1,
-  [CATALOG_ANNOTATIONS._PARTNER]:      2,
-  other:                               3,
+      commit('cacheVersion', { key, info });
+    }
+
+    return info;
+  },
+
+  rehydrate(ctx) {
+    const { state, commit } = ctx;
+    const charts = state.charts || {};
+
+    Object.entries(state.charts).forEach(([key, chart]) => {
+      if (chart.__rehydrate) {
+        charts[key] = proxyFor(ctx, chart);
+      }
+    });
+    commit('setCharts', {
+      charts,
+      errors: state.errors,
+    });
+  }
 };
 
 function addChart(ctx, map, chart, repo) {
@@ -391,16 +411,17 @@ function addChart(ctx, map, chart, repo) {
     if ( ctx ) { }
     obj = proxyFor(ctx, {
       key,
-      type: 'chart',
-      id: key,
+      type:             'chart',
+      id:               key,
       certified,
       sideLabel,
       repoType,
       repoName,
-      repoNameDisplay:  ctx.rootGetters['i18n/withFallback'](`catalog.repo.name."${repoName}"`, null, repoName),
+      repoNameDisplay:  ctx.rootGetters['i18n/withFallback'](`catalog.repo.name."${ repoName }"`, null, repoName),
       certifiedSort:    CERTIFIED_SORTS[certified] || 99,
       icon:             chart.icon,
       color:            repo.color,
+      chartType:        chart.annotations?.[CATALOG_ANNOTATIONS.TYPE] || CATALOG_ANNOTATIONS._APP,
       chartName:        chart.name,
       chartDisplayName: chart.annotations?.[CATALOG_ANNOTATIONS.DISPLAY_NAME] || chart.name,
       chartDescription: chart.description,
@@ -418,11 +439,12 @@ function addChart(ctx, map, chart, repo) {
     map[key] = obj;
   }
 
-  chart.key = `${key}/${chart.version}`;
+  chart.key = `${ key }/${ chart.version }`;
   chart.repoType = repoType;
   chart.repoName = repoName;
 
   const provides = chart.annotations?.[CATALOG_ANNOTATIONS.PROVIDES];
+
   if ( provides ) {
     addObject(obj.provides, provides);
   }
@@ -435,7 +457,7 @@ function preferSameRepo(matching, repoType, repoName) {
     const aSameRepo = a.repoType === repoType && a.repoName === repoName ? 1 : 0;
     const bSameRepo = b.repoType === repoType && b.repoName === repoName ? 1 : 0;
 
-    if ( aSameRepo && !bSameRepo )  {
+    if ( aSameRepo && !bSameRepo ) {
       return -1;
     } else if ( !aSameRepo && bSameRepo ) {
       return 1;
@@ -465,4 +487,75 @@ function filterCategories(categories) {
 
 function normalizeCategory(c) {
   return c.replace(/\s+/g, '').toLowerCase();
+}
+
+export function compatibleVersionsFor(versions, os, includePrerelease = true) {
+  return versions.filter((ver) => {
+    const osAnnotation = ver?.annotations?.[CATALOG_ANNOTATIONS.SUPPORTED_OS];
+
+    if ( !includePrerelease && isPrerelease(ver.version) ) {
+      return false;
+    }
+
+    if (!osAnnotation || osAnnotation === os) {
+      return true;
+    }
+
+    return false;
+  });
+}
+
+export function filterAndArrangeCharts(charts, {
+  isWindows = false,
+  category,
+  searchQuery,
+  showDeprecated = false,
+  showHidden = false,
+  showPrerelease = true,
+  hideRepos = [],
+  showRepos = [],
+  showTypes = [],
+  hideTypes = [],
+} = {}) {
+  const out = charts.filter((c) => {
+    const { versions: chartVersions = [] } = c;
+
+    if (
+      ( c.deprecated && !showDeprecated ) ||
+      ( c.hidden && !showHidden ) ||
+      ( hideRepos?.length && hideRepos.includes(c.repoKey) ) ||
+      ( showRepos?.length && !showRepos.includes(c.repoKey) ) ||
+      ( hideTypes?.length && hideTypes.includes(c.chartType) ) ||
+      ( showTypes?.length && !showTypes.includes(c.chartType) ) ) {
+      return false;
+    }
+
+    if ( isWindows && compatibleVersionsFor(chartVersions, 'windows', showPrerelease).length <= 0) {
+      // There's no versions compatible with Windows
+      return false;
+    } else if ( !isWindows && compatibleVersionsFor(chartVersions, 'linux', showPrerelease).length <= 0) {
+      // There's no versions compatible with Linux
+      return false;
+    }
+
+    if ( category && !c.categories.includes(category) ) {
+      // The category filter doesn't match
+      return false;
+    }
+
+    if ( searchQuery ) {
+      // The search filter doesn't match
+      const searchTokens = searchQuery.split(/\s*[, ]\s*/).map(x => ensureRegex(x, false));
+
+      for ( const token of searchTokens ) {
+        if ( !c.chartName.match(token) && (c.chartDescription && !c.chartDescription.match(token)) ) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  });
+
+  return sortBy(out, ['certifiedSort', 'repoName', 'chartDisplayName']);
 }

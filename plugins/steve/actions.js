@@ -1,5 +1,6 @@
 import https from 'https';
 import cloneDeep from 'lodash/cloneDeep';
+import merge from 'lodash/merge';
 import { SCHEMA } from '@/config/types';
 import { addPrefix, addParam } from '@/utils/url';
 import { createYaml } from '@/utils/create-yaml';
@@ -15,7 +16,8 @@ export default {
     // Spoofing is handled here to ensure it's done for both yaml and form editing.
     // It became apparent that this was the only place that both intersected
     if (opt.url.includes(SPOOFED_PREFIX) || opt.url.includes(SPOOFED_API_PREFIX)) {
-      const [empty, scheme, type, id] = opt.url.split('/'); // eslint-disable-line no-unused-vars
+      const [empty, scheme, type, ...rest] = opt.url.split('/'); // eslint-disable-line no-unused-vars
+      const id = rest.join('/'); // Cover case where id contains '/'
       const isApi = scheme === SPOOFED_API_PREFIX;
       const typemapGetter = id ? 'getSpoofedInstance' : 'getSpoofedInstances';
       const schemas = await rootGetters['cluster/all'](SCHEMA);
@@ -341,13 +343,21 @@ export default {
     return proxyFor(ctx, data);
   },
 
+  createPopulated(ctx, userData) {
+    const data = ctx.getters['defaultFor'](userData.type);
+
+    merge(data, userData);
+
+    return proxyFor(ctx, data);
+  },
+
   clone(ctx, { resource } = {}) {
     const copy = cloneDeep(resource[SELF]);
 
     return proxyFor(ctx, copy, true);
   },
 
-  promptRemove({ commit, state }, resources = []) {
+  promptRemove({ commit, state }, resources ) {
     commit('action-menu/togglePromptRemove', resources, { root: true });
   },
 
@@ -366,6 +376,7 @@ export default {
 
     if ( !opt.url ) {
       opt.url = resource.actionLinkFor(actionName);
+      // opt.url = (resource.actions || resource.actionLinks)[actionName];
     }
 
     opt.method = 'post';
@@ -398,6 +409,10 @@ export default {
     } else {
       return res;
     }
+  },
+
+  promptUpdate({ commit, state }, resources = []) {
+    commit('action-menu/togglePromptUpdate', resources, { root: true });
   },
 
   async collectionAction({ getters, dispatch }, {

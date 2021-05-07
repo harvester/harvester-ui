@@ -2,8 +2,7 @@
 import isEqual from 'lodash/isEqual';
 import jsyaml from 'js-yaml';
 import merge from 'lodash/merge';
-import { mapState, mapGetters } from 'vuex';
-
+import { mapGetters } from 'vuex';
 import AsyncButton from '@/components/AsyncButton';
 import Banner from '@/components/Banner';
 import Checkbox from '@/components/form/Checkbox';
@@ -21,14 +20,17 @@ import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
 
 import { CATALOG, MANAGEMENT } from '@/config/types';
 import {
-  REPO_TYPE, REPO, CHART, VERSION, NAMESPACE, NAME, DESCRIPTION as DESCRIPTION_QUERY, _CREATE, _EDIT, _FLAGGED,
+  REPO_TYPE, REPO, CHART, VERSION, NAMESPACE, NAME, DESCRIPTION as DESCRIPTION_QUERY, _CREATE, _EDIT, _FLAGGED, FORCE, DEPRECATED, HIDDEN, FROM_TOOLS,
 } from '@/config/query-params';
-import { CATALOG as CATALOG_ANNOTATIONS, DESCRIPTION as DESCRIPTION_ANNOTATION } from '@/config/labels-annotations';
+import { CATALOG as CATALOG_ANNOTATIONS, DESCRIPTION as DESCRIPTION_ANNOTATION, PROJECT } from '@/config/labels-annotations';
 import { exceptionToErrorsArray, stringify } from '@/utils/error';
 import { clone, diff, get, set } from '@/utils/object';
 import { findBy, insertAt } from '@/utils/array';
 import ChildHook, { BEFORE_SAVE_HOOKS, AFTER_SAVE_HOOKS } from '@/mixins/child-hook';
-import sortBy from 'lodash/sortBy';
+import { formatSi, parseSi } from '@/utils/units';
+import { SHOW_PRE_RELEASE, mapPref } from '@/store/prefs';
+import { compare, isPrerelease } from '@/utils/version';
+import { NAME as EXPLORER } from '@/config/product/explorer';
 
 export default {
   name: 'Install',
@@ -59,14 +61,19 @@ export default {
 
     const query = this.$route.query;
 
-    this.showDeprecated = query['deprecated'] === _FLAGGED;
-    this.showHidden = query['hidden'] === _FLAGGED;
+    this.showDeprecated = query[DEPRECATED] === _FLAGGED;
+    this.showHidden = query[HIDDEN] === _FLAGGED;
 
     await this.$store.dispatch('catalog/load');
 
     this.defaultRegistrySetting = await this.$store.dispatch('management/find', {
       type: MANAGEMENT.SETTING,
       id:   'system-default-registry'
+    });
+
+    this.serverUrlSetting = await this.$store.dispatch('management/find', {
+      type: MANAGEMENT.SETTING,
+      id:   'server-url'
     });
 
     const repoType = query[REPO_TYPE];
@@ -152,6 +159,19 @@ export default {
       }
     }
 
+    if (this.forceNamespace && !this.existing) {
+      let ns;
+
+      try {
+        ns = await this.$store.dispatch('cluster/find', { type: NAMESPACE, id: this.forceNamespace });
+        const project = ns.metadata.annotations[PROJECT];
+
+        if (project) {
+          this.project = project.replace(':', '/');
+        }
+      } catch {}
+    }
+
     if ( !this.chart ) {
       return;
     }
@@ -210,15 +230,46 @@ export default {
         }).href;
 
         if ( provider ) {
-          this.requires.push(`<a href="${ url }">${ provider.name }</a> must be installed before you can install this chart.`);
+          this.requires.push(this.t('catalog.install.error.requiresFound', {
+            url,
+            name: provider.name
+          }, true));
         } else {
-          this.warnings.push(`This chart requires another chart that provides ${ gvr }, but none was was found`);
+          this.requires.push(this.t('catalog.install.error.requiresMissing', { name: gvr }));
         }
       }
     }
 
-    // const updateValues = (this.existing && !this.chartValues) ||
-    // (!this.existing && (!this.loadedVersion || this.loadedVersion !== this.version.key) );
+    this.warnings = [];
+
+    if ( this.existing || query[FORCE] === _FLAGGED ) {
+      // Ignore the limits on upgrade (or if asked by query) and don't show any warnings
+    } else {
+      const needCpu = parseSi(this.version?.annotations?.[CATALOG_ANNOTATIONS.REQUESTS_CPU] || '0');
+      const needMemory = parseSi(this.version?.annotations?.[CATALOG_ANNOTATIONS.REQUESTS_MEMORY] || '0');
+
+      // Note: These are null if unknown
+      const availableCpu = this.currentCluster.availableCpu;
+      const availableMemory = this.currentCluster.availableMemory;
+
+      if ( availableCpu !== null && availableCpu < needCpu ) {
+        this.warnings.push(this.t('catalog.install.error.insufficientCpu', {
+          need: Math.round(needCpu * 100) / 100,
+          have: Math.round(availableCpu * 100) / 100,
+        }));
+      }
+
+      if ( availableMemory !== null && availableMemory < needMemory ) {
+        this.warnings.push(this.t('catalog.install.error.insufficientMemory', {
+          need: formatSi(needMemory, {
+            increment: 1024, suffix: 'iB', firstSuffix: 'B'
+          }),
+          have: formatSi(availableMemory, {
+            increment: 1024, suffix: 'iB', firstSuffix: 'B'
+          }),
+        }));
+      }
+    }
 
     if ( !this.loadedVersion || this.loadedVersion !== this.version.key ) {
       let userValues;
@@ -264,6 +315,7 @@ export default {
       showHidden:             false,
       showDeprecated:         false,
       defaultRegistrySetting: null,
+      serverUrlSetting:       null,
       chart:                  null,
       chartValues:            null,
       originalYamlValues:     null,
@@ -306,8 +358,9 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['currentCluster']),
-    ...mapState(['isMultiCluster']),
+    ...mapGetters(['currentCluster', 'isRancher']),
+
+    showPreRelease: mapPref(SHOW_PRE_RELEASE),
 
     namespaceIsNew() {
       const all = this.$store.getters['cluster/all'](NAMESPACE);
@@ -321,7 +374,7 @@ export default {
     },
 
     showProject() {
-      return this.isMultiCluster && !this.existing && this.namespaceIsNew;
+      return this.isRancher && !this.existing && this.forceNamespace;
     },
 
     projectOpts() {
@@ -339,16 +392,10 @@ export default {
       out.unshift({
         id:    'none',
         label: '(None)',
-        value: null,
+        value: '',
       });
 
       return out;
-    },
-
-    isValuesTab() {
-      const tabName = this.$refs.tabs?.activeTabName;
-
-      return tabName && !['appReadme', 'helm', 'readme'].includes(tabName);
     },
 
     charts() {
@@ -440,7 +487,7 @@ export default {
       } = this;
       const versions = this.chart?.versions || [];
       const selectedVersion = this.version?.version;
-      const clusterProvider = currentCluster.status.provider || 'other';
+      const isWindows = currentCluster.providerOs === 'windows';
       const out = [];
 
       versions.forEach((version) => {
@@ -453,18 +500,20 @@ export default {
         if ( version?.annotations?.[catalogOSAnnotation] === 'windows' ) {
           nue.label = this.t('catalog.install.versions.windows', { ver: version.version });
 
-          if (clusterProvider !== 'rke.windows') {
+          if ( !isWindows ) {
             nue.disabled = true;
           }
         } else if ( version?.annotations?.[catalogOSAnnotation] === 'linux' ) {
           nue.label = this.t('catalog.install.versions.linux', { ver: version.version });
 
-          if (clusterProvider === 'rke.windows') {
+          if ( isWindows ) {
             nue.disabled = true;
           }
         }
 
-        out.push(nue);
+        if ( this.showPreRelease || !isPrerelease(version.version) ) {
+          out.push(nue);
+        }
       });
 
       const selectedMatch = out.find(v => v.id === selectedVersion);
@@ -473,7 +522,12 @@ export default {
         out.push({ value: selectedVersion, label: this.t('catalog.install.versions.current', { ver: selectedVersion }) });
       }
 
-      return sortBy(out, 'id');
+      out.sort((a, b) => {
+        // Swapping a and b to get descending order
+        return compare(b.id, a.id);
+      });
+
+      return out;
     },
   },
 
@@ -483,6 +537,18 @@ export default {
         this.$fetch();
       }
     },
+
+    'value.metadata.namespace'(neu, old) {
+      if (neu) {
+        const ns = this.$store.getters['cluster/byId'](NAMESPACE, this.value.metadata.namespace);
+
+        const project = ns?.metadata.annotations[PROJECT];
+
+        if (project) {
+          this.project = project.replace(':', '/');
+        }
+      }
+    }
   },
 
   mounted() {
@@ -568,6 +634,10 @@ export default {
       this.showDiff = false;
     },
 
+    ignoreWarning() {
+      this.$router.applyQuery({ [FORCE]: _FLAGGED });
+    },
+
     cancel(reallyCancel) {
       if (!reallyCancel && this.showPreview) {
         return this.resetFromBack();
@@ -587,14 +657,25 @@ export default {
     },
 
     done() {
-      this.$router.replace({
-        name:   `c-cluster-product-resource`,
-        params: {
-          product:   this.$store.getters['productId'],
-          cluster:   this.$store.getters['clusterId'],
-          resource:  CATALOG.APP,
-        }
-      });
+      if ( this.$route.query[FROM_TOOLS] === _FLAGGED ) {
+        this.$router.replace({
+          name:   `c-cluster-explorer-tools`,
+          params: {
+            product:   EXPLORER,
+            cluster:   this.$store.getters['clusterId'],
+            resource:  CATALOG.APP,
+          }
+        });
+      } else {
+        this.$router.replace({
+          name:   `c-cluster-product-resource`,
+          params: {
+            product:   this.$store.getters['productId'],
+            cluster:   this.$store.getters['clusterId'],
+            resource:  CATALOG.APP,
+          }
+        });
+      }
     },
 
     async finish(btnCb) {
@@ -654,11 +735,22 @@ export default {
 
       const cluster = this.$store.getters['currentCluster'];
       const defaultRegistry = this.defaultRegistrySetting?.value || '';
+      const serverUrl = this.serverUrlSetting?.value || '';
+      const isWindows = cluster.providerOs === 'windows';
+      const pathPrefix = cluster.spec?.rancherKubernetesEngineConfig?.prefixPath || '';
+      const windowsPathPrefix = cluster.spec?.rancherKubernetesEngineConfig?.winPrefixPath || '';
 
       setIfNotSet(cattle, 'clusterId', cluster.id);
       setIfNotSet(cattle, 'clusterName', cluster.nameDisplay);
       setIfNotSet(cattle, 'systemDefaultRegistry', defaultRegistry);
       setIfNotSet(global, 'systemDefaultRegistry', defaultRegistry);
+      setIfNotSet(cattle, 'url', serverUrl);
+      setIfNotSet(cattle, 'rkePathPrefix', pathPrefix);
+      setIfNotSet(cattle, 'rkeWindowsPathPrefix', windowsPathPrefix);
+
+      if ( isWindows ) {
+        setIfNotSet(cattle, 'windows.enabled', true);
+      }
 
       return values;
 
@@ -676,17 +768,34 @@ export default {
 
       const cluster = this.$store.getters['currentCluster'];
       const defaultRegistry = this.defaultRegistrySetting?.value || '';
-
-      deleteIfEqual(values, 'systemDefaultRegistry', defaultRegistry);
+      const serverUrl = this.serverUrlSetting?.value || '';
+      const isWindows = cluster.providerOs === 'windows';
+      const pathPrefix = cluster.spec?.rancherKubernetesEngineConfig?.prefixPath || '';
+      const windowsPathPrefix = cluster.spec?.rancherKubernetesEngineConfig?.winPrefixPath || '';
 
       if ( values.global?.cattle ) {
         deleteIfEqual(values.global.cattle, 'clusterId', cluster.id);
         deleteIfEqual(values.global.cattle, 'clusterName', cluster.nameDisplay);
         deleteIfEqual(values.global.cattle, 'systemDefaultRegistry', defaultRegistry);
+        deleteIfEqual(values.global.cattle, 'url', serverUrl);
+        deleteIfEqual(values.global.cattle, 'rkePathPrefix', pathPrefix);
+        deleteIfEqual(values.global.cattle, 'rkeWindowsPathPrefix', windowsPathPrefix);
+
+        if ( isWindows ) {
+          deleteIfEqual(values.global.cattle.windows, 'enabled', true);
+        }
+      }
+
+      if ( values.global?.cattle.windows && !Object.keys(values.global.cattle.windows).length ) {
+        delete values.global.cattle.windows;
       }
 
       if ( values.global?.cattle && !Object.keys(values.global.cattle).length ) {
         delete values.global.cattle;
+      }
+
+      if ( values.global ) {
+        deleteIfEqual(values.global, 'systemDefaultRegistry', defaultRegistry);
       }
 
       if ( !Object.keys(values.global || {}).length ) {
@@ -869,6 +978,9 @@ export default {
       </Banner>
 
       <div class="mt-20 text-center">
+        <button v-if="warnings.length" type="button" class="btn bg-error" @click="ignoreWarning">
+          <t k="catalog.install.action.ignoreWarning" />
+        </button>
         <button type="button" class="btn role-primary" @click="cancel">
           <t k="generic.cancel" />
         </button>
@@ -892,7 +1004,7 @@ export default {
                 <hr />
               </template>
               <template v-else-if="opt.kind === 'label'">
-                <b style="position: relative; left: -10px;">{{ opt.label }}</b>
+                <b style="position: relative; left: -2.5px;">{{ opt.label }}</b>
               </template>
             </template>
           </LabeledSelect>
@@ -919,7 +1031,16 @@ export default {
           :extra-columns="showProject ? ['project'] : []"
         >
           <template v-if="showProject" #project>
-            <LabeledSelect v-model="project" :label="t('catalog.install.project')" option-key="id" :options="projectOpts" />
+            <LabeledSelect
+              v-model="project"
+              :disabled="!namespaceIsNew"
+              :label="t('catalog.install.project')"
+              option-key="id"
+              :options="projectOpts"
+              :tooltip="!namespaceIsNew ? t('catalog.install.namespaceIsInProject', {namespace: value.metadata.namespace}, true) : ''"
+              :hover-tooltip="!namespaceIsNew"
+              :status="'info'"
+            />
           </template>
         </NameNsDescription>
 
@@ -1070,7 +1191,7 @@ export default {
             </template>
 
             <button
-              v-if="(showValuesComponent || hasQuestions) && isValuesTab && !showPreview"
+              v-if="(showValuesComponent || hasQuestions) && !showPreview"
               type="button"
               class="btn role-secondary"
               @click="preview"

@@ -1,18 +1,14 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 import { get, isEmpty } from '@/utils/object';
-import { NAMESPACE, NODE, RIO } from '@/config/types';
 import Card from '@/components/Card';
 import { alternateLabel } from '@/utils/platform';
-import LinkDetail from '@/components/formatter/LinkDetail';
 import { uniq } from '@/utils/array';
 import { addPrefix } from '@/utils/url';
 import AsyncButton from '@/components/AsyncButton';
 
 export default {
-  components: {
-    Card, LinkDetail, AsyncButton
-  },
+  components: { Card, AsyncButton },
   data() {
     const { resource } = this.$route.params;
     const getters = this.$store.getters;
@@ -24,12 +20,24 @@ export default {
       error:           '',
       warning:         '',
       preventDelete:   false,
+      randomPosition:  Math.random(),
       removeComponent: this.$store.getters['type-map/importCustomPromptRemove'](resource)
     };
   },
   computed:   {
     names() {
       return this.toRemove.map(obj => obj.nameDisplay).slice(0, 5);
+    },
+
+    nameToMatchPosition() {
+      const visibleNames = Math.min(5, this.names.length);
+      const randomNamePos = Math.floor(this.randomPosition * visibleNames);
+
+      return randomNamePos;
+    },
+
+    nameToMatch() {
+      return this.names[this.nameToMatchPosition];
     },
 
     type() {
@@ -64,12 +72,7 @@ export default {
     needsConfirm() {
       const first = this.toRemove[0];
 
-      if ( !first ) {
-        return false;
-      }
-      const type = first.type;
-
-      return (type === NAMESPACE || type === NODE || type === RIO.STACK) && this.toRemove.length === 1;
+      return first?.confirmRemove;
     },
 
     plusMore() {
@@ -119,8 +122,30 @@ export default {
       return this.t('promptRemove.protip', { alternateLabel });
     },
 
+    deleteDisabled() {
+      const confirmFailed = this.needsConfirm && this.confirmName !== this.nameToMatch;
+
+      return this.preventDelete || confirmFailed;
+    },
+
     ...mapState('action-menu', ['showPromptRemove', 'toRemove']),
-    ...mapGetters({ t: 'i18n/t' })
+    ...mapGetters({ t: 'i18n/t' }),
+
+    resourceNames() {
+      return this.names.reduce((res, name, i) => {
+        if (i >= 5) {
+          return res;
+        }
+        res += `<b>${ name }</b>`;
+        if (i === this.names.length - 1) {
+          res += this.plusMore;
+        } else {
+          res += i === this.toRemove.length - 2 ? ' and ' : ', ';
+        }
+
+        return res;
+      }, '');
+    }
   },
 
   watch:    {
@@ -190,7 +215,7 @@ export default {
         let goTo;
 
         if (this.doneLocation) {
-          // doneLocation will recompute to undefined when delete request completes
+        // doneLocation will recompute to undefined when delete request completes
           goTo = { ...this.doneLocation };
         }
 
@@ -267,6 +292,7 @@ export default {
     :width="350"
     height="auto"
     styles="max-height: 100vh;"
+    @closed="close"
   >
     <Card class="prompt-remove" :show-highlight-border="false">
       <h4 slot="title" class="text-default-text">
@@ -291,7 +317,12 @@ export default {
             :value="toRemove"
           />
 
-          <span v-if="needsConfirm" :key="resource">Re-enter its name below to confirm:</span>
+          {{ t('promptRemove.attemptingToRemove', { type }) }} <span v-html="resourceNames"></span>
+          <div v-if="needsConfirm" class="mt-10">
+            <span
+              v-html="t('promptRemove.confirmName', { nameToMatch }, true)"
+            ></span>
+          </div>
         </div>
         <input v-if="needsConfirm" id="confirm" v-model="confirmName" type="text" />
         <div class="mb-10">
@@ -308,7 +339,7 @@ export default {
         <button class="btn role-secondary" @click="close">
           Cancel
         </button>
-        <AsyncButton mode="delete" class="btn bg-error ml-10" :disabled="preventDelete" @click="remove" />
+        <AsyncButton mode="delete" class="btn bg-error ml-10" :disabled="deleteDisabled" @click="remove" />
       </template>
     </Card>
   </modal>

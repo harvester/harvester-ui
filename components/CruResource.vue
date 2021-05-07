@@ -24,13 +24,18 @@ export default {
 
   props: {
     doneRoute: {
-      type:     String,
-      required: true
+      type:    String,
+      default: null
     },
 
     cancelEvent: {
       type:    Boolean,
       default: false,
+    },
+
+    showCancel: {
+      type:    Boolean,
+      default: true
     },
 
     mode: {
@@ -83,6 +88,12 @@ export default {
       showAsForm:    this.$route.query[AS] !== _YAML,
       resourceYaml:  yaml,
       initialYaml:   yaml,
+      abbrSizes:     {
+        3: '24px',
+        4: '18px',
+        5: '16px',
+        6: '14px'
+      }
     };
   },
 
@@ -193,6 +204,10 @@ export default {
 
       this.$router.applyQuery({ [SUB_TYPE]: id });
       this.$emit('select-type', id);
+    },
+
+    save() {
+      this.$refs.save.clicked();
     }
   }
 };
@@ -205,7 +220,7 @@ export default {
         v-if="showSubtypeSelection"
         class="subtypes-container"
       >
-        <slot name="subtypes">
+        <slot name="subtypes" :subtypes="subtypes">
           <div
             v-for="subtype in subtypes"
             :key="subtype.id"
@@ -214,49 +229,52 @@ export default {
             @click="selectType(subtype.id, $event)"
           >
             <slot name="subtype-content">
-              <div class="subtype-content">
-                <div class="title">
-                  <slot name="subtype-logo">
-                    <div class="subtype-logo round-image">
-                      <img
-                        v-if="subtype.bannerImage"
-                        src="subtype.bannerImage"
-                        alt="${ resource.type }: ${ subtype.label }"
-                      />
-                      <div
-                        v-else-if="subtype.bannerAbbrv"
-                        class="banner-abbrv"
-                      >
-                        <span v-if="$store.getters['i18n/exists'](subtype.bannerAbbrv)">{{ t(subtype.bannerAbbrv) }}</span>
-                        <span v-else>{{ subtype.bannerAbbrv }}</span>
-                      </div>
-                      <div v-else>
-                        {{ subtype.id.slice(0, 1).toUpperCase() }}
-                      </div>
+              <div class="subtype-container">
+                <div class="subtype-logo">
+                  <img
+                    v-if="subtype.bannerImage"
+                    :src="subtype.bannerImage"
+                    :alt="(resource.type ? resource.type + ': ' : '') + (subtype.label || '')"
+                  />
+                  <div v-else class="round-image">
+                    <div
+                      v-if="subtype.bannerAbbrv"
+                      class="banner-abbrv"
+                    >
+                      <span v-if="$store.getters['i18n/exists'](subtype.bannerAbbrv)">{{ t(subtype.bannerAbbrv) }}</span>
+                      <span v-else :style="{fontSize: abbrSizes[subtype.bannerAbbrv.length]}">{{ subtype.bannerAbbrv }}</span>
                     </div>
-                  </slot>
-                  <h5>
-                    <span
-                      v-if="$store.getters['i18n/exists'](subtype.label)"
-                      v-html="t(subtype.label)"
-                    ></span>
-                    <span v-else>{{ subtype.label }}</span>
-                  </h5>
-                  <a href="" target="_blank" rel="noopener nofollow" class="flex-right">More Info <i class="icon icon-external-link" /></a>
+                    <div v-else>
+                      {{ subtype.id.slice(0, 1).toUpperCase() }}
+                    </div>
+                  </div>
                 </div>
-                <hr />
-                <div v-if="subtype.description" class="description">
-                  <span
-                    v-if="$store.getters['i18n/exists'](subtype.description)"
-                    v-html="t(subtype.description, {}, true)"
-                  ></span>
-                  <span v-else>{{ subtype.description }}</span>
+                <div class="subtype-body">
+                  <div class="title" :class="{'with-description': !!subtype.description}">
+                    <h5>
+                      <span
+                        v-if="$store.getters['i18n/exists'](subtype.label)"
+                        v-html="t(subtype.label)"
+                      ></span>
+                      <span v-else>{{ subtype.label }}</span>
+                    </h5>
+                    <a v-if="subtype.docLink" :href="subtype.docLink" target="_blank" rel="noopener nofollow" class="flex-right">More Info <i class="icon icon-external-link" /></a>
+                  </div>
+                  <hr v-if="subtype.description" />
+                  <div v-if="subtype.description" class="description">
+                    <span
+                      v-if="$store.getters['i18n/exists'](subtype.description)"
+                      v-html="t(subtype.description, {}, true)"
+                    ></span>
+                    <span v-else>{{ subtype.description }}</span>
+                  </div>
                 </div>
               </div>
             </slot>
           </div>
         </slot>
       </div>
+
       <template v-if="showAsForm">
         <div
           v-if="_selectedSubtype || !subtypes.length"
@@ -268,11 +286,16 @@ export default {
         <div class="controls-row">
           <slot name="form-footer">
             <CruResourceFooter
-              :done-route="doneRoute"
               :mode="mode"
               :is-form="showAsForm"
+              :show-cancel="showCancel"
               @cancel-confirmed="confirmCancel"
             >
+              <!-- Pass down templates provided by the caller -->
+              <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                <slot :name="slot" v-bind="scope" />
+              </template>
+
               <template #default>
                 <div v-if="!isView">
                   <button
@@ -285,6 +308,7 @@ export default {
                   </button>
                   <AsyncButton
                     v-if="!showSubtypeSelection"
+                    ref="save"
                     :disabled="!canSave"
                     :mode="finishButtonMode || mode"
                     @click="$emit('finish', $event)"
@@ -387,6 +411,42 @@ export default {
     .round-image {
       background-color: var(--primary);
     }
+  }
+}
+
+$logo: 60px;
+
+.title {
+  margin-top: 20px;
+
+  &.with-description {
+    margin-top: 0;
+  }
+}
+
+.subtype-container {
+  position: relative;
+};
+
+.subtype-body {
+  margin-left: $logo + 10px;
+}
+
+.subtype-logo {
+  position: absolute;
+  left: 0;
+  width: $logo;
+  height: $logo;
+  border-radius: calc(2 * var(--border-radius));
+  overflow: hidden;
+  background-color: white;
+
+  img {
+    width: $logo - 4px;
+    height: $logo - 4px;
+    object-fit: contain;
+    position: relative;
+    top: 2px;
   }
 }
 

@@ -54,7 +54,7 @@ export default {
     keyField: {
       // Field that is unique for each row.
       type:     String,
-      required: true,
+      default: '_key',
     },
 
     groupTitleBy: {
@@ -475,14 +475,15 @@ export default {
 
 <template>
   <div>
-    <div class="sortable-table-header">
+    <div :class="{'titled': $slots.title && $slots.title.length}" class="sortable-table-header">
+      <slot name="title" />
       <div v-if="showHeaderRow" class="fixed-header-actions">
         <div v-if="tableActions" class="bulk">
           <button
             v-for="act in availableActions"
             :key="act.action"
             type="button"
-            class="btn bg-primary"
+            class="btn role-primary"
             :disabled="!act.enabled"
             @click="applyTableAction(act, null, $event)"
             @mouseover="setBulkActionOfInterest(act)"
@@ -689,6 +690,21 @@ export default {
   </div>
 </template>
 
+<style lang="scss" scoped>
+  // Remove colors from multi-action buttons in the table
+  td {
+    .actions.role-multi-action {
+      background-color: transparent;
+      border: none;
+      font-size: 18px;
+      &:hover, &:focus {
+        background-color: var(--accent-btn);
+        box-shadow: none;
+      }
+    }
+  }
+</style>
+
 <style lang="scss">
 //
 // Important: Almost all selectors in here need to be ">"-ed together so they
@@ -700,37 +716,28 @@ $group-separation: 40px;
 $divider-height: 1px;
 
 $separator: 20;
-$remove: 75;
+$remove: 100;
 $spacing: 10px;
 
 .sortable-table {
   border-collapse: collapse;
   min-width: 400px;
   border-radius: 5px 5px 0 0;
+  outline: 1px solid var(--border);
   overflow: hidden;
-  box-shadow: 0 0 20px var(--shadow);
   background: var(--sortable-table-accent-bg);
   border-radius: 4px;
 
   td {
-    padding: 12px 5px;
+    padding: 8px 5px;
     border: 0;
-    word-break: break-word;
 
     &.row-check {
-      padding-top: 16px;
-
-      LABEL {
-        margin-right: 1px; /* to make up for the edge border */
-      }
+      padding-top: 12px;
     }
   }
 
   tbody {
-    // border-left: 40px solid transparent;
-    // border-right: 40px solid transparent;
-    // border-bottom: 2px solid var(--border);
-
     tr {
       border-bottom: 1px solid var(--sortable-table-top-divider);
       background-color: var(--body-bg);
@@ -741,6 +748,10 @@ $spacing: 10px;
 
       &:last-of-type {
         border-bottom: 0;
+      }
+
+      &:hover {
+        background-color: var(--sortable-table-hover-bg);
       }
     }
 
@@ -756,11 +767,11 @@ $spacing: 10px;
     }
 
     tr.active-row {
-      color: var(--sortable-table-header-bg) !important;
+      color: var(--sortable-table-header-bg);
     }
 
     tr.row-selected {
-      background: var(--sortable-table-selected-bg) !important;
+      background: var(--sortable-table-selected-bg);
     }
 
     .no-rows {
@@ -864,6 +875,11 @@ $spacing: 10px;
 .sortable-table-header {
   position: relative;
   z-index: z-index('fixedTableHeader');
+
+  &.titled {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .fixed-header-actions {

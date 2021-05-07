@@ -61,7 +61,12 @@ export const NAME = 'name';
 export const NAMESPACE = 'namespace';
 export const DESCRIPTION = 'description';
 export const CATEGORY = 'category';
+export const DEPRECATED = 'deprecated';
+export const HIDDEN = 'hidden';
+export const FORCE = 'force';
+export const FROM_TOOLS = 'tools';
 
 // Cluster provisioning
 export const PROVIDER = 'provider';
 export const REGISTER = 'register';
+export const CLOUD_CREDENTIAL = 'cloud';

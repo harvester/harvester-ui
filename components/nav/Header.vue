@@ -1,25 +1,41 @@
 <script>
 import { mapGetters } from 'vuex';
 import { NORMAN } from '@/config/types';
+import { ucFirst } from '@/utils/string';
+import { isMac } from '@/utils/platform';
 import Import from '@/components/Import';
-import ProductSwitcher from './ProductSwitcher';
-import ClusterSwitcher from './ClusterSwitcher';
 import NamespaceFilter from './NamespaceFilter';
 import WorkspaceSwitcher from './WorkspaceSwitcher';
+import TopLevelMenu from './TopLevelMenu';
+import Jump from './Jump';
 
 export default {
 
   components: {
-    ProductSwitcher,
-    ClusterSwitcher,
     NamespaceFilter,
     WorkspaceSwitcher,
     Import,
+    TopLevelMenu,
+    Jump,
+  },
+
+  props: {
+    simple: {
+      type:    Boolean,
+      default: false
+    }
+  },
+
+  data() {
+    const searchShortcut = isMac ? '(\u2318-K)' : '(Ctrl+K)';
+
+    return { show: false, searchShortcut };
   },
 
   computed: {
-    ...mapGetters(['clusterReady', 'isMultiCluster', 'currentCluster',
+    ...mapGetters(['clusterReady', 'isMultiCluster', 'isRancher', 'currentCluster',
       'currentProduct', 'backToRancherLink', 'backToRancherGlobalLink']),
+    ...mapGetters('type-map', ['activeProducts']),
 
     authEnabled() {
       return this.$store.getters['auth/enabled'];
@@ -36,14 +52,26 @@ export default {
     showImport() {
       return !!this.currentCluster?.actions?.apply;
     },
+
+    prod() {
+      const name = this.currentProduct.name;
+
+      return this.$store.getters['i18n/withFallback'](`product."${ name }"`, null, ucFirst(name));
+    },
+
+    showSearch() {
+      return this.currentProduct?.inStore === 'cluster';
+    },
   },
 
   methods: {
     showMenu(show) {
-      if (show) {
-        this.$refs.popover.show();
-      } else {
-        this.$refs.popover.hide();
+      if (this.$refs.popover) {
+        if (show) {
+          this.$refs.popover.show();
+        } else {
+          this.$refs.popover.hide();
+        }
       }
     },
 
@@ -53,34 +81,65 @@ export default {
 
     closeImport() {
       this.$modal.hide('importModal');
+    },
+
+    openSearch() {
+      this.$modal.show('searchModal');
+    },
+
+    hideSearch() {
+      this.$modal.hide('searchModal');
     }
   }
 };
 </script>
 
 <template>
-  <header>
-    <div class="product">
-      <ProductSwitcher v-if="currentCluster" />
-      <div alt="Logo" class="logo">
-        <img src="~/assets/images/pl/half-logo.svg" />
+  <header :class="{'simple': simple}">
+    <div class="menu-spacer"></div>
+    <div v-if="!simple" class="product">
+      <div v-if="currentProduct && currentProduct.showClusterSwitcher" class="cluster">
+        <img v-if="currentCluster" class="cluster-os-logo" :src="currentCluster.providerLogo" />
+        <div v-if="currentCluster" class="cluster-name">
+          {{ currentCluster.spec.displayName }}
+        </div>
+        <div v-else class="simple-title">
+          <img class="side-menu-logo" src="~/assets/images/pl/rancher-logo.svg" width="110" />
+          <div class="title">
+            {{ t('nav.title') }}
+          </div>
+        </div>
+      </div>
+      <div v-if="currentProduct && !currentProduct.showClusterSwitcher" class="cluster">
+        <div class="product-name">
+          {{ prod }}
+        </div>
+      </div>
+    </div>
+    <div v-else class="simple-title">
+      <img class="side-menu-logo" src="~/assets/images/pl/rancher-logo.svg" width="110" />
+      <div class="title">
+        {{ t('nav.title') }}
       </div>
     </div>
 
-    <div class="top">
+    <TopLevelMenu></TopLevelMenu>
+
+    <div v-if="!simple" class="top">
       <NamespaceFilter v-if="clusterReady && currentProduct && currentProduct.showNamespaceFilter" />
       <WorkspaceSwitcher v-else-if="clusterReady && currentProduct && currentProduct.showWorkspaceSwitcher" />
     </div>
 
-    <div class="back">
-      <a v-if="currentProduct && isMultiCluster" class="btn role-tertiary" :href="(currentProduct.inStore === 'management' ? backToRancherGlobalLink : backToRancherLink)">
-        {{ t('nav.backToRancher') }}
-      </a>
-    </div>
-
-    <div class="import">
-      <button v-if="currentProduct && currentProduct.showClusterSwitcher" :disabled="!showImport" type="button" class="btn role-tertiary" @click="openImport()">
-        <i v-tooltip="t('nav.import')" class="icon icon-upload icon-lg" />
+    <div v-if="!simple" class="header-buttons">
+      <button
+        v-if="currentProduct && currentProduct.showClusterSwitcher"
+        v-tooltip="t('nav.import')"
+        :disabled="!showImport"
+        type="button"
+        class="btn header-btn role-tertiary"
+        @click="openImport()"
+      >
+        <i class="icon icon-upload icon-lg" />
       </button>
       <modal
         class="import-modal"
@@ -91,19 +150,43 @@ export default {
       >
         <Import :cluster="currentCluster" @close="closeImport" />
       </modal>
-    </div>
 
-    <div class="kubectl">
-      <button v-if="currentProduct && currentProduct.showClusterSwitcher" :disabled="!showShell" type="button" class="btn role-tertiary" @click="currentCluster.openShell()">
-        <i v-tooltip="t('nav.shell')" class="icon icon-terminal icon-lg" />
+      <button
+        v-if="currentProduct && currentProduct.showClusterSwitcher"
+        v-tooltip="t('nav.shell')"
+        :disabled="!showShell"
+        type="button"
+        class="btn header-btn role-tertiary"
+        @click="currentCluster.openShell()"
+      >
+        <i class="icon icon-terminal icon-lg" />
       </button>
+
+      <button
+        v-if="showSearch"
+        v-tooltip="t('nav.resourceSearch.toolTip', {key: searchShortcut})"
+        v-shortkey="{windows: ['ctrl', 'k'], mac: ['meta', 'k']}"
+        type="button"
+        class="btn header-btn role-tertiary"
+        @shortkey="openSearch()"
+        @click="openSearch()"
+      >
+        <i class="icon icon-search icon-lg" />
+      </button>
+      <modal
+        v-if="showSearch"
+        class="search-modal"
+        name="searchModal"
+        width="50%"
+        height="auto"
+      >
+        <Jump @closeSearch="hideSearch()" />
+      </modal>
     </div>
 
-    <div class="cluster">
-      <ClusterSwitcher v-if="isMultiCluster && currentProduct && currentProduct.showClusterSwitcher" />
-    </div>
+    <div class="header-spacer"></div>
 
-    <div class="user" tabindex="0" @blur="showMenu(false)" @click="showMenu(true)" @focus.capture="showMenu(true)">
+    <div class="user user-menu" tabindex="0" @blur="showMenu(false)" @click="showMenu(true)" @focus.capture="showMenu(true)">
       <v-popover
         ref="popover"
         placement="bottom-end"
@@ -114,75 +197,150 @@ export default {
         :container="false"
       >
         <div class="user-image text-right hand">
-          <img v-if="principal && principal.avatarSrc" :src="principal.avatarSrc" :class="{'avatar-round': principal.roundAvatar}" width="40" height="40" />
+          <img v-if="principal && principal.avatarSrc" :src="principal.avatarSrc" :class="{'avatar-round': principal.roundAvatar}" width="36" height="36" />
           <i v-else class="icon icon-user icon-3x avatar" />
         </div>
-        <template slot="popover">
+        <template slot="popover" class="user-menu">
           <ul class="list-unstyled dropdown" @click.stop="showMenu(false)">
             <li v-if="authEnabled" class="user-info">
               <div class="user-name">
                 <i class="icon icon-lg icon-user" /> {{ principal.loginName }}
               </div>
-              <div class="text-small pb-5">
+              <div class="text-small pt-5 pb-5">
                 {{ principal.name }}
               </div>
             </li>
-            <div>
-              <nuxt-link tag="li" :to="{name: 'prefs'}" class="hand">
-                <a>Preferences <i class="icon icon-fw icon-gear" /></a>
-              </nuxt-link>
-              <nuxt-link tag="li" :to="{name: 'account'}" class="hand">
-                <a>Account &amp; API Keys <i class="icon icon-fw icon-user" /></a>
-              </nuxt-link>
-              <nuxt-link v-if="authEnabled" tag="li" :to="{name: 'auth-logout'}" class="pt-5 pb-5 hand">
-                <a @blur="showMenu(false)">Log Out <i class="icon icon-fw icon-close" /></a>
-              </nuxt-link>
-            </div>
+            <nuxt-link tag="li" :to="{name: 'prefs'}" class="user-menu-item">
+              <a>Preferences <i class="icon icon-fw icon-gear" /></a>
+            </nuxt-link>
+            <nuxt-link v-if="isRancher" tag="li" :to="{name: 'account'}" class="user-menu-item">
+              <a>Account &amp; API Keys <i class="icon icon-fw icon-user" /></a>
+            </nuxt-link>
+            <nuxt-link v-if="authEnabled" tag="li" :to="{name: 'auth-logout'}" class="user-menu-item">
+              <a @blur="showMenu(false)">Log Out <i class="icon icon-fw icon-close" /></a>
+            </nuxt-link>
           </ul>
         </template>
       </v-popover>
     </div>
   </header>
 </template>
-
 <style lang="scss" scoped>
   HEADER {
     display: grid;
     height: 100vh;
 
-    .labeled-select,
-    .unlabeled-select {
-      min-height: 0;
-      height: $input-height;
+    .title {
+      border-left: 1px solid var(--header-border);
+      padding-left: 10px;
+      opacity: 0.7;
+      text-transform: uppercase;
+    }
+
+    .filter {
+      ::v-deep .labeled-select,
+      ::v-deep .unlabeled-select {
+        .vs__search::placeholder {
+          color: var(--body-text) !important;
+        }
+
+        .vs__dropdown-toggle .vs__actions:after {
+          color: var(--body-text) !important;
+          font-size: 1.5rem;
+          padding-right: 4px;
+        }
+
+        .vs__dropdown-toggle {
+          background: transparent;
+          border: 1px solid var(--header-border);
+        }
+      }
     }
 
     > * {
-      display: flex;
-      align-items: center;
       padding: 0 5px;
     }
 
-    ::v-deep > div > .btn {
+    .back {
+      padding-top: 6px;
+
+      > *:first-child {
+        height: 40px;
+      }
+    }
+
+    .simple-title {
+      align-items: center;
+      display: flex;
+
+      .title {
+        height: 24px;
+        line-height: 24px;
+      }
+    }
+
+    .user-menu {
+      padding-top: 9.5px;
+    }
+
+    ::v-deep > div > .btn.role-tertiary {
       border: 1px solid var(--header-btn-bg);
-      background: rgba(0,0,0,.05);
+      border: none;
+      background: var(--header-btn-bg);
       color: var(--header-btn-text);
+      padding: 0 10px;
+      line-height: 32px;
+      min-height: 32px;
+
+      i {
+        // Ideally same height as the parent button, but this means tooltip needs adjusting (which is it's own can of worms)
+        line-height: 20px;
+      }
+
+      &:hover {
+        background: var(--link-text);
+        color: #fff;
+      }
 
       &[disabled=disabled] {
-        background-color: var(--header-btn-bg) !important;
+        background-color: rgba(0,0,0,0.25) !important;
         color: var(--header-btn-text) !important;
         opacity: 0.7;
       }
     }
 
-    grid-template-areas:  "product top back import kubectl cluster user";
-    grid-template-columns: var(--nav-width) auto min-content min-content min-content min-content var(--header-height);
+    grid-template-areas:  "menu product top buttons cluster user";
+    grid-template-columns: var(--header-height) calc(var(--nav-width) - var(--header-height)) auto min-content  min-content var(--header-height);
     grid-template-rows:    var(--header-height);
+
+    &.simple {
+      grid-template-columns: var(--header-height) min-content auto min-content min-content var(--header-height);
+    }
+
+    > .menu-spacer {
+      width: 65px;
+    }
+
+    .cluster {
+      align-items: center;
+      display: flex;
+      height: 32px;
+      white-space: nowrap;
+      .cluster-os-logo {
+        width: 32px;
+        height: 32px;
+        margin-right: 10px;
+      }
+      .cluser-name {
+        font-size: 16px;
+      }
+    }
 
     > .product {
       grid-area: product;
-      background-color: var(--header-btn-bg);
+      align-items: center;
       position: relative;
-      display: block;
+      display: flex;
 
       .logo {
         height: 30px;
@@ -197,32 +355,40 @@ export default {
       }
     }
 
-    > .back {
-      grid-area: back;
-      background-color: var(--header-bg);
-    }
+    .header-buttons {
+      align-items: center;
+      display: flex;
+      grid-area: buttons;
+      margin-top: 1px;
 
-    > .import {
-      grid-area: import;
-      background-color: var(--header-bg);
-    }
+      // Spacing between header buttons
+      .btn:not(:last-of-type) {
+        margin-right: 10px;
+      }
 
-    > .kubectl {
-      grid-area: kubectl;
-      background-color: var(--header-bg);
-    }
-
-    > .back,
-    > .import,
-    > .kubectl {
-      text-align: right;
-
-      .btn {
-        text-align: center;
+      .btn:focus {
+        box-shadow: none;
       }
     }
 
-    > .cluster {
+    .product-name {
+      font-size: 16px;
+    }
+
+    .side-menu-logo {
+      margin-right: 8px;
+    }
+
+    > * {
+      background-color: var(--header-bg);
+      border-bottom: var(--header-border-size) solid var(--header-border);
+    }
+
+    .header-btn {
+      width: 40px;
+    }
+
+    > .header-spacer {
       grid-area: cluster;
       background-color: var(--header-bg);
       position: relative;
@@ -230,7 +396,7 @@ export default {
 
     > .top {
       grid-area: top;
-      background-color: var(--header-bg);
+      padding-top: 6px;
 
       INPUT[type='search']::placeholder,
       .vs__open-indicator,
@@ -262,6 +428,20 @@ export default {
     > .user {
       outline: none;
 
+      .v-popover {
+        display: flex;
+        ::v-deep .trigger{
+        .user-image {
+            display: flex;
+          }
+        }
+      }
+
+      .user-image {
+        display: flex;
+        align-items: center;
+      }
+
       &:focus {
         .v-popover {
           ::v-deep .trigger {
@@ -278,10 +458,6 @@ export default {
 
       grid-area: user;
       background-color: var(--header-bg);
-
-      IMG {
-        border: 1px solid var(--header-btn-bg);
-      }
 
       .avatar-round {
         border: 0;
@@ -301,7 +477,7 @@ export default {
       &.user-info {
         display: block;
         margin-bottom: 10px;
-        padding: 15px;
+        padding: 10px 20px;
         border-bottom: solid 1px var(--border);
         min-width: 200px;
       }
@@ -315,5 +491,36 @@ export default {
 
   .user-name {
     color: var(--secondary);
+  }
+
+  .user-menu {
+    // Remove the default padding on the popup so that the hover on menu items goes full width of the menu
+    ::v-deep .popover-inner {
+      padding: 10px 0;
+    }
+
+    ::v-deep .v-popover {
+      display: flex;
+    }
+  }
+
+  .user-menu-item {
+    a {
+      cursor: hand;
+      padding: 0px 10px;
+
+      &:hover {
+        background-color: var(--dropdown-hover-bg);
+        color: var(--dropdown-hover-text);
+        text-decoration: none;
+      }
+
+      // When the menu item is focused, pop the margin and compensate the padding, so that
+      // the focus border appears within the menu
+      &:focus {
+        margin: 0 2px;
+        padding: 10px 8px;
+      }
+    }
   }
 </style>

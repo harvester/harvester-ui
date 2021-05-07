@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+
 import { STANDARD } from './config/private-label';
 import { directiveSsr as t } from './plugins/i18n';
 import { trimWhitespaceSsr as trimWhitespace } from './plugins/trim-whitespace';
@@ -87,7 +88,8 @@ module.exports = {
     ],
   },
 
-  mode: 'spa', // --- Use --spa CLI flag, or ?spa query param.
+  mode:             'spa', // --- Use --spa CLI flag, or ?spa query param.
+  loadingIndicator: '~/static/loading-indicator.html',
 
   loading: '~/components/nav/GlobalLoading.vue',
 
@@ -98,6 +100,8 @@ module.exports = {
     retry:          { retries: 0 },
     // debug:   true
   },
+
+  content: { markdown: { prism: { theme: false } } },
 
   router: {
     mode:       'hash', // Compatible with rancher proxy
@@ -192,6 +196,21 @@ module.exports = {
         },
       });
 
+      // Prevent warning in log with the md files in the content folder
+      config.module.rules.push({
+        test:    /\.md$/,
+        use:  [
+          {
+            loader:  'url-loader',
+            options: {
+              name:     '[path][name].[ext]',
+              limit:    1,
+              esModule: false
+            },
+          }
+        ]
+      });
+
       // Run ESLint on save
       if (isDev && isClient) {
         config.module.rules.push({
@@ -213,7 +232,7 @@ module.exports = {
             {
               // buildTarget: isServer ? 'server' : 'client',
               corejs:      { version: 3 },
-              targets:     isServer ? { node: 'current' } : { browsers: ['last 2 versions'] },
+              targets:     isServer ? { node: '12' } : { browsers: ['last 2 versions'] },
               modern:      !isServer
             }
           ]
@@ -268,6 +287,7 @@ module.exports = {
     'cookie-universal-nuxt',
     'portal-vue/nuxt',
     '~/plugins/steve/rehydrate-all',
+    '@nuxt/content',
   ],
 
   // Vue plugins
@@ -293,6 +313,7 @@ module.exports = {
     { src: '~/plugins/extend-router' },
     { src: '~/plugins/lookup', ssr: false },
     { src: '~/plugins/nuxt-client-init', ssr: false },
+    '~/plugins/replaceall',
   ],
 
   // Proxy: https://github.com/nuxt-community/proxy-module#options
@@ -305,7 +326,7 @@ module.exports = {
     '/v3-public': proxyOpts(api), // Rancher Unauthed API
     '/api-ui':    proxyOpts(api), // Browser API UI
     '/meta':      proxyOpts(api), // Browser API UI
-    '/v1-saml':    proxyOpts(api)
+    '/v1-*':      proxyOpts(api) // SAML, KDM, etc
   },
 
   // Nuxt server
@@ -320,7 +341,7 @@ module.exports = {
 
   // Server middleware
   serverMiddleware: [
-    '~/server/no-ssr'
+    '~/server/server-middleware'
   ],
 
   // Eslint module options

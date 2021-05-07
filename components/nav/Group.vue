@@ -63,10 +63,66 @@ export default {
     hasChildren() {
       return this.group.children?.length > 0;
     },
+
+    onlyHasOverview() {
+      return this.group.children && this.group.children.length === 1 && this.group.children[0].overview;
+    },
+
+    isOverview() {
+      if (this.group.children && this.group.children.length > 0) {
+        const grp = this.group.children[0];
+        const overviewRoute = grp?.route;
+
+        if (overviewRoute && grp.overview) {
+          const route = this.$router.resolve(overviewRoute || {});
+
+          return this.$route.fullPath === route.href;
+        }
+      }
+
+      return false;
+    },
+
+    showExpanded() {
+      return this.isExpanded || this.isActiveGroup || this.group.isRoot;
+    },
+
+    isActiveGroup() {
+      if (this.group.children && this.group.children.length > 0) {
+        const active = this.group.children.find((item) => {
+          if (item.route) {
+            const route = this.$router.resolve(item.route);
+
+            return this.$route.fullPath === route.href;
+          }
+
+          return false;
+        });
+
+        return !!active;
+      }
+
+      return false;
+    },
   },
 
   methods: {
-    toggle(event) {
+    expandCollapse() {
+      if (this.canCollapse) {
+        this.isExpanded = !this.isExpanded;
+        this.$emit('on-toggle', this.id, this.isExpanded);
+        this.$store.dispatch('type-map/toggleGroup', {
+          group:    this.id,
+          expanded: this.isExpanded
+        });
+      }
+    },
+
+    clicked() {
+      this.$emit('on-toggle', this.id, true);
+    },
+
+    toggle(event, skipAutoClose) {
       const $tgt = $(event.target);
 
       if ( $tgt.closest('a').length && !$tgt.hasClass('toggle') ) {
@@ -75,12 +131,29 @@ export default {
       }
 
       if ( this.canCollapse ) {
-        this.isExpanded = !this.isExpanded;
-        this.$emit('on-toggle', this.id, this.isExpanded);
+        this.isExpanded = skipAutoClose ? !this.isExpanded : true;
+        this.$emit('on-toggle', this.id, this.isExpanded, skipAutoClose);
         this.$store.dispatch('type-map/toggleGroup', {
           group:    this.id,
           expanded: this.isExpanded
         });
+
+        if (this.isExpanded && !skipAutoClose) {
+          const items = this.group[this.childrenKey];
+
+          // Navigate to the first item in the group
+          if (items && items.length > 0) {
+            const route = items[0].route;
+
+            this.$router.replace(route);
+          }
+        }
+      } else {
+        this.$emit('on-toggle', this.id, true);
+      }
+
+      if (skipAutoClose) {
+        event.stopPropagation();
       }
     }
   }
@@ -88,14 +161,14 @@ export default {
 </script>
 
 <template>
-  <div class="accordion" :class="{[`depth-${depth}`]: true, 'expanded': isExpanded, 'has-children': hasChildren}">
-    <div v-if="showHeader" class="header" @click="toggle($event)">
+  <div class="accordion" :class="{[`depth-${depth}`]: true, 'expanded': showExpanded, 'has-children': hasChildren}">
+    <div v-if="showHeader" class="header" :class="{'active': isOverview, 'noHover': !canCollapse}" @click="toggle($event)">
       <slot name="header">
         <span v-html="group.labelDisplay || group.label" />
       </slot>
-      <i v-if="canCollapse" class="icon toggle" :class="{'icon-chevron-down': !isExpanded, 'icon-chevron-up': isExpanded}" />
+      <i v-if="!onlyHasOverview && canCollapse && !isActiveGroup" class="icon toggle" :class="{'icon-chevron-down': !isExpanded, 'icon-chevron-up': isExpanded}" @click="toggle($event, true)" />
     </div>
-    <ul v-if="isExpanded" class="list-unstyled body" v-bind="$attrs">
+    <ul v-if="showExpanded" class="list-unstyled body" v-bind="$attrs">
       <template v-for="(child, idx) in group[childrenKey]">
         <li v-if="child.divider" :key="idx">
           <hr />
@@ -109,13 +182,17 @@ export default {
             :can-collapse="canCollapse"
             :group="child"
             :expanded="expanded"
+            @selected="$emit('selected')"
           />
         </li>
         <Type
-          v-else
+          v-else-if="!child.overview"
           :key="id+'_' + child.name + '_type'"
           :is-root="depth == 0 && !showHeader"
           :type="child"
+          :depth="depth"
+          @selected="$emit('selected')"
+          @click="clicked"
         />
       </template>
     </ul>
@@ -131,10 +208,15 @@ export default {
 
     > H6 {
       color: var(--body-text);
+      user-select: none;
     }
 
     > A {
       display: block;
+    }
+
+    &.active {
+      background-color: var(--nav-active);
     }
   }
 
@@ -143,9 +225,27 @@ export default {
   }
 
   .accordion {
+    .header {
+      &:hover:not(.noHover) {
+        background-color: var(--nav-hover);
+      }
+
+      > I {
+        &:hover {
+          background-color: var(--nav-expander-hover);
+        }
+      }
+    }
+  }
+
+  .accordion {
     &.depth-0 {
       > .header {
-        padding: 5px 0;
+        padding: 8px 0;
+
+        &.noHover {
+          cursor: default;
+        }
 
         > H6 {
           font-size: 14px;
@@ -157,7 +257,8 @@ export default {
           position: absolute;
           right: 0;
           top: 0;
-          padding: 7px 8px 11px 0;
+          padding: 9px 7px;
+          user-select: none;
         }
       }
 
@@ -168,6 +269,7 @@ export default {
 
     &:not(.depth-0) {
       > .header {
+        padding-left: 10px;
         > SPAN {
           // Child groups that aren't linked themselves
           display: inline-block;
@@ -178,7 +280,7 @@ export default {
           position: absolute;
           right: 0;
           top: 0;
-          padding: 6px 8px 6px 0;
+          padding: 6px 8px 6px 8px;
         }
       }
     }
@@ -186,7 +288,6 @@ export default {
 
  .body ::v-deep > .child.nuxt-link-active,
  .header ::v-deep > .child.nuxt-link-exact-active {
-    background-color: var(--nav-active);
     padding: 0;
     border-left: solid 5px var(--primary);
 
@@ -196,6 +297,10 @@ export default {
 
     A, A I {
       color: var(--body-text);
+    }
+
+    A {
+      background-color: var(--nav-active);
     }
   }
 
@@ -210,7 +315,8 @@ export default {
   .body ::v-deep > .child {
     A {
       border-left: solid 5px transparent;
-      transition: ease-in-out all .25s;
+      line-height: 16px;
+      font-size: 13px;
     }
 
     A:focus {

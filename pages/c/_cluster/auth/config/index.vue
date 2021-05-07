@@ -3,25 +3,20 @@ import { MANAGEMENT } from '@/config/types';
 import SelectIconGrid from '@/components/SelectIconGrid';
 import { sortBy } from '@/utils/sort';
 import { MODE, _EDIT } from '@/config/query-params';
+import { authProvidersInfo } from '@/utils/auth';
+import Banner from '@/components/Banner';
 
 export default {
-  components: { SelectIconGrid },
+  components: { SelectIconGrid, Banner },
 
-  async asyncData({ route, redirect, store }) {
-    const rows = await store.dispatch(`management/findAll`, { type: MANAGEMENT.AUTH_CONFIG });
-    const nonLocal = rows.filter(x => x.name !== 'local');
-    const enabled = nonLocal.filter(x => x.enabled === true );
+  async asyncData({ store, redirect }) {
+    const authProvs = await authProvidersInfo(store);
 
-    if ( enabled.length === 1 ) {
-      redirect({
-        name:   'c-cluster-auth-config-id',
-        params: { id: enabled[0].id }
-      });
-
-      return { nonLocal };
-    } else {
-      return { nonLocal };
+    if (!!authProvs.enabledLocation) {
+      redirect(authProvs.enabledLocation);
     }
+
+    return { nonLocal: authProvs.nonLocal, enabled: authProvs.enabled };
   },
 
   data() {
@@ -47,6 +42,10 @@ export default {
     rows() {
       return sortBy(this.nonLocal, ['sideLabel', 'nameDisplay']);
     },
+
+    displayName() {
+      return this.$store.getters['type-map/labelFor'](this.schema, 2);
+    }
   },
 
   methods: {
@@ -75,6 +74,10 @@ export default {
 
 <template>
   <div>
+    <h1 class="m-0">
+      {{ displayName }}
+    </h1>
+    <Banner v-if="!enabled.length" :label="t('authConfig.noneEnabled')" color="info" />
     <SelectIconGrid
       :rows="rows"
       :color-for="colorFor"

@@ -8,9 +8,10 @@ import InfoBox from '@/components/InfoBox';
 import Checkbox from '@/components/form/Checkbox';
 import LabeledInput from '@/components/form/LabeledInput';
 import Banner from '@/components/Banner';
-import AsyncButton from '@/components/AsyncButton';
 import AllowedPrincipals from '@/components/auth/AllowedPrincipals';
 import FileSelector from '@/components/form/FileSelector';
+import AuthBanner from '@/components/auth/AuthBanner';
+import CopyToClipboardText from '@/components/CopyToClipboardText';
 
 const NAME = 'googleoauth';
 
@@ -23,19 +24,12 @@ export default {
     Banner,
     Checkbox,
     AllowedPrincipals,
-    AsyncButton,
-    FileSelector
+    FileSelector,
+    AuthBanner,
+    CopyToClipboardText
   },
 
   mixins: [CreateEditView, AuthConfig],
-
-  data() {
-    return {
-      model:         null,
-      serverSetting: null,
-      errors:        null,
-    };
-  },
 
   computed: {
     tArgs() {
@@ -72,6 +66,7 @@ export default {
   <Loading v-if="$fetchState.pending" />
   <div v-else>
     <CruResource
+      :cancel-event="true"
       :done-route="doneRoute"
       :mode="mode"
       :resource="model"
@@ -80,22 +75,20 @@ export default {
       :finish-button-mode="model.enabled ? 'edit' : 'enable'"
       :can-yaml="false"
       :errors="errors"
+      :show-cancel="showCancel"
       @error="e=>errors = e"
       @finish="save"
-      @cancel="done"
+      @cancel="cancel"
     >
-      <template v-if="model.enabled && !isEnabling">
-        <Banner color="success clearfix">
-          <div class="pull-left mt-10">
-            {{ t('authConfig.stateBanner.enabled', tArgs) }}
-          </div>
-          <div class="pull-right">
-            <AsyncButton mode="disable" size="sm" action-color="bg-error" @click="disable" />
-          </div>
-        </Banner>
+      <template v-if="model.enabled && !isEnabling && !editConfig">
+        <AuthBanner :t-args="tArgs" :disable="disable" :edit="goToEdit">
+          <template slot="rows">
+            <tr><td>{{ t(`authConfig.${NAME}.adminEmail`) }}: </td><td>{{ model.adminEmail }}</td></tr>
+            <tr><td>{{ t(`authConfig.${NAME}.domain`) }}: </td><td>{{ model.hostname }}</td></tr>
 
-        <div>{{ t(`authConfig.${NAME}.adminEmail`) }}: {{ model.adminEmail }}</div>
-        <div>{{ t(`authConfig.${NAME}.domain`) }}: {{ model.hostname }}</div>
+            <tr><td>{{ t('authConfig.ldap.nestedGroupMembership.label') }}: </td><td>{{ model.nestedGroupMembershipEnabled ? t('generic.enabled') : t('generic.disabled') }}</td></tr>
+          </template>
+        </AuthBanner>
 
         <hr />
 
@@ -103,7 +96,7 @@ export default {
       </template>
 
       <template v-else>
-        <Banner :label="t('authConfig.stateBanner.disabled', tArgs)" color="warning" />
+        <Banner v-if="!model.enabled" :label="t('authConfig.stateBanner.disabled', tArgs)" color="warning" />
         <div :style="{'align-items':'center'}" class="row mb-20">
           <div class="col span-5">
             <LabeledInput
@@ -125,23 +118,37 @@ export default {
             <Checkbox v-model="model.nestedGroupMembershipEnabled" :mode="mode" :label="t('authConfig.ldap.nestedGroupMembership.label')" />
           </div>
         </div>
-        <InfoBox class=" mt-20 mb-20 p-10">
+        <InfoBox :step="1" class=" mt-20 mb-20">
           <h3 v-html="t('authConfig.googleoauth.steps.1.title', tArgs, true)" />
-          <div v-html="t('authConfig.googleoauth.steps.1.body', tArgs, true)" />
+          <ul class="mt-0 step-list">
+            <li>{{ t('authConfig.googleoauth.steps.1.body.1', {}, true) }} </li>
+            <li><b>{{ t('authConfig.googleoauth.steps.1.body.2', {}, true) }}</b> {{ t('authConfig.googleoauth.steps.1.topPrivateDomain', {}, true) }} <CopyToClipboardText :plain="true" :text="tArgs.hostname" /> </li>
+            <li><b>{{ t('authConfig.googleoauth.steps.1.body.3', {}, true) }}</b> <CopyToClipboardText :plain="true" :text="serverUrl" /> </li>
+            <li>{{ t('authConfig.googleoauth.steps.1.body.4', {}, true) }} </li>
+            <li>{{ t('authConfig.googleoauth.steps.1.body.5', {}, true) }} </li>
+          </ul>
         </InfoBox>
-        <InfoBox class="mb-20 p-10">
+        <InfoBox :step="2" class="mb-20">
           <div class="row">
             <h3 v-html="t('authConfig.googleoauth.steps.2.title', tArgs, true)" />
           </div>
           <div class="row">
-            <div class="col span-6" v-html="t('authConfig.googleoauth.steps.2.body', tArgs, true)" />
+            <div class="col span-6">
+              <ul class="mt-0 step-list">
+                <li>{{ t('authConfig.googleoauth.steps.2.body.1', {}, true) }} </li>
+                <li><b>{{ t('authConfig.googleoauth.steps.2.body.2', {}, true) }}</b> <CopyToClipboardText :plain="true" :text="serverUrl" /> </li>
+                <li><b>{{ t('authConfig.googleoauth.steps.2.body.3', {}, true) }}</b> <CopyToClipboardText :plain="true" :text="serverUrl+'/verify-auth'" /> </li>
+                <li>{{ t('authConfig.googleoauth.steps.2.body.4', {}, true) }} </li>
+                <li>{{ t('authConfig.googleoauth.steps.2.body.5', {}, true) }} </li>
+              </ul>
+            </div>
             <div class="col span-6">
               <LabeledInput
                 v-model="model.oauthCredential"
                 :label="t(`authConfig.googleoauth.oauthCredentials.label`)"
                 :mode="mode"
                 required
-                type="multiline"
+                type="multiline-password"
                 :tooltip="t(`authConfig.googleoauth.oauthCredentials.tip`)"
                 :hover-tooltip="true"
               />
@@ -149,19 +156,26 @@ export default {
             </div>
           </div>
         </InfoBox>
-        <InfoBox class="mb-20 p-10">
+        <InfoBox :step="3" class="mb-20">
           <div class="row">
             <h3 v-html="t('authConfig.googleoauth.steps.3.title', tArgs, true)" />
           </div>
           <div class="row">
-            <div class="col span-6" v-html="t('authConfig.googleoauth.steps.3.body', tArgs, true)" />
+            <div class="col span-6">
+              <div v-html="t('authConfig.googleoauth.steps.3.introduction', tArgs, true)" />
+              <ul class="mt-10 step-list">
+                <li>{{ t('authConfig.googleoauth.steps.3.body.1', {}, true) }} </li>
+                <li>{{ t('authConfig.googleoauth.steps.3.body.2', {}, true) }} </li>
+                <li>{{ t('authConfig.googleoauth.steps.3.body.3', {}, true) }} </li>
+              </ul>
+            </div>
             <div class="col span-6">
               <LabeledInput
                 v-model="model.serviceAccountCredential"
                 :label="t(`authConfig.googleoauth.serviceAccountCredentials.label`)"
                 :mode="mode"
                 required
-                type="multiline"
+                type="multiline-password"
                 :tooltip="t(`authConfig.googleoauth.serviceAccountCredentials.tip`)"
                 :hover-tooltip="true"
               />
@@ -179,3 +193,8 @@ export default {
     </CruResource>
   </div>
 </template>
+<style lang="scss" scoped>
+  .step-list li:not(:last-child) {
+    margin-bottom: 8px;
+  }
+</style>

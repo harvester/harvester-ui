@@ -1,6 +1,6 @@
 <script>
 import ResourceTable from '@/components/ResourceTable';
-import { WORKLOAD_TYPES, SCHEMA, ENDPOINTS } from '@/config/types';
+import { WORKLOAD_TYPES, SCHEMA, NODE } from '@/config/types';
 import Loading from '@/components/Loading';
 
 const schema = {
@@ -18,7 +18,13 @@ export default {
   components: { Loading, ResourceTable },
 
   async fetch() {
-    this.$store.dispatch('cluster/findAll', { type: ENDPOINTS });
+    try {
+      const schema = this.$store.getters[`cluster/schemaFor`](NODE);
+
+      if (schema) {
+        this.$store.dispatch('cluster/findAll', { type: NODE });
+      }
+    } catch {}
 
     let resources;
 
@@ -65,7 +71,6 @@ export default {
 
     rows() {
       const out = [];
-      const allTypes = this.allTypes;
 
       for ( const typeRows of this.resources ) {
         if ( !typeRows ) {
@@ -73,14 +78,14 @@ export default {
         }
 
         for ( const row of typeRows ) {
-          if ( !allTypes || !row.metadata?.ownerReferences ) {
+          if (!this.allTypes || row.showAsWorkload) {
             out.push(row);
           }
         }
       }
 
       return out;
-    }
+    },
   },
 
   typeDisplay() {
