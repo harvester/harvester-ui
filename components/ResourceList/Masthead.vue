@@ -190,7 +190,7 @@ export default {
             {{ t('harvester.backUpPage.message.noSetting.middle') }}
           </nuxt-link>
         </span>
-        <Favorite v-if="isExplorer" :resource="resource" />
+        <!-- <Favorite v-if="isExplorer" :resource="resource" /> -->
       </h1>
     </div>
     <div class="actions-container">

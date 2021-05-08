@@ -59,7 +59,7 @@ export default {
     <div class="product">
       <div class="go" @click="goHome">
         <div class="logo" alt="Logo">
-          <img src="~assets/images/pl/logo_horizontal_white.png" width="auto" height="35" />
+          <img class="ml-20" src="~assets/images/pl/logo_horizontal_white_t.png" width="auto" height="35" />
         </div>
       </div>
     </div>
@@ -113,6 +113,7 @@ export default {
       display: flex;
       align-items: center;
       padding: 0 5px;
+      border-bottom: var(--header-border-size) solid var(--header-border);
     }
 
     > .product {
@@ -132,7 +133,7 @@ export default {
       }
 
       .logo {
-        margin-top: 10px;
+        margin-top: 5px;
       }
     }
 

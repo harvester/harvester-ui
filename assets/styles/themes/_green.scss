@@ -1,44 +1,45 @@
 .theme-light {
-	// Local variables for reused colors
-	//light main text
-	$darkest: #141419;
+  // Local variables for reused colors
+  //light main text
+  $darkest   : #141419;
 
-	//light secondary
-	$darker: #6C6C76;
+  //light secondary
+  $darker    : #6C6C76;
 
-	//light disabled
-	$dark: #B6B6C2;
+  //light disabled
+  $dark      : #B6B6C2;
 
-	//light border and buttons
-	$medium: #DCDEE7;
+  //light border and buttons
+  $medium    : #DCDEE7;
 
-	//light inputs 
-	$light: #EEEFF4;
+  //light inputs 
+  $light     : #EEEFF4;
 
-	//light sidebar and box
-	$lighter: #F4F5FA;
+  //light sidebar and box
+  $lighter   : #F4F5FA;
 
-	//light body bg
-	$lightest: #FFFFFF;
+  //light body bg
+  $lightest  : #FFFFFF;
 
-	$primary         : #00A384;
-	$secondary       : $darker;
-	$link            : $primary;
-	$disabled        : $medium;
-	$success         : #139448;
-	$warning         : #DAC342;
-	$error           : #F64747;
-	$info            : mix($primary, $secondary, 50%);
+  $primary         : #00A384;
+  $secondary       : $darker;
+  $link            : $primary;
+  $disabled        : $medium;
+  $success         : #139448;
+  $warning         : #DAC342;
+  $error           : #F64747;
+  $info            : mix($primary, $secondary, 50%);
 
-  //Contrast colors
   $contrasted-dark: $darkest !default;
-	$contrasted-light: $lightest !default;
+  $contrasted-light: $lightest !default;
 
-  // Colors that will have text- and bg- helper classes created
-  // value can also be map of default, default-text, hover-text, hover-bg, active-text,  active-bg)
+  $selected: rgba($primary, .5);
+
+    // Colors that will have text- and bg- helper classes created
+    // value can also be map of default, default-text, hover-text, hover-bg, active-text,  active-bg)
   @include color-variables((
     default:    $light,
-    muted:      $disabled,
+    muted:      $dark,
     link:       (
       default-text: $link,
       hover-text:   lighten($link, 30%),
@@ -63,26 +64,38 @@
   --scrollbar-thumb-dropdown   : #{$lighter};
   --scrollbar-track            : transparent;
 
-	--header-bg                  : #00A384;
-  --header-logo                : #{$lightest};
-	--header-btn-bg              : #007A63;
-  --header-btn-text            : white;
+  --header-bg                  : #00A384;
+  --header-btn-bg              : #007A63;
+  --header-btn-text            : #{$darker};
+  --header-input-text          : #{$lightest};
   --header-height              : 55px;
-  --nav-width                  : 250px;
-  --nav-bg                     : #{$lighter};
-  --nav-active                 : #{rgba($primary, 0.3)};
+  --header-border              : #{$medium};
+  --header-border-size         : 1px;
+  --nav-width                  : 230px;
+  --nav-bg                     : #{$lightest};
+  --nav-active                 : #{$light};
+  --nav-hover                  : #{$medium};
+  --nav-expander-hover         : #{darken($medium, 10%)};
+  --nav-border                 : #{$medium};
+  --nav-border-size            : 1px;
   --footer-bg                  : transparent;
   --footer-height              : 50px;
+
+  --topmenu-bg                 : #{$lightest};
+  --topmenu-text               : #{$darkest};
+  --topmost-border             : #{$medium};
+  --topmost-shadow             : #{lighten($lightest, 10%)};
+  --topmost-light-hover        : #{$light};
 
   --disabled-bg                : #{$disabled};
   --disabled-text              : #{$secondary};
   --box-bg                     : #{$lighter};
   --subtle-border              : #{$medium};
   --border                     : #{$medium};
-  --border-width              : 1px;
+  --border-width               : 1px;
   --border-radius              : 4px;
-  --outline                    : #{rgba($medium, 0.75)};
-  --outline-width              : 2px;
+  --outline                    : #{rgba($primary, 0.75)};
+  --outline-width              : 1px;
 
   --accent-btn                 : #{rgba($primary, 0.2)};
   --accent-btn-hover           : #{rgba($primary, 0.5)};
@@ -92,7 +105,7 @@
 
   --checkbox-tick              : #{$lightest};
   --checkbox-border            : #{$medium};
-  --checkbox-tick-disabled     : #{darken($disabled, 20%)};
+  --checkbox-tick-disabled     : #{darken($disabled, 40%)};
   --checkbox-disabled-bg       : #{$disabled};
   --checkbox-ticked-bg         : #{$link};
 
@@ -100,10 +113,10 @@
   --dropdown-border            : #{$medium};
   --dropdown-divider           : #{$medium};
   --dropdown-text              : #{$link};
-  --dropdown-active-text       : #{darken($link, 1%)};
-  --dropdown-active-bg         : #{$selected};
-  --dropdown-hover-text        : #{lighten($link, 1%)};
-  --dropdown-hover-bg          : #{rgba($primary, 0.2)};
+  --dropdown-active-text       : #{$lightest};
+  --dropdown-active-bg         : #{$dark};
+  --dropdown-hover-text        : #{$lightest};
+  --dropdown-hover-bg          : #{$primary};
   --dropdown-disabled-text     : var(--muted);
   --dropdown-disabled-bg       : #{$disabled};
 
@@ -113,11 +126,12 @@
   --input-label                : #{$secondary};
   --input-placeholder          : #{darken($disabled, 10%)};
   --input-border               : var(--border);
-  --input-bg                   : #{$light};
-  --input-hover-bg             : #{darken($light, 5%)};
-  --input-focus-bg             : #{darken($light, 5%)};
-  --input-disabled-text: #{darken($disabled, 50%)};
-  --input-disabled-label: #{darken($disabled, 30%)};
+  --input-bg                   : var(--body-bg);
+  --input-bg-accent            : #{darken($light, 2%)};
+  --input-hover-bg             : var(--box-bg);
+  --input-focus-bg             : var(--box-bg);
+  --input-disabled-text: #{darken($disabled, 60%)};
+  --input-disabled-label: #{darken($disabled, 40%)};
   --input-disabled-bg: #{$disabled};
   --input-disabled-border: #{darken($medium, 10%)};
   --input-disabled-placeholder: #{darken($medium, 15%)};
@@ -127,12 +141,13 @@
   --progress-divider           : #{$medium};
 
   --sortable-table-bg          : transparent;
-  --sortable-table-header-bg   : #{rgba($primary, 0.2)};
+  --sortable-table-header-bg   : transparent;
   --sortable-table-accent-bg   : #{$lighter};
   --sortable-table-accent-alt  : #{$lightest};
   --sortable-table-top-divider : var(--border);
   --sortable-table-body-divider : #{$medium};
-  --sortable-table-selected-bg : #{rgba($warning, 0.1)};
+  --sortable-table-hover-bg : #{$lighter};
+  --sortable-table-selected-bg : #{rgba($primary, 0.02)};
   --sortable-table-group-label : #{$secondary};
 
   --tag-primary                : #{$primary};
@@ -182,14 +197,14 @@
   --wm-tab-height              : 29px;
 
   --glance-bg-rgb              : 61, 152, 211;
-  --glance-divider             : #{rgba($primary, 0.5)};
+  --glance-divider             : #{$medium};
 
   --resource-gauge-back-circle : 255, 255, 255, 0.15;
 
   --simple-box-bg              : #{$lightest};
   --simple-box-border          : #{$medium};
   --simple-box-divider         : #{$medium};
-  --simple-box-shadow          : rgba(0, 0, 0, 0.15);
+  --simple-box-shadow          : none;
 
   --terminal-bg                : var(--body-bg);
   --terminal-cursor            : var(--warning);
@@ -204,6 +219,7 @@
   --primary-color              : 61, 152, 211;
 
   --gauge-divider              : #{$lightest};
+  --gauge-zero                 : #{$medium};
   --gauge-success-primary      : 150, 189, 127;
   --gauge-success-secondary    : 190, 211, 172;
   --gauge-warning-primary      : 238, 226, 176;
@@ -236,9 +252,9 @@
   $endPos: 100%;
   $end: 0;
 
-  $rancher: #3D97D2;
-  $partner: #B5D21E;
-  $other: #924BE4;
+  $rancher: $primary;
+  $partner: #FEA424;
+  $other: #614EA2;
 
   --app-rancher-accent: #{$rancher};
   --app-rancher-accent-text: #{$darkest};
@@ -282,4 +298,5 @@
 
   --product-icon: #{$darker};
   --product-icon-active: #{$darkest};
+
 }

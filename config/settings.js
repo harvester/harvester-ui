@@ -79,3 +79,31 @@ export const ALLOWED_SETTINGS = {
     options: ['prompt', 'in', 'out']
   },
 };
+
+const HARVESTER_SETTING = {
+  API_UI_SOURCE:                    'api-ui-source',
+  AUTH_TOKEN_MAX_TTL_MINUTES:       'auth-token-max-ttl-minutes',
+  BACKUP_TARGET:                    'backup-target',
+  LOG_LEVEL:                        'log-level',
+  RANCHER_ENABLED:                  'rancher-enabled',
+  SERVER_URL:                       'server-url',
+  SERVER_VERSION:                   'server-version',
+  UI_INDEX:                         'ui-index',
+  UPGRADE_CHECKER_ENABLED:          'upgrade-checker-enabled',
+  UPGRADE_CHECKER_URL:              'upgrade-checker-url',
+  VLAN:                             'harvester-system/vlan'
+};
+
+export const HARVESTER_ALLOWED_SETTINGS = {
+  [HARVESTER_SETTING.API_UI_SOURCE]:                    {},
+  [HARVESTER_SETTING.AUTH_TOKEN_MAX_TTL_MINUTES]:       {},
+  [HARVESTER_SETTING.BACKUP_TARGET]:                    { kind: 'json' },
+  [HARVESTER_SETTING.LOG_LEVEL]:                        {},
+  [HARVESTER_SETTING.RANCHER_ENABLED]:                  {},
+  [HARVESTER_SETTING.SERVER_VERSION]:                   {},
+  [HARVESTER_SETTING.SERVER_URL]:                       { kind: 'url' },
+  [HARVESTER_SETTING.UI_INDEX]:                         { kind: 'url' },
+  [HARVESTER_SETTING.UPGRADE_CHECKER_ENABLED]:          { kind: 'boolean' },
+  [HARVESTER_SETTING.UPGRADE_CHECKER_URL]:              { kind: 'url' },
+  [HARVESTER_SETTING.VLAN]:                             { alias: 'vlan' },
+};

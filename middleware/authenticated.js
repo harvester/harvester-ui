@@ -57,12 +57,10 @@ export default async function({ route, store, redirect }) {
 
     if ( clusterId ) {
       // Run them in parallel
-      console.log('---1');
       await Promise.all([
         await store.dispatch('loadManagement'),
         await store.dispatch('loadCluster', clusterId),
       ]);
-      console.log('---2');
     } else {
       await store.dispatch('loadManagement');
 

@@ -13,8 +13,8 @@ export function generateZip(files) {
   const zip = new JSZip();
 
   for ( const fileName in files) {
-    if (files[fileName]?.data) {
-      zip.file(fileName, files[fileName].data);
+    if (files[fileName]) {
+      zip.file(fileName, files[fileName]);
     }
   }
 

@@ -2,7 +2,6 @@
 import { mapGetters } from 'vuex';
 import { options } from '@/config/footer';
 import { mapPref, DEV } from '@/store/prefs';
-import { HARVESTER_SETTING } from '@/config/types';
 import SupportBundle from './SupportBundle';
 
 const UNKNOWN = 'unknown';
@@ -12,12 +11,6 @@ const UI_COMMIT = process.env.COMMIT || UNKNOWN;
 export default {
   components: { SupportBundle },
   data() {
-    // const match = fullVersion.match(/^(.*)-([0-9a-f]{40})-(.*)$/);
-
-    // if ( match ) {
-    //   displayVersion = match[2].substr(0, 7);
-    // }
-
     return {
       uiCommit:       UI_COMMIT,
       uiVersion:      UI_VERSION
@@ -28,13 +21,6 @@ export default {
     ...mapGetters('i18n', ['selectedLocaleLabel', 'availableLocales']),
 
     dev: mapPref(DEV),
-
-    fullVersion() {
-      const settings = this.$store.getters['cluster/all'](HARVESTER_SETTING);
-      const setting = settings.find( S => S.id === 'server-version');
-
-      return setting?.value || setting?.default;
-    },
 
     showLocale() {
       return Object.keys(this.availableLocales).length > 1 || this.dev;
@@ -66,8 +52,6 @@ export default {
 
 <template>
   <div class="footer">
-    <div> {{ fullVersion }}</div>
-
     <div v-for="(value, name) in options" :key="name">
       <a v-t="name" :href="value" target="_blank" />
     </div>

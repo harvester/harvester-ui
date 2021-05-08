@@ -5,7 +5,6 @@ import utc from 'dayjs/plugin/utc';
 import Loading from '@/components/Loading';
 import isEmpty from 'lodash/isEmpty';
 import SortableTable from '@/components/SortableTable';
-import Glance from '@/components/Glance';
 import { allHash } from '@/utils/promise';
 import Poller from '@/utils/poller';
 import { parseSi, formatSi, exponentNeeded, UNITS } from '@/utils/units';
@@ -49,7 +48,6 @@ export default {
     SimpleBox,
     SortableTable,
     Upgrade,
-    Glance
   },
 
   async fetch() {
@@ -334,34 +332,16 @@ export default {
   <section v-else>
     <Upgrade />
 
-    <Glance
-      :slots="['HarvesterVersion', 'totalNodes', 'created']"
+    <div
       class="cluster-dashboard-glance"
     >
-      <!-- <template #displayProvider>
-        <div class="title-content">
-          <h1>{{ displayProvider }}</h1>
-          <label>{{ t('glance.provider') }}</label>
-        </div>
-        <div class="logo">
-          <img class="os-provider-logo" :src="currentCluster.providerOsLogo" />
-        </div>
-      </template> -->
-      <template #HarvesterVersion>
-        <h1>{{ currentVersion }}</h1>
-        <label>{{ t('harvester.glance.version') }}</label>
-      </template>
-      <template #totalNodes>
-        <h1>{{ (nodes || []).length }}</h1>
-        <label>{{ t('glance.nodes.total.label', { count: (nodes || []).length }) }}</label>
-      </template>
-      <template #created>
-        <h1><LiveDate :value="firstNodeCreationTimestamp" :add-suffix="true" :show-tooltip="true" /></h1>
-        <label>{{ t('glance.created') }}</label>
-      </template>
-    </Glance>
+      <div>
+        <label>{{ t('glance.created') }}: </label>
+        <span><LiveDate :value="firstNodeCreationTimestamp" :add-suffix="true" :show-tooltip="true" /></span>
+      </div>
+    </div>
 
-    <div class="resource-gauges">
+    <div class="resource-gauges mb-20">
       <ResourceGauge
         v-for="(resource, i) in accessibleResources"
         :key="resource"
@@ -402,6 +382,21 @@ export default {
 </template>
 
 <style lang="scss" scoped>
+  .cluster-dashboard-glance {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0px;
+    display: flex;
+
+    &>*{
+      margin-right: 40px;
+
+      & SPAN {
+        font-weight: bold
+      }
+    }
+  }
+
   .events {
     margin-top: 30px;
   }

@@ -125,6 +125,7 @@ export default {
   .btn {
     line-height: normal !important;
     border: 0px;
+    min-height: 22px !important;
   }
 
   .btn-xs,

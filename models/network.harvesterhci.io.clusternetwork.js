@@ -32,4 +32,8 @@ export default {
       return this?.config?.defaultPhysicalNIC || '';
     }
   },
+
+  formatValue() {
+    return this.enable && this?.config?.defaultPhysicalNIC;
+  }
 };

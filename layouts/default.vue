@@ -8,6 +8,7 @@ import PromptRemove from '@/components/PromptRemove';
 import AssignTo from '@/components/AssignTo';
 import EjectCDROM from '@/components/EjectCDROM/index';
 import Group from '@/components/nav/Group';
+import Footer from '@/components/nav/footer';
 import PureHeader from '@/components/nav/PureHeader';
 import ServerUrlModal from '@/components/form/ServerUrlModal';
 import { COUNT, SCHEMA, MANAGEMENT } from '@/config/types';
@@ -15,7 +16,7 @@ import { BASIC, FAVORITE, USED } from '@/store/type-map';
 import { addObjects, replaceWith, clear, addObject } from '@/utils/array';
 import { NAME as EXPLORER } from '@/config/product/explorer';
 import isEqual from 'lodash/isEqual';
-import { ucFirst } from '@/utils/string';
+// import { ucFirst } from '@/utils/string';
 import { getVersionInfo } from '@/utils/version';
 import { sortBy } from '@/utils/sort';
 
@@ -29,7 +30,8 @@ export default {
     ActionMenu,
     Group,
     WindowManager,
-    ServerUrlModal
+    ServerUrlModal,
+    Footer
   },
 
   data() {
@@ -173,9 +175,9 @@ export default {
       const namespaceMode = this.$store.getters['namespaceMode'];
       const out = [];
       const loadProducts = this.isExplorer ? [EXPLORER] : [];
-      const productMap = this.activeProducts.reduce((acc, p) => {
-        return { ...acc, [p.name]: p };
-      }, {});
+      // const productMap = this.activeProducts.reduce((acc, p) => {
+      //   return { ...acc, [p.name]: p };
+      // }, {});
 
       if ( this.isExplorer ) {
         for ( const product of this.activeProducts ) {
@@ -189,6 +191,10 @@ export default {
       addObject(loadProducts, currentProduct);
 
       for ( const productId of loadProducts ) {
+        if (productId !== 'virtual') {
+          continue;
+        }
+
         const modes = [BASIC];
 
         if ( productId === EXPLORER ) {
@@ -206,14 +212,15 @@ export default {
             const root = more.find(x => x.name === 'root');
             const other = more.filter(x => x.name !== 'root');
 
-            const group = {
-              name:     productId,
-              label:    this.$store.getters['i18n/withFallback'](`product.${ productId }`, null, ucFirst(productId)),
-              children: [...(root?.children || []), ...other],
-              weight:   productMap[productId]?.weight || 0,
-            };
+            // const group = {
+            //   name:     productId,
+            //   label:    this.$store.getters['i18n/withFallback'](`product.${ productId }`, null, ucFirst(productId)),
+            //   children: [...(root?.children || []), ...other],
+            //   weight:   productMap[productId]?.weight || 0,
+            // };
 
-            addObject(out, group);
+            addObject(out, root);
+            addObject(out, ...other);
           }
         }
       }
@@ -307,12 +314,12 @@ export default {
           </Group>
         </template>
       </div>
-      <n-link tag="div" class="tools" :to="{name: 'c-cluster-explorer-tools'}">
+      <!-- <n-link tag="div" class="tools" :to="{name: 'c-cluster-explorer-tools'}">
         <a class="tools-button" @click="collapseAll()">
           <i class="icon icon-gear" />
           <span>{{ t('nav.clusterTools') }}</span>
         </a>
-      </n-link>
+      </n-link> -->
       <div class="version text-muted">
         {{ displayVersion }}
       </div>
@@ -320,6 +327,7 @@ export default {
 
     <main v-if="clusterReady">
       <nuxt class="outlet" />
+      <Footer />
 
       <ActionMenu />
       <PromptRemove />
@@ -434,8 +442,9 @@ export default {
     .outlet {
       display: flex;
       flex-direction: column;
-      padding: 20px;
+      padding: 20px 20px 70px 20px;
       min-height: 100%;
+      margin-bottom: calc(-1 * var(--footer-height) - 1px);
     }
 
     FOOTER {

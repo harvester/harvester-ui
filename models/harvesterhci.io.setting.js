@@ -1,4 +1,5 @@
 import { findBy } from '@/utils/array';
+import { HARVESTER_ALLOWED_SETTINGS } from '@/config/settings';
 
 export default {
   _availableActions() {
@@ -18,6 +19,30 @@ export default {
     });
 
     return actions;
+  },
+
+  formatValue() {
+    let out;
+    const setting = HARVESTER_ALLOWED_SETTINGS[this.id];
+
+    const v = this.value || this.default;
+
+    if (setting.kind === 'json') {
+      out = JSON.stringify(JSON.parse(v), null, 2);
+    } else if (setting.kind === 'enum') {
+      out = `advancedSettings.enum.${ setting }.${ v }`;
+    } else {
+      out = v;
+    }
+
+    return out;
+  },
+
+  customized() {
+    const setting = HARVESTER_ALLOWED_SETTINGS[this.id];
+    const readonly = !!setting.readOnly;
+
+    return !readonly && this.value && this.value !== this.default;
   },
 
   configuredCondition() {
