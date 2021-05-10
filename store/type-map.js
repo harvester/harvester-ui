@@ -112,7 +112,9 @@ import { clone, get } from '@/utils/object';
 import {
   ensureRegex, escapeHtml, escapeRegex, ucFirst, pluralize
 } from '@/utils/string';
-import { importList, importDetail, importEdit, loadProduct } from '@/utils/dynamic-importer';
+import {
+  importList, importDetail, importEdit, loadProduct, importComponent, importCustomPromptRemove
+} from '@/utils/dynamic-importer';
 
 import { NAME as EXPLORER } from '@/config/product/explorer';
 import { mapKind } from '@/config/map';
@@ -323,7 +325,7 @@ export const getters = {
           return rootGetters['i18n/t'](key, { count }).trim();
         }
 
-        let out = mapKind[schema?.attributes?.kind] || schema?.attributes?.actuallyKind || schema?.attributes?.kind || schema.id || '?';
+        const out = mapKind[schema?.attributes?.kind] || schema?.attributes?.actuallyKind || schema?.attributes?.kind || schema.id || '?';
 
         // Add spaces, but breaks typing names into jump menu naturally
         // out = ucFirst(out.replace(/([a-z])([A-Z])/g,'$1 $2'));
@@ -763,15 +765,16 @@ export const getters = {
           }
           item.mode = mode;
           item.weight = weight;
-          
-          const schema = rootGetters[`${module}/schema`](type.name);
 
-          if(type.labelDisplay) {
+          const schema = rootGetters[`${ module }/schema`](type.name);
+
+          if (type.labelDisplay) {
             item.label = rootGetters['i18n/t'](type.labelDisplay);
           } else if (schema) {
             const count = counts[schema.id];
+
             item.label = getters.labelFor(schema, count);
-          }  else {
+          } else {
             item.label = item.label || item.name;
           }
 
@@ -980,6 +983,7 @@ export const getters = {
     return (path) => {
       try {
         require.resolve(`@/edit/${ path }`);
+
         return true;
       } catch (e) {
         return false;
@@ -989,7 +993,7 @@ export const getters = {
 
   importComponent(state, getters) {
     return (path) => {
-      return () => import(`@/edit/${ path }`);
+      return importComponent(path);
     };
   },
 
@@ -1021,7 +1025,7 @@ export const getters = {
     return (rawType) => {
       const type = getters.componentFor(rawType);
 
-      return () => import(`@/promptRemove/${ type }`);
+      return importCustomPromptRemove(type);
     };
   },
 
