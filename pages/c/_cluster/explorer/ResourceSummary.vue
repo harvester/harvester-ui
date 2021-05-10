@@ -1,8 +1,6 @@
 <script>
 import SimpleBox from '@/components/SimpleBox';
 import { NAME as VIRTUAL } from '@/config/product/explorer';
-import { COUNT } from '@/config/types';
-import { colorForState } from '@/plugins/steve/resource-instance';
 
 export function colorToCountName(color) {
   switch (color) {

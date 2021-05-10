@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { findBy, insertAt } from '@/utils/array';
+import { insertAt } from '@/utils/array';
 import { colorForState, stateDisplay } from '@/plugins/steve/resource-instance';
 import { NODE, WORKLOAD_TYPES } from '@/config/types';
 

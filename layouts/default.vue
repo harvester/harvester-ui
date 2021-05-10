@@ -8,7 +8,7 @@ import PromptRemove from '@/components/PromptRemove';
 import AssignTo from '@/components/AssignTo';
 import EjectCDROM from '@/components/EjectCDROM/index';
 import Group from '@/components/nav/Group';
-import Footer from '@/components/nav/footer';
+import Footer from '@/components/nav/Footer';
 import PureHeader from '@/components/nav/PureHeader';
 import ServerUrlModal from '@/components/form/ServerUrlModal';
 import { COUNT, SCHEMA, MANAGEMENT } from '@/config/types';
