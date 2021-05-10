@@ -4,7 +4,7 @@ import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import LabeledInput from '@/components/form/LabeledInput';
 import CreateEditView from '@/mixins/create-edit-view';
-import { MANAGEMENT, HARVESTER_USER, NORMAN, RBAC } from '@/config/types';
+import { MANAGEMENT, HARVESTER_USER, NORMAN } from '@/config/types';
 import { exceptionToErrorsArray } from '@/utils/error';
 import { _EDIT } from '@/config/query-params';
 
@@ -79,8 +79,8 @@ export default {
       });
 
       const setPasswordPromise = this.userRequest('rancher', `/v3/${ NORMAN.USER }s/${ newUser.id }`, { newPassword: this.value.password }, { action: 'setpassword' });
-      const setRolePromise = this.userRequest('management', `/v1/${ RBAC.GLOBAL_ROLE_BINDING }s`, {
-        type:           RBAC.GLOBAL_ROLE_BINDING,
+      const setRolePromise = this.userRequest('management', `/v1/${ MANAGEMENT.GLOBAL_ROLE_BINDING }s`, {
+        type:           MANAGEMENT.GLOBAL_ROLE_BINDING,
         metadata:       { generateName: 'grb-' },
         userName:       newUser.id,
         globalRoleName: 'admin'
