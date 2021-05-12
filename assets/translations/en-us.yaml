@@ -4154,6 +4154,7 @@ keyValue:
   valuePlaceholder: e.g. bar
 
 harvester:
+  model:
   webSocket:
     connecting:
       title: Error connecting to WebSocket

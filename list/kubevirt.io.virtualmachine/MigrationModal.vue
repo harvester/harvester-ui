@@ -5,7 +5,6 @@ import { exceptionToErrorsArray } from '@/utils/error';
 import { HOST_CUSTOM_NAME, HARVESTER_MAINTENANCE_STATUS } from '@/config/labels-annotations';
 import { NODE, VMI, VM } from '@/config/types';
 
-import Card from '@/components/Card';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import ModalWithCard from '@/components/ModalWithCard';
 
