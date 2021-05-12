@@ -1,23 +1,27 @@
 <script>
 import { createNamespacedHelpers, mapGetters } from 'vuex';
-import AsyncButton from '@/components/AsyncButton';
-import Card from '@/components/Card';
-import { exceptionToErrorsArray } from '@/utils/error';
-import LabeledSelect from '@/components/form/LabeledSelect';
-import { HOST_CUSTOM_NAME, HARVESTER_MAINTENANCE_STATUS } from '@/config/labels-annotations';
-import { NODE, VMI } from '@/config/types';
 
-const { mapState } = createNamespacedHelpers('kubevirt.io.virtualmachine');
+import { exceptionToErrorsArray } from '@/utils/error';
+import { HOST_CUSTOM_NAME, HARVESTER_MAINTENANCE_STATUS } from '@/config/labels-annotations';
+import { NODE, VMI, VM } from '@/config/types';
+
+import Card from '@/components/Card';
+import LabeledSelect from '@/components/form/LabeledSelect';
+import ModalWithCard from '@/components/ModalWithCard';
+
+const { mapState } = createNamespacedHelpers(VM);
 
 export default {
   components: {
-    Card,
-    AsyncButton,
+    ModalWithCard,
     LabeledSelect,
   },
 
   data() {
-    return { nodeName: '' };
+    return {
+      nodeName: '',
+      errors:   []
+    };
   },
 
   computed:   {
@@ -73,41 +77,35 @@ export default {
     close() {
       this.$store.commit('kubevirt.io.virtualmachine/toggleMigrationModal');
       this.nodeName = '';
+      this.errors = [];
     },
 
     async apply(buttonDone) {
       if (!this.actionResources) {
-        return buttonDone(false);
+        buttonDone(false);
+
+        return;
       }
 
       if (!this.nodeName) {
         const name = this.$store.getters['i18n/t']('harvester.vmPage.migrationModal.fields.nodeName.label');
         const message = this.$store.getters['i18n/t']('validation.required', { key: name });
 
-        this.$notify({
-          title:    this.t('harvester.notification.title.warning'),
-          duration: 5000,
-          message,
-          type:     'warning'
-        });
+        this.$set(this, 'errors', [message]);
+        buttonDone(false);
 
-        return buttonDone(false);
+        return;
       }
 
       try {
-        await this.actionResources.doAction('migrate', { nodeName: this.nodeName });
+        await this.actionResources.doAction('migrate', { nodeName: this.nodeName }, {}, false);
 
         buttonDone(true);
         this.close();
       } catch (err) {
-        this.$notify({
-          title:    this.t('harvester.notification.title.error'),
-          duration: 0,
-          message:  err?.data || exceptionToErrorsArray(err) || err,
-          type:     'error'
-        });
+        const error = err?.data || exceptionToErrorsArray(err) || err;
 
-        buttonDone(false);
+        this.$set(this, 'errors', [error]);
       }
     },
 
@@ -116,49 +114,26 @@ export default {
 </script>
 
 <template>
-  <modal
-    class="migration-modal"
+  <ModalWithCard
+    ref="migration-modal"
     name="migration-modal"
-    styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 100vh;"
-    height="auto"
-    :scrollable="true"
-    :click-to-close="false"
+    width="40%"
+    :pivot-y="0.001"
+    :errors="errors"
+    @finish="apply"
+    @close="close"
   >
-    <Card>
-      <h4 slot="title" class="text-default-text">
-        {{ t('harvester.vmPage.migrationModal.title') }}
-      </h4>
+    <template #title>
+      {{ t('harvester.vmPage.migrationModal.title') }}
+    </template>
 
-      <div slot="body" class="pl-10 pr-10">
-        <LabeledSelect
-          v-model="nodeName"
-          :label="t('harvester.vmPage.migrationModal.fields.nodeName.label')"
-          :placeholder="t('harvester.vmPage.migrationModal.fields.nodeName.placeholder')"
-          :options="nodeNameList"
-        />
-      </div>
-
-      <div slot="actions">
-        <button class="btn role-secondary" @click="close">
-          {{ t('generic.cancel') }}
-        </button>
-
-        <AsyncButton
-          mode="apply"
-          @click="apply"
-        />
-      </div>
-    </Card>
-  </modal>
+    <template #content>
+      <LabeledSelect
+        v-model="nodeName"
+        :label="t('harvester.vmPage.migrationModal.fields.nodeName.label')"
+        :placeholder="t('harvester.vmPage.migrationModal.fields.nodeName.placeholder')"
+        :options="nodeNameList"
+      />
+    </template>
+  </ModalWithCard>
 </template>
-
-<style lang='scss'>
-  .migration-modal {
-    border-radius: var(--border-radius);
-    overflow: scroll;
-    max-height: 100vh;
-    & ::-webkit-scrollbar-corner {
-      background: rgba(0,0,0,0);
-    }
-  }
-</style>

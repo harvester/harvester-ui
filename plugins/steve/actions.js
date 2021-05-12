@@ -370,7 +370,7 @@ export default {
   },
 
   async resourceAction({ getters, rootGetters, dispatch }, {
-    resource, actionName, body, opt,
+    resource, actionName, body, opt, showNotify = true
   }) {
     opt = opt || {};
 
@@ -397,7 +397,9 @@ export default {
         message = e.message;
       }
 
-      Notification.error(message);
+      if (showNotify) {
+        Notification.error(message);
+      }
     }
 
     if ( opt.load !== false && res.type === 'collection' ) {

@@ -845,12 +845,13 @@ export default {
   },
 
   doAction() {
-    return (actionName, body, opt = {}) => {
+    return (actionName, body, opt = {}, showNotify) => {
       return this.$dispatch('resourceAction', {
         resource: this,
         actionName,
         body,
         opt,
+        showNotify
       });
     };
   },
