@@ -73,7 +73,8 @@ export default {
 
   computed: {
     isDisabled() {
-      return !this.value.newCreateId && this.mode === _EDIT;
+      // return !this.value.newCreateId && this.mode === _EDIT;
+      return false;
     },
     volumeOption() {
       const choices = this.$store.getters['cluster/all'](DATA_VOLUME);

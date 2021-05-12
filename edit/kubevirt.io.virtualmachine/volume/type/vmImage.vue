@@ -86,7 +86,9 @@ export default {
       });
     },
     isDisabled() {
-      return !this.value.newCreateId && this.mode === _EDIT;
+      // fix: https://github.com/harvester/harvester/issues/813
+      // return !this.value.newCreateId && this.mode === _EDIT;
+      return false;
     }
 
   },
