@@ -357,7 +357,7 @@ export default {
   },
 
   nodeRoleState() {
-    const isExistRoleStatus = this.getLabelValue(NODE_ROLE_MASTER) || this.getLabelValue(NODE_ROLE_CONTROL_PLANE);
+    const isExistRoleStatus = this.getLabelValue(NODE_ROLE_MASTER) !== undefined || this.getLabelValue(NODE_ROLE_CONTROL_PLANE) !== undefined;
     const promoteStatus = this.getAnnotationValue(HARVESTER_PROMOTE_STATUS) || 'none';
 
     if (!isExistRoleStatus && promoteStatus === 'complete') {
@@ -370,7 +370,7 @@ export default {
   },
 
   isMaster() {
-    return this.metadata?.labels?.[NODE_ROLE_MASTER] === 'true' || this.metadata?.labels?.[NODE_ROLE_CONTROL_PLANE] === 'true';
+    return this.metadata?.labels?.[NODE_ROLE_MASTER] !== undefined || this.metadata?.labels?.[NODE_ROLE_CONTROL_PLANE] !== undefined;
   },
 
   confirmRemove() {
