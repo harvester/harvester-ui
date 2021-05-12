@@ -1,17 +1,19 @@
 <script>
 import randomstring from 'randomstring';
 import { exceptionToErrorsArray } from '@/utils/error';
-import { HARVESTER_BACKUP } from '@/config/types';
+import { HARVESTER_BACKUP, VM } from '@/config/types';
 import { allHash } from '@/utils/promise';
 import { createNamespacedHelpers, mapGetters } from 'vuex';
+
+import ModalWithCard from '@/components/ModalWithCard';
 import LabeledSelect from '@/components/form/LabeledSelect';
 
-const { mapState } = createNamespacedHelpers('kubevirt.io.virtualmachine');
+const { mapState } = createNamespacedHelpers(VM);
 
 export default {
   name: 'RestoreModal',
 
-  components: { LabeledSelect },
+  components: { LabeledSelect, ModalWithCard },
 
   async fetch() {
     const hash = await allHash({ backups: this.$store.dispatch('cluster/findAll', { type: HARVESTER_BACKUP }) });
@@ -22,7 +24,8 @@ export default {
   data() {
     return {
       backups:    [],
-      backupName: ''
+      backupName: '',
+      errors:     []
     };
   },
 
@@ -63,24 +66,21 @@ export default {
     closeRestore() {
       this.$store.commit('kubevirt.io.virtualmachine/toggleRestoreModal');
       this.backupName = '';
+      this.errors = [];
     },
 
-    async saveRestore() {
+    async saveRestore(buttonCb) {
       const name = `restore-${ this.backupName }-${ randomstring.generate(5).toLowerCase() }`;
 
       if (!this.backupName) {
-        this.$notify({
-          title:    this.t('harvester.notification.title.warning'),
-          duration: 5000,
-          message:  this.t('harvester.backUpPage.restoreModal.message.backup'),
-          type:     'warning'
-        });
+        this.$set(this, 'errors', [this.t('harvester.backUpPage.restoreModal.message.backup')]);
+        buttonCb(false);
 
         return;
       }
 
       try {
-        const res = await this.actionResources.doAction('restore', { backupName: this.backupName, name });
+        const res = await this.actionResources.doAction('restore', { backupName: this.backupName, name }, {}, false);
 
         if (res._status === 200 || res._status === 204) {
           this.$notify({
@@ -88,18 +88,18 @@ export default {
             message:  this.t('harvester.vmPage.restoreModal.success', { name: this.backupName }),
             type:     'success'
           });
+
+          this.closeRestore();
+        } else {
+          const error = res?.data || exceptionToErrorsArray(res) || res;
+
+          this.$set(this, 'errors', [error]);
+          buttonCb(false);
         }
-
-        this.closeRestore();
       } catch (err) {
-        this.$notify({
-          title:    this.t('harvester.notification.title.error'),
-          duration: 0,
-          message:  err?.data || exceptionToErrorsArray(err) || err,
-          type:     'error'
-        });
+        const error = err?.data || exceptionToErrorsArray(err) || err;
 
-        this.closeRestore();
+        this.$set(this, 'errors', [error]);
       }
     }
   },
@@ -107,42 +107,27 @@ export default {
 </script>
 
 <template>
-  <modal
-    styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 100vh;"
+  <ModalWithCard
+    ref="restore-modal"
     name="restore-modal"
-    :click-to-close="false"
-    :width="800"
-    :height="180"
+    width="40%"
     :pivot-y="0.001"
+    :errors="errors"
+    @finish="saveRestore"
+    @close="closeRestore"
   >
-    <div class="p-20">
-      <h2>{{ t('harvester.backUpPage.restoreModal.title') }}</h2>
-      <div>
-        <LabeledSelect
-          v-model="backupName"
-          :label="t('harvester.backUpPage.restoreModal.selectBackup')"
-          :localized-label="true"
-          :options="backupOption"
-          required
-        />
-      </div>
+    <template #title>
+      {{ t('harvester.backUpPage.restoreModal.title') }}
+    </template>
 
-      <div class="footer mt-20">
-        <button class="btn btn-sm role-secondary mr-10" @click="closeRestore">
-          {{ t('generic.close') }}
-        </button>
-
-        <button class="btn btn-sm bg-primary" @click="saveRestore">
-          {{ t('generic.create') }}
-        </button>
-      </div>
-    </div>
-  </modal>
+    <template #content>
+      <LabeledSelect
+        v-model="backupName"
+        :label="t('harvester.backUpPage.restoreModal.selectBackup')"
+        :localized-label="true"
+        :options="backupOption"
+        required
+      />
+    </template>
+  </ModalWithCard>
 </template>
-
-<style lang="scss" scoped>
-.footer {
-  display: flex;
-  justify-content: center;
-}
-</style>

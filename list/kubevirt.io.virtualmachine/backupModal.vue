@@ -1,17 +1,23 @@
 <script>
 import { createNamespacedHelpers, mapGetters } from 'vuex';
 import { exceptionToErrorsArray } from '@/utils/error';
+import { VM } from '@/config/types';
+
+import ModalWithCard from '@/components/ModalWithCard';
 import LabeledInput from '@/components/form/LabeledInput';
 
-const { mapState } = createNamespacedHelpers('kubevirt.io.virtualmachine');
+const { mapState } = createNamespacedHelpers(VM);
 
 export default {
   name: 'BackupModal',
 
-  components: { LabeledInput },
+  components: { LabeledInput, ModalWithCard },
 
   data() {
-    return { backUpName: '' };
+    return {
+      backUpName: '',
+      errors:     []
+    };
   },
 
   computed: {
@@ -38,28 +44,23 @@ export default {
     close() {
       this.$store.commit('kubevirt.io.virtualmachine/toggleBackupModal');
       this.backUpName = '';
+      this.errors = [];
     },
 
-    async save() {
+    async save(buttonCb) {
       if (this.actionResources) {
         if (!this.backUpName) {
           const name = this.$store.getters['i18n/t']('harvester.fields.name');
           const message = this.$store.getters['i18n/t']('validation.required', { key: name });
 
-          this.$notify({
-            title:    this.t('harvester.notification.title.warning'),
-            duration: 5000,
-            message,
-            type:     'warning'
-          });
+          this.$set(this, 'errors', [message]);
+          buttonCb(false);
 
           return;
         }
 
         try {
-          const res = await this.actionResources.doAction('backup', { name: this.backUpName });
-
-          this.$store.commit('kubevirt.io.virtualmachine/toggleBackupModal');
+          const res = await this.actionResources.doAction('backup', { name: this.backUpName }, {}, false);
 
           if (res._status === 200 || res._status === 204) {
             this.$notify({
@@ -68,16 +69,22 @@ export default {
               message:  this.t('harvester.vmPage.backupModal.success', { backUpName: this.backUpName }),
               type:     'success'
             });
-          }
 
-          this.backUpName = '';
+            this.$store.commit('kubevirt.io.virtualmachine/toggleBackupModal');
+            this.backUpName = '';
+
+            buttonCb(true);
+          } else {
+            const error = res?.data || exceptionToErrorsArray(res) || res;
+
+            this.$set(this, 'errors', [error]);
+            buttonCb(false);
+          }
         } catch (err) {
-          this.$notify({
-            title:    this.t('harvester.notification.title.error'),
-            duration: 0,
-            message:  err?.data || exceptionToErrorsArray(err) || err,
-            type:     'error'
-          });
+          const error = err?.data || exceptionToErrorsArray(err) || err;
+
+          this.$set(this, 'errors', [error]);
+          buttonCb(false);
         }
       }
     },
@@ -86,38 +93,25 @@ export default {
 </script>
 
 <template>
-  <modal
-    styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 100vh;"
+  <ModalWithCard
+    ref="backup-modal"
     name="backup-modal"
-    :click-to-close="false"
-    :width="800"
-    :height="180"
+    width="40%"
     :pivot-y="0.001"
+    :errors="errors"
+    @finish="save"
+    @close="close"
   >
-    <div class="p-20">
-      <h2>{{ t('harvester.backUpPage.backupModal.addBackup') }}</h2>
+    <template #title>
+      {{ t('harvester.backUpPage.backupModal.addBackup') }}
+    </template>
+
+    <template #content>
       <LabeledInput
         v-model="backUpName"
         :label="t('generic.name')"
         required
       />
-
-      <div class="footer mt-20">
-        <button class="btn btn-sm role-secondary mr-10" @click="close">
-          {{ t('generic.close') }}
-        </button>
-
-        <button class="btn btn-sm bg-primary" @click="save">
-          {{ t('generic.create') }}
-        </button>
-      </div>
-    </div>
-  </modal>
+    </template>
+  </ModalWithCard>
 </template>
-
-<style lang="scss" scoped>
-.footer {
-  display: flex;
-  justify-content: center;
-}
-</style>

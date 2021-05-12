@@ -1,19 +1,23 @@
 <script>
+import { VM } from '@/config/types';
 import { exceptionToErrorsArray } from '@/utils/error';
 import { createNamespacedHelpers, mapGetters } from 'vuex';
+
+import ModalWithCard from '@/components/ModalWithCard';
 import LabeledInput from '@/components/form/LabeledInput';
 
-const { mapState } = createNamespacedHelpers('kubevirt.io.virtualmachine');
+const { mapState } = createNamespacedHelpers(VM);
 
 export default {
   name: 'RestoreModal',
 
-  components: { LabeledInput },
+  components: { LabeledInput, ModalWithCard },
 
   data() {
     return {
       templateName: '',
-      description:  ''
+      description:  '',
+      errors:       []
     };
   },
 
@@ -55,22 +59,19 @@ export default {
       this.$store.commit('kubevirt.io.virtualmachine/toggleCloneTemplateModal');
       this.templateName = '';
       this.description = '';
+      this.errors = [];
     },
 
-    async saveRestore() {
+    async saveRestore(buttonCb) {
       if (!this.templateName) {
-        this.$notify({
-          title:    this.t('harvester.notification.title.warning'),
-          duration: 5000,
-          message:  this.t('harvester.vmPage.createTemplate.message.tip'),
-          type:     'warning'
-        });
+        this.$set(this, 'errors', [this.t('harvester.vmPage.createTemplate.message.tip')]);
+        buttonCb(false);
 
         return;
       }
 
       try {
-        const res = await this.actionResources.doAction('createTemplate', { name: this.templateName, description: this.description });
+        const res = await this.actionResources.doAction('createTemplate', { name: this.templateName, description: this.description }, {}, false);
 
         if (res._status === 200 || res._status === 204) {
           this.$notify({
@@ -78,18 +79,18 @@ export default {
             message:  this.t('harvester.vmPage.createTemplate.message.success', { templateName: this.templateName }),
             type:     'success'
           });
+
+          this.closeModal();
+        } else {
+          const error = res?.data || exceptionToErrorsArray(res) || res;
+
+          this.$set(this, 'errors', [error]);
+          buttonCb(false);
         }
-
-        this.closeModal();
       } catch (err) {
-        this.$notify({
-          title:    this.t('harvester.notification.title.error'),
-          duration: 0,
-          message:  err?.data || exceptionToErrorsArray(err) || err,
-          type:     'error'
-        });
+        const error = err?.data || exceptionToErrorsArray(err) || err;
 
-        this.closeModal();
+        this.$set(this, 'errors', [error]);
       }
     }
   },
@@ -97,46 +98,31 @@ export default {
 </script>
 
 <template>
-  <modal
-    styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 100vh;"
+  <ModalWithCard
+    ref="cloneVM-modal"
     name="cloneVM-modal"
-    :click-to-close="false"
-    :width="800"
-    :height="260"
+    width="40%"
     :pivot-y="0.001"
+    :errors="errors"
+    @finish="saveRestore"
+    @close="closeModal"
   >
-    <div class="p-20">
-      <h2>{{ t('harvester.vmPage.createTemplate.title') }}</h2>
-      <div>
-        <LabeledInput
-          v-model="templateName"
-          class="mb-20"
-          :label="t('harvester.vmPage.createTemplate.fields.name')"
-          required
-        />
+    <template #title>
+      {{ t('harvester.vmPage.createTemplate.title') }}
+    </template>
 
-        <LabeledInput
-          v-model="description"
-          :label="t('harvester.vmPage.createTemplate.fields.description')"
-        />
-      </div>
+    <template #content>
+      <LabeledInput
+        v-model="templateName"
+        class="mb-20"
+        :label="t('harvester.vmPage.createTemplate.fields.name')"
+        required
+      />
 
-      <div class="footer mt-20">
-        <button class="btn btn-sm role-secondary mr-10" @click="closeModal">
-          {{ t('generic.close') }}
-        </button>
-
-        <button class="btn btn-sm bg-primary" @click="saveRestore">
-          {{ t('generic.create') }}
-        </button>
-      </div>
-    </div>
-  </modal>
+      <LabeledInput
+        v-model="description"
+        :label="t('harvester.vmPage.createTemplate.fields.description')"
+      />
+    </template>
+  </ModalWithCard>
 </template>
-
-<style lang="scss" scoped>
-.footer {
-  display: flex;
-  justify-content: center;
-}
-</style>
