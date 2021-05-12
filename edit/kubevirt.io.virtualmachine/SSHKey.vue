@@ -1,18 +1,19 @@
 <script>
+import { mapGetters } from 'vuex';
+
+import ModalWithCard from '@/components/ModalWithCard';
+import InputOrDisplay from '@/components/InputOrDisplay';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
-import InputOrDisplay from '@/components/InputOrDisplay';
-import Banner from '@/components/Banner';
-import Card from '@/components/Card';
-import { clone } from '@/utils/object';
+
 import { SSH } from '@/config/types';
+import { clone } from '@/utils/object';
 import { _VIEW, _CONFIG } from '@/config/query-params';
 
 export default {
   components: {
-    Card,
-    Banner,
     LabeledInput,
+    ModalWithCard,
     LabeledSelect,
     InputOrDisplay
   },
@@ -46,6 +47,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ t: 'i18n/t' }),
+
     isConfig() {
       return this.$route.query?.as === _CONFIG;
     },
@@ -53,6 +56,7 @@ export default {
     ssh() {
       return this.$store.getters['cluster/all'](SSH);
     },
+
     sshOption() {
       const choise = this.$store.getters['cluster/all'](SSH);
 
@@ -63,16 +67,13 @@ export default {
         };
       });
     },
+
     isView() {
       return this.mode === _VIEW || this.disableCreate;
     }
   },
 
   watch: {
-    // checkedSsh() {
-    //   this.$emit('update:sshKey', clone(this.checkedSsh));
-    // },
-
     publicKey(neu) {
       const splitSSH = neu.split(/\s+/);
 
@@ -94,7 +95,6 @@ export default {
 
   methods: {
     show() {
-      this.errors = [];
       this.$modal.show('newSSH');
     },
 
@@ -102,23 +102,34 @@ export default {
       this.$modal.hide('newSSH');
     },
 
-    async saveKey() {
+    async save(buttonCb) {
       this.errors = [];
-      if (!this.sshName || !this.publicKey) {
-        this.errors.push('Please fill in all required fields.');
 
-        return;
+      if (!this.sshName) {
+        const fieldName = this.t('harvester.vmPage.input.name');
+        const message = this.t('validation.required', { key: fieldName });
+
+        this.errors.push(message);
+      }
+
+      if (!this.publicKey) {
+        const fieldName = this.t('harvester.vmPage.input.sshKeyValue');
+        const message = this.t('validation.required', { key: fieldName });
+
+        this.errors.push(message);
       }
 
       if (this.sshName.length > 63) {
-        const message = this.$store.getters['i18n/t']('harvester.validation.custom.tooLongName', { max: 63 });
+        const message = this.t('harvester.validation.custom.tooLongName', { max: 63 });
 
         this.errors.push(message);
+      }
+
+      if (this.errors.length > 0) {
+        buttonCb(false);
 
         return;
       }
-
-      const SSH = 'harvesterhci.io.keypair';
 
       try {
         await this.$store.dispatch('cluster/request', {
@@ -137,25 +148,23 @@ export default {
 
         this.checkedSsh.push(this.sshName);
 
-        this.resetFields();
-
-        this.hide();
+        buttonCb(true);
+        this.cancel();
       } catch (err) {
         this.errors = [err.message];
+        buttonCb(false);
       }
     },
 
-    addSSH() {
-      this.show();
-    },
-
-    cancelKey() {
+    cancel() {
       this.hide();
+      this.resetFields();
     },
 
     resetFields() {
       this.sshName = '';
       this.publicKey = '';
+      this.errors = [];
     },
 
     update() {
@@ -184,50 +193,40 @@ export default {
         </InputOrDisplay>
       </div>
 
-      <span v-if="!isView" class="btn btn-sm bg-primary mt-20" @click="addSSH">
+      <span v-if="!isView" class="btn btn-sm bg-primary mt-20" @click="show">
         {{ t('harvester.vmPage.buttons.createSSHKey') }}
       </span>
     </div>
 
-    <modal name="newSSH" height="auto">
-      <Card>
-        <template #title>
-          <h4 slot="title" class="text-default-text">
-            {{ t('harvester.vmPage.sshTitle') }}
-          </h4>
-        </template>
+    <ModalWithCard
+      ref="newSSH"
+      name="newSSH"
+      width="40%"
+      :errors="errors"
+      @finish="save"
+      @close.prevent="cancel"
+    >
+      <template #title>
+        {{ t('harvester.vmPage.sshTitle') }}
+      </template>
 
-        <template #body>
-          <LabeledInput
-            v-model="sshName"
-            :label="t('harvester.vmPage.input.name')"
-            class="mb-20"
-            required
-          />
+      <template #content>
+        <LabeledInput
+          v-model="sshName"
+          :label="t('harvester.vmPage.input.name')"
+          class="mb-20"
+          required
+        />
 
-          <LabeledInput
-            v-model="publicKey"
-            type="multiline"
-            :label="t('harvester.vmPage.input.sshKeyValue')"
-            class="mb-20"
-            :min-height="160"
-            required
-          />
-
-          <div v-for="(err,idx) in errors" :key="idx">
-            <Banner color="error" :label="err" />
-          </div>
-        </template>
-
-        <template #actions>
-          <button class="btn bg-primary btn-sm mr-20" @click.prevent="cancelKey">
-            {{ t('generic.cancel') }}
-          </button>
-          <button class="btn bg-primary btn-sm" @click.prevent="saveKey">
-            {{ t('generic.save') }}
-          </button>
-        </template>
-      </Card>
-    </modal>
+        <LabeledInput
+          v-model="publicKey"
+          :label="t('harvester.vmPage.input.sshKeyValue')"
+          :min-height="160"
+          class="mb-20"
+          type="multiline"
+          required
+        />
+      </template>
+    </ModalWithCard>
   </div>
 </template>
