@@ -4,7 +4,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import InputOrDisplay from '@/components/InputOrDisplay';
 import { IMAGE } from '@/config/types';
-import { _CREATE, _EDIT } from '@/config/query-params';
+import { _CREATE } from '@/config/query-params';
 
 export default {
   name:       'VmImage',
