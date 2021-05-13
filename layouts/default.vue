@@ -16,7 +16,7 @@ import { BASIC, FAVORITE, USED } from '@/store/type-map';
 import { addObjects, replaceWith, clear, addObject } from '@/utils/array';
 import { NAME as EXPLORER } from '@/config/product/explorer';
 import isEqual from 'lodash/isEqual';
-// import { ucFirst } from '@/utils/string';
+import { ucFirst } from '@/utils/string';
 import { getVersionInfo } from '@/utils/version';
 import { sortBy } from '@/utils/sort';
 
@@ -175,15 +175,17 @@ export default {
       const namespaceMode = this.$store.getters['namespaceMode'];
       const out = [];
       const loadProducts = this.isExplorer ? [EXPLORER] : [];
-      // const productMap = this.activeProducts.reduce((acc, p) => {
-      //   return { ...acc, [p.name]: p };
-      // }, {});
+      const productMap = this.activeProducts.reduce((acc, p) => {
+        return { ...acc, [p.name]: p };
+      }, {});
 
-      if ( this.isExplorer ) {
-        for ( const product of this.activeProducts ) {
-          if ( product.inStore === 'cluster' ) {
-            addObject(loadProducts, product.name);
-          }
+      for ( const product of this.activeProducts ) {
+        if ( product.inStore === 'cluster' ) {
+          addObject(loadProducts, product.name);
+        }
+
+        if (product.name === 'auth') {
+          addObject(loadProducts, product.name);
         }
       }
 
@@ -191,36 +193,38 @@ export default {
       addObject(loadProducts, currentProduct);
 
       for ( const productId of loadProducts ) {
-        if (productId !== 'virtual') {
-          continue;
-        }
+        if (productId === 'virtual' || productId === 'auth') {
+          const modes = [BASIC];
 
-        const modes = [BASIC];
+          if ( productId === EXPLORER ) {
+            modes.push(FAVORITE);
+            modes.push(USED);
+          }
 
-        if ( productId === EXPLORER ) {
-          modes.push(FAVORITE);
-          modes.push(USED);
-        }
+          for ( const mode of modes ) {
+            const types = this.$store.getters['type-map/allTypes'](productId, mode) || {};
+            const more = this.$store.getters['type-map/getTree'](productId, mode, types, clusterId, namespaceMode, namespaces, currentType);
 
-        for ( const mode of modes ) {
-          const types = this.$store.getters['type-map/allTypes'](productId, mode) || {};
-          const more = this.$store.getters['type-map/getTree'](productId, mode, types, clusterId, namespaceMode, namespaces, currentType);
+            if ( productId === EXPLORER) {
+              addObjects(out, more);
+            } else {
+              const root = more.find(x => x.name === 'root');
+              const other = more.filter(x => x.name !== 'root');
 
-          if ( productId === EXPLORER || !this.isExplorer ) {
-            addObjects(out, more);
-          } else {
-            const root = more.find(x => x.name === 'root');
-            const other = more.filter(x => x.name !== 'root');
+              const group = {
+                name:     productId,
+                label:    this.$store.getters['i18n/withFallback'](`product.${ productId }`, null, ucFirst(productId)),
+                children: [...(root?.children || []), ...other],
+                weight:   productMap[productId]?.weight || 0,
+              };
 
-            // const group = {
-            //   name:     productId,
-            //   label:    this.$store.getters['i18n/withFallback'](`product.${ productId }`, null, ucFirst(productId)),
-            //   children: [...(root?.children || []), ...other],
-            //   weight:   productMap[productId]?.weight || 0,
-            // };
-
-            addObject(out, root);
-            addObject(out, ...other);
+              if (productId !== 'virtual') {
+                addObject(out, group);
+              } else {
+                addObject(out, root);
+                addObject(out, ...other);
+              }
+            }
           }
         }
       }

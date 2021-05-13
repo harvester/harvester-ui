@@ -79,6 +79,7 @@ export default {
       });
 
       const setPasswordPromise = this.userRequest('rancher', `/v3/${ NORMAN.USER }s/${ newUser.id }`, { newPassword: this.value.password }, { action: 'setpassword' });
+
       const setRolePromise = this.userRequest('management', `/v1/${ MANAGEMENT.GLOBAL_ROLE_BINDING }s`, {
         type:           MANAGEMENT.GLOBAL_ROLE_BINDING,
         metadata:       { generateName: 'grb-' },
