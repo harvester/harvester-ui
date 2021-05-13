@@ -1,6 +1,6 @@
 import {
   IMAGE, VM, SSH, CONFIG_MAP, VM_TEMPLATE, DATA_VOLUME, NODE,
-  HARVESTER_SETTING, NETWORK_ATTACHMENT, HARVESTER_BACKUP, HARVESTER_CLUSTER_NETWORK, HARVESTER_USER, MANAGEMENT
+  HARVESTER_SETTING, NETWORK_ATTACHMENT, HARVESTER_BACKUP, HARVESTER_CLUSTER_NETWORK
 } from '@/config/types';
 import { DSL } from '@/store/type-map';
 
@@ -14,7 +14,6 @@ export function init(store) {
     basicType,
     configureType,
     virtualType,
-    componentForType
   } = DSL(store, NAME);
 
   product({
@@ -100,13 +99,10 @@ export function init(store) {
     HARVESTER_BACKUP,
     SSH,
     CONFIG_MAP,
-    HARVESTER_USER,
     HARVESTER_SETTING
   ], 'advanced');
 
   configureType(HARVESTER_CLUSTER_NETWORK, { realResource: HARVESTER_SETTING, showState: false });
-  configureType(MANAGEMENT.USER, { realResource: HARVESTER_USER, showState: false });
-  componentForType(MANAGEMENT.USER, HARVESTER_USER);
   virtualType({
     label:      'VM Templates',
     group:      'root',
@@ -124,6 +120,7 @@ export function init(store) {
     customCreateText:    'harvester.backUpPage.createText',
     DisableEditInDetail: true,
   });
+
   virtualType({
     label:      'Backup',
     group:      'root',
@@ -160,19 +157,6 @@ export function init(store) {
     route:      {
       name:     'c-cluster-product-resource',
       params:   { resource: SSH }
-    },
-    exact: false,
-  });
-
-  virtualType({
-    label:      'Users',
-    group:      'root',
-    namespaced:  false,
-    name:       HARVESTER_USER,
-    weight:     150,
-    route:      {
-      name:     'c-cluster-product-resource',
-      params:   { resource: HARVESTER_USER }
     },
     exact: false,
   });

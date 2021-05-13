@@ -1,4 +1,6 @@
 <script>
+/* eslint-disable */
+import qs from 'query-string'
 import { GITHUB_CODE, GITHUB_NONCE, BACK_TO } from '@/config/query-params';
 import { get } from '@/utils/object';
 import { base64Decode } from '@/utils/crypto';
@@ -19,8 +21,9 @@ export default {
   layout: 'unauthenticated',
 
   async fetch({ store, route, redirect }) {
-    const code = route.query[GITHUB_CODE];
-    const stateStr = route.query[GITHUB_NONCE] || '';
+    const { query: { code, state: stateStr }} = qs.parseUrl(window.location.href)
+    // const code = route.query[GITHUB_CODE];
+    // const stateStr = route.query[GITHUB_NONCE] || '';
 
     let parsed;
 
@@ -43,16 +46,17 @@ export default {
     });
 
     if ( res._status === 200) {
-      const backTo = route.query[BACK_TO] || '/';
-
-      redirect(backTo);
+      // redirect({path: '/', query: {}});
+      const { url } = qs.parseUrl(window.location.href)
+      window.location.href = url
     } else {
       redirect(`/auth/login?err=${ escape(res) }`);
     }
   },
 
   data() {
-    const stateJSON = this.$route.query[GITHUB_NONCE] || '';
+    const { query: { code, state: stateStr }} = qs.parseUrl(window.location.href)
+    const stateJSON = stateStr || '';
 
     let parsed = {};
 
@@ -63,13 +67,16 @@ export default {
 
     const { test } = parsed;
 
-    return { testing: test };
+    return { 
+      testing: test,
+      code: code
+    };
   },
 
   mounted() {
     if ( this.testing ) {
       try {
-        reply(null, this.$route.query[GITHUB_CODE] );
+        reply(null, this.code );
       } catch (e) {
         window.close();
       }

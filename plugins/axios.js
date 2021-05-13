@@ -9,7 +9,7 @@ export default function({
 }) {
   $axios.defaults.headers.common['Accept'] = 'application/json';
   $axios.defaults.withCredentials = true;
-  $axios.defaults.timeout = 20000;
+  // $axios.defaults.timeout = 20000;
 
   $axios.onRequest((config) => {
     const csrf = $cookies.get(CSRF, { parseJSON: false });

@@ -497,7 +497,7 @@ export const getters = {
           if ( namespaced ) {
             icon = 'folder';
           } else {
-            icon = 'globe';
+            // icon = 'globe';
           }
         }
 
