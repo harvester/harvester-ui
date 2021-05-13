@@ -1830,6 +1830,8 @@ node:
       more: 更多信息
     more:
       uuid: UUID
+      containerRuntime: 容器运行时
+      kernel: 内核
     type:
       management: 管理节点
       compute: 计算节点
