@@ -1856,6 +1856,8 @@ node:
       more: More Information
     more:
       uuid: UUID
+      containerRuntime: Container Runtime
+      kernel: Kernel
     type:
       management: Management Node
       compute: Compute Node

@@ -232,8 +232,16 @@ export default {
     <hr class="section-divider" />
     <h3>{{ t('node.detail.basic.more') }}</h3>
     <div class="row mb-20">
-      <div class="col span-6">
+      <div class="col span-4">
         <LabelValue :name="t('node.detail.more.uuid')" :value="value.status.nodeInfo.systemUUID" />
+      </div>
+
+      <div class="col span-4">
+        <LabelValue :name="t('node.detail.more.kernel')" :value="value.status.nodeInfo.kernelVersion" />
+      </div>
+
+      <div class="col span-4">
+        <LabelValue :name="t('node.detail.more.containerRuntime')" :value="value.status.nodeInfo.containerRuntimeVersion" />
       </div>
     </div>
   </div>
