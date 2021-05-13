@@ -69,6 +69,7 @@ export default {
       isSingle:              true,
       isRunning:             true,
       useTemplate:           false,
+      isRestartImmediately:  true,
       MachineType
     };
   },
@@ -288,7 +289,7 @@ export default {
 
         const isEqual = _.isEqual(oldValue, newValue);
 
-        if (!isEqual) {
+        if (!isEqual && this.isRestartImmediately) {
           this.value.doAction('restart', {});
         }
       }
@@ -535,11 +536,19 @@ export default {
 
       <template #extend>
         <div class="mt-20">
-          <Checkbox v-model="isRunning" class="check mb-20" type="checkbox" :label="t('harvester.vmPage.createRunning')" />
+          <div>
+            <Checkbox v-model="isRunning" class="check mb-20" type="checkbox" :label="t('harvester.vmPage.createRunning')" />
+          </div>
 
-          <Banner v-if="isEdit" color="warning">
-            {{ t('harvester.vmPage.restartTip') }}
-          </Banner>
+          <div v-if="isEdit" class="restart">
+            <div class="banner-content">
+              <Banner color="warning" class="banner-right">
+                Restart the virtual machine now to take effect of the configuration changes.
+
+                <Checkbox v-model="isRestartImmediately" class="check ml-20" type="checkbox" label="Restart Now" />
+              </Banner>
+            </div>
+          </div>
         </div>
       </template>
     </CruResource>
@@ -553,6 +562,24 @@ export default {
     .radio-container {
       margin-right: 30px;
     }
+  }
+}
+</style>
+
+<style lang="scss" scoped>
+#vm {
+  .restart {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .banner-right {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .banner-content {
+    display: inline-block;
   }
 }
 </style>
