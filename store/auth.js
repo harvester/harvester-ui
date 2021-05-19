@@ -277,9 +277,8 @@ export const actions = {
   },
 
   async login({ state, commit, dispatch }, { provider, body, isLocalUser }) {
-    const driver = await dispatch('getAuthProvider', provider);
-
     if (!isLocalUser) {
+      const driver = await dispatch('getAuthProvider', provider);
       try {
         const res = await driver.doAction('login', {
           description:  'UI session',
