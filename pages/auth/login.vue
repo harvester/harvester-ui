@@ -19,8 +19,15 @@ export default {
   },
 
   async asyncData({ route, redirect, store }) {
-    const drivers = await store.dispatch('auth/getAuthProviders');
-    const providers = sortBy(drivers.map(x => x.id), ['id']);
+    const isRancher = await store.dispatch('auth/getIsRancher');
+
+    let drivers = [];
+    let providers = ['local'];
+
+    if (isRancher) {
+      drivers = await store.dispatch('auth/getAuthProviders');
+      providers = sortBy(drivers.map(x => x.id), ['id']);
+    }
 
     const hasLocal = providers.includes('local');
     const hasOthers = hasLocal && !!providers.find(x => x !== 'local');
