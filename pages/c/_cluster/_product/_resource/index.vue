@@ -1,4 +1,5 @@
 <script>
+import Banner from '@/components/banner';
 import ResourceList from '@/components/ResourceList';
 
 export default {
@@ -24,6 +25,5 @@ export default {
 </script>
 
 <template>
-  <ResourceList v-if="hasResource" />
-  <div v-else></div>
+  <ResourceList />
 </template>

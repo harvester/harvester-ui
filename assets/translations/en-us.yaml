@@ -2369,10 +2369,10 @@ rbac:
         yes: "Yes: Default role for new cluster creation"
         defaultLabel: Cluster Creator Default
       NAMESPACE:
-        createButton: Create Project/Namespaces Role
-        label: Project/Namespaces
-        yes: "Yes: Default role for new project creation"
-        defaultLabel: Project Creator Default
+        createButton: Create Namespaces Role
+        label: Namespaces
+        yes: "Yes: Default role for new Namespace creation"
+        defaultLabel: Namespace Creator Default
       RBAC_ROLE:
         label: Role
       RBAC_CLUSTER_ROLE:
@@ -2382,7 +2382,7 @@ rbac:
   globalRoles:
     types:
       global:
-        label: Global Permissions
+        label: Cluster Permissions
         description: |-
           Controls what access the {isUser, select,
           true {user}
@@ -4028,6 +4028,11 @@ typeLabel:
     {count, plural,
       one { Cloud Config Template }
       other { Cloud Config Templates }
+    }
+  rbac.authorization.k8s.io.rolebinding: |-
+    {count, plural,
+      one { Member }
+      other { Members }
     }
   k8s.cni.cncf.io.networkattachmentdefinition: |-
     {count, plural,

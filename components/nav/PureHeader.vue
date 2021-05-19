@@ -1,13 +1,15 @@
 <script>
+import { mapGetters } from 'vuex';
 import { md5 } from '@/utils/crypto';
 import Identicon from 'identicon.js';
 import { allSettled } from '@/utils/promise';
 import { HARVESTER_SETTING } from '@/config/types';
 import Parse from 'url-parse';
+import NamespaceFilter from './NamespaceFilter';
 import UpgradeInfo from './UpgradeInfo';
 
 export default {
-  components: { UpgradeInfo },
+  components: { UpgradeInfo, NamespaceFilter },
 
   async fetch() {
     await allSettled({ haversterSettings: this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }) });
@@ -21,6 +23,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters(['clusterReady', 'currentProduct']),
+
     authEnabled() {
       return this.$store.getters['auth/enabled'];
     },
@@ -66,6 +70,8 @@ export default {
 
     <div class="top">
       <UpgradeInfo />
+
+      <NamespaceFilter v-if="clusterReady" />
     </div>
 
     <div class="back">

@@ -1,12 +1,14 @@
 import {
   IMAGE, VM, SSH, CONFIG_MAP, VM_TEMPLATE, DATA_VOLUME, NODE,
-  HARVESTER_SETTING, NETWORK_ATTACHMENT, HARVESTER_BACKUP, HARVESTER_CLUSTER_NETWORK
+  HARVESTER_SETTING, NETWORK_ATTACHMENT, HARVESTER_BACKUP,
+  HARVESTER_CLUSTER_NETWORK, NAMESPACE, RBAC
 } from '@/config/types';
 import { DSL } from '@/store/type-map';
 
 export const NAME = 'virtual';
 
 const TEMPLATE = VM_TEMPLATE.version;
+const MEMBER = 'member';
 
 export function init(store) {
   const {
@@ -18,19 +20,18 @@ export function init(store) {
 
   product({
     removable:           false,
-    showNamespaceFilter: false,
+    showNamespaceFilter: true,
     showClusterSwitcher: false,
     icon:                'compass'
   });
 
-  configureType(HARVESTER_SETTING, { isCreatable: false, showState: false });
-
   basicType(['virtual-dashboard']);
   virtualType({
+    ifHaveType:    NODE,
     label:        'Dashboard',
     group:        'Root',
-    namespaced:   false,
     labelDisplay: 'harvester.nav.dashboard',
+    namespaced:   false,
     name:         'virtual-dashboard',
     weight:       500,
     route:        { name: 'c-cluster-virtual' },
@@ -39,10 +40,11 @@ export function init(store) {
 
   basicType([NODE]);
   virtualType({
+    ifHaveType:    NODE,
     label:        'Hosts',
     group:        'Root',
-    namespaced:   false,
     name:         NODE,
+    namespaced:  false,
     weight:       399,
     route:        {
       name:   'c-cluster-product-resource',
@@ -51,12 +53,26 @@ export function init(store) {
     exact: false,
   });
 
+  basicType([NAMESPACE]);
+  virtualType({
+    ifHaveType:    NODE,
+    label:        'Namespace',
+    name:         NAMESPACE,
+    namespaced:  true,
+    weight:       389,
+    route:        {
+      name:   'c-cluster-product-resource',
+      params: { resource: NAMESPACE }
+    },
+    exact: false,
+  });
+
   basicType([VM]);
   virtualType({
     label:      'Virtual Machines',
     group:      'root',
-    namespaced: true,
     name:       VM,
+    namespaced:  true,
     weight:     299,
     route:      {
       name:     'c-cluster-product-resource',
@@ -69,8 +85,8 @@ export function init(store) {
   virtualType({
     label:      'Volumes',
     group:      'root',
-    namespaced: true,
     name:       DATA_VOLUME,
+    namespaced:  true,
     weight:     199,
     route:      {
       name:     'c-cluster-product-resource',
@@ -83,8 +99,8 @@ export function init(store) {
   virtualType({
     label:      'Images',
     group:      'root',
-    namespaced: true,
     name:       IMAGE,
+    namespaced:  true,
     weight:     99,
     route:      {
       name:     'c-cluster-product-resource',
@@ -97,6 +113,7 @@ export function init(store) {
     TEMPLATE,
     NETWORK_ATTACHMENT,
     HARVESTER_BACKUP,
+    MEMBER,
     SSH,
     CONFIG_MAP,
     HARVESTER_SETTING
@@ -106,8 +123,8 @@ export function init(store) {
   virtualType({
     label:      'VM Templates',
     group:      'root',
-    namespaced: true,
     name:       TEMPLATE,
+    namespaced:  true,
     weight:     289,
     route:      {
       name:     'c-cluster-product-resource',
@@ -124,8 +141,8 @@ export function init(store) {
   virtualType({
     label:      'Backup',
     group:      'root',
-    namespaced: false,
     name:       HARVESTER_BACKUP,
+    namespaced:  false,
     weight:     200,
     route:      {
       name:     'c-cluster-product-resource',
@@ -134,12 +151,32 @@ export function init(store) {
     exact: false,
   });
 
+  configureType(MEMBER, {
+    displayName: 'Member',
+    location:    {
+      name:    'c-cluster-product-resource',
+      params:  { resource: MEMBER },
+    },
+    resource:          RBAC.ROLE_BINDING,
+    useCustomInImport: true
+  });
+  virtualType({
+    label:          'Member',
+    group:      'root',
+    name:           MEMBER,
+    weight:         199,
+    route:          {
+      name:     'c-cluster-product-resource',
+      params:   { resource: MEMBER }
+    },
+  });
+
   configureType(NETWORK_ATTACHMENT, { isEditable: false, showState: false });
   virtualType({
     label:      'Networks',
     group:      'root',
-    namespaced: true,
     name:       NETWORK_ATTACHMENT,
+    namespaced:  true,
     weight:     189,
     route:      {
       name:     'c-cluster-product-resource',
@@ -151,8 +188,8 @@ export function init(store) {
   virtualType({
     label:      'SSH Keys',
     group:      'root',
-    namespaced: true,
     name:       SSH,
+    namespaced:  true,
     weight:     170,
     route:      {
       name:     'c-cluster-product-resource',
@@ -164,7 +201,7 @@ export function init(store) {
   virtualType({
     label:      'Cloud Init Templates',
     group:      'root',
-    namespaced: true,
+    namespaced:  true,
     name:       CONFIG_MAP,
     weight:     87,
     route:      {
@@ -175,6 +212,7 @@ export function init(store) {
   });
 
   virtualType({
+    ifHaveType: HARVESTER_SETTING,
     label:      'Settings',
     group:      'root',
     namespaced:  true,
@@ -186,4 +224,5 @@ export function init(store) {
     },
     exact: false,
   });
+  configureType(HARVESTER_SETTING, { isCreatable: false, showState: false });
 }

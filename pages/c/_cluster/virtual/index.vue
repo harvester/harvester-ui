@@ -5,7 +5,7 @@ import utc from 'dayjs/plugin/utc';
 import Loading from '@/components/Loading';
 import isEmpty from 'lodash/isEmpty';
 import SortableTable from '@/components/SortableTable';
-import { allHash } from '@/utils/promise';
+import { allSettled } from '@/utils/promise';
 import Poller from '@/utils/poller';
 import { parseSi, formatSi, exponentNeeded, UNITS } from '@/utils/units';
 import { REASON } from '@/config/table-headers';
@@ -58,7 +58,7 @@ export default {
       metricNodes: this.fetchClusterResources(METRIC.NODE),
     };
 
-    const res = await allHash(hash);
+    const res = await allSettled(hash);
 
     for ( const k in res ) {
       this[k] = res[k];
@@ -114,10 +114,6 @@ export default {
       return RESOURCES.filter(resource => this.$store.getters['cluster/schemaFor'](resource));
     },
 
-    displayProvider() {
-      return 'k3s';
-    },
-
     currentVersion() {
       const settings = this.$store.getters['cluster/all'](HARVESTER_SETTING);
       const setting = settings.find( S => S.id === 'server-version');
@@ -129,6 +125,10 @@ export default {
       const days = this.$store.getters['cluster/all'](NODE).map( (N) => {
         return dayjs(N.metadata.creationTimestamp);
       });
+
+      if (!days.length) {
+        return dayjs().utc().format();
+      }
 
       return dayjs.min(days).utc().format();
     },

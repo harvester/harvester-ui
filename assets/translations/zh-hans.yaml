@@ -2048,9 +2048,9 @@ rbac:
         yes: "是：创建新集群的默认角色"
         defaultLabel: 集群创建者
       NAMESPACE:
-        createButton: 创建项目或命名空间角色
-        label: 项目或命名空间
-        yes: "是：创建项目或命名空间的默认角色"
+        createButton: 创建命名空间角色
+        label: 命名空间
+        yes: "是：命名空间的默认角色"
         defaultLabel: 项目创建者
       RBAC_ROLE:
         label: 角色
@@ -2061,7 +2061,7 @@ rbac:
   globalRoles:
     types:
       global:
-        label: 全局权限
+        label: 集群权限
         description: |-
           控制{isUser, select,
           true {user}
@@ -3576,7 +3576,7 @@ typeLabel:
   secret: 密钥
   rbac.authorization.k8s.io.clusterrolebinding: 集群角色绑定
   rbac.authorization.k8s.io.clusterrole: 集群角色
-  rbac.authorization.k8s.io.rolebinding: 角色绑定
+  rbac.authorization.k8s.io.rolebinding: 成员
   rbac.authorization.k8s.io.role: 角色
   kubevirt.io.virtualmachine: 虚拟机
   harvesterhci.io.virtualmachineimage: 镜像

@@ -1,10 +1,10 @@
 <script>
-import SortableTable from '@/components/SortableTable';
+import ResourceTable from '@/components/ResourceTable';
 import { STATE, NAME, FINGERPRINT, AGE } from '@/config/table-headers';
 
 export default {
   name:       'LSSHs',
-  components: { SortableTable },
+  components: { ResourceTable },
 
   props: {
     schema: {
@@ -35,10 +35,11 @@ export default {
 </script>
 
 <template>
-  <SortableTable
+  <ResourceTable
     v-bind="$attrs"
     :headers="headers"
     :rows="rows"
+    :groupable="true"
     key-field="_key"
     v-on="$listeners"
   />

@@ -287,7 +287,7 @@ export default {
     let resource = this.resourceOverride || this.$route.params.resource;
     const options = this.$store.getters[`type-map/optionsFor`](resource);
 
-    if ( options.resource ) {
+    if ( options.resource && !options?.useCustomInImport ) {
       resource = options.resource;
     }
 

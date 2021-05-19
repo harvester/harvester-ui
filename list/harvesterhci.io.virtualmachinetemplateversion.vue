@@ -2,14 +2,14 @@
 import { STATE, AGE, NAME } from '@/config/table-headers';
 import { VM_TEMPLATE } from '@/config/types';
 import Loading from '@/components/Loading';
-import SortableTable from '@/components/SortableTable';
+import ResourceTable from '@/components/ResourceTable';
 import { allHash } from '@/utils/promise';
 import LiveData from '@/components/formatter/LiveDate';
 
 export default {
   name:       'ListTemplate',
   components: {
-    SortableTable, LiveData, Loading
+    ResourceTable, LiveData, Loading
   },
 
   props: {
@@ -98,11 +98,12 @@ export default {
 
 <template>
   <Loading v-if="$fetchState.pending" />
-  <SortableTable
+  <ResourceTable
     v-else
     v-bind="$attrs"
     :headers="headers"
     :sub-rows="true"
+    :groupable="true"
     :rows="[...rows]"
     :group-title-by="groupTitleBy"
     :group-by="groupBy"
@@ -140,7 +141,7 @@ export default {
         </button>
       </td>
     </template>
-  </SortableTable>
+  </ResourceTable>
 </template>
 
 <style lang="scss" scoped>

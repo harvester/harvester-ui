@@ -1,7 +1,9 @@
 <script>
+import randomstring from 'randomstring';
 import CruResource from '@/components/CruResource';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
+import NameNsDescription from '@/components/form/NameNsDescription';
 import LabeledInput from '@/components/form/LabeledInput';
 import CreateEditView from '@/mixins/create-edit-view';
 import FileSelector, { createOnSelected } from '@/components/form/FileSelector';
@@ -14,7 +16,8 @@ export default {
     Tabbed,
     CruResource,
     LabeledInput,
-    FileSelector
+    FileSelector,
+    NameNsDescription
   },
 
   mixins: [CreateEditView],
@@ -35,11 +38,10 @@ export default {
       this.value.metadata = { name: '' };
     }
 
-    if (!this.value?.metadata?.namespace) {
-      this.value.metadata.namespace = 'default';
-    }
-
-    return { publicKey: this.value.spec.publicKey || '' };
+    return {
+      publicKey:    this.value.spec.publicKey || '',
+      randomString: '',
+    };
   },
 
   watch: {
@@ -53,6 +55,7 @@ export default {
           if (splitSSH[2].split('@')) {
             if (!this.value.metadata.name) {
               this.value.metadata.name = splitSSH[2].split('@')[0];
+              this.randomString = randomstring.generate(10).toLowerCase();
             }
           }
         }
@@ -78,21 +81,17 @@ export default {
         <FileSelector v-if="isCreate" class="btn btn-sm bg-primary mt-10" :label="t('generic.readFromFile')" accept=".pub" @selected="onKeySelected" />
       </div>
 
+      <NameNsDescription
+        ref="nd"
+        :key="randomString"
+        v-model="value"
+        :mode="mode"
+        label="Name"
+      />
+      {{ randomString }}
+
       <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
         <Tab name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
-          <div class="row mb-20">
-            <div class="col span-12">
-              <LabeledInput
-                v-if="mode !== 'view'"
-                v-model="value.metadata.name"
-                :label="t('nameNsDescription.name.label')"
-                class="mb-20"
-                :mode="mode"
-                required
-              />
-            </div>
-          </div>
-
           <div class="row">
             <div class="col span-12">
               <LabeledInput

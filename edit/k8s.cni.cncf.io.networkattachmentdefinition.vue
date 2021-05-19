@@ -1,4 +1,5 @@
 <script>
+import NameNsDescription from '@/components/form/NameNsDescription';
 import CruResource from '@/components/CruResource';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
@@ -7,12 +8,15 @@ import LabeledInput from '@/components/form/LabeledInput';
 
 export default {
   components: {
-    LabeledInput,
-    CruResource,
+    Tab,
     Tabbed,
-    Tab
+    CruResource,
+    LabeledInput,
+    NameNsDescription,
   },
-  mixins:     [CreateEditView],
+
+  mixins: [CreateEditView],
+
   props:      {
     value: {
       type:     Object,
@@ -33,14 +37,12 @@ export default {
           ipam:        {}
         }
       };
-      this.value.metadata.namespace = 'default';
     }
 
     const specConfig = this.value.spec.config;
     const parseSpecConfig = typeof (specConfig) === 'string' ? JSON.parse(specConfig) : specConfig;
 
     return {
-      name:     parseSpecConfig.name,
       type:     'L2VlanNetwork',
       vlanId:   parseSpecConfig.vlan,
       ipamType: parseSpecConfig.ipam?.type || '',
@@ -56,6 +58,7 @@ export default {
         label: 'VLAN'
       }];
     },
+
     IPAMOption() {
       return [{
         value: 'static',
@@ -83,10 +86,12 @@ export default {
       //   this.parseSpecConfig.ipam = {};
       // }
 
+      if (this.value.metadata.name) {
+        this.parseSpecConfig.name = this.value.metadata.name;
+      }
+
       this.parseSpecConfig.vlan = this.vlanId;
-      this.parseSpecConfig.name = this.name;
       this.value.spec.config = JSON.stringify(this.parseSpecConfig);
-      this.value.metadata.name = this.name;
       await this.save(buttonCb);
 
       const specConfig = JSON.parse(this.value.spec.config);
@@ -119,10 +124,15 @@ export default {
     @apply-hooks="applyHooks"
     @finish="beforeSave"
   >
+    <NameNsDescription
+      ref="nd"
+      v-model="value"
+      :mode="mode"
+      label="Name"
+    />
+
     <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
       <Tab name="basics" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
-        <LabeledInput v-model="name" class="mb-20" :label="t('harvester.fields.name')" required :disabled="isEdit" />
-
         <LabeledInput
           v-model="type"
           class="mb-20"

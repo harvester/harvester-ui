@@ -1,15 +1,16 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { MANAGEMENT } from '@/config/types';
+import { RBAC } from '@/config/types';
 import Checkbox from '@/components/form/Checkbox';
+import { HARVESTER_MANAGED } from '@/config/labels-annotations';
 import { _CREATE, _VIEW } from '@/config/query-params';
 import Loading from '@/components/Loading';
 import { addObjects, isArray } from '@/utils/array';
 import Card from '@/components/Card';
 
 /**
- * Display checkboxes for each global role, checked for given user or principal (group). Can save changes.
+ * Display checkboxes for each cluster role, checked for given user or principal (group). Can save changes.
  */
 export default {
   components: {
@@ -48,7 +49,10 @@ export default {
   },
   async fetch() {
     try {
-      this.allRoles = await this.$store.dispatch('management/findAll', { type: MANAGEMENT.GLOBAL_ROLE });
+      const allRoles = await this.$store.dispatch('cluster/findAll', { type: RBAC.CLUSTER_ROLE });
+
+      this.allRoles = allRoles.filter(R => R.clusterRole);
+
       if (!this.sortedRoles) {
         this.sortedRoles = {
           global:  [],
@@ -70,7 +74,7 @@ export default {
         this.sortedRoles.custom = this.sortedRoles.custom.sort(sort);
 
         if (!this.isCreate) {
-          this.globalRoleBindings = await this.$store.dispatch('management/findAll', { type: MANAGEMENT.GLOBAL_ROLE_BINDING });
+          this.globalRoleBindings = await this.$store.dispatch('cluster/findAll', { type: RBAC.GLOBAL_ROLE_BINDING });
         }
 
         this.update();
@@ -79,11 +83,9 @@ export default {
   },
   data() {
     return {
-      globalPermissions: [
-        'admin',
-        'restricted-admin',
-        'user',
-        'user-base',
+      clusterPermissions: [
+        'harvester-admin',
+        'harvester-user',
       ],
       globalRoleBindings:    null,
       sortedRoles:           null,
@@ -93,6 +95,7 @@ export default {
       roleChanges:           {}
     };
   },
+
   computed: {
     ...mapGetters({ t: 'i18n/t' }),
 
@@ -104,6 +107,7 @@ export default {
       return this.type === 'user';
     }
   },
+
   watch:    {
     groupPrincipalId(groupPrincipalId, oldGroupPrincipalId) {
       if (groupPrincipalId === oldGroupPrincipalId) {
@@ -111,6 +115,7 @@ export default {
       }
       this.update();
     },
+
     userId(userId, oldUserId) {
       if (userId === oldUserId) {
         return;
@@ -120,7 +125,7 @@ export default {
   },
   methods: {
     getRoleType(role) {
-      if (this.globalPermissions.find(p => p === role.id)) {
+      if (this.clusterPermissions.find(p => p === role.id)) {
         return 'global';
       } else if (role.builtin) {
         return 'builtin';
@@ -128,9 +133,11 @@ export default {
         return 'custom';
       }
     },
+
     getUnique(...ids) {
       return `${ this.groupPrincipalId || this.userId }-${ ids.join('-') }`;
     },
+
     selectDefaults() {
       Object.values(this.sortedRoles).forEach((roles) => {
         roles.forEach((mappedRole) => {
@@ -140,6 +147,7 @@ export default {
         });
       });
     },
+
     update() {
       this.selectedRoles = [];
       this.startingSelectedRoles = [];
@@ -182,9 +190,11 @@ export default {
       // Force an update to pump out the initial state
       this.checkboxChanged();
     },
+
     checkboxChanged() {
       const addRoles = this.selectedRoles
         .filter(selected => !this.startingSelectedRoles.find(startingRole => startingRole.roleId === selected));
+
       const removeBindings = this.startingSelectedRoles
         .filter(startingRole => !this.selectedRoles.find(selected => selected === startingRole.roleId))
         .map(startingRole => startingRole.bindingId);
@@ -199,28 +209,42 @@ export default {
       this.$emit('canLogIn', this.confirmUserCanLogIn());
       this.$emit('changed', this.roleChanges);
     },
+
     async saveAddedRoles(userId) {
       const requestOptions = {
-        type:               MANAGEMENT.GLOBAL_ROLE_BINDING,
-        metadata:           { generateName: `grb-` },
+        type:               RBAC.CLUSTER_ROLE_BINDING,
+        metadata:           {
+          generateName: `hcrb-`,
+          labels:       { [HARVESTER_MANAGED]: 'true' }
+        },
+        roleRef: {
+          apiGroup: `rbac.authorization.k8s.io`,
+          kind:     `ClusterRole`,
+        },
+        subjects: [
+          {
+            apiGroup: `rbac.authorization.k8s.io`,
+            kind:     `User`,
+            name:      userId || this.userId
+          }
+        ]
       };
 
-      if (this.groupPrincipalId) {
-        requestOptions.groupPrincipalName = this.groupPrincipalId;
-      } else {
-        requestOptions.userName = userId || this.userId;
-      }
-      const newBindings = await Promise.all(this.roleChanges.addRoles.map(role => this.$store.dispatch(`management/create`, {
+      const newBindings = await Promise.all(this.roleChanges.addRoles.map(role => this.$store.dispatch(`cluster/create`, {
         ...requestOptions,
-        globalRoleName: role,
+        roleRef: {
+          ...requestOptions.roleRef,
+          name: role
+        }
       })));
 
       // Save all changes (and ensure user isn't logged out if they don't have permissions to make a change)
       await Promise.all(newBindings.map(newBinding => newBinding.save({ redirectUnauthorized: false })));
     },
+
     async saveRemovedRoles() {
-      const existingBindings = await Promise.all(this.roleChanges.removeBindings.map(bindingId => this.$store.dispatch('management/find', {
-        type: MANAGEMENT.GLOBAL_ROLE_BINDING,
+      const existingBindings = await Promise.all(this.roleChanges.removeBindings.map(bindingId => this.$store.dispatch('cluster/find', {
+        type: RBAC.CLUSTER_ROLE_BINDING,
         id:   bindingId
       })));
 
@@ -235,6 +259,7 @@ export default {
       await this.saveAddedRoles(userId);
       await this.saveRemovedRoles();
     },
+
     confirmUserCanLogIn() {
       const allRolesRules = [];
 
@@ -246,11 +271,13 @@ export default {
         });
       });
 
-      return allRolesRules.some(rule => this.isRuleValid(rule));
+      return allRolesRules.some((rule) => {
+        return this.isRuleValid(rule);
+      });
     },
+
     isRuleValid(rule) {
       // Brought over from Ember
-
       if (( rule.resources || [] ).some(resourceValidator) && ( rule.apiGroups || [] ).some(apiGroupValidator) && verbsValidator(( rule.verbs || [] ))) {
         return true;
       }
@@ -265,7 +292,7 @@ export default {
       }
 
       function apiGroupValidator(apiGroup) {
-        const apiGroupsRequiredForLogin = ['*', 'management.cattle.io'];
+        const apiGroupsRequiredForLogin = ['*', 'harvesterhci.io'];
 
         // console.log(`apiGroupsRequiredForLogin status: `, apiGroupsRequiredForLogin.includes(apiGroup), apiGroup);
         return apiGroupsRequiredForLogin.includes(apiGroup);
@@ -284,7 +311,6 @@ export default {
         return verbsRequiredForLogin.includes(verbs[0]);
       }
     },
-
   }
 };
 </script>

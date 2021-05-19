@@ -1,11 +1,10 @@
 <script>
-import SortableTable from '@/components/SortableTable';
-// import Banner from '@/components/Banner';
+import ResourceTable from '@/components/ResourceTable';
 import { STATE, NAME, AGE } from '@/config/table-headers';
 
 export default {
   name:       'ListImage',
-  components: { SortableTable },
+  components: { ResourceTable },
 
   props: {
     schema: {
@@ -82,21 +81,12 @@ export default {
 </script>
 
 <template>
-  <div>
-    <!-- <div v-if="isAbnormal">
-      <Banner
-        color="error"
-      >
-        Image storage service is not ready
-      </Banner>
-    </div> -->
-
-    <SortableTable
-      v-bind="$attrs"
-      :headers="headers"
-      :rows="[...rows]"
-      key-field="_key"
-      v-on="$listeners"
-    />
-  </div>
+  <ResourceTable
+    v-bind="$attrs"
+    :headers="headers"
+    :groupable="true"
+    :rows="[...rows]"
+    key-field="_key"
+    v-on="$listeners"
+  />
 </template>

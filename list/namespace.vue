@@ -51,7 +51,7 @@ export default {
     :schema="schema"
     :headers="headers"
     :rows="rows"
-    :groupable="true"
+    :groupable="false"
     group-tooltip="resourceTable.groupBy.project"
     key-field="_key"
     v-on="$listeners"

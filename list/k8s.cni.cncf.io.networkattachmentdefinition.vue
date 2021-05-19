@@ -1,7 +1,7 @@
 <script>
 import Banner from '@/components/Banner';
 import Loading from '@/components/Loading';
-import SortableTable from '@/components/SortableTable';
+import ResourceTable from '@/components/ResourceTable';
 
 import { NAME, NETWORK_TYPE, NETWORK_VLAN, AGE } from '@/config/table-headers';
 import { HARVESTER_CLUSTER_NETWORK, NETWORK_ATTACHMENT, HARVESTER_NODE_NETWORK, NODE } from '@/config/types';
@@ -12,7 +12,7 @@ import { allSettled } from '@/utils/promise';
 export default {
   name:       'LNetworks',
   components: {
-    SortableTable, Banner, Loading
+    ResourceTable, Banner, Loading
   },
 
   props: {
@@ -120,10 +120,11 @@ export default {
       </Banner>
     </template>
 
-    <SortableTable
+    <ResourceTable
       v-bind="$attrs"
       :headers="headers"
       default-sort-by="age"
+      :groupable="true"
       :rows="rows"
       key-field="_key"
       v-on="$listeners"

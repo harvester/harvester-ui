@@ -182,7 +182,6 @@ export default {
       <NameNsDescription
         ref="nd"
         v-model="value"
-        :namespaced="false"
         :mode="mode"
         label="Name"
         name-key="spec.displayName"

@@ -38,34 +38,34 @@ export default {
       const t = this.$store.getters['i18n/t'];
 
       const out = [
-        {
-          id:    'all',
-          kind:  'special',
-          label: t('nav.ns.all'),
-        },
-        {
-          id:    'all://user',
-          kind:  'special',
-          label: t('nav.ns.user'),
-        },
-        {
-          id:    'all://system',
-          kind:  'special',
-          label: t('nav.ns.system'),
-        },
-        {
-          id:    'namespaced://true',
-          kind:  'special',
-          label: t('nav.ns.namespaced'),
-        },
-        {
-          id:    'namespaced://false',
-          kind:  'special',
-          label: t('nav.ns.clusterLevel'),
-        },
+        // {
+        //   id:    'all',
+        //   kind:  'special',
+        //   label: t('nav.ns.all'),
+        // },
+        // {
+        //   id:    'all://user',
+        //   kind:  'special',
+        //   label: t('nav.ns.user'),
+        // },
+        // {
+        //   id:    'all://system',
+        //   kind:  'special',
+        //   label: t('nav.ns.system'),
+        // },
+        // {
+        //   id:    'namespaced://true',
+        //   kind:  'special',
+        //   label: t('nav.ns.namespaced'),
+        // },
+        // {
+        //   id:    'namespaced://false',
+        //   kind:  'special',
+        //   label: t('nav.ns.clusterLevel'),
+        // },
       ];
 
-      divider();
+      // divider();
 
       const inStore = this.$store.getters['currentProduct'].inStore;
       const namespaces = sortBy(
@@ -159,7 +159,9 @@ export default {
 
         addObjects(
           out,
-          namespaces.map((namespace) => {
+          namespaces.filter((namespace) => {
+            return namespace.isHCIUserNS;
+          }).map((namespace) => {
             return {
               id:    `ns://${ namespace.id }`,
               kind:  'namespace',

@@ -3,13 +3,13 @@ import { allHash } from '@/utils/promise';
 import Banner from '@/components/Banner';
 import { STATE, AGE, NAME } from '@/config/table-headers';
 import Loading from '@/components/Loading';
-import SortableTable from '@/components/SortableTable';
+import ResourceTable from '@/components/ResourceTable';
 import { HARVESTER_BACKUP, HARVESTER_SETTING } from '@/config/types';
 
 export default {
   name:       'ListBackup',
   components: {
-    SortableTable, Banner, Loading
+    ResourceTable, Banner, Loading
   },
 
   props: {
@@ -134,14 +134,14 @@ export default {
       </div>
     </Banner>
 
-    <SortableTable
+    <ResourceTable
       v-bind="$attrs"
       :headers="headers"
       default-sort-by="age"
+      :groupable="true"
       :rows="[...rows]"
       key-field="_key"
       v-on="$listeners"
-    >
-    </sortabletable>
+    />
   </div>
 </template>

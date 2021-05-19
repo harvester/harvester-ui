@@ -135,7 +135,7 @@ export default {
     <NameNsDescription
       :value="value"
       :mode="mode"
-      :namespaced="false"
+      :namespaced="true"
       :register-before-hook="registerBeforeHook"
     />
 

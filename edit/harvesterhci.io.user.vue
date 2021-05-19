@@ -1,162 +1,232 @@
 <script>
-import CruResource from '@/components/CruResource';
-import Tabbed from '@/components/Tabbed';
-import Tab from '@/components/Tabbed/Tab';
-import LabeledInput from '@/components/form/LabeledInput';
+import { MANAGEMENT, NORMAN } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
-import { MANAGEMENT, HARVESTER_USER, NORMAN } from '@/config/types';
+import GlobalRoleBindings from '@/components/GlobalRoleBindings.vue';
+import ChangePassword from '@/components/form/ChangePassword';
+import LabeledInput from '@/components/form/LabeledInput';
+import CruResource from '@/components/CruResource';
 import { exceptionToErrorsArray } from '@/utils/error';
-import { _EDIT } from '@/config/query-params';
+import { _CREATE, _EDIT } from '@/config/query-params';
+import Loading from '@/components/Loading';
 
 export default {
-  name: 'EditUser',
-
   components: {
-    CruResource,
-    Tab,
-    Tabbed,
-    LabeledInput,
+    ChangePassword, GlobalRoleBindings, CruResource, LabeledInput, Loading
   },
-
-  mixins: [CreateEditView],
-
-  props: {
-    value: {
-      type:     Object,
-      required: true,
-    },
-  },
-
+  mixins:     [
+    CreateEditView
+  ],
   data() {
-    this.value.isAdmin = true;
-
-    return {};
+    return {
+      form:             {
+        username:    this.value.username,
+        description: this.value.description,
+        displayName: this.value.displayName,
+        password:    {
+          password:          '',
+          userChangeOnLogin: false,
+        }
+      },
+      validation: {
+        password:     false,
+        roles:        false,
+        rolesChanged:     false,
+      },
+    };
   },
-
   computed: {
+    valid() {
+      const valid = this.credentialsValid && this.rolesValid;
+
+      if (this.isCreate) {
+        return valid;
+      }
+      if (this.isEdit) {
+        return valid && (this.credentialsChanged || this.validation.rolesChanged);
+      }
+
+      return false;
+    },
+    credentialsValid() {
+      if (this.isCreate) {
+        // Username must be supplied, password valid
+        return !!this.form.username && this.validation.password;
+      }
+      if (this.isEdit) {
+        // Password must be valid (though password field doesn't have to exist)
+        return this.validation.password;
+      }
+
+      return false;
+    },
+    credentialsChanged() {
+      if (this.isCreate) {
+        return true; // Covered by valid
+      }
+      if (this.isEdit) {
+        return !!this.form.password.password ||
+          this.form.description !== this.value.description ||
+          this.form.displayName !== this.value.displayName ||
+          this.form.password.userChangeOnLogin !== this.value.mustChangePassword;
+      }
+
+      return false;
+    },
+    rolesValid() {
+      return this.validation.roles;
+    },
+    isCreate() {
+      return this.mode === _CREATE;
+    },
     isEdit() {
       return this.mode === _EDIT;
-    },
-
-    isRancher() {
-      return this.$store.getters['auth/isRancher'];
     }
   },
-
   methods: {
-    async saveUser(buttonCb) {
-      if (!this.isRancher) {
-        return this.save(buttonCb);
-      }
-
+    async save(buttonDone) {
+      this.errors = [];
       try {
-        if (this.isEdit) {
-          await this.updateUser(buttonCb);
+        if (this.isCreate) {
+          const user = await this.createUser();
+
+          await this.updateRoles(user.id);
         } else {
-          await this.createUser(buttonCb);
+          await this.editUser();
+          await this.updateRoles();
         }
 
-        buttonCb(true);
-
-        this.$router.push({
-          name:   this.doneRoute,
-          params: { resource: HARVESTER_USER }
-        });
+        this.$router.replace({ name: this.doneRoute });
+        buttonDone(true);
       } catch (err) {
-        this.errors = exceptionToErrorsArray(err) || err;
-        buttonCb(false);
+        console.log('----err', err);
+        this.errors = exceptionToErrorsArray(err);
+        buttonDone(false);
       }
     },
-
     async createUser() {
-      const newUser = await this.userRequest('management', `/v1/${ MANAGEMENT.USER }s`, {
-        type:               MANAGEMENT.USER,
-        metadata:           { generateName: 'user-' },
+      // Ensure username is unique (this does not happen in the backend)
+      const users = await this.$store.dispatch('management/findAll', { type: MANAGEMENT.USER });
+
+      if (users.find(u => u.username === this.form.username)) {
+        throw new Error(this.t('user.edit.credentials.username.exists'));
+      }
+
+      const user = await this.$store.dispatch('rancher/create', {
+        type:               NORMAN.USER,
+        description:        this.form.description,
         enabled:            true,
-        mustChangePassword: false,
-        username:           this.value.username,
-        password:           this.value.password
+        mustChangePassword: this.form.password.userChangeOnLogin,
+        name:               this.form.displayName,
+        password:           this.form.password.password,
+        username:           this.form.username
       });
 
-      const setPasswordPromise = this.userRequest('rancher', `/v3/${ NORMAN.USER }s/${ newUser.id }`, { newPassword: this.value.password }, { action: 'setpassword' });
+      const newNormanUser = await user.save({ extend: { isRes: true } });
 
-      const setRolePromise = this.userRequest('management', `/v1/${ MANAGEMENT.GLOBAL_ROLE_BINDING }s`, {
-        type:           MANAGEMENT.GLOBAL_ROLE_BINDING,
-        metadata:       { generateName: 'grb-' },
-        userName:       newUser.id,
-        globalRoleName: 'admin'
+      return this.$store.dispatch('management/find', { type: MANAGEMENT.USER, id: newNormanUser.id });
+    },
+    async editUser() {
+      if (!this.credentialsChanged) {
+        return;
+      }
+
+      const normanUser = await this.$store.dispatch('rancher/find', {
+        type:       NORMAN.USER,
+        id:   this.value.id,
       });
 
-      await Promise.all([setPasswordPromise, setRolePromise]);
+      // Save change of password
+      // - Password must be changed before editing mustChangePassword (setpassword action sets this to false)
+      if (this.form.password.password) {
+        this.$refs.changePassword.save(normanUser);
+
+        // Why the wait? Without these the user updates below are ignored
+        // - The update request succeeds and shows the correct values in it's response.
+        // - Fetching the norman user again sometimes shows the correct value, sometimes not
+        // - Even if the fetched norman user shows the correct value, it doesn't show up in the steve user
+        //   - Looks like we re-request the stale version via socket?
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
+
+      // Save user updates
+      normanUser.description = this.form.description;
+      normanUser._name = this.form.displayName;
+      normanUser.mustChangePassword = this.form.password.userChangeOnLogin;
+      await normanUser.save();
     },
-
-    async updateUser() {
-      const url = `/v3/${ NORMAN.USER }s/${ this.value.id }`;
-      const params = { action: 'setpassword' };
-      const data = { newPassword: this.value.password };
-
-      await this.userRequest('rancher', url, data, params);
-    },
-
-    userRequest(module, url, data, params) {
-      return this.$store.dispatch(`${ module }/request`, {
-        method:  'POST',
-        headers: {
-          'content-type': 'application/json',
-          accept:         'application/json',
-        },
-        url,
-        params,
-        data
-      });
-    },
-
-    done() {
-      const doneParams = this.doneParams;
-
-      doneParams.resource = HARVESTER_USER;
-
-      this.$router.push({
-        name:   this.doneRoute,
-        params: doneParams
-      });
-    },
-  },
+    async updateRoles(userId) {
+      await this.$refs.grb.save(userId);
+    }
+  }
 };
 </script>
 
 <template>
-  <CruResource
-    :can-yaml="false"
-    :done-route="doneRoute"
-    :cancel-event="true"
-    :resource="value"
-    :mode="mode"
-    :errors="errors"
-    @apply-hooks="applyHooks"
-    @finish="saveUser"
-    @cancel="done"
-  >
-    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-      <Tab name="basic" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
-        <LabeledInput
-          v-model="value.username"
-          :label="t('harvester.userPage.username')"
-          :disabled="isEdit"
-          :mode="mode"
-          class="mb-20"
-          required
-        />
+  <Loading v-if="!value" />
+  <div v-else>
+    <CruResource
+      :done-route="doneRoute"
+      :mode="mode"
+      :resource="value"
+      :validation-passed="valid"
+      :errors="errors"
+      :can-yaml="false"
+      class="create-edit"
+      @finish="save"
+    >
+      <div class="credentials">
+        <h2> {{ t("user.edit.credentials.label") }}</h2>
+        <div class="row">
+          <div class="col span-4">
+            <LabeledInput
+              v-model="form.username"
+              label-key="user.edit.credentials.username.label"
+              placeholder-key="user.edit.credentials.username.placeholder"
+              :required="isCreate"
+              :readonly="isEdit"
+              :disabled="isView || isEdit"
+              :ignore-password-managers="!isCreate"
+            />
+          </div>
+          <div class="col span-4">
+            <LabeledInput
+              v-model="form.displayName"
+              label-key="user.edit.credentials.displayName.label"
+              placeholder-key="user.edit.credentials.displayName.placeholder"
+              :disabled="isView"
+            />
+          </div>
+        </div>
+        <div class="row mt-20 mb-10">
+          <div class="col span-8">
+            <LabeledInput
+              v-model="form.description"
+              label-key="user.edit.credentials.userDescription.label"
+              placeholder-key="user.edit.credentials.userDescription.placeholder"
+              :disabled="isView"
+            />
+          </div>
+        </div>
 
-        <LabeledInput
-          v-model="value.password"
-          :label="t('harvester.userPage.password')"
-          type="password"
+        <ChangePassword
+          v-if="!isView"
+          ref="changePassword"
+          v-model="form.password"
           :mode="mode"
-          class="mb-20"
-          required
+          @valid="validation.password = $event"
         />
-      </Tab>
-    </Tabbed>
-  </CruResource>
+      </div>
+      <div class="global-permissions">
+        <GlobalRoleBindings
+          ref="grb"
+          :user-id="value.id || originalValue.id"
+          :mode="mode"
+          :real-mode="realMode"
+          type="user"
+          @hasChanges="validation.rolesChanged = $event"
+          @canLogIn="validation.roles = $event"
+        />
+      </div>
+    </CruResource>
+  </div>
 </template>

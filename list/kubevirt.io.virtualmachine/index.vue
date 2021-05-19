@@ -1,6 +1,6 @@
 <script>
+import ResourceTable from '@/components/ResourceTable';
 import VmState from '@/components/formatter/vmState';
-import SortableTable from '@/components/SortableTable';
 
 import { STATE, AGE, NAME } from '@/config/table-headers';
 import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK, VM, VMI } from '@/config/types';
@@ -16,7 +16,7 @@ export default {
   name:       'ListVM',
   components: {
     Loading,
-    SortableTable,
+    ResourceTable,
     VmState,
     BackupModal,
     RestoreModal,
@@ -116,11 +116,12 @@ export default {
 <template>
   <Loading v-if="$fetchState.pending" />
   <div v-else>
-    <SortableTable
+    <ResourceTable
       v-bind="$attrs"
       :headers="headers"
       default-sort-by="age"
       :rows="rows"
+      :groupable="true"
       key-field="_key"
       v-on="$listeners"
     >
@@ -129,7 +130,7 @@ export default {
           <VmState class="vmstate" :row="scope.row" :all-node-network="allNodeNetwork" :all-cluster-network="allClusterNetwork" />
         </div>
       </template>
-    </sortabletable>
+    </ResourceTable>
 
     <BackupModal />
     <RestoreModal />

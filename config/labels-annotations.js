@@ -102,7 +102,7 @@ export const ANNOTATIONS_TO_FOLD = [
   /^objectset\.rio\.cattle\.io\/.*$/,
 ];
 
-// VM
+// harvester
 export const STORAGE_CLASS_LABEL = { DEFAULT_CALSS: 'storageclass.kubernetes.io/is-default-class' };
 
 export const DATA_VOLUME_OWNEDBY = 'harvesterhci.io/owned-by';
@@ -146,3 +146,12 @@ export const HARVESTER_MIGRATION_TARGET = 'harvesterhci.io/migrationTargetNodeNa
 // cloud-init
 export const HARVESTER_CLOUD_INIT = 'harvesterhci.io/cloud-init-template';
 export const HARVESTER_CLOUD_INIT_CREATOR = 'harvesterhci.io/creator';
+
+// role
+export const HARVESTER_ROLE_CONTEXT = 'harvesterhci.io/roleContext';
+export const HARVESTER_ROLE_BUILTIN = 'harvesterhci.io/builtIn';
+export const HARVESTER_ROLE_DISPLAY_NAME = 'harvesterhci.io/displayName';
+export const HARVESTER_MANAGED = 'harvesterhci.io/managed';
+
+// namespace
+export const HCI_USER_NAMESPACE = 'harvesterhci.io/user-namespace';

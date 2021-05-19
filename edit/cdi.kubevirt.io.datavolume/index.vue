@@ -77,7 +77,7 @@ export default {
     >
       <NameNsDescription
         :value="value"
-        :namespaced="false"
+        :namespaced="true"
         :mode="mode"
       />
 

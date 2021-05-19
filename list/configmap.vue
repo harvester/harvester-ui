@@ -1,11 +1,11 @@
 <script>
-import SortableTable from '@/components/SortableTable';
+import ResourceTable from '@/components/ResourceTable';
 import { NAME, AGE } from '@/config/table-headers';
 import { HARVESTER_CLOUD_INIT } from '@/config/labels-annotations';
 
 export default {
   name:       'ListConfigMap',
-  components: { SortableTable },
+  components: { ResourceTable },
 
   props: {
     schema: {
@@ -49,9 +49,10 @@ export default {
 </script>
 
 <template>
-  <SortableTable
+  <ResourceTable
     v-bind="$attrs"
     :headers="headers"
+    :groupable="true"
     :rows="[...filterdRows]"
     key-field="_key"
     v-on="$listeners"

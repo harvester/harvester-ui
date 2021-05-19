@@ -87,7 +87,7 @@ export default {
         return !hideTableActions;
       }
 
-      return false;
+      return true;
     },
 
     _headers() {

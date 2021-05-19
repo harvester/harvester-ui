@@ -65,7 +65,7 @@ export default {
       realHostname:          '',
       templateName:          '',
       templateVersion:       '',
-      namespace:             'default',
+      // namespace:             'default',
       isSingle:              true,
       isRunning:             true,
       useTemplate:           false,
@@ -262,7 +262,7 @@ export default {
         [HARVESTER_NETWORK_IPS]: JSON.stringify(this.value.networkIps)
       });
 
-      this.$set(this.value.metadata, 'namespace', 'default'); // TODO: set default namespace
+      // this.$set(this.value.metadata, 'namespace', 'default'); // TODO: set default namespace
     });
 
     this.registerFailureHook(() => {
@@ -430,7 +430,7 @@ export default {
         :mode="mode"
         :has-extra="!isSingle"
         :name-label="nameLabel"
-        :namespaced="false"
+        :namespaced="true"
         :name-placeholder="isSingle ? 'nameNsDescription.name.placeholder' : 'harvester.vmPage.multipleVMInstance.nameNsDescription'"
         :extra-columns="isSingle ? [] :['type']"
       >

@@ -5,7 +5,7 @@ export default {
   _availableActions() {
     const out = this._standardActions;
 
-    const toFilter = ['goToClone', 'promptRemove'];
+    const toFilter = ['goToClone', 'promptRemove', 'download'];
 
     const actions = out.map((O) => {
       const enabled = toFilter.includes(O.action) ? false : O.enabled;
