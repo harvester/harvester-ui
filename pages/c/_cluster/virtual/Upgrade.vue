@@ -1,6 +1,6 @@
 <script>
 import dayjs from 'dayjs';
-import { HARVESTER_SETTING, HARVESTER_UPGRADE } from '@/config/types';
+import { HCI } from '@/config/types';
 import { allHash } from '@/utils/promise';
 import ModalWithCard from '@/components/ModalWithCard';
 import LabeledSelect from '@/components/form/LabeledSelect';
@@ -15,8 +15,8 @@ export default {
 
   async fetch() {
     const res = await allHash({
-      upgradeVersion: this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
-      upgrade:        this.$store.dispatch('cluster/findAll', { type: HARVESTER_UPGRADE })
+      upgradeVersion: this.$store.dispatch('cluster/findAll', { type: HCI.SETTING }),
+      upgrade:        this.$store.dispatch('cluster/findAll', { type: HCI.UPGRADE })
     });
 
     this.upgrade = res.upgrade;
@@ -34,7 +34,7 @@ export default {
 
   computed: {
     versionOptions() {
-      const settings = this.$store.getters['cluster/all'](HARVESTER_SETTING);
+      const settings = this.$store.getters['cluster/all'](HCI.SETTING);
 
       const upgradeVersion = settings.find( S => S.id === 'upgradable-versions');
 
@@ -42,7 +42,7 @@ export default {
     },
 
     currentVersion() {
-      const serverVersion = this.$store.getters['cluster/byId'](HARVESTER_SETTING, 'server-version');
+      const serverVersion = this.$store.getters['cluster/byId'](HCI.SETTING, 'server-version');
 
       return serverVersion.currentVersion || '';
     },
@@ -82,7 +82,7 @@ export default {
       const name = `upgrade-${ dayjs().format('MMDD-HHmmss') }`;
 
       const upgradeValue = {
-        type:     HARVESTER_UPGRADE,
+        type:     HCI.UPGRADE,
         metadata: {
           name,
           namespace: 'harvester-system'

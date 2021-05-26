@@ -9,9 +9,7 @@ import { allSettled } from '@/utils/promise';
 import Poller from '@/utils/poller';
 import { parseSi, formatSi, exponentNeeded, UNITS } from '@/utils/units';
 import { REASON } from '@/config/table-headers';
-import {
-  EVENT, METRIC, NODE, VM, NETWORK_ATTACHMENT, IMAGE, DATA_VOLUME, HARVESTER_SETTING
-} from '@/config/types';
+import { EVENT, METRIC, NODE, HCI } from '@/config/types';
 import SimpleBox from '@/components/SimpleBox';
 import ResourceGauge from '@/components/ResourceGauge';
 import HardwareResourceGauge from './HardwareResourceGauge';
@@ -38,7 +36,7 @@ const PARSE_RULES = {
 const METRICS_POLL_RATE_MS = 20000;
 const MAX_FAILURES = 2;
 
-const RESOURCES = [NODE, VM, NETWORK_ATTACHMENT, IMAGE, DATA_VOLUME];
+const RESOURCES = [NODE, HCI.VM, HCI.NETWORK_ATTACHMENT, HCI.IMAGE, HCI.DATA_VOLUME];
 
 export default {
   components: {
@@ -52,7 +50,7 @@ export default {
 
   async fetch() {
     const hash = {
-      vms:         this.fetchClusterResources(VM),
+      vms:         this.fetchClusterResources(HCI.VM),
       nodes:       this.fetchClusterResources(NODE),
       events:      this.fetchClusterResources(EVENT),
       metricNodes: this.fetchClusterResources(METRIC.NODE),
@@ -115,7 +113,7 @@ export default {
     },
 
     currentVersion() {
-      const settings = this.$store.getters['cluster/all'](HARVESTER_SETTING);
+      const settings = this.$store.getters['cluster/all'](HCI.SETTING);
       const setting = settings.find( S => S.id === 'server-version');
 
       return setting?.value || setting?.default;

@@ -1,5 +1,5 @@
 <script>
-import { SSH } from '@/config/types';
+import { HCI } from '@/config/types';
 import { HARVESTER_SSH_NAMES } from '@/config/labels-annotations';
 
 export default {
@@ -11,7 +11,7 @@ export default {
   },
 
   // async fetch() {
-  //   await allHash({ ssh: this.$store.dispatch('cluster/findAll', { type: SSH }) });
+  //   await allHash({ ssh: this.$store.dispatch('cluster/findAll', { type: HCI.SSH }) });
   // },
 
   data() {
@@ -23,7 +23,7 @@ export default {
   },
 
   created() {
-    const ssh = this.$store.getters['cluster/all'](SSH);
+    const ssh = this.$store.getters['cluster/all'](HCI.SSH);
 
     this.allssh = ssh || [];
     this.getKey();

@@ -1,9 +1,7 @@
-import { ACTION_VIEW } from '@/config/constant';
-
 export default {
   availableActions() {
     let out = this._standardActions;
-    const toFilter = ACTION_VIEW;
+    const toFilter = ['goToClone', 'cloneYaml', 'goToViewYaml', 'goToViewConfig', 'promptRemove', 'goToEditYaml', 'download'];
 
     out = out.filter((action) => {
       if (!toFilter.includes(action.action)) {
@@ -35,5 +33,14 @@ export default {
 
   formatValue() {
     return this.enable && this?.config?.defaultPhysicalNIC;
-  }
+  },
+
+  customized() {
+    // const setting = HCI_ALLOWED_SETTINGS[this.id];
+    // const readonly = !!setting.readOnly;
+
+    // return !readonly && this.value && this.value !== this.default;
+    return false;
+  },
+
 };

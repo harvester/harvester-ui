@@ -4,12 +4,13 @@ import Banner from '@/components/Banner';
 import { STATE, AGE, NAME } from '@/config/table-headers';
 import Loading from '@/components/Loading';
 import ResourceTable from '@/components/ResourceTable';
-import { HARVESTER_BACKUP, HARVESTER_SETTING } from '@/config/types';
+import { HCI } from '@/config/types';
+import Masthead from '@/components/ResourceList/Masthead';
 
 export default {
   name:       'ListBackup',
   components: {
-    ResourceTable, Banner, Loading
+    ResourceTable, Banner, Loading, Masthead
   },
 
   props: {
@@ -21,8 +22,8 @@ export default {
 
   async fetch() {
     const hash = await allHash({
-      settings: this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
-      rows:             this.$store.dispatch('cluster/findAll', { type: HARVESTER_BACKUP }),
+      settings: this.$store.dispatch('cluster/findAll', { type: HCI.SETTING }),
+      rows:             this.$store.dispatch('cluster/findAll', { type: HCI.BACKUP }),
     });
 
     this.rows = hash.rows;
@@ -30,9 +31,14 @@ export default {
   },
 
   data() {
+    const params = { ...this.$route.params };
+
+    const resource = params.resource;
+
     return {
       rows:     [],
-      settings: []
+      settings: [],
+      resource
     };
   },
 
@@ -73,7 +79,7 @@ export default {
     },
 
     backupLength() {
-      const choices = this.$store.getters['cluster/all'](HARVESTER_BACKUP);
+      const choices = this.$store.getters['cluster/all'](HCI.BACKUP);
 
       return choices.length;
     },
@@ -114,6 +120,13 @@ export default {
 <template>
   <Loading v-if="$fetchState.pending" />
   <div v-else>
+    <Masthead
+      :schema="schema"
+      :resource="resource"
+      :create-button-label="t('harvester.backUpPage.createText')"
+    >
+    </Masthead>
+
     <Banner
       v-if="hasBakcupError"
       color="error"

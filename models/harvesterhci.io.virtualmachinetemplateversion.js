@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { VM_TEMPLATE, VM } from '@/config/types';
+import { HCI } from '@/config/types';
 import {
   AS, MODE, _CREATE, _VIEW, _CONFIG
 } from '@/config/query-params';
@@ -44,7 +44,7 @@ export default {
   },
 
   templates() {
-    return this.$rootGetters['cluster/all'](VM_TEMPLATE.template);
+    return this.$rootGetters['cluster/all'](HCI.VM_TEMPLATE);
   },
 
   launchFromTemplate() {
@@ -56,7 +56,7 @@ export default {
 
       router.push({
         name:   `c-cluster-product-resource-create`,
-        params: { resource: VM },
+        params: { resource: HCI.VM },
         query:  { templateId, version: launchVersion }
       });
     };
@@ -68,7 +68,7 @@ export default {
 
       router.push({
         name:   `c-cluster-product-resource-create`,
-        params: { resource: VM_TEMPLATE.version },
+        params: { resource: HCI.VM_VERSION },
         query:  {
           [MODE]:     _CREATE,
           templateId: this.spec.templateId,
@@ -108,7 +108,7 @@ export default {
   },
 
   defaultVersion() {
-    const templates = this.$rootGetters['cluster/all'](VM_TEMPLATE.template);
+    const templates = this.$rootGetters['cluster/all'](HCI.VM_TEMPLATE);
     const template = templates.find(T => this.spec.templateId === T.id);
 
     return template?.status?.defaultVersion;

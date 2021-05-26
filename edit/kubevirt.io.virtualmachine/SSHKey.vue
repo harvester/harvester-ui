@@ -6,7 +6,7 @@ import InputOrDisplay from '@/components/InputOrDisplay';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 
-import { SSH } from '@/config/types';
+import { HCI } from '@/config/types';
 import { clone } from '@/utils/object';
 import { _VIEW, _CONFIG } from '@/config/query-params';
 
@@ -54,11 +54,11 @@ export default {
     },
 
     ssh() {
-      return this.$store.getters['cluster/all'](SSH);
+      return this.$store.getters['cluster/all'](HCI.SSH);
     },
 
     sshOption() {
-      const choise = this.$store.getters['cluster/all'](SSH);
+      const choise = this.$store.getters['cluster/all'](HCI.SSH);
 
       return choise.map( (O) => {
         return {
@@ -138,11 +138,11 @@ export default {
             'content-type': 'application/json',
             accept:         'application/json',
           },
-          url:  `v1/${ SSH }s`,
+          url:  `v1/${ HCI.SSH }s`,
           data: {
             metadata:   { name: this.sshName, namespace: 'default' },
             spec:       { publicKey: this.publicKey },
-            type:       SSH
+            type:       HCI.SSH
           },
         });
 

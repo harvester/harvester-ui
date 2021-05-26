@@ -1,5 +1,5 @@
 <script>
-import { VMI } from '@/config/types';
+import { HCI } from '@/config/types';
 
 export default {
   props: {
@@ -15,7 +15,7 @@ export default {
 
   computed: {
     vmiResource() {
-      const vmiList = this.$store.getters['cluster/all'](VMI) || [];
+      const vmiList = this.$store.getters['cluster/all'](HCI.VMI) || [];
       const vmi = vmiList.find( (VMI) => {
         return VMI?.metadata?.ownerReferences?.[0]?.uid === this.vmResource?.metadata?.uid;
       });

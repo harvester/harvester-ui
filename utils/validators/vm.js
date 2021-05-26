@@ -1,5 +1,5 @@
 import { SOURCE_TYPE } from '@/config/map';
-import { DATA_VOLUME } from '@/config/types';
+import { HCI } from '@/config/types';
 export function vmNetworks(spec, getters, errors, validatorArgs) {
   const { domain: { devices: { interfaces } }, networks } = spec;
   const allNames = new Set();
@@ -139,7 +139,7 @@ export function vmDisks(spec, getters, errors, validatorArgs) {
     }
 
     if (type === SOURCE_TYPE.ATTACH_VOLUME) {
-      const dvList = getters['cluster/all'](DATA_VOLUME);
+      const dvList = getters['cluster/all'](HCI.DATA_VOLUME);
       const hasExistingVolume = dvList.find(DV => DV.metadata.name === V?.dataVolume?.name);
 
       if (!hasExistingVolume) {

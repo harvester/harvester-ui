@@ -19,9 +19,9 @@ export default {
     }
   },
   created() {
-    this.$set(this.value.metadata, 'namespace', this.$store.getters['currentCluster'].id);
+    this.$set(this.value.metadata, 'namespace', this.$store.getters['currentCluster']?.id || 'local');
     this.$set(this.value, 'spec', this.value.spec || {});
-    this.$set(this.value.spec, 'containerDefaultResourceLimit', this.value.spec.containerDefaultResourceLimit || {});
+    this.$set(this.value.spec, 'containerDefaultResourceLimit', this.value?.spec?.containerDefaultResourceLimit || {});
   }
 };
 </script>

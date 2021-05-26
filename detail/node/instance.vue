@@ -4,7 +4,7 @@ import SortableTable from '@/components/SortableTable';
 // import VmState from '@/components/formatter/BadgeStateFormatter';
 import VmState from '@/components/formatter/vmState';
 import { allSettled } from '@/utils/promise';
-import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK } from '@/config/types';
+import { HCI } from '@/config/types';
 import BackupModal from '@/list/kubevirt.io.virtualmachine/backupModal';
 import RestoreModal from '@/list/kubevirt.io.virtualmachine/restoreModal';
 import MigrationModal from '@/list/kubevirt.io.virtualmachine/MigrationModal';
@@ -31,8 +31,8 @@ export default {
 
   async fetch() {
     const hash = await allSettled({
-      allNodeNetwork:      this.$store.dispatch('cluster/findAll', { type: HARVESTER_NODE_NETWORK }),
-      allClusterNetwork:   this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
+      allNodeNetwork:      this.$store.dispatch('cluster/findAll', { type: HCI.NODE_NETWORK }),
+      allClusterNetwork:   this.$store.dispatch('cluster/findAll', { type: HCI.CLUSTER_NETWORK }),
     });
 
     this.allNodeNetwork = hash.allNodeNetwork;

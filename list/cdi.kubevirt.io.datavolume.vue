@@ -1,7 +1,7 @@
 <script>
 import { STATE, AGE, NAME } from '@/config/table-headers';
 import ResourceTable from '@/components/ResourceTable';
-import { DATA_VOLUME, VM, PV } from '@/config/types';
+import { HCI, PV } from '@/config/types';
 import { allHash } from '@/utils/promise';
 import Loading from '@/components/Loading';
 
@@ -19,8 +19,8 @@ export default {
   async fetch() {
     const hash = await allHash({
       pv:         this.$store.dispatch('cluster/findAll', { type: PV, opt: { url: `${ PV }s` } }),
-      vm:         this.$store.dispatch('cluster/findAll', { type: VM, opt: { url: `${ VM }s` } }),
-      dataVolume: this.$store.dispatch('cluster/findAll', { type: DATA_VOLUME, opt: { url: `${ DATA_VOLUME }s` } })
+      vm:         this.$store.dispatch('cluster/findAll', { type: HCI.VM, opt: { url: `${ HCI.VM }s` } }),
+      dataVolume: this.$store.dispatch('cluster/findAll', { type: HCI.DATA_VOLUME, opt: { url: `${ HCI.DATA_VOLUME }s` } })
     });
 
     this.dataVolume = hash.dataVolume;

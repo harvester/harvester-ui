@@ -1,6 +1,5 @@
 import { colorForState } from '@/plugins/steve/resource-instance';
-import { getPrefix } from '@/utils/url';
-import { VMIM } from '@/config/types';
+import { HCI } from '@/config/types';
 import { HARVESTER_MIGRATION_STATE } from '@/config/labels-annotations';
 
 const PAUSED = 'Paused';
@@ -46,7 +45,7 @@ export default {
   },
 
   vmimResource() {
-    const all = this.$rootGetters['cluster/all'](VMIM) || [];
+    const all = this.$rootGetters['cluster/all'](HCI.VMIM) || [];
     const vmimList = all.filter(vmim => vmim.spec?.vmiName === this.metadata?.name);
 
     if (vmimList.length === 0) {
@@ -103,13 +102,7 @@ export default {
   },
 
   getVMIApiPath() {
-    const prefix = getPrefix();
-
-    if (!prefix) {
-      return `/apis/subresources.kubevirt.io/v1/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
-    } else {
-      return `${ prefix }apis/subresources.kubevirt.io/v1/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
-    }
+    return `/apis/subresources.kubevirt.io/v1/namespaces/${ this.metadata.namespace }/virtualmachineinstances/${ this.name }/vnc`;
   },
 
   getSerialConsolePath() {

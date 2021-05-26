@@ -6,7 +6,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import PortInputGroup from '@/components/form/PortInputGroup';
 import { sortBy } from '@/utils/sort';
-import { NETWORK_ATTACHMENT } from '@/config/types';
+import { HCI } from '@/config/types';
 
 export default {
   components: {
@@ -113,7 +113,7 @@ export default {
     },
 
     networkOption() {
-      const choices = this.$store.getters['cluster/all'](NETWORK_ATTACHMENT);
+      const choices = this.$store.getters['cluster/all'](HCI.NETWORK_ATTACHMENT);
 
       const out = sortBy(
         choices
@@ -188,7 +188,7 @@ export default {
         if (neu === 'managment Network' && this.currentRow.masquerade) {
           this.currentRow.type = 'masquerade';
         } else {
-          // const choices = this.$store.getters['cluster/byId'](NETWORK_ATTACHMENT, `default/${ neu }`);
+          // const choices = this.$store.getters['cluster/byId'](HCI.NETWORK_ATTACHMENT, `default/${ neu }`);
 
           // this.currentRow.isIpamStatic = choices?.isIpamStatic || false;
           this.currentRow.type = 'bridge';

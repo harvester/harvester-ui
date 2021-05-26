@@ -1,7 +1,7 @@
 <script>
 import { mapGetters } from 'vuex';
-import { HARVESTER_SETTING, HARVESTER_CLUSTER_NETWORK } from '@/config/types';
-import { HARVESTER_ALLOWED_SETTINGS as ALLOWED_SETTINGS } from '@/config/settings';
+import { HCI } from '@/config/types';
+import { HCI_ALLOWED_SETTINGS } from '@/config/settings';
 import { allSettled } from '@/utils/promise';
 import Banner from '@/components/Banner';
 import Loading from '@/components/Loading';
@@ -13,8 +13,8 @@ export default {
   async fetch() {
     const isDev = this.$store.getters['prefs/get'](DEV);
     const rows = await allSettled({
-      clusterNetwork:      this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
-      haversterSettings:   this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
+      clusterNetwork:      this.$store.dispatch('cluster/findAll', { type: HCI.CLUSTER_NETWORK }),
+      haversterSettings:   this.$store.dispatch('cluster/findAll', { type: HCI.SETTING }),
     });
 
     const allRows = [...rows.clusterNetwork, ...rows.haversterSettings];
@@ -30,12 +30,16 @@ export default {
     const settings = [];
 
     // Combine the allowed settings with the data from the API
-    Object.keys(ALLOWED_SETTINGS).forEach((setting) => {
-      const readonly = !!ALLOWED_SETTINGS[setting].readOnly;
+    Object.keys(HCI_ALLOWED_SETTINGS).forEach((setting) => {
+      const readonly = !!HCI_ALLOWED_SETTINGS[setting].readOnly;
+
+      if (!settingsMap[setting]) {
+        return;
+      }
 
       const s = {
-        ...ALLOWED_SETTINGS[setting],
-        id:          ALLOWED_SETTINGS[setting]?.alias || setting,
+        ...HCI_ALLOWED_SETTINGS[setting],
+        id:          HCI_ALLOWED_SETTINGS[setting]?.alias || setting,
         description: t(`advancedSettings.descriptions.${ setting }`),
         data:        settingsMap[setting],
       };
@@ -44,7 +48,7 @@ export default {
 
       // There are only 2 actions that can be enabled - Edit Setting or View in API
       // If neither is available for this setting then we hide the action menu button
-      s.hasActions = readonly || isDev;
+      s.hasActions = !readonly || isDev;
       settings.push(s);
     });
 
@@ -52,7 +56,7 @@ export default {
   },
 
   data() {
-    return { settings: null };
+    return { settings: [] };
   },
 
   computed: { ...mapGetters({ t: 'i18n/t' }) },
@@ -75,7 +79,7 @@ export default {
 </script>
 
 <template>
-  <Loading v-if="!settings" />
+  <Loading v-if="$fetchState.pending" />
   <div v-else>
     <Banner color="warning" class="settings-banner">
       <div>
@@ -148,7 +152,7 @@ export default {
 
 .modified {
   margin-left: 10px;
-  border: 1px solid var(--link-text);
+  border: 1px solid var(--primary);
   border-radius: 5px;
   padding: 2px 10px;
   font-size: 12px;

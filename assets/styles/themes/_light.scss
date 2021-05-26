@@ -306,7 +306,7 @@ BODY, .theme-light {
 
   --header-bg                  : #{$lightest};
   --header-btn-bg              : #{$light};
-  --header-btn-text            : #fff;
+  --header-btn-text            : #{$darker};
   --header-input-text          : #{$lightest};
   --header-height              : 55px;
   --header-border              : #{$medium};

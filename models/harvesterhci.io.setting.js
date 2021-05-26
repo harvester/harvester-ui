@@ -1,11 +1,11 @@
 import { findBy } from '@/utils/array';
-import { HARVESTER_ALLOWED_SETTINGS } from '@/config/settings';
+import { HCI_ALLOWED_SETTINGS } from '@/config/settings';
 
 export default {
   _availableActions() {
     const out = this._standardActions;
 
-    const toFilter = ['goToClone', 'promptRemove', 'download'];
+    const toFilter = ['cloneYaml', 'download', 'goToEditYaml', 'goToViewYaml', 'goToViewConfig', 'promptRemove'];
 
     const actions = out.map((O) => {
       const enabled = toFilter.includes(O.action) ? false : O.enabled;
@@ -23,7 +23,7 @@ export default {
 
   formatValue() {
     let out;
-    const setting = HARVESTER_ALLOWED_SETTINGS[this.id];
+    const setting = HCI_ALLOWED_SETTINGS[this.id];
 
     const v = this.value || this.default;
 
@@ -39,7 +39,7 @@ export default {
   },
 
   customized() {
-    const setting = HARVESTER_ALLOWED_SETTINGS[this.id];
+    const setting = HCI_ALLOWED_SETTINGS[this.id];
     const readonly = !!setting.readOnly;
 
     return !readonly && this.value && this.value !== this.default;

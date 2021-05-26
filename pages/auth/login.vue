@@ -10,17 +10,14 @@ import AsyncButton from '@/components/AsyncButton';
 import Loading from '@/components/Loading';
 import Banner from '@/components/Banner';
 import LabeledInput from '@/components/form/LabeledInput';
-
 export default {
   name:       'Login',
   layout:     'unauthenticated',
   components: {
     AsyncButton, Loading, LabeledInput, Banner
   },
-
   async asyncData({ route, redirect, store }) {
     const isRancher = await store.dispatch('auth/getIsRancher');
-
     let drivers = [];
     let providers = ['local'];
 
@@ -28,7 +25,6 @@ export default {
       drivers = await store.dispatch('auth/getAuthProviders');
       providers = sortBy(drivers.map(x => x.id), ['id']);
     }
-
     const hasLocal = providers.includes('local');
     const hasOthers = hasLocal && !!providers.find(x => x !== 'local');
 
@@ -37,50 +33,13 @@ export default {
       removeObject(providers, 'local');
     }
 
-    let firstLoginSetting, plSetting;
-
-    // Load settings.
-    // For newer versions this will return all settings if you are somehow logged in,
-    // and just the public ones if you aren't.
-    try {
-      await store.dispatch('management/findAll', {
-        type: MANAGEMENT.SETTING,
-        load: _ALL_IF_AUTHED,
-        opt:  { url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false },
-      });
-
-      firstLoginSetting = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.FIRST_LOGIN);
-      plSetting = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.PL);
-    } catch (e) {
-      // Older versions used Norman API to get these
-      firstLoginSetting = await store.dispatch('rancher/find', {
-        type: 'setting',
-        id:   SETTING.FIRST_LOGIN,
-        opt:  { url: `/v3/settings/${ SETTING.FIRST_LOGIN }` }
-      });
-
-      plSetting = await store.dispatch('rancher/find', {
-        type: 'setting',
-        id:   SETTING.PL,
-        opt:  { url: `/v3/settings/${ SETTING.PL }` }
-      });
-    }
-
-    if (plSetting.value?.length && plSetting.value !== getVendor()) {
-      setVendor(plSetting.value);
-    }
-    const needsSetup = firstLoginSetting?.value === 'true';
-
     return {
-      vendor:    getVendor(),
       providers,
       hasOthers,
       hasLocal,
       showLocal: !hasOthers || (route.query[LOCAL] === _FLAGGED),
-      needsSetup
     };
   },
-
   data({ $cookies }) {
     return {
       loginMode: '',
@@ -98,61 +57,47 @@ export default {
       providerComponents: [],
     };
   },
-
   computed: {
     ...mapGetters('i18n', ['selectedLocaleLabel', 'availableLocales']),
     ...mapGetters('auth', ['isFirstLogin']),
-
     dev: mapPref(DEV),
-
     loggedOut() {
       return this.$route.query[LOGGED_OUT] === _FLAGGED;
     },
-
     showNone() {
       return this.dev && process.env.dev;
     },
-
     showLocale() {
       return Object.keys(this.availableLocales).length > 1 || this.dev;
     },
-
     equalPassword() {
       if (!this.form.password || !this.form.confirmPassword) {
         return false;
       }
-
       if (this.form.password !== this.form.confirmPassword) {
         return false;
       }
 
       return true;
     },
-
   },
-
   created() {
     this.providerComponents = this.providers.map((name) => {
       return importLogin(configType[name]);
     });
   },
-
   mounted() {
     this.focusSomething();
-
     document.body.addEventListener('keyup', this.pressEnter);
-
     if (this.$cookies.get('loggedIn')) {
       this.loading = true;
       this.$store.commit('auth/loggedIn');
       this.$router.replace('/');
     }
   },
-
   destroyed() {
     document.body.removeEventListener('keyup', this.pressEnter);
   },
-
   methods: {
     focusSomething() {
       let elem;
@@ -164,16 +109,13 @@ export default {
       } else {
         elem = this.$refs.username;
       }
-
       if ( elem ) {
         elem.focus();
-
         if ( elem.select ) {
           elem.select();
         }
       }
     },
-
     toggleLocal() {
       this.showLocal = true;
       this.$router.applyQuery({ [LOCAL]: _FLAGGED });
@@ -181,36 +123,29 @@ export default {
         this.focusSomething();
       });
     },
-
     login(buttonCb) {
       const data = {};
 
       this.err = null;
-
       if (!this.isFirstLogin && (!this.form.username || this.form.username === '')) {
         this.err = this.getInvalidMsg(this.t('harvester.loginPage.username'));
 
         return buttonCb(false);
       }
-
       if (!this.form.password || this.form.password === '') {
         this.err = this.getInvalidMsg(this.t('harvester.loginPage.password'));
 
         return buttonCb(false);
       }
-
       if (this.isFirstLogin && this.form.confirmPassword !== this.form.password) {
         this.err = this.t('harvester.loginPage.validation.notEquivalent');
 
         return buttonCb(false);
       }
-
       data.username = this.form.username;
       data.password = this.form.password;
-
       this.realLogin(buttonCb, data);
     },
-
     async realLogin(buttonCb, data) {
       try {
         await this.$store.dispatch('auth/login', { body: { ...data }, isLocalUser: true });
@@ -223,17 +158,14 @@ export default {
         buttonCb(false);
       }
     },
-
     getInvalidMsg(key) {
       return this.$store.getters['i18n/t']('validation.required', { key });
     },
-
     pressEnter(e) {
       if (e.keyCode === 13) {
         this.$refs.loginButton.$el.click();
       }
     },
-
     switchLocale(locale) {
       this.$store.dispatch('i18n/switchTo', locale);
       this.$refs.popover.isOpen = false;
@@ -241,7 +173,6 @@ export default {
   }
 };
 </script>
-
 <template>
   <main class="login">
     <div class="row mb-20">
@@ -252,7 +183,6 @@ export default {
         <h1 class="text-center">
           {{ t('harvester.loginPage.welcome') }}
         </h1>
-
         <div class="login__container">
           <div v-if="showLocale" class="locale">
             <v-popover
@@ -263,7 +193,6 @@ export default {
               <a>
                 <i class="icon icon-globe"></i> {{ selectedLocaleLabel }}
               </a>
-
               <template slot="popover">
                 <ul class="list-unstyled dropdown" style="margin: -1px;">
                   <li v-if="showNone" v-t="'locale.none'" class="p-10 hand" @click="switchLocale('none')" />
@@ -279,7 +208,6 @@ export default {
               </template>
             </v-popover>
           </div>
-
           <div v-if="providers.length" class="mt-50">
             <component
               :is="providerComponents[idx]"
@@ -291,7 +219,6 @@ export default {
               :only-option="providers.length === 1 && !showLocal"
             />
           </div>
-
           <template v-if="hasLocal">
             <div v-if="showLocal" class="mt-20 half">
               <LabeledInput v-model="form.username" :label="t('harvester.loginPage.username')" required />
@@ -302,7 +229,6 @@ export default {
                 class="mt-10"
                 required
               />
-
               <Banner v-if="err" class="mt-20 half" color="error" :label="err" />
               <AsyncButton
                 ref="loginButton"
@@ -315,18 +241,15 @@ export default {
                 @click="login"
               />
             </div>
-
             <div v-if="hasLocal && !showLocal" class="mt-20 text-center">
               <button type="button" class="btn bg-link" @click="toggleLocal">
                 {{ t('login.useLocal') }}
               </button>
             </div>
           </template>
-
           <Loading v-if="loading" />
         </div>
       </div>
-
       <div v-else class="col span-6">
         <div class="login__container">
           <p class="text-center">
@@ -335,9 +258,7 @@ export default {
           <h1 class="text-center">
             {{ t('harvester.loginPage.welcome') }}
           </h1>
-
           <t k="harvester.loginPage.firstLoginProtip" :raw="true" class="login__protip mt-10 mb-10" />
-
           <div class="half">
             <LabeledInput
               v-model="form.password"
@@ -368,55 +289,44 @@ export default {
           />
         </div>
       </div>
-
       <div class="col span-6 landscape"></div>
     </div>
   </main>
 </template>
-
 <style lang="scss">
   .login {
     overflow: hidden;
-
     .locale {
       a {
         cursor: pointer;
       }
     }
-
     .row {
       align-items: center;
     }
-
     &__alert {
       width: 450px;
     }
-
     &__go {
       width: 50%;
       display: block;
       margin: 0 auto;
     }
-
     &__container {
       display: grid;
       grid-template-columns: 100%;
       place-items: center;
     }
-
     &__protip {
       display: block;
-
       code {
         padding: 2px 4px;
         background: var(--primary);
       }
     }
-
     .half {
       width: 50%;
     }
-
     .landscape {
       background-image: url('~assets/images/login-landscape.svg');
       background-repeat: no-repeat;

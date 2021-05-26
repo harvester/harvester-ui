@@ -120,7 +120,7 @@ export default {
         username:           this.form.username
       });
 
-      const newNormanUser = await user.save();
+      const newNormanUser = await user.save({ extend: { isRes: true } });
 
       return this.$store.dispatch('management/find', { type: MANAGEMENT.USER, id: newNormanUser.id });
     },

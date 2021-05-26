@@ -98,7 +98,6 @@ export default {
         this.$router.replace({ name: this.doneRoute });
         buttonDone(true);
       } catch (err) {
-        console.log('----err', err);
         this.errors = exceptionToErrorsArray(err);
         buttonDone(false);
       }

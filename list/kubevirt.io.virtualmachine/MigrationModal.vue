@@ -3,12 +3,12 @@ import { createNamespacedHelpers, mapGetters } from 'vuex';
 
 import { exceptionToErrorsArray } from '@/utils/error';
 import { HOST_CUSTOM_NAME, HARVESTER_MAINTENANCE_STATUS } from '@/config/labels-annotations';
-import { NODE, VMI, VM } from '@/config/types';
+import { NODE, HCI } from '@/config/types';
 
 import LabeledSelect from '@/components/form/LabeledSelect';
 import ModalWithCard from '@/components/ModalWithCard';
 
-const { mapState } = createNamespacedHelpers(VM);
+const { mapState } = createNamespacedHelpers(HCI.VM);
 
 export default {
   components: {
@@ -28,7 +28,7 @@ export default {
     ...mapGetters({ t: 'i18n/t' }),
 
     vmi() {
-      const vmiResources = this.$store.getters['cluster/all'](VMI);
+      const vmiResources = this.$store.getters['cluster/all'](HCI.VMI);
       const resource = vmiResources.find(VMI => VMI.id === this.actionResources?.id) || null;
 
       return resource;

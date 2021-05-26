@@ -471,10 +471,10 @@ export const getters = {
 
         const namespaced = typeObj.namespaced;
 
-        if ( (namespaceMode === NAMESPACED && !namespaced ) || (namespaceMode === CLUSTER_LEVEL && namespaced) ) {
-          // Skip types that are not the right namespace mode
-          continue;
-        }
+        // if ( (namespaceMode === NAMESPACED && !namespaced ) || (namespaceMode === CLUSTER_LEVEL && namespaced) ) {
+        //   // Skip types that are not the right namespace mode
+        //   continue;
+        // }
 
         const count = _matchingCounts(typeObj, namespaces);
         const groupForBasicType = getters.groupForBasicType(productId, typeObj.name);
@@ -491,6 +491,7 @@ export const getters = {
         }
 
         const label = typeObj.labelKey ? rootGetters['i18n/t'](typeObj.labelKey) || typeObj.label : typeObj.label;
+
         const virtual = !!typeObj.virtual;
         let icon = typeObj.icon;
 
@@ -498,7 +499,7 @@ export const getters = {
           if ( namespaced ) {
             icon = 'folder';
           } else {
-            // icon = 'globe';
+            icon = 'globe';
           }
         }
 

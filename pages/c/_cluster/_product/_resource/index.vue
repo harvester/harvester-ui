@@ -1,5 +1,4 @@
 <script>
-import Banner from '@/components/banner';
 import ResourceList from '@/components/ResourceList';
 
 export default {

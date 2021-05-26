@@ -6,7 +6,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import Footer from '@/components/form/Footer';
 import RadioGroup from '@/components/form/RadioGroup';
 import Tip from '@/components/Tip';
-import { HARVESTER_SETTING } from '@/config/types';
+import { HCI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 
 export default {
@@ -58,7 +58,7 @@ export default {
       }
       this.$router.push({
         name:   this.doneRoute,
-        params: { ...this.doneParams, resource: HARVESTER_SETTING } || { resource: HARVESTER_SETTING }
+        params: { ...this.doneParams, resource: HCI.SETTING } || { resource: HCI.SETTING }
       });
     },
   }

@@ -1,23 +1,32 @@
 <script>
-/* eslint-disable */
 import Tab from '@/components/Tabbed/Tab';
 import Tabbed from '@/components/Tabbed';
-import { RBAC } from '@/config/types';
-import { HARVESTER_ROLE_CONTEXT } from '@/config/labels-annotations';
+import { MANAGEMENT } from '@/config/types';
 import ResourceTable from '@/components/ResourceTable';
 import Loading from '@/components/Loading';
+import { SUBTYPE_MAPPING } from '@/models/management.cattle.io.roletemplate';
 import { NAME } from '@/config/product/auth';
+import { HARVESTER_MANAGED } from '@/config/labels-annotations';
 
-import {
-  GROUP_NAME, GROUP_ROLE_NAME,
-  RBAC_BUILTIN, RBAC_DEFAULT, STATE, NAME as HEADER_NAME, AGE, SIMPLE_NAME
-} from '@/config/table-headers';
+const GLOBAL = SUBTYPE_MAPPING.GLOBAL.key;
+const CLUSTER = SUBTYPE_MAPPING.CLUSTER.key;
+const PROJECT = SUBTYPE_MAPPING.NAMESPACE.key;
 
-const DISPLAY_NAME = {
-  ...HEADER_NAME,
-  name:          'displayName',
-  value:         'displayName',
-  labelKey: 'tableHeaders.nameDisplay',
+const createGlobalRole = {
+  name:   'c-cluster-product-resource-create',
+  params: {
+    cluster:  'local',
+    product:  NAME,
+    resource: MANAGEMENT.GLOBAL_ROLE,
+  }
+};
+const createRoleTemplate = {
+  name:   'c-cluster-product-resource-create',
+  params: {
+    cluster:  'local',
+    product:  NAME,
+    resource: MANAGEMENT.ROLE_TEMPLATE,
+  }
 };
 
 export default {
@@ -25,74 +34,130 @@ export default {
     Tab, Tabbed, ResourceTable, Loading
   },
 
-  async fetch() {
-    const RoleSchema = this.$store.getters['cluster/schemaFor'](RBAC.CLUSTER_ROLE);
-    const rows = await this.$store.dispatch('cluster/findAll', { type: RBAC.CLUSTER_ROLE }) || [];
+  async asyncData({ store }) {
+    const globalRoleSchema = store.getters[`management/schemaFor`](MANAGEMENT.GLOBAL_ROLE);
+    const roleTemplatesSchema = store.getters[`management/schemaFor`](MANAGEMENT.ROLE_TEMPLATE);
 
-    this.allRoles = rows;
+    return {
+      globalRoles:   globalRoleSchema ? await store.dispatch(`management/findAll`, { type: MANAGEMENT.GLOBAL_ROLE }) : [],
+      roleTemplates: roleTemplatesSchema ? await store.dispatch(`management/findAll`, { type: MANAGEMENT.ROLE_TEMPLATE }) : [],
+    };
   },
 
   data() {
-    const schema = this.$store.getters[`cluster/schemaFor`](RBAC.CLUSTER_ROLE);
-    return { 
-      allRoles: [],
-      schema,
-      tabName: ''
+    const globalRoleSchema = this.$store.getters[`management/schemaFor`](MANAGEMENT.GLOBAL_ROLE);
+    const roleTemplatesSchema = this.$store.getters[`management/schemaFor`](MANAGEMENT.ROLE_TEMPLATE);
+
+    const roleTemplateHeaders = this.$store.getters['type-map/headersFor'](roleTemplatesSchema);
+    const defaultHeaderIndex = roleTemplateHeaders.findIndex(header => header.name === 'default');
+
+    return {
+      tabs: {
+        [GLOBAL]: {
+          canFetch:       globalRoleSchema?.collectionMethods.find(verb => verb === 'GET'),
+          canCreate:      globalRoleSchema?.resourceMethods.find(verb => verb === 'PUT'),
+          weight:         3,
+          labelKey:       SUBTYPE_MAPPING.GLOBAL.labelKey,
+          schema:         globalRoleSchema,
+          createLocation: {
+            ...createGlobalRole,
+            query: { roleContext: GLOBAL }
+          },
+        },
+        [CLUSTER]: {
+          canFetch:       roleTemplatesSchema?.collectionMethods.find(verb => verb === 'GET'),
+          canCreate:      roleTemplatesSchema?.resourceMethods.find(verb => verb === 'PUT'),
+          labelKey:       SUBTYPE_MAPPING.CLUSTER.labelKey,
+          weight:         2,
+          schema:         roleTemplatesSchema,
+          headers:        this.applyDefaultHeaderLabel(roleTemplateHeaders, defaultHeaderIndex, 'tableHeaders.authRoles.clusterDefault'),
+          createLocation: {
+            ...createRoleTemplate,
+            query: { roleContext: CLUSTER }
+          },
+        },
+        [PROJECT]: {
+          canFetch:       roleTemplatesSchema?.collectionMethods.find(verb => verb === 'GET'),
+          canCreate:      roleTemplatesSchema?.resourceMethods.find(verb => verb === 'PUT'),
+          labelKey:       SUBTYPE_MAPPING.NAMESPACE.labelKey,
+          weight:         1,
+          schema:         roleTemplatesSchema,
+          headers:        this.applyDefaultHeaderLabel(roleTemplateHeaders, defaultHeaderIndex, 'tableHeaders.authRoles.projectDefault'),
+          createLocation: {
+            ...createRoleTemplate,
+            query: { roleContext: PROJECT }
+          },
+        },
+      },
+
+      GLOBAL,
+      CLUSTER,
+      PROJECT,
+
+      globalRoles:   null,
+      roleTemplates: null,
     };
   },
 
   computed: {
-    headers() {
-      return [
-        STATE,
-        DISPLAY_NAME,
-        SIMPLE_NAME,
-        RBAC_BUILTIN,
-        AGE
-      ]
+    globalResources() {
+      return this.globalRoles.filter(r => r.getLabelValue(HARVESTER_MANAGED) === 'true');
     },
 
     clusterResources() {
-      return this.allRoles.filter( R  => {
-        return R.clusterRole
-      })
+      return this.roleTemplates.filter(r => r.context === SUBTYPE_MAPPING.CLUSTER.context);
     },
 
     namespaceResources() {
-      return this.allRoles.filter( R  => {
-        return R.namespaceRole
-      })
+      return this.roleTemplates.filter((r) => {
+        return r.context === SUBTYPE_MAPPING.NAMESPACE.context && r.getLabelValue(HARVESTER_MANAGED) === 'true';
+      });
+    },
+
+    type() {
+      if (this.$route.hash.endsWith(PROJECT)) {
+        return PROJECT;
+      }
+      if (this.$route.hash.endsWith(CLUSTER)) {
+        return CLUSTER;
+      }
+
+      return GLOBAL;
+    },
+
+    canCreate() {
+      return this.tabs[this.type].canCreate;
     },
 
     createLabel() {
-      return this.t(`rbac.roletemplate.subtypes.${ this.tabName }.createButton`);
+      return this.t(`rbac.roletemplate.subtypes.${ this.type }.createButton`);
     },
 
     createLocation() {
-      return {
-        name:   'c-cluster-product-resource-create',
-        params: {
-          cluster:  'local',
-          product:  NAME,
-          resource: RBAC.CLUSTER_ROLE,
-        },
-        query: { 
-          roleContext: this.tabName
-        }
-      }
+      return this.tabs[this.type].createLocation;
     }
+
   },
 
   methods: {
-    tabChanged({ tab }) {
-      this.tabName = tab.name;
-    },
+    applyDefaultHeaderLabel(roleTemplateHeaders, defaultHeaderIndex, labelKey) {
+      const headers = [...roleTemplateHeaders];
+
+      headers[defaultHeaderIndex] = {
+        ...roleTemplateHeaders[defaultHeaderIndex],
+        labelKey,
+      };
+
+      return headers;
+    }
   }
+
 };
 </script>
 
 <template>
-  <div>
+  <Loading v-if="!globalRoles || !roleTemplates" />
+  <div v-else>
     <header>
       <div class="title">
         <h1 class="m-0">
@@ -102,6 +167,7 @@ export default {
       <div class="actions-container">
         <div class="actions">
           <n-link
+            v-if="canCreate"
             :to="createLocation"
             class="btn role-primary"
           >
@@ -110,14 +176,17 @@ export default {
         </div>
       </div>
     </header>
-
-    <Tabbed @changed="tabChanged($event)">
-      <Tab name="CLUSTER" :weight="2" label="Cluster">
-        <ResourceTable :schema="schema" :headers="headers" :rows="clusterResources" />
+    <Tabbed>
+      <Tab v-if="tabs[GLOBAL].canFetch" :name="GLOBAL" :weight="tabs[GLOBAL].weight" :label-key="tabs[GLOBAL].labelKey">
+        <ResourceTable :schema="tabs[GLOBAL].schema" :rows="globalResources" />
       </Tab>
 
-      <Tab name="NAMESPACE" :weight="1" label="Namespace">
-        <ResourceTable :schema="schema" :headers="headers" :rows="namespaceResources" />
+      <!-- <Tab v-if="tabs[CLUSTER].canFetch" :name="CLUSTER" :weight="tabs[CLUSTER].weight" :label-key="tabs[CLUSTER].labelKey">
+        <ResourceTable :schema="tabs[CLUSTER].schema" :headers="tabs[CLUSTER].headers" :rows="clusterResources" />
+      </Tab> -->
+
+      <Tab v-if="tabs[PROJECT].canFetch" :name="PROJECT" :weight="tabs[PROJECT].weight" :label-key="tabs[PROJECT].labelKey">
+        <ResourceTable :schema="tabs[PROJECT].schema" :headers="tabs[PROJECT].headers" :rows="namespaceResources" />
       </Tab>
     </Tabbed>
   </div>

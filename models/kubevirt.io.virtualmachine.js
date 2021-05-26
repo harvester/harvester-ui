@@ -5,7 +5,7 @@ import { safeLoad } from 'js-yaml';
 import Notification from '@/components/Notification/main.js';
 import { colorForState } from '@/plugins/steve/resource-instance';
 import {
-  VMI, POD, VM, NODE, HARVESTER_RESTORE
+  POD, NODE, HCI
 } from '@/config/types';
 import { HARVESTER_RESTORE_NAME } from '@/config/labels-annotations';
 
@@ -174,7 +174,7 @@ export default {
   },
 
   realAttachNodeName() {
-    const vmi = this.$getters['byId'](VMI, this.id);
+    const vmi = this.$getters['byId'](HCI.VMI, this.id);
     const nodeName = vmi?.status?.nodeName;
     const node = this.$getters['byId'](NODE, nodeName);
 
@@ -182,7 +182,7 @@ export default {
   },
 
   nodeName() {
-    const vmi = this.$getters['byId'](VMI, this.id);
+    const vmi = this.$getters['byId'](HCI.VMI, this.id);
     const nodeName = vmi?.status?.nodeName;
     const node = this.$getters['byId'](NODE, nodeName);
 
@@ -311,7 +311,7 @@ export default {
   },
 
   podResource() {
-    const vmiResource = this.$rootGetters['cluster/byId'](VMI, this.id);
+    const vmiResource = this.$rootGetters['cluster/byId'](HCI.VMI, this.id);
     const podList = this.$rootGetters['cluster/all'](POD);
 
     return podList.find( (P) => {
@@ -343,7 +343,7 @@ export default {
   },
 
   vmi() {
-    return this.$rootGetters['cluster/byId'](VMI, this.id);
+    return this.$rootGetters['cluster/byId'](HCI.VMI, this.id);
   },
 
   isError() {
@@ -438,7 +438,7 @@ export default {
       if (!id) {
         id = `default/${ vmResource.getAnnotationValue(HARVESTER_RESTORE_NAME) }`;
       }
-      const restoreResource = this.$rootGetters['cluster/byId'](HARVESTER_RESTORE, id);
+      const restoreResource = this.$rootGetters['cluster/byId'](HCI.RESTORE, id);
 
       if (!restoreResource) {
         return true;
@@ -572,7 +572,7 @@ export default {
   },
 
   resourcesStatus() {
-    const vmList = this.$rootGetters['cluster/all'](VM);
+    const vmList = this.$rootGetters['cluster/all'](HCI.VM);
     let warningCount = 0;
     let errorCount = 0;
 

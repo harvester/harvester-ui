@@ -105,7 +105,7 @@ export default {
       if (networkName === MANAGEMENT_NETWORK) {
         this.value.isPod = true;
       } else {
-        // const choices = this.$store.getters['cluster/byId'](NETWORK_ATTACHMENT, `default/${ neu }`);
+        // const choices = this.$store.getters['cluster/byId'](HCI.NETWORK_ATTACHMENT, `default/${ neu }`);
         // this.currentRow.isIpamStatic = choices?.isIpamStatic || false;
         this.value.type = 'bridge';
         this.value.isPod = false;

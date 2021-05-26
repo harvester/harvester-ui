@@ -1,7 +1,7 @@
 <script>
 import _ from 'lodash';
 import Checkbox from '@/components/form/Checkbox';
-import { VM_TEMPLATE } from '@/config/types';
+import { HCI } from '@/config/types';
 import VM_MIXIN from '@/mixins/vm';
 import randomstring from 'randomstring';
 import { cleanForNew } from '@/plugins/steve/normalize';
@@ -50,8 +50,8 @@ export default {
   },
 
   data() {
-    const choicesTemplate = this.$store.getters['cluster/all'](VM_TEMPLATE.template);
-    const choicesVersion = this.$store.getters['cluster/all'](VM_TEMPLATE.version);
+    const choicesTemplate = this.$store.getters['cluster/all'](HCI.VM_TEMPLATE);
+    const choicesVersion = this.$store.getters['cluster/all'](HCI.VM_VERSION);
     let templateId = this.$route.query.templateId;
     let versionId = this.$route.query.versionId;
 
@@ -75,7 +75,7 @@ export default {
           namespace: 'default'
         },
         spec:     templateSpec,
-        type:     VM_TEMPLATE.template
+        type:     HCI.VM_TEMPLATE
       };
     }
 
@@ -115,7 +115,7 @@ export default {
     },
 
     allTemplate() {
-      return this.$store.getters['cluster/all'](VM_TEMPLATE.template);
+      return this.$store.getters['cluster/all'](HCI.VM_TEMPLATE);
     },
     isView() {
       return this.mode === _VIEW;
@@ -147,7 +147,7 @@ export default {
 
     this.registerAfterHook(async() => {
       if (this.isDefaultVersion) { // Set the default version according to annotation:[HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME]
-        const choicesVersion = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version, opt: { force: true } });
+        const choicesVersion = await this.$store.dispatch('cluster/findAll', { type: HCI.VM_VERSION, opt: { force: true } });
 
         const currentVersion = choicesVersion.find( V => V.getAnnotationValue(HARVESTER_TEMPLATE_VERSION_CUSTOM_NAME) === this.customName);
 
@@ -180,7 +180,7 @@ export default {
       this.normalizeSpec();
 
       const proxyTemplate = await this.$store.dispatch('cluster/create', this.templateValue);
-      const templates = await this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template });
+      const templates = await this.$store.dispatch('cluster/findAll', { type: HCI.VM_TEMPLATE });
       const template = templates.find( O => O.metadata.name === proxyTemplate.metadata.name);
 
       if (this.isCreate) {

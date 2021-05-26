@@ -1,6 +1,6 @@
 <script>
 import Pagination from '@/components/Pagination';
-import { IMAGE } from '@/config/types';
+import { HCI } from '@/config/types';
 const TIP = 'An external URL to the .iso, .img, .qcow2 or .raw that the virtual machine should be created from.';
 
 export default {
@@ -18,7 +18,7 @@ export default {
   },
 
   data() {
-    const images = this.$store.getters['cluster/all'](IMAGE) || [];
+    const images = this.$store.getters['cluster/all'](HCI.IMAGE) || [];
 
     return {
       images,

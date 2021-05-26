@@ -1,5 +1,5 @@
 <script>
-import { VM } from '@/config/types';
+import { HCI } from '@/config/types';
 import { isEmpty } from '@/utils/object';
 import Parse from 'url-parse';
 
@@ -31,7 +31,7 @@ export default {
       const out = {};
 
       this.value.forEach((crd) => {
-        if (crd.type !== VM) {
+        if (crd.type !== HCI.VM) {
           return;
         }
         const volumes = crd.spec.template.spec?.volumes || [];
@@ -78,7 +78,7 @@ export default {
         }
 
         Promise.all(this.value.map((resource) => {
-          if (resource.type !== VM) { // maybe is VMI
+          if (resource.type !== HCI.VM) { // maybe is VMI
             resource.remove();
 
             return;

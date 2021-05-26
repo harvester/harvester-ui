@@ -1,6 +1,6 @@
 import Parse from 'url-parse';
 import Notification from '@/components/Notification/main.js';
-import { HARVESTER_SUPPORT_BUNDLE } from '@/config/types';
+import { HCI } from '@/config/types';
 
 export const state = function() {
   return {
@@ -54,13 +54,13 @@ export const actions = {
     const parse = Parse(window.history.href);
 
     const id = state.latestBundleId;
-    let bundleCrd = await dispatch('cluster/find', { type: HARVESTER_SUPPORT_BUNDLE, id }, { root: true });
+    let bundleCrd = await dispatch('cluster/find', { type: HCI.SUPPORT_BUNDLE, id }, { root: true });
     const t = rootGetters['i18n/t'];
 
     await commit('setBundlePending', true);
     const timer = setInterval(() => {
       if (bundleCrd?.bundleState !== 'ready') {
-        bundleCrd = rootGetters['cluster/byId'](HARVESTER_SUPPORT_BUNDLE, id);
+        bundleCrd = rootGetters['cluster/byId'](HCI.SUPPORT_BUNDLE, id);
         const percentage = state.bundlePercentage + 0.025;
 
         if (percentage < 1) {

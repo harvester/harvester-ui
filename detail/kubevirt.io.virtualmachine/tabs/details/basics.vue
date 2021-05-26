@@ -3,7 +3,7 @@ import IPAddress from '@/components/formatter/ipAddress';
 import ConsoleBar from '@/components/form/ConsoleBar';
 import LabelValue from '@/components/LabelValue';
 import InputOrDisplay from '@/components/InputOrDisplay';
-import { IMAGE } from '@/config/types';
+import { HCI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 
 const UNDEFINED = 'n/a';
@@ -66,7 +66,7 @@ export default {
     },
 
     imageName() {
-      const imageList = this.$store.getters['cluster/all'](IMAGE) || [];
+      const imageList = this.$store.getters['cluster/all'](HCI.IMAGE) || [];
       const imageId = this.value?.spec?.dataVolumeTemplates?.[0]?.metadata?.annotations?.['harvesterhci.io/imageId'] || '';
       const image = imageList.find( I => imageId === I.id);
 

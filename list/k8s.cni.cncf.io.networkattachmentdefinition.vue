@@ -4,7 +4,7 @@ import Loading from '@/components/Loading';
 import ResourceTable from '@/components/ResourceTable';
 
 import { NAME, NETWORK_TYPE, NETWORK_VLAN, AGE } from '@/config/table-headers';
-import { HARVESTER_CLUSTER_NETWORK, NETWORK_ATTACHMENT, HARVESTER_NODE_NETWORK, NODE } from '@/config/types';
+import { HCI, NODE } from '@/config/types';
 
 import { findBy } from '@/utils/array';
 import { allSettled } from '@/utils/promise';
@@ -24,10 +24,10 @@ export default {
 
   async fetch() {
     const hash = await allSettled({
-      clusterNetworkSetting:  this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
-      hostNetworks:           this.$store.dispatch('cluster/findAll', { type: HARVESTER_NODE_NETWORK }),
+      clusterNetworkSetting:  this.$store.dispatch('cluster/findAll', { type: HCI.CLUSTER_NETWORK }),
+      hostNetworks:           this.$store.dispatch('cluster/findAll', { type: HCI.NODE_NETWORK }),
       hosts:                  this.$store.dispatch('cluster/findAll', { type: NODE }),
-      rows:                   this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
+      rows:                   this.$store.dispatch('cluster/findAll', { type: HCI.NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
     });
 
     this.rows = hash.rows;

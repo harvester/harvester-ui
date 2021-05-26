@@ -1,5 +1,5 @@
 <script>
-import { IMAGE } from '@/config/types';
+import { HCI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 import CpuMemory from '@/edit/kubevirt.io.virtualmachine/CpuMemory';
 import LabelValue from '@/components/LabelValue';
@@ -41,7 +41,7 @@ export default {
     },
 
     imageName() {
-      const imageList = this.$store.getters['cluster/all'](IMAGE) || [];
+      const imageList = this.$store.getters['cluster/all'](HCI.IMAGE) || [];
       const imageId = this.value?.virtualMachineSpec?.dataVolumeTemplates?.[0]?.metadata?.annotations?.['harvesterhci.io/imageId'] || '';
       const image = imageList.find( I => imageId === I.id);
 

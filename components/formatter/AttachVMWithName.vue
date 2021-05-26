@@ -1,5 +1,5 @@
 <script>
-import { VM } from '@/config/types';
+import { HCI } from '@/config/types';
 
 export default {
   props: {
@@ -10,7 +10,7 @@ export default {
   },
 
   data() {
-    const vmList = this.$store.getters['cluster/all'](VM) || [];
+    const vmList = this.$store.getters['cluster/all'](HCI.VM) || [];
 
     return { vmList };
   },

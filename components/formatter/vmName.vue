@@ -1,7 +1,7 @@
 <script>
 import LinkDetail from '@/components/formatter/LinkDetail';
 import ConsoleBar from '@/components/form/ConsoleBar';
-import { VMI } from '@/config/types';
+import { HCI } from '@/config/types';
 
 export default {
   components: { LinkDetail, ConsoleBar },
@@ -20,7 +20,7 @@ export default {
 
   computed: {
     isVMI() {
-      return this.row?.type === VMI;
+      return this.row?.type === HCI.VMI;
     }
   }
 };

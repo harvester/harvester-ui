@@ -6,7 +6,7 @@ import CruResource from '@/components/CruResource';
 import NameNsDescription from '@/components/form/NameNsDescription';
 import VM_MIXIN from '@/mixins/vm';
 import { _ADD } from '@/config/query-params';
-import { VM_TEMPLATE } from '@/config/types';
+import { HCI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 
 import SSHKey from '@/edit/kubevirt.io.virtualmachine/SSHKey';
@@ -65,7 +65,7 @@ export default {
       return this.$route.query.type === _ADD;
     },
     allTemplate() {
-      return this.$store.getters['cluster/all'](VM_TEMPLATE.template);
+      return this.$store.getters['cluster/all'](HCI.VM_TEMPLATE);
     },
   },
 

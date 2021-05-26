@@ -1,4 +1,4 @@
-import { HARVESTER_BACKUP, HARVESTER_SETTING, VM } from '@/config/types';
+import { HCI } from '@/config/types';
 import { HARVESTER_BACKUP_TARGET } from '@/config/labels-annotations';
 import { colorForState } from '@/plugins/steve/resource-instance';
 
@@ -35,7 +35,7 @@ export default {
 
       router.push({
         name:   `c-cluster-product-resource-create`,
-        params: { resource: HARVESTER_BACKUP },
+        params: { resource: HCI.BACKUP },
         query:  { restoreMode: 'existing', backupName: resource.name }
       });
     };
@@ -47,7 +47,7 @@ export default {
 
       router.push({
         name:   `c-cluster-product-resource-create`,
-        params: { resource: HARVESTER_BACKUP },
+        params: { resource: HCI.BACKUP },
         query:  { restoreMode: 'new', backupName: resource.name }
       });
     };
@@ -86,14 +86,14 @@ export default {
   },
 
   isMatchWithCurrentBakcupTarget() {
-    const allSetting = this.$rootGetters['cluster/all'](HARVESTER_SETTING);
+    const allSetting = this.$rootGetters['cluster/all'](HCI.SETTING);
     const backupTargetResource = allSetting.find( O => O.id === 'backup-target');
 
     return this.backupTarget === backupTargetResource?.parseValue?.endpoint;
   },
 
   attachVmExisting() {
-    const vmList = this.$rootGetters['cluster/all'](VM);
+    const vmList = this.$rootGetters['cluster/all'](HCI.VM);
 
     return !!vmList.find( V => V.metadata.name === this.attachVM);
   }

@@ -1,5 +1,5 @@
 <script>
-import { HARVESTER_UPGRADE } from '@/config/types';
+import { HCI } from '@/config/types';
 import { HARVESTER_UPGRADESTATE } from '@/config/labels-annotations';
 import { allHash } from '@/utils/promise';
 import ProgressBarList from '@/components/ProgressBarList';
@@ -11,7 +11,7 @@ export default {
   components: { ProgressBarList, GraphCircle },
 
   async fetch() {
-    const res = await allHash({ upgrade: this.$store.dispatch('cluster/findAll', { type: HARVESTER_UPGRADE }) });
+    const res = await allHash({ upgrade: this.$store.dispatch('cluster/findAll', { type: HCI.UPGRADE }) });
 
     this.upgrade = res.upgrade;
   },

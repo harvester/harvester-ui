@@ -4,7 +4,6 @@ import { get, isEmpty } from '@/utils/object';
 import Card from '@/components/Card';
 import { alternateLabel } from '@/utils/platform';
 import { uniq } from '@/utils/array';
-import { addPrefix } from '@/utils/url';
 import AsyncButton from '@/components/AsyncButton';
 
 export default {
@@ -65,7 +64,7 @@ export default {
         const path = get(resource, 'links.self').split('//')[1];
         const start = path.indexOf('/');
 
-        return addPrefix(path.substring(start));
+        return path.substring(start);
       });
     },
 

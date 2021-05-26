@@ -1,6 +1,6 @@
 import { sortableNumericSuffix } from '@/utils/sort';
 import semver from 'semver';
-import { HARVESTER_SETTING } from '@/config/types';
+import { HCI } from '@/config/types';
 import { READ_WHATS_NEW, SEEN_WHATS_NEW } from '@/store/prefs';
 
 export function parse(str) {
@@ -92,7 +92,7 @@ export function getVersionInfo(store) {
   //   displayVersion = match[2].substr(0, 7);
   // }
 
-  const settings = store.getters['cluster/all'](HARVESTER_SETTING);
+  const settings = store.getters['cluster/all'](HCI.SETTING);
   const setting = settings.find( S => S.id === 'server-version');
 
   const version = setting?.value || setting?.default;

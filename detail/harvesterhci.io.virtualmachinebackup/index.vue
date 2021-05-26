@@ -6,7 +6,7 @@ import Checkbox from '@/components/form/Checkbox';
 import VM_MIXIN from '@/mixins/vm';
 import { allHash } from '@/utils/promise';
 import CreateEditView from '@/mixins/create-edit-view';
-import { HARVESTER_BACKUP_CONTENT } from '@/config/types';
+import { HCI } from '@/config/types';
 
 import OverviewKeypairs from '@/detail/harvesterhci.io.virtualmachinebackup/keypairs';
 import Volume from '@/edit/kubevirt.io.virtualmachine/volume';
@@ -43,7 +43,7 @@ export default {
   },
 
   async fetch() {
-    const hash = await allHash({ backupContents: this.$store.dispatch('cluster/findAll', { type: HARVESTER_BACKUP_CONTENT }) });
+    const hash = await allHash({ backupContents: this.$store.dispatch('cluster/findAll', { type: HCI.BACKUP_CONTENT }) });
 
     const content = hash.backupContents.find( O => O.id === `default/${ this.value?.backupContentName }`);
 

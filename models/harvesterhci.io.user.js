@@ -1,4 +1,4 @@
-import { HARVESTER_USER } from '@/config/types';
+import { HCI } from '@/config/types';
 
 export default {
   _availableActions() {
@@ -15,7 +15,7 @@ export default {
     return () => {
       this.currentRouter().replace({
         name:   'c-cluster-product-resource',
-        params: { resource: HARVESTER_USER }
+        params: { resource: HCI.USER }
       });
     };
   }

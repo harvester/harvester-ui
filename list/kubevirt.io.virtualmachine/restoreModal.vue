@@ -1,14 +1,14 @@
 <script>
 import randomstring from 'randomstring';
 import { exceptionToErrorsArray } from '@/utils/error';
-import { HARVESTER_BACKUP, VM } from '@/config/types';
+import { HCI } from '@/config/types';
 import { allHash } from '@/utils/promise';
 import { createNamespacedHelpers, mapGetters } from 'vuex';
 
 import ModalWithCard from '@/components/ModalWithCard';
 import LabeledSelect from '@/components/form/LabeledSelect';
 
-const { mapState } = createNamespacedHelpers(VM);
+const { mapState } = createNamespacedHelpers(HCI.VM);
 
 export default {
   name: 'RestoreModal',
@@ -16,7 +16,7 @@ export default {
   components: { LabeledSelect, ModalWithCard },
 
   async fetch() {
-    const hash = await allHash({ backups: this.$store.dispatch('cluster/findAll', { type: HARVESTER_BACKUP }) });
+    const hash = await allHash({ backups: this.$store.dispatch('cluster/findAll', { type: HCI.BACKUP }) });
 
     this.backups = hash.backups;
   },

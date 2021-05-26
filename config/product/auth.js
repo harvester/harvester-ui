@@ -1,5 +1,5 @@
 import { DSL } from '@/store/type-map';
-import { MANAGEMENT, NORMAN, HARVESTER_USER } from '@/config/types';
+import { MANAGEMENT, NORMAN } from '@/config/types';
 import { uniq } from '@/utils/array';
 import {
   GROUP_NAME, GROUP_ROLE_NAME,
@@ -25,8 +25,9 @@ export function init(store) {
   } = DSL(store, NAME);
 
   product({
-    ifHaveType:          HARVESTER_USER,
+    ifHaveType:          MANAGEMENT.USER,
     inStore:             'management',
+    icon:                'user',
     removable:           false,
     showClusterSwitcher: false,
     category:            'configuration',
@@ -34,7 +35,8 @@ export function init(store) {
 
   virtualType({
     label:       'Auth Provider',
-    namespaced:  false,
+    icon:        'lock',
+    namespaced:  true,
     name:        'config',
     weight:      -1,
     route:       { name: 'c-cluster-auth-config' },
@@ -42,26 +44,26 @@ export function init(store) {
   });
 
   virtualType({
-    label:       store.getters['type-map/labelFor']({ id: HARVESTER_USER }, 2),
+    label:       store.getters['type-map/labelFor']({ id: MANAGEMENT.USER }, 2),
     name:           USERS_VIRTUAL_TYPE,
-    namespaced:     false,
+    namespaced:     true,
     weight:         102,
+    icon:           'user',
     route:          {
       name:   'c-cluster-product-resource',
       params: {
         cluster:  'local',
         product:  NAME,
-        resource: HARVESTER_USER,
+        resource: MANAGEMENT.USER,
       }
     }
   });
-  // configureType(MANAGEMENT.USER, { showListMasthead: false });
-  configureType(MANAGEMENT.USER, { realResource: HARVESTER_USER, showState: false });
-  componentForType(MANAGEMENT.USER, HARVESTER_USER);
+  configureType(MANAGEMENT.USER, { showListMasthead: false });
 
   spoofedType({
     label:             store.getters['type-map/labelFor']({ id: NORMAN.SPOOFED.GROUP_PRINCIPAL }, 2),
     type:              NORMAN.SPOOFED.GROUP_PRINCIPAL,
+    namespaced:        true,
     ifHaveType:        MANAGEMENT.GLOBAL_ROLE_BINDING,
     collectionMethods: [],
     schemas:           [
@@ -139,8 +141,8 @@ export function init(store) {
 
   virtualType({
     label:       store.getters['i18n/t']('rbac.roletemplate.label'),
-    // icon:        'user',
-    namespaced:  false,
+    icon:        'user',
+    namespaced:  true,
     name:        ROLES_VIRTUAL_TYPE,
     weight:      101,
     route:       { name: 'c-cluster-auth-roles' },

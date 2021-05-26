@@ -6,13 +6,13 @@ import LabeledSelect from '@/components/form/LabeledSelect';
 import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
 import { exceptionToErrorsArray } from '@/utils/error';
-import { HARVESTER_BACKUP, HARVESTER_RESTORE, VM } from '@/config/types';
+import { HCI } from '@/config/types';
 
 const createObject = {
   apiVersion: 'harvesterhci.io/v1beta1',
   kind:       'VirtualMachineRestore',
   metadata:   { name: '', namespace: 'default' },
-  type:       HARVESTER_RESTORE,
+  type:       HCI.RESTORE,
   spec:       {
     target: {
       apiGroup: 'kubevirt.io',
@@ -38,8 +38,8 @@ export default {
 
   async fetch() {
     await allHash({
-      backups:         this.$store.dispatch('cluster/findAll', { type: HARVESTER_BACKUP }),
-      vms:             this.$store.dispatch('cluster/findAll', { type: VM }),
+      backups:         this.$store.dispatch('cluster/findAll', { type: HCI.BACKUP }),
+      vms:             this.$store.dispatch('cluster/findAll', { type: HCI.VM }),
     });
   },
 
@@ -63,7 +63,7 @@ export default {
 
   computed: {
     backupOption() {
-      const choices = this.$store.getters['cluster/all'](HARVESTER_BACKUP);
+      const choices = this.$store.getters['cluster/all'](HCI.BACKUP);
 
       return choices.filter( (T) => {
         const hasVM = this.restoreNewVm || T.attachVmExisting;
@@ -90,7 +90,7 @@ export default {
     currentBackupResource() {
       const name = this.backupName;
 
-      const backupList = this.$store.getters['cluster/all'](HARVESTER_BACKUP);
+      const backupList = this.$store.getters['cluster/all'](HCI.BACKUP);
 
       return backupList.find( O => O.name === name);
     },
@@ -135,7 +135,7 @@ export default {
 
         this.$router.push({
           name:   this.doneRoute,
-          params: { resource: VM }
+          params: { resource: HCI.VM }
         });
       } catch (err) {
         this.errors = exceptionToErrorsArray(err) || err;

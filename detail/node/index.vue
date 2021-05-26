@@ -2,9 +2,7 @@
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import Poller from '@/utils/poller';
-import {
-  METRIC, VM, NODE, VMI, HARVESTER_NODE_NETWORK
-} from '@/config/types';
+import { METRIC, NODE, HCI } from '@/config/types';
 import { HOSTNAME } from '@/config/labels-annotations';
 import { allHash } from '@/utils/promise';
 import Basic from './basic';
@@ -35,14 +33,14 @@ export default {
   async fetch() {
     const hash = {
       nodes:        this.$store.dispatch('cluster/findAll', { type: NODE }),
-      vms:          this.$store.dispatch('cluster/findAll', { type: VM }),
-      hostNetworks: this.$store.dispatch('cluster/findAll', { type: HARVESTER_NODE_NETWORK })
+      vms:          this.$store.dispatch('cluster/findAll', { type: HCI.VM }),
+      hostNetworks: this.$store.dispatch('cluster/findAll', { type: HCI.NODE_NETWORK })
     };
 
     const res = await allHash(hash);
     const instanceMap = {};
 
-    (this.$store.getters['cluster/all'](VMI) || []).forEach((vmi) => {
+    (this.$store.getters['cluster/all'](HCI.VMI) || []).forEach((vmi) => {
       const vmiUID = vmi?.metadata?.ownerReferences?.[0]?.uid;
 
       if (vmiUID) {

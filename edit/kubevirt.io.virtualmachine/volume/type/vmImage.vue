@@ -3,7 +3,7 @@ import UnitInput from '@/components/form/UnitInput';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import InputOrDisplay from '@/components/InputOrDisplay';
-import { IMAGE } from '@/config/types';
+import { HCI } from '@/config/types';
 import { _CREATE } from '@/config/query-params';
 
 export default {
@@ -76,7 +76,7 @@ export default {
       return this.idx === 0;
     },
     imagesOption() {
-      const choise = this.$store.getters['cluster/all'](IMAGE);
+      const choise = this.$store.getters['cluster/all'](HCI.IMAGE);
 
       return choise.map( (I) => {
         return {

@@ -14,6 +14,7 @@ import SortableTable from '@/components/SortableTable';
 import { _DETAIL } from '@/config/query-params';
 import { SUBTYPE_MAPPING, VERBS } from '@/models/management.cattle.io.roletemplate';
 import Loading from '@/components/Loading';
+import { HARVESTER_MANAGED } from '@/config/labels-annotations';
 
 const GLOBAL = SUBTYPE_MAPPING.GLOBAL.key;
 const CLUSTER = SUBTYPE_MAPPING.CLUSTER.key;
@@ -231,6 +232,7 @@ export default {
     async actuallySave(url) {
       if ( this.isCreate ) {
         url = url || this.schema.linkFor('collection');
+        this.$set(this.value.metadata, 'labels', { [HARVESTER_MANAGED]: 'true' });
         const res = await this.value.save({ url, redirectUnauthorized: false });
 
         if (res) {

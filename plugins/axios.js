@@ -1,7 +1,6 @@
 import https from 'https';
 import { CSRF } from '@/config/cookies';
 import { parse as setCookieParser } from 'set-cookie-parser';
-import { getPrefix } from '@/utils/url';
 import pkg from '../package.json';
 
 export default function({
@@ -75,11 +74,7 @@ export default function({
           return Promise.reject(error.response);
         }
 
-        if (getPrefix()) {
-          redirect(401, '/auth/login');
-        } else {
-          redirect(401, '/auth/logout');
-        }
+        redirect(401, '/auth/logout');
 
         return new Promise(() => {});
       }

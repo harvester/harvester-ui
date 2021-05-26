@@ -2,7 +2,7 @@ import https from 'https';
 import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
 import { SCHEMA } from '@/config/types';
-import { addPrefix, addParam } from '@/utils/url';
+import { addParam } from '@/utils/url';
 import { createYaml } from '@/utils/create-yaml';
 import { SPOOFED_API_PREFIX, SPOOFED_PREFIX } from '@/store/type-map';
 
@@ -37,7 +37,6 @@ export default {
     // @TODO queue/defer duplicate requests
     opt.depaginate = opt.depaginate !== false;
     opt.url = opt.url?.replace(/\/*$/g, '');
-    opt.url = addPrefix(opt.url); // rancher proxy
 
     opt.httpsAgent = new https.Agent({ rejectUnauthorized: false });
 

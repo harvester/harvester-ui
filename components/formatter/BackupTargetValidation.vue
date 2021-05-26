@@ -1,6 +1,6 @@
 <script>
 import { allHash } from '@/utils/promise';
-import { HARVESTER_SETTING } from '@/config/types';
+import { HCI } from '@/config/types';
 
 export default {
   props: {
@@ -11,7 +11,7 @@ export default {
   },
 
   async fetch() {
-    const hash = await allHash({ harvesterSettings: this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }) });
+    const hash = await allHash({ harvesterSettings: this.$store.dispatch('cluster/findAll', { type: HCI.SETTING }) });
 
     this.harvesterSettings = hash.harvesterSettings;
   },
@@ -22,7 +22,7 @@ export default {
 
   computed: {
     isMatch() {
-      const harvesterSettings = this.$store.getters['cluster/all'](HARVESTER_SETTING) || [];
+      const harvesterSettings = this.$store.getters['cluster/all'](HCI.SETTING) || [];
       const resource = harvesterSettings.find( V => V.id === 'backup-target');
 
       return this.value === resource?.parseValue?.endpoint;

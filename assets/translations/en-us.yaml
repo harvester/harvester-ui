@@ -2514,10 +2514,10 @@ rbac:
         yes: "Yes: Default role for new cluster creation"
         defaultLabel: Cluster Creator Default
       NAMESPACE:
-        createButton: Create Namespaces Role
-        label: Namespaces
-        yes: "Yes: Default role for new Namespace creation"
-        defaultLabel: Namespace Creator Default
+        createButton: Create Project/Namespaces Role
+        label: Project/Namespaces
+        yes: "Yes: Default role for new project creation"
+        defaultLabel: Project Creator Default
       RBAC_ROLE:
         label: Role
       RBAC_CLUSTER_ROLE:
@@ -2527,7 +2527,7 @@ rbac:
   globalRoles:
     types:
       global:
-        label: Cluster Permissions
+        label: Global Permissions
         description: |-
           Controls what access the {isUser, select,
           true {user}

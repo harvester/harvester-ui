@@ -1,6 +1,6 @@
 <script>
 import { STATE, AGE, NAME } from '@/config/table-headers';
-import { VM_TEMPLATE } from '@/config/types';
+import { HCI } from '@/config/types';
 import Loading from '@/components/Loading';
 import ResourceTable from '@/components/ResourceTable';
 import { allHash } from '@/utils/promise';
@@ -21,8 +21,8 @@ export default {
 
   async fetch() {
     const hash = await allHash({
-      template:           this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template }),
-      templateVersion:    this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
+      template:           this.$store.dispatch('cluster/findAll', { type: HCI.VM_TEMPLATE }),
+      templateVersion:    this.$store.dispatch('cluster/findAll', { type: HCI.VM_VERSION }),
     });
 
     this.template = hash.template;
@@ -73,7 +73,7 @@ export default {
     },
 
     groupTitleBy() {
-      return VM_TEMPLATE.template;
+      return HCI.VM_TEMPLATE;
     },
 
     LiveData() {
@@ -103,7 +103,7 @@ export default {
     v-bind="$attrs"
     :headers="headers"
     :sub-rows="true"
-    :groupable="true"
+    :groupable="false"
     :rows="[...rows]"
     :group-title-by="groupTitleBy"
     :group-by="groupBy"

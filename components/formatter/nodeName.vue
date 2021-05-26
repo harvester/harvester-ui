@@ -1,5 +1,5 @@
 <script>
-import { VMI, NODE } from '@/config/types';
+import { HCI, NODE } from '@/config/types';
 import CopyToClipboardText from '@/components/CopyToClipboardText';
 
 export default {
@@ -21,7 +21,7 @@ export default {
     },
 
     vmi() {
-      const vmiResources = this.$store.getters['cluster/all'](VMI);
+      const vmiResources = this.$store.getters['cluster/all'](HCI.VMI);
       const resource = vmiResources.find(VMI => VMI.id === this.row.id) || null;
 
       return resource;

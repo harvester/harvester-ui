@@ -1,5 +1,5 @@
 <script>
-import { IMAGE } from '@/config/types';
+import { HCI } from '@/config/types';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import LabelValue from '@/components/LabelValue';
@@ -50,7 +50,7 @@ export default {
     },
 
     image() {
-      const imageList = this.$store.getters['cluster/all'](IMAGE) || [];
+      const imageList = this.$store.getters['cluster/all'](HCI.IMAGE) || [];
       // const source = this.value.spec?.source?.blank ? 'blank' : this.value.spec?.source?.registry?.url ? 'container' : 'VM Image'; // eslint-disable-line
       // const image = source === 'VM Image' ? this.value.spec?.source?.http?.url : '-'; // eslint-disable-line
 

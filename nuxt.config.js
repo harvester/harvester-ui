@@ -104,7 +104,6 @@ module.exports = {
   content: { markdown: { prism: { theme: false } } },
 
   router: {
-    mode:       'hash', // Compatible with rancher proxy
     base:       routerBasePath,
     middleware: ['i18n'],
   },

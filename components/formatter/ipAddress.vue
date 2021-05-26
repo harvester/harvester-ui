@@ -1,7 +1,7 @@
 <script>
 import _ from 'lodash';
 import { HARVESTER_NETWORK_IPS } from '@/config/labels-annotations';
-import { VMI } from '@/config/types';
+import { HCI } from '@/config/types';
 import CopyToClipboardText from '@/components/CopyToClipboardText';
 
 export default {
@@ -43,7 +43,7 @@ export default {
     },
 
     // podIp() {
-    //   const vmiResources = this.$store.getters['cluster/all'](VMI);
+    //   const vmiResources = this.$store.getters['cluster/all'](HCI.VMI);
     //   const podResources = this.$store.getters['cluster/all'](POD);
 
     //   const ips = new Set();
@@ -76,7 +76,7 @@ export default {
     // },
 
     vmiIp() {
-      const vmiResources = this.$store.getters['cluster/all'](VMI);
+      const vmiResources = this.$store.getters['cluster/all'](HCI.VMI);
       const resource = vmiResources.find(VMI => VMI.id === this.value) || null;
       const out = resource?.status?.interfaces?.[0]?.ipAddress || '';
 

@@ -1,12 +1,12 @@
 <script>
-import { VM } from '@/config/types';
+import { HCI } from '@/config/types';
 import { exceptionToErrorsArray } from '@/utils/error';
 import { createNamespacedHelpers, mapGetters } from 'vuex';
 
 import ModalWithCard from '@/components/ModalWithCard';
 import LabeledInput from '@/components/form/LabeledInput';
 
-const { mapState } = createNamespacedHelpers(VM);
+const { mapState } = createNamespacedHelpers(HCI.VM);
 
 export default {
   name: 'RestoreModal',

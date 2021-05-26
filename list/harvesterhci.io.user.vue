@@ -2,7 +2,7 @@
 import { AGE, USERNAME } from '@/config/table-headers';
 import Loading from '@/components/Loading';
 import SortableTable from '@/components/SortableTable';
-import { HARVESTER_USER, NORMAN, MANAGEMENT } from '@/config/types';
+import { HCI, NORMAN, MANAGEMENT } from '@/config/types';
 
 export default {
   name:       'LUsers',
@@ -22,7 +22,7 @@ export default {
     this.isRancher = isRancher;
 
     if (!isRancher) {
-      this.harvesterUsers = await store.dispatch('cluster/findAll', { type: HARVESTER_USER });
+      this.harvesterUsers = await store.dispatch('cluster/findAll', { type: HCI.USER });
     } else {
       const v3UsersPromise = store.dispatch('rancher/findAll', { type: NORMAN.USER });
       const managementUsersPromise = store.dispatch('management/findAll', { type: MANAGEMENT.USER });

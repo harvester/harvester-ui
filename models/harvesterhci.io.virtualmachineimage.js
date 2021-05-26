@@ -1,5 +1,5 @@
 import { colorForState } from '@/plugins/steve/resource-instance';
-import { VM, IMAGE } from '@/config/types';
+import { HCI } from '@/config/types';
 import {
   DESCRIPTION,
   ANNOTATIONS_TO_IGNORE_REGEX,
@@ -31,7 +31,7 @@ export default {
 
       router.push({
         name:   `c-cluster-product-resource-create`,
-        params: { resource: VM },
+        params: { resource: HCI.VM },
         query:  { image: this.spec.displayName }
       });
     };
@@ -65,7 +65,7 @@ export default {
   },
 
   resourcesStatus() {
-    const imageList = this.$rootGetters['cluster/all'](IMAGE);
+    const imageList = this.$rootGetters['cluster/all'](HCI.IMAGE);
 
     let warning = 0;
     let error = 0;

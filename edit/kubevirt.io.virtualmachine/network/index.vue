@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import randomstring from 'randomstring';
 import { clone } from '@/utils/object';
-import { NETWORK_ATTACHMENT } from '@/config/types';
+import { HCI } from '@/config/types';
 import { removeObject } from '@/utils/array.js';
 import InfoBox from '@/components/InfoBox';
 import { _VIEW } from '@/config/query-params';
@@ -45,7 +45,7 @@ export default {
       return this.mode === _VIEW;
     },
     networkOption() {
-      const choices = this.$store.getters['cluster/all'](NETWORK_ATTACHMENT);
+      const choices = this.$store.getters['cluster/all'](HCI.NETWORK_ATTACHMENT);
 
       const out = sortBy(
         choices

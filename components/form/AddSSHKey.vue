@@ -4,7 +4,7 @@ import Banner from '@/components/Banner';
 import Checkbox from '@/components/form/Checkbox';
 import Card from '@/components/Card';
 import { clone } from '@/utils/object';
-import { SSH } from '@/config/types';
+import { HCI } from '@/config/types';
 
 export default {
   components: {
@@ -37,7 +37,7 @@ export default {
 
   computed: {
     ssh() {
-      return this.$store.getters['cluster/all'](SSH);
+      return this.$store.getters['cluster/all'](HCI.SSH);
     },
     sshList() {
       return this.ssh.map( O => O.metadata.name);
@@ -108,8 +108,6 @@ export default {
         return;
       }
 
-      const SSH = 'harvesterhci.io.keypair';
-
       try {
         await this.$store.dispatch('cluster/request', {
           method:  'POST',
@@ -117,13 +115,13 @@ export default {
             'content-type': 'application/json',
             accept:         'application/json',
           },
-          url:  `v1/${ SSH }`,
+          url:  `v1/${ HCI.SSH }`,
           data: {
             apiVersion: 'vm.cattle.io/v1beta1',
             kind:       'KeyPair',
             metadata:   { name: this.sshName },
             spec:       { publicKey: this.publicKey },
-            type:       SSH
+            type:       HCI.SSH
           },
         });
 

@@ -1,7 +1,7 @@
 <script>
 import randomstring from 'randomstring';
 import { exceptionToErrorsArray } from '@/utils/error';
-import { HARVESTER_SUPPORT_BUNDLE } from '@/config/types';
+import { HCI } from '@/config/types';
 import LabeledInput from '@/components/form/LabeledInput';
 import AsyncButton from '@/components/AsyncButton';
 import GraphCircle from '@/components/graph/Circle';
@@ -73,7 +73,7 @@ export default {
 
       const bundleCrd = {
         apiVersion: 'harvesterhci.io/v1beta1',
-        type:       HARVESTER_SUPPORT_BUNDLE,
+        type:       HCI.SUPPORT_BUNDLE,
         kind:       'SupportBundle',
         metadata:   {
           name,

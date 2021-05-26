@@ -2,7 +2,7 @@
 import { mapGetters } from 'vuex';
 import Favorite from '@/components/nav/Favorite';
 import TypeDescription from '@/components/TypeDescription';
-import { clone, get } from '@/utils/object';
+import { get } from '@/utils/object';
 import { AS, _YAML } from '@/config/query-params';
 
 export default {
@@ -45,18 +45,6 @@ export default {
     }
   },
 
-  async fetch() {
-    const store = this.$store;
-    const resource = this.resource;
-
-    const importer = store.getters['type-map/importList'](resource);
-    const component = (await importer())?.default;
-
-    if (component?.customCreateFormName) {
-      this.customCreateFormName = component.customCreateFormName.apply(this);
-    }
-  },
-
   data() {
     const params = { ...this.$route.params };
 
@@ -82,43 +70,11 @@ export default {
     ...mapGetters(['isExplorer']),
 
     resourceName() {
-      if (this.customCreateFormName) { // get from custom list component
-        return this.customCreateFormName;
-      }
-
       if (this.schema) {
         return this.$store.getters['type-map/labelFor'](this.schema);
       }
 
       return this.resource;
-    },
-
-    disableCreateButton() {
-      const type = this.resource;
-      const inStore = this.$store.getters['currentProduct'].inStore;
-      const config = this.$store.getters[`${ inStore }/getCacheConfig`](type);
-
-      return config.disableCreateButton || false;
-    },
-
-    extraAction() {
-      const opt = this.$store.getters[`type-map/optionsFor`](this.resource).extraListAction;
-
-      if ( opt ) {
-        const to = opt.to ? opt.to : clone(this.createLocation);
-
-        if ( opt.query ) {
-          to.query = Object.assign({}, to.query || {}, opt.query);
-        }
-
-        return {
-          to,
-          class: opt.classNames || 'btn role-primary',
-          label: (opt.labelKey ? this.t(opt.labelKey) : opt.label || 'Action?' ),
-        };
-      }
-
-      return null;
     },
 
     _typeDisplay() {
@@ -164,26 +120,9 @@ export default {
 
     _createButtonlabel() {
       return this.createButtonLabel || this.t('resourceList.head.create');
-    },
-
-    customCreateText() {
-      return this.$store.getters['type-map/optionsFor'](this.$route.params.resource).customCreateText || 'resourceList.head.create';
-    },
-
-    setting() {
-      const type = this.resource;
-      const inStore = this.$store.getters['currentProduct'].inStore;
-      const config = this.$store.getters[`${ inStore }/getCacheConfig`](type);
-
-      return config.setting || false;
     }
+
   },
-
-  methods: {
-    handlerCreateLocation() {
-      this.$router.push(this._createLocation);
-    }
-  }
 };
 </script>
 
@@ -192,49 +131,31 @@ export default {
     <TypeDescription :resource="resource" />
     <div class="title">
       <h1 class="m-0">
-        {{ _typeDisplay }}
-        <span v-if="setting" class="setting">
-          <nuxt-link :to="setting">
-            {{ t('harvester.backUpPage.message.noSetting.middle') }}
-          </nuxt-link>
-        </span>
-        <Favorite v-if="false" :resource="resource" />
+        {{ _typeDisplay }} <Favorite v-if="isExplorer" :resource="resource" />
       </h1>
     </div>
     <div class="actions-container">
-      <div class="actions">
-        <slot name="extraActions">
-        </slot>
+      <slot name="actions">
+        <div class="actions">
+          <slot name="extraActions">
+          </slot>
 
-        <n-link
-          v-if="extraAction"
-          :to="extraAction.to"
-          :class="extraAction.class"
-        >
-          {{ extraAction.label }}
-        </n-link>
-        <button
-          v-if="hasEditComponent && _isCreatable"
-          class="btn role-primary hand"
-          :disabled="disableCreateButton"
-          @click="handlerCreateLocation"
-        >
-          {{ t(customCreateText) }}
-        </button>
-        <n-link
-          v-else-if="_isYamlCreatable"
-          :to="_yamlCreateLocation"
-          class="btn role-primary"
-        >
-          {{ t("resourceList.head.createFromYaml") }}
-        </n-link>
-      </div>
+          <n-link
+            v-if="hasEditComponent && _isCreatable"
+            :to="_createLocation"
+            class="btn role-primary"
+          >
+            {{ _createButtonlabel }}
+          </n-link>
+          <n-link
+            v-else-if="_isYamlCreatable"
+            :to="_yamlCreateLocation"
+            class="btn role-primary"
+          >
+            {{ t("resourceList.head.createFromYaml") }}
+          </n-link>
+        </div>
+      </slot>
     </div>
   </header>
 </template>
-
-<style lang="scss" scoped>
-.setting {
-  font-size: 14px;
-}
-</style>

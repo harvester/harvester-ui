@@ -1,5 +1,5 @@
 <script>
-import { VMI } from '@/config/types';
+import { HCI } from '@/config/types';
 import Console from '@/components/form/Console';
 
 export default {
@@ -13,7 +13,7 @@ export default {
 
   computed: {
     vmi() {
-      const vmiList = this.$store.getters['cluster/all'](VMI) || [];
+      const vmiList = this.$store.getters['cluster/all'](HCI.VMI) || [];
       const vmi = vmiList.find( (VMI) => {
         return VMI?.metadata?.ownerReferences?.[0]?.uid === this.uid;
       });

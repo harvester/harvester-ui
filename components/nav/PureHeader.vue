@@ -3,7 +3,7 @@ import { mapGetters } from 'vuex';
 import { md5 } from '@/utils/crypto';
 import Identicon from 'identicon.js';
 import { allSettled } from '@/utils/promise';
-import { HARVESTER_SETTING } from '@/config/types';
+import { HCI } from '@/config/types';
 import Parse from 'url-parse';
 import NamespaceFilter from './NamespaceFilter';
 import UpgradeInfo from './UpgradeInfo';
@@ -12,7 +12,7 @@ export default {
   components: { UpgradeInfo, NamespaceFilter },
 
   async fetch() {
-    await allSettled({ haversterSettings: this.$store.dispatch('cluster/findAll', { type: HARVESTER_SETTING }) });
+    await allSettled({ haversterSettings: this.$store.dispatch('cluster/findAll', { type: HCI.SETTING }) });
     const isRancher = await this.$store.dispatch('auth/getIsRancher');
 
     this.isRancher = isRancher;
@@ -44,7 +44,7 @@ export default {
     },
 
     enableRancher() {
-      const rancher = this.$store.getters['cluster/all'](HARVESTER_SETTING).find(O => O.metadata.name === 'rancher-enabled');
+      const rancher = this.$store.getters['cluster/all'](HCI.SETTING).find(O => O.metadata.name === 'rancher-enabled');
 
       return rancher?.value === 'true';
     }
@@ -63,7 +63,7 @@ export default {
     <div class="product">
       <div class="go" @click="goHome">
         <div class="logo" alt="Logo">
-          <img class="ml-20" src="~assets/images/pl/logo_horizontal_white_t.png" width="auto" height="35" />
+          <img class="ml-20" src="~assets/images/pl/logo_horizontal.svg" width="auto" height="35" />
         </div>
       </div>
     </div>
@@ -124,7 +124,6 @@ export default {
 
     > .product {
       grid-area: product;
-      background-color: var(--header-btn-bg);
       position: relative;
 
       .go {
@@ -160,7 +159,7 @@ export default {
 
       .role-tertiary {
         color: #fff !important;
-        background-color: var(--header-btn-bg);
+        background-color: var(--primary);
         border: 1px solid #008080;
       }
     }

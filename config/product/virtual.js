@@ -1,14 +1,10 @@
-import {
-  IMAGE, VM, SSH, CONFIG_MAP, VM_TEMPLATE, DATA_VOLUME, NODE,
-  HARVESTER_SETTING, NETWORK_ATTACHMENT, HARVESTER_BACKUP,
-  HARVESTER_CLUSTER_NETWORK, NAMESPACE, RBAC
-} from '@/config/types';
+import { CONFIG_MAP, HCI, NODE } from '@/config/types';
+
 import { DSL } from '@/store/type-map';
 
 export const NAME = 'virtual';
 
-const TEMPLATE = VM_TEMPLATE.version;
-const MEMBER = 'member';
+const TEMPLATE = HCI.VM_VERSION;
 
 export function init(store) {
   const {
@@ -28,10 +24,9 @@ export function init(store) {
   basicType(['virtual-dashboard']);
   virtualType({
     ifHaveType:    NODE,
-    label:        'Dashboard',
     group:        'Root',
     labelDisplay: 'harvester.nav.dashboard',
-    namespaced:   false,
+    namespaced:   true,
     name:         'virtual-dashboard',
     weight:       500,
     route:        { name: 'c-cluster-virtual' },
@@ -41,10 +36,9 @@ export function init(store) {
   basicType([NODE]);
   virtualType({
     ifHaveType:    NODE,
-    label:        'Hosts',
     group:        'Root',
     name:         NODE,
-    namespaced:  false,
+    namespaced:  true,
     weight:       399,
     route:        {
       name:   'c-cluster-product-resource',
@@ -53,73 +47,72 @@ export function init(store) {
     exact: false,
   });
 
-  basicType([NAMESPACE]);
+  basicType(['projects-namespaces']);
   virtualType({
-    ifHaveType:    NODE,
-    label:        'Namespace',
-    name:         NAMESPACE,
+    ifHaveType:       NODE,
+    label:            'Projects/Namespaces',
+    group:            'cluster',
+    // icon:             'globe',
     namespaced:  true,
-    weight:       389,
-    route:        {
-      name:   'c-cluster-product-resource',
-      params: { resource: NAMESPACE }
-    },
-    exact: false,
+    // ifRancherCluster: true,
+    name:             'projects-namespaces',
+    weight:           398,
+    route:            { name: 'c-cluster-product-projectsnamespaces' },
+    exact:            true,
   });
 
-  basicType([VM]);
+  basicType([HCI.VM]);
   virtualType({
     label:      'Virtual Machines',
     group:      'root',
-    name:       VM,
+    name:       HCI.VM,
     namespaced:  true,
     weight:     299,
     route:      {
       name:     'c-cluster-product-resource',
-      params:   { resource: VM }
+      params:   { resource: HCI.VM }
     },
     exact: false,
   });
 
-  basicType([DATA_VOLUME]);
+  basicType([HCI.DATA_VOLUME]);
   virtualType({
     label:      'Volumes',
     group:      'root',
-    name:       DATA_VOLUME,
+    name:       HCI.DATA_VOLUME,
     namespaced:  true,
     weight:     199,
     route:      {
       name:     'c-cluster-product-resource',
-      params:   { resource: DATA_VOLUME }
+      params:   { resource: HCI.DATA_VOLUME }
     },
     exact: false,
   });
 
-  basicType([IMAGE]);
+  basicType([HCI.IMAGE]);
   virtualType({
     label:      'Images',
     group:      'root',
-    name:       IMAGE,
+    name:       HCI.IMAGE,
     namespaced:  true,
     weight:     99,
     route:      {
       name:     'c-cluster-product-resource',
-      params:   { resource: IMAGE }
+      params:   { resource: HCI.IMAGE }
     },
     exact: false,
   });
 
   basicType([
     TEMPLATE,
-    NETWORK_ATTACHMENT,
-    HARVESTER_BACKUP,
-    MEMBER,
-    SSH,
+    HCI.NETWORK_ATTACHMENT,
+    HCI.BACKUP,
+    HCI.SSH,
     CONFIG_MAP,
-    HARVESTER_SETTING
+    HCI.SETTING
   ], 'advanced');
 
-  configureType(HARVESTER_CLUSTER_NETWORK, { realResource: HARVESTER_SETTING, showState: false });
+  configureType(HCI.CLUSTER_NETWORK, { realResource: HCI.SETTING, showState: false });
   virtualType({
     label:      'VM Templates',
     group:      'root',
@@ -133,96 +126,67 @@ export function init(store) {
     exact: false,
   });
 
-  configureType(HARVESTER_BACKUP, {
-    customCreateText:    'harvester.backUpPage.createText',
+  configureType(HCI.BACKUP, {
     DisableEditInDetail: true,
+    showListMasthead:    false
   });
-
   virtualType({
-    label:      'Backup',
-    group:      'root',
-    name:       HARVESTER_BACKUP,
-    namespaced:  false,
+    name:       HCI.BACKUP,
+    namespaced:  true,
     weight:     200,
     route:      {
       name:     'c-cluster-product-resource',
-      params:   { resource: HARVESTER_BACKUP }
+      params:   { resource: HCI.BACKUP }
     },
     exact: false,
   });
 
-  configureType(MEMBER, {
-    displayName: 'Member',
-    location:    {
-      name:    'c-cluster-product-resource',
-      params:  { resource: MEMBER },
-    },
-    resource:          RBAC.ROLE_BINDING,
-    useCustomInImport: true
-  });
+  configureType(HCI.NETWORK_ATTACHMENT, { isEditable: false, showState: false });
   virtualType({
-    label:          'Member',
-    group:      'root',
-    name:           MEMBER,
-    weight:         199,
-    route:          {
-      name:     'c-cluster-product-resource',
-      params:   { resource: MEMBER }
-    },
-  });
-
-  configureType(NETWORK_ATTACHMENT, { isEditable: false, showState: false });
-  virtualType({
-    label:      'Networks',
-    group:      'root',
-    name:       NETWORK_ATTACHMENT,
+    name:       HCI.NETWORK_ATTACHMENT,
     namespaced:  true,
     weight:     189,
     route:      {
       name:     'c-cluster-product-resource',
-      params:   { resource: NETWORK_ATTACHMENT }
+      params:   { resource: HCI.NETWORK_ATTACHMENT }
     },
     exact: false,
   });
 
   virtualType({
     label:      'SSH Keys',
-    group:      'root',
-    name:       SSH,
+    name:       HCI.SSH,
     namespaced:  true,
     weight:     170,
     route:      {
       name:     'c-cluster-product-resource',
-      params:   { resource: SSH }
+      params:   { resource: HCI.SSH }
     },
     exact: false,
   });
 
   virtualType({
-    label:      'Cloud Init Templates',
-    group:      'root',
+    name:        CONFIG_MAP,
     namespaced:  true,
-    name:       CONFIG_MAP,
-    weight:     87,
-    route:      {
-      name:     'c-cluster-product-resource',
-      params:   { resource: CONFIG_MAP }
+    weight:      87,
+    route:       {
+      name:      'c-cluster-product-resource',
+      params:    { resource: CONFIG_MAP }
     },
     exact: false,
   });
 
+  // settings
+  configureType(HCI.SETTING, { isCreatable: false });
   virtualType({
-    ifHaveType: HARVESTER_SETTING,
-    label:      'Settings',
-    group:      'root',
-    namespaced:  true,
-    name:       HARVESTER_SETTING,
-    weight:     86,
+    ifHaveType: HCI.SETTING,
+    name:       HCI.SETTING,
+    namespaced: true,
+    weight:     -1,
     route:      {
       name:     'c-cluster-product-resource',
-      params:   { resource: HARVESTER_SETTING }
+      params:   { resource: HCI.SETTING }
     },
-    exact: false,
+    exact: false
   });
-  configureType(HARVESTER_SETTING, { isCreatable: false, showState: false });
 }

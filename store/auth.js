@@ -1,7 +1,6 @@
 /* eslint-disable */
 import { randomStr } from '@/utils/string';
-import { addPrefix } from '@/utils/url';
-import { HARVESTER_USER, MANAGEMENT } from '@/config/types';
+import { HCI, MANAGEMENT } from '@/config/types';
 import { findBy, addObjects } from '@/utils/array';
 import { openAuthPopup, returnTo } from '@/utils/auth';
 import { GITHUB_SCOPE, GITHUB_NONCE, GITHUB_REDIRECT } from '@/config/query-params';
@@ -211,15 +210,17 @@ export const actions = {
   async redirectTo({ state, commit, dispatch }, opt = {}) {
     const provider = opt.provider;
     let redirectUrl = opt.redirectUrl;
+
     if ( !redirectUrl ) {
       const driver = await dispatch('getAuthProvider', provider);
 
       redirectUrl = driver.redirectUrl;
     }
-    let returnToUrl = `${ window.location.origin }/#/auth/verify`;
+    let returnToUrl = `${ window.location.origin }/verify-auth`;
 
     if (provider === 'azuread') {
       const params = { response_type: 'code', response_mode: 'query' };
+
       redirectUrl = addParams(redirectUrl, params );
       returnToUrl = `${ window.location.origin }/verify-auth-azure`;
     }
@@ -232,6 +233,7 @@ export const actions = {
     if (BASE_SCOPES[provider]) {
       addObjects(scopes, BASE_SCOPES[provider]);
     }
+
     if ( opt.scopes ) {
       addObjects(scopes, opt.scopes);
     }
@@ -240,7 +242,7 @@ export const actions = {
 
     const params = {
       [GITHUB_SCOPE]:    scopes.join(','),
-      [GITHUB_NONCE]:   base64Encode(nonce, 'url'),
+      [GITHUB_NONCE]:   base64Encode(nonce, 'url')
     };
 
     if (!url.includes(GITHUB_REDIRECT)) {
@@ -248,6 +250,7 @@ export const actions = {
     }
 
     url = addParams(url, params);
+
     if ( opt.redirect === false ) {
       return url;
     } else {
@@ -259,7 +262,7 @@ export const actions = {
     try {
       const res = await this.$axios({
         method: 'get',
-        url:    addPrefix('/v1-public/auth-modes')
+        url:    '/v1-public/auth-modes'
       });
 
       if (res.data) {
@@ -310,7 +313,7 @@ export const actions = {
         return Promise.reject(ERR_SERVER);
       }
     } else {
-      let url = addPrefix('/v1-public/auth?action=login');
+      let url = '/v1-public/auth?action=login';
       const isRancher = state.isRancher;
       const isFirstLogin = state.isFirstLogin;
       const isPasswordMode = !!body.password;
@@ -321,7 +324,7 @@ export const actions = {
         body.responseType = 'cookie';
         body.ttl = 57600000;
 
-        url = addPrefix('/v3-public/localProviders/local?action=login');
+        url = '/v3-public/localProviders/local?action=login';
       }
 
       if (isFirstLogin && isPasswordMode) {
@@ -410,7 +413,7 @@ export const actions = {
 
   async applyHarvesterFirstLogin(ctx, { data }) {
     const { data: {data: users} } = await this.$axios({
-      url: `/v1/${ HARVESTER_USER }s`,
+      url: `/v1/${ HCI.USER }s`,
       method: 'get'
     });
     const userResource = users.find(u => u.username === 'admin');
@@ -421,7 +424,7 @@ export const actions = {
 
     userResource.password = data.password;
     await this.$axios({
-      url: `/v1/${HARVESTER_USER}s/${userResource.id}`,
+      url: `/v1/${HCI.USER}s/${userResource.id}`,
       method: 'put',
       data: userResource
     });
@@ -487,7 +490,7 @@ export const actions = {
       try {
         await this.$axios({
           method: 'post',
-          url:    addPrefix('/v1-public/auth?action=logout')
+          url:    '/v1-public/auth?action=logout'
         });
       } catch (err) {
         if (err._status >= 400 && err._status <= 499) {

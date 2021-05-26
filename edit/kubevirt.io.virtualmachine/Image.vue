@@ -1,7 +1,7 @@
 <script>
 import LabeledSelect from '@/components/form/LabeledSelect';
 import InputOrDisplay from '@/components/InputOrDisplay';
-import { IMAGE } from '@/config/types';
+import { HCI } from '@/config/types';
 
 export default {
   components: { LabeledSelect, InputOrDisplay },
@@ -36,7 +36,7 @@ export default {
 
   computed: {
     ImageOption() {
-      const choise = this.$store.getters['cluster/all'](IMAGE);
+      const choise = this.$store.getters['cluster/all'](HCI.IMAGE);
 
       return choise
         .filter( I => I.isReady)

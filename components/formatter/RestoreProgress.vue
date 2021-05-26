@@ -1,6 +1,6 @@
 <script>
 import { allHash } from '@/utils/promise';
-import { LONGHORN_IO_ENGINE, HARVESTER_RESTORE, PVC } from '@/config/types';
+import { LONGHORN_IO_ENGINE, HCI, PVC } from '@/config/types';
 import PercentageBar from '../PercentageBar';
 
 export default {
@@ -15,7 +15,7 @@ export default {
   async fetch() {
     await allHash({
       engines:         this.$store.dispatch('cluster/findAll', { type: LONGHORN_IO_ENGINE }),
-      restores:        this.$store.dispatch('cluster/findAll', { type: HARVESTER_RESTORE }),
+      restores:        this.$store.dispatch('cluster/findAll', { type: HCI.RESTORE }),
       PVC:      this.$store.dispatch('cluster/findAll', { type: PVC }),
     });
   },
@@ -30,7 +30,7 @@ export default {
     },
 
     restoreResource() {
-      const restores = this.$store.getters['cluster/all'](HARVESTER_RESTORE) || [];
+      const restores = this.$store.getters['cluster/all'](HCI.RESTORE) || [];
 
       return restores.find( R => R?.metadata?.name === this.restoreName);
     },

@@ -5,7 +5,7 @@ import { allSettled } from '@/utils/promise';
 import { HARVESTER_CREATOR, HARVESTER_IMAGE_NAME, HARVESTER_DISK_NAMES, HARVESTER_IMAGE_ID } from '@/config/labels-annotations';
 import { SOURCE_TYPE } from '@/config/map';
 import {
-  PVC, VM_TEMPLATE, IMAGE, SSH, STORAGE_CLASS, NETWORK_ATTACHMENT, POD, VM, DATA_VOLUME, NODE
+  PVC, HCI, STORAGE_CLASS, POD, NODE
 } from '@/config/types';
 
 const TEMPORARY_VALUE = '$occupancy_url';
@@ -66,14 +66,14 @@ export default {
     await allSettled({
       pods:               this.$store.dispatch('cluster/findAll', { type: POD }),
       nodes:              this.$store.dispatch('cluster/findAll', { type: NODE }),
-      ssh:                this.$store.dispatch('cluster/findAll', { type: SSH }),
+      ssh:                this.$store.dispatch('cluster/findAll', { type: HCI.SSH }),
       pvcs:               this.$store.dispatch('cluster/findAll', { type: PVC }),
-      image:              this.$store.dispatch('cluster/findAll', { type: IMAGE }),
-      dataVolume:         this.$store.dispatch('cluster/findAll', { type: DATA_VOLUME }),
-      templateVersion:    this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.version }),
-      template:           this.$store.dispatch('cluster/findAll', { type: VM_TEMPLATE.template }),
+      image:              this.$store.dispatch('cluster/findAll', { type: HCI.IMAGE }),
+      dataVolume:         this.$store.dispatch('cluster/findAll', { type: HCI.DATA_VOLUME }),
+      templateVersion:    this.$store.dispatch('cluster/findAll', { type: HCI.VM_VERSION }),
+      template:           this.$store.dispatch('cluster/findAll', { type: HCI.VM_TEMPLATE }),
       storageClass:       this.$store.dispatch('cluster/findAll', { type: STORAGE_CLASS, opt: { url: `${ STORAGE_CLASS }es` } }),
-      networkAttachment:  this.$store.dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
+      networkAttachment:  this.$store.dispatch('cluster/findAll', { type: HCI.NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } }),
     });
   },
 
@@ -91,7 +91,7 @@ export default {
     let pageType = '';
     let spec = null;
 
-    if (type === VM) {
+    if (type === HCI.VM) {
       pageType = 'vm';
     } else {
       pageType = 'template';
@@ -166,7 +166,7 @@ export default {
 
   computed: {
     ssh() {
-      return this.$store.getters['cluster/all'](SSH) || [];
+      return this.$store.getters['cluster/all'](HCI.SSH) || [];
     },
 
     memory: {
@@ -179,7 +179,7 @@ export default {
     },
 
     images() {
-      return this.$store.getters['cluster/all'](IMAGE);
+      return this.$store.getters['cluster/all'](HCI.IMAGE);
     },
 
     storageClasses() {
@@ -260,7 +260,7 @@ export default {
               size = dataVolumeSpecPVC?.resources?.requests?.storage || '10Gi';
               storageClassName = dataVolumeSpecPVC?.storageClassName || this.defaultStorageClass;
             } else { // SOURCE_TYPE.ATTACH_VOLUME
-              const choices = this.$store.getters['cluster/all'](DATA_VOLUME);
+              const choices = this.$store.getters['cluster/all'](HCI.DATA_VOLUME);
               const dvResource = choices.find( O => O.metadata.name === volume?.dataVolume?.name);
 
               source = SOURCE_TYPE.ATTACH_VOLUME;
@@ -389,7 +389,7 @@ export default {
       if (!url) {
         return;
       }
-      const images = this.$store.getters['cluster/all'](IMAGE);
+      const images = this.$store.getters['cluster/all'](HCI.IMAGE);
       const image = images.find( I => url === I?.status?.downloadUrl);
 
       return image?.spec?.displayName;
@@ -400,7 +400,7 @@ export default {
         return;
       }
 
-      const images = this.$store.getters['cluster/all'](IMAGE);
+      const images = this.$store.getters['cluster/all'](HCI.IMAGE);
       const image = images.find( I => id === I?.id );
 
       return image?.spec?.displayName;

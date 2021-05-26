@@ -1,4 +1,4 @@
-import { VM, VM_TEMPLATE } from '@/config/types';
+import { HCI } from '@/config/types';
 import { MODE, _CREATE } from '@/config/query-params';
 
 export default {
@@ -38,7 +38,7 @@ export default {
 
       router.push({
         name:   `c-cluster-product-resource-create`,
-        params: { resource: VM },
+        params: { resource: HCI.VM },
         query:  { templateId: this.id, version: this.spec.defaultVersionId }
       });
     };
@@ -50,7 +50,7 @@ export default {
 
       router.push({
         name:   `c-cluster-product-resource-create`,
-        params: { resource: VM_TEMPLATE.version },
+        params: { resource: HCI.VM_VERSION },
         query:  {
           [MODE]:     _CREATE,
           templateId: this.id

@@ -6,7 +6,7 @@ import NameNsDescription from '@/components/form/NameNsDescription';
 import KeyValue from '@/components/form/KeyValue';
 import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
-import { IMAGE } from '@/config/types';
+import { HCI } from '@/config/types';
 import Basic from './basic';
 
 export default {
@@ -31,7 +31,7 @@ export default {
   },
 
   async fetch() {
-    await allHash({ image: this.$store.dispatch('cluster/findAll', { type: IMAGE }) });
+    await allHash({ image: this.$store.dispatch('cluster/findAll', { type: HCI.IMAGE }) });
   },
 
   data() {

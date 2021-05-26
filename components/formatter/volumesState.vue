@@ -1,5 +1,5 @@
 <script>
-import { VM, DATA_VOLUME } from '@/config/types';
+import { HCI } from '@/config/types';
 
 export default {
   props: {
@@ -18,8 +18,8 @@ export default {
   },
 
   data() {
-    const dataVolumeList = this.$store.getters['cluster/all'](DATA_VOLUME) || [];
-    const vmList = this.$store.getters['cluster/all'](VM) || [];
+    const dataVolumeList = this.$store.getters['cluster/all'](HCI.DATA_VOLUME) || [];
+    const vmList = this.$store.getters['cluster/all'](HCI.VM) || [];
 
     return {
       vmList,

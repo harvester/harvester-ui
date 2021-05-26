@@ -2057,7 +2057,7 @@ rbac:
   globalRoles:
     types:
       global:
-        label: 集群权限
+        label: 全局权限
         description: |-
           控制{isUser, select,
           true {user}

@@ -14,7 +14,6 @@ import { addObject, addObjects, findBy, removeAt } from '@/utils/array';
 import CustomValidators from '@/utils/custom-validators';
 import { downloadFile, generateZip } from '@/utils/download';
 import { eachLimit } from '@/utils/promise';
-import { getPrefix } from '@/utils/url';
 import { get } from '@/utils/object';
 import { DEV } from '@/store/prefs';
 import { sortableNumericSuffix } from '@/utils/sort';
@@ -1179,15 +1178,7 @@ export default {
 
   viewInApi() {
     return () => {
-      const prefix = getPrefix();
-
-      if (prefix) {
-        const origin = `${ window.location.origin }/`;
-
-        window.open(`${ prefix }${ this.links.self.replace(new RegExp(origin, 'g'), '') }`, '_blank');
-      } else {
-        window.open(this.links.self, '_blank');
-      }
+      window.open(this.links.self, '_blank');
     };
   },
 

@@ -1,7 +1,7 @@
 <script>
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
-import { EVENT, VMI } from '@/config/types';
+import { EVENT, HCI } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 import BackupModal from '@/list/kubevirt.io.virtualmachine/backupModal';
 import RestoreModal from '@/list/kubevirt.io.virtualmachine/restoreModal';
@@ -51,7 +51,7 @@ export default {
 
   computed: {
     vmi() {
-      const vmiList = this.$store.getters['cluster/all'](VMI) || [];
+      const vmiList = this.$store.getters['cluster/all'](HCI.VMI) || [];
       const vmi = vmiList.find( (VMI) => {
         return VMI?.metadata?.ownerReferences?.[0]?.uid === this.value?.metadata?.uid;
       });

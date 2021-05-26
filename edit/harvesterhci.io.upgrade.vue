@@ -6,7 +6,7 @@ import LabeledSelect from '@/components/form/LabeledSelect';
 import NameNsDescription from '@/components/form/NameNsDescription';
 import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
-import { HARVESTER_SETTING } from '@/config/types';
+import { HCI } from '@/config/types';
 
 export default {
   name: 'EditUpgrade',
@@ -29,7 +29,7 @@ export default {
   },
 
   async fetch() {
-    const hash = await allHash({ upgradeVersion: this.$store.dispatch('cluster/find', { type: HARVESTER_SETTING, id: 'upgradable-versions' }) });
+    const hash = await allHash({ upgradeVersion: this.$store.dispatch('cluster/find', { type: HCI.SETTING, id: 'upgradable-versions' }) });
 
     const versionString = hash.upgradeVersion?.value;
     const versionArr = versionString.split(',') || [];

@@ -243,31 +243,30 @@ export const CIS = {
   REPORT:               'cis.cattle.io.clusterscanreport'
 };
 
-// vm
-export const VM_TEMPLATE = {
-  template: 'harvesterhci.io.virtualmachinetemplate',
-  version:  'harvesterhci.io.virtualmachinetemplateversion'
-};
+export const UI = { NAV_LINK: 'ui.cattle.io.navlink' };
 
-export const VMI = 'kubevirt.io.virtualmachineinstance';
-export const VMIM = 'kubevirt.io.virtualmachineinstancemigration';
-export const VM = 'kubevirt.io.virtualmachine';
-export const IMAGE = 'harvesterhci.io.virtualmachineimage';
-export const SSH = 'harvesterhci.io.keypair';
-export const NETWORK_ATTACHMENT = 'k8s.cni.cncf.io.networkattachmentdefinition';
-export const DATA_VOLUME = 'cdi.kubevirt.io.datavolume';
-export const HARVESTER_USER = 'harvesterhci.io.user';
-export const HARVESTER_SETTING = 'harvesterhci.io.setting';
-export const HARVESTER_UPGRADE = 'harvesterhci.io.upgrade';
-export const HARVESTER_BACKUP = 'harvesterhci.io.virtualmachinebackup';
-export const HARVESTER_RESTORE = 'harvesterhci.io.virtualmachinerestore';
-export const HARVESTER_BACKUP_CONTENT = 'harvesterhci.io.virtualmachinebackupcontent';
-export const HARVESTER_NODE_NETWORK = 'network.harvesterhci.io.nodenetwork';
-export const HARVESTER_CLUSTER_NETWORK = 'network.harvesterhci.io.clusternetwork';
-export const HARVESTER_SUPPORT_BUNDLE = 'harvesterhci.io.supportbundle';
+// harvester
+export const HCI = {
+  VM:                 'kubevirt.io.virtualmachine',
+  VMI:                'kubevirt.io.virtualmachineinstance',
+  VMIM:               'kubevirt.io.virtualmachineinstancemigration',
+  VM_TEMPLATE:        'harvesterhci.io.virtualmachinetemplate',
+  VM_VERSION:         'harvesterhci.io.virtualmachinetemplateversion',
+  IMAGE:              'harvesterhci.io.virtualmachineimage',
+  SSH:                'harvesterhci.io.keypair',
+  NETWORK_ATTACHMENT: 'k8s.cni.cncf.io.networkattachmentdefinition',
+  DATA_VOLUME:        'cdi.kubevirt.io.datavolume',
+  USER:               'harvesterhci.io.user',
+  SETTING:            'harvesterhci.io.setting',
+  UPGRADE:            'harvesterhci.io.upgrade',
+  BACKUP:             'harvesterhci.io.virtualmachinebackup',
+  RESTORE:            'harvesterhci.io.virtualmachinerestore',
+  BACKUP_CONTENT:     'harvesterhci.io.virtualmachinebackupcontent',
+  NODE_NETWORK:       'network.harvesterhci.io.nodenetwork',
+  CLUSTER_NETWORK:    'network.harvesterhci.io.clusternetwork',
+  SUPPORT_BUNDLE:     'harvesterhci.io.supportbundle'
+};
 
 // longhorn
 export const LONGHORN_IO_ENGINE = 'longhorn.io.engine';
 export const LONGHORN_IO_VOLUME = 'longhorn.io.volume';
-
-export const UI = { NAV_LINK: 'ui.cattle.io.navlink' };

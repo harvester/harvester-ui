@@ -3,7 +3,7 @@ import UnitInput from '@/components/form/UnitInput';
 import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import InputOrDisplay from '@/components/InputOrDisplay';
-import { DATA_VOLUME } from '@/config/types';
+import { HCI } from '@/config/types';
 import { sortBy } from '@/utils/sort';
 // import { _EDIT } from '@/config/query-params';
 
@@ -77,7 +77,7 @@ export default {
       return false;
     },
     volumeOption() {
-      const choices = this.$store.getters['cluster/all'](DATA_VOLUME);
+      const choices = this.$store.getters['cluster/all'](HCI.DATA_VOLUME);
 
       return sortBy(
         choices
@@ -107,7 +107,7 @@ export default {
 
   watch: {
     'value.volumeName'(neu) {
-      const choices = this.$store.getters['cluster/all'](DATA_VOLUME);
+      const choices = this.$store.getters['cluster/all'](HCI.DATA_VOLUME);
 
       const pvcResource = choices.find( O => O.metadata.name === neu);
 

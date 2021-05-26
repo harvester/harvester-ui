@@ -58,7 +58,7 @@ export default {
   // watch: {
   //   isAbnormal(val, oldVal) {
   //     this.$store.commit('cluster/setConfig', {
-  //       type: IMAGE,
+  //       type: HCI.IMAGE,
   //       data: { disableCreateButton: val }
   //     });
 

@@ -1,5 +1,5 @@
 import { colorForState } from '@/plugins/steve/resource-instance';
-import { VM, DATA_VOLUME } from '@/config/types';
+import { HCI } from '@/config/types';
 import {
   DESCRIPTION,
   DATA_VOLUME_OWNEDBY,
@@ -38,7 +38,7 @@ export default {
   },
 
   attachVM() {
-    const vmList = this.$rootGetters['cluster/all'](VM);
+    const vmList = this.$rootGetters['cluster/all'](HCI.VM);
     const ownerAnnotation = this.getAnnotationValue(DATA_VOLUME_OWNEDBY);
 
     if (!ownerAnnotation) {
@@ -65,7 +65,7 @@ export default {
   },
 
   resourcesStatus() {
-    const list = this.$rootGetters['cluster/all'](DATA_VOLUME);
+    const list = this.$rootGetters['cluster/all'](HCI.DATA_VOLUME);
 
     let warning = 0;
     let error = 0;

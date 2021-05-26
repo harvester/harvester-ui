@@ -3,7 +3,7 @@ import ResourceTable from '@/components/ResourceTable';
 import VmState from '@/components/formatter/vmState';
 
 import { STATE, AGE, NAME } from '@/config/table-headers';
-import { HARVESTER_NODE_NETWORK, HARVESTER_CLUSTER_NETWORK, VM, VMI } from '@/config/types';
+import { HCI } from '@/config/types';
 
 import { allSettled } from '@/utils/promise';
 import Loading from '@/components/Loading';
@@ -33,10 +33,10 @@ export default {
 
   async fetch() {
     const hash = await allSettled({
-      vm:                  this.$store.dispatch('cluster/findAll', { type: VM }),
-      vmi:                  this.$store.dispatch('cluster/findAll', { type: VMI }),
-      allNodeNetwork:      this.$store.dispatch('cluster/findAll', { type: HARVESTER_NODE_NETWORK }),
-      allClusterNetwork:   this.$store.dispatch('cluster/findAll', { type: HARVESTER_CLUSTER_NETWORK }),
+      vm:                  this.$store.dispatch('cluster/findAll', { type: HCI.VM }),
+      vmi:                  this.$store.dispatch('cluster/findAll', { type: HCI.VMI }),
+      allNodeNetwork:      this.$store.dispatch('cluster/findAll', { type: HCI.NODE_NETWORK }),
+      allClusterNetwork:   this.$store.dispatch('cluster/findAll', { type: HCI.CLUSTER_NETWORK }),
     });
 
     this.vmiList = hash.vmi;
@@ -121,6 +121,7 @@ export default {
       :headers="headers"
       default-sort-by="age"
       :rows="rows"
+      :schema="schema"
       :groupable="true"
       key-field="_key"
       v-on="$listeners"

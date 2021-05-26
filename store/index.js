@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Steve from '@/plugins/steve';
 import {
-  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, VMIM, FLEET, POD, HARVESTER_SETTING, NODE, HARVESTER_RESTORE, NETWORK_ATTACHMENT, UI
+  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, HCI, FLEET, POD, NODE, UI
 } from '@/config/types';
 import { CLUSTER as CLUSTER_PREF, NAMESPACE_FILTERS, LAST_NAMESPACE, WORKSPACE } from '@/store/prefs';
 import { allSettled } from '@/utils/promise';
@@ -114,22 +114,22 @@ export const getters = {
       return false;
     }
 
-    return product.name === EXPLORER || product.inStore === 'cluster';
+    // return product.name === EXPLORER || product.inStore === 'cluster';
+    return product.name === EXPLORER;
   },
 
   defaultClusterId(state, getters) {
-    // const all = getters['management/all'](MANAGEMENT.CLUSTER);
-    // const clusters = sortBy(filterBy(all, 'isReady'), 'nameDisplay');
-    // const desired = getters['prefs/get'](CLUSTER_PREF);
+    const all = getters['management/all'](MANAGEMENT.CLUSTER);
+    const clusters = sortBy(filterBy(all, 'isReady'), 'nameDisplay');
+    const desired = getters['prefs/get'](CLUSTER_PREF);
 
-    // if ( clusters.find(x => x.id === desired) ) {
-    //   return desired;
-    // } else if ( clusters.length ) {
-    //   return clusters[0].id;
-    // }
+    if ( clusters.find(x => x.id === desired) ) {
+      return desired;
+    } else if ( clusters.length ) {
+      return clusters[0].id;
+    }
 
-    // return null;
-    return 'local';
+    return null;
   },
 
   isAllNamespaces(state, getters) {
@@ -219,7 +219,7 @@ export const getters = {
       }
 
       const inStore = product?.inStore;
-      const clusterId = getters['currentCluster']?.id;
+      const clusterId = getters['currentCluster']?.id || 'local';
 
       if ( !clusterId || !inStore ) {
         return out;
@@ -571,25 +571,23 @@ export const actions = {
     //   }
     // };
 
-    const VMI = 'kubevirt.io.virtualmachineinstance';
-
     const res = await allSettled({
       // projects:   isMultiCluster && dispatch('management/findAll', projectArgs),
-      counts:          dispatch('cluster/findAll', { type: COUNT, opt: { url: 'counts' } }),
-      namespaces:      dispatch('cluster/findAll', { type: NAMESPACE, opt: { url: 'namespaces' } }),
-      vmi:             dispatch('cluster/findAll', { type: VMI, opt: { url: `${ VMI }s` } }),
-      vmim:            dispatch('cluster/findAll', { type: VMIM, opt: { url: `${ VMIM }s` } }),
-      vm:              dispatch('cluster/findAll', { type: VM, opt: { url: `${ VM }s` } }),
-      image:           dispatch('cluster/findAll', { type: IMAGE, opt: { url: `${ IMAGE }s` } }),
-      template:        dispatch('cluster/findAll', { type: VM_TEMPLATE.template, opt: { url: `${ VM_TEMPLATE.template }s` } }),
-      templateVersion: dispatch('cluster/findAll', { type: VM_TEMPLATE.version, opt: { url: `${ VM_TEMPLATE.version }s` } }),
-      ssh:             dispatch('cluster/findAll', { type: SSH, opt: { url: `${ SSH }s` } }),
-      DATA_VOLUME:     dispatch('cluster/findAll', { type: DATA_VOLUME, opt: { url: `${ DATA_VOLUME }s` } }),
+      counts:          dispatch('cluster/findAll', { type: COUNT }),
+      namespaces:      dispatch('cluster/findAll', { type: NAMESPACE }),
+      vmi:             dispatch('cluster/findAll', { type: HCI.VMI }),
+      vmim:            dispatch('cluster/findAll', { type: HCI.VMIM }),
+      vm:              dispatch('cluster/findAll', { type: HCI.VM }),
+      image:           dispatch('cluster/findAll', { type: HCI.IMAGE }),
+      template:        dispatch('cluster/findAll', { type: HCI.VM_TEMPLATE }),
+      templateVersion: dispatch('cluster/findAll', { type: HCI.VM_VERSION }),
+      ssh:             dispatch('cluster/findAll', { type: HCI.SSH }),
+      DATA_VOLUME:     dispatch('cluster/findAll', { type: HCI.DATA_VOLUME }),
       pods:            dispatch('cluster/findAll', { type: POD }),
-      setting:         dispatch('cluster/findAll', { type: HARVESTER_SETTING }),
+      setting:         dispatch('cluster/findAll', { type: HCI.SETTING }),
       nodes:           dispatch('cluster/findAll', { type: NODE }),
-      restores:        dispatch('cluster/findAll', { type: HARVESTER_RESTORE }),
-      network:         dispatch('cluster/findAll', { type: NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } })
+      restores:        dispatch('cluster/findAll', { type: HCI.RESTORE }),
+      network:         dispatch('cluster/findAll', { type: HCI.NETWORK_ATTACHMENT, opt: { url: 'k8s.cni.cncf.io.network-attachment-definitions' } })
     });
 
     commit('updateNamespaces', {
@@ -662,7 +660,6 @@ export const actions = {
   loadingError({ commit, state }, err) {
     commit('setError', err);
     const router = state.$router;
-
     router.replace('/fail-whale');
   }
 };
