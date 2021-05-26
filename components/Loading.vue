@@ -8,15 +8,19 @@ export default {
     // How to size and position the loading indicator - supports three modes:
     // 'content' - the content area only (not side nav or header)
     // 'main' - entire main view excluding the header, but including the side nav
-    // 'full' - entire view including the header and the side nav
+    // 'relative' - content up to the nearest relatively positioned element
     mode: {
       type:    String,
       default: 'content',
+    },
+    noDelay: {
+      type:    Boolean,
+      default: false,
     }
   },
 
   data() {
-    return { timer: null, showMessage: false };
+    return { timer: null, showMessage: this.noDelay };
   },
 
   mounted() {
@@ -32,7 +36,7 @@ export default {
 </script>
 
 <template>
-  <div v-if="loading">
+  <div v-if="loading" class="loading-indicator">
     <div v-if="showMessage" class="overlay" :class="{ 'overlay-content-mode' : mode === 'content', 'overlay-main-mode' : mode === 'main' }">
       <t k="generic.loading" :raw="true" />
     </div>

@@ -17,6 +17,11 @@ export default {
       default: null
     },
 
+    outputAs: {
+      type:    String,
+      default: 'number', // or string
+    },
+
     inputExponent: {
       type:    Number,
       default: 0,
@@ -28,7 +33,7 @@ export default {
     },
 
     suffix: {
-      type:    String,
+      type:    [String, Boolean],
       default: 'B',
     },
 
@@ -70,6 +75,10 @@ export default {
 
   computed: {
     addon() {
+      if (!this.suffix) {
+        return false;
+      }
+
       return this.unit + this.suffix;
     },
 
@@ -102,6 +111,10 @@ export default {
 
       if ( userValue ) {
         out = parseSi(`${ userValue } ${ this.unit || '' }`, { increment: this.increment });
+      }
+
+      if ( this.outputAs === 'string' ) {
+        out = `${ out }`;
       }
 
       this.$emit('input', out);

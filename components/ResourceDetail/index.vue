@@ -3,7 +3,7 @@ import CreateEditView from '@/mixins/create-edit-view/impl';
 import Loading from '@/components/Loading';
 import ResourceYaml from '@/components/ResourceYaml';
 import {
-  _VIEW, _EDIT, _CLONE, _STAGE, _CREATE,
+  _VIEW, _EDIT, _CLONE, _IMPORT, _STAGE, _CREATE,
   AS, _YAML, _DETAIL, _CONFIG, PREVIEW, MODE,
 } from '@/config/query-params';
 import { SCHEMA } from '@/config/types';
@@ -13,7 +13,11 @@ import DetailTop from '@/components/DetailTop';
 import { clone, set, diff } from '@/utils/object';
 
 function modeFor(route) {
-  if ( route.params.id ) {
+  if ( route.query?.mode === _IMPORT ) {
+    return _IMPORT;
+  }
+
+  if ( route.params?.id ) {
     return route.query.mode || _VIEW;
   } else {
     return _CREATE;
@@ -63,17 +67,17 @@ export default {
     const store = this.$store;
     const route = this.$route;
     const params = route.params;
-    const inStore = this.storeOverride || store.getters['currentProduct']?.inStore;
+    const inStore = this.storeOverride || store.getters['currentStore'](params.resource);
     const realMode = this.realMode;
 
     // eslint-disable-next-line prefer-const
     let { namespace, id } = params;
     let resource = this.resourceOverride || params.resource;
 
-    // There are 5 "real" modes that can be put into the query string
+    // There are 6 "real" modes that can be put into the query string
     // These are mapped down to the 3 regular page "mode"s that create-edit-view components
-    // know about:  view, edit, create (stage and clone become "create")
-    const mode = ((realMode === _STAGE || realMode === _CLONE) ? _CREATE : realMode);
+    // know about:  view, edit, create (stage, import and clone become "create")
+    const mode = ([_CLONE, _IMPORT, _STAGE].includes(realMode) ? _CREATE : realMode);
 
     const hasCustomDetail = store.getters['type-map/hasCustomDetail'](resource, id);
     const hasCustomEdit = store.getters['type-map/hasCustomEdit'](resource, id);
@@ -102,7 +106,7 @@ export default {
     const schema = store.getters[`${ inStore }/schemaFor`](resource);
     let originalModel, model, yaml;
 
-    if ( realMode === _CREATE ) {
+    if ( realMode === _CREATE || realMode === _IMPORT ) {
       if ( !namespace ) {
         namespace = store.getters['defaultNamespace'];
       }
@@ -143,7 +147,7 @@ export default {
         yaml = await getYaml(originalModel);
       }
 
-      if ( realMode === _CLONE || realMode === _STAGE ) {
+      if ( [_CLONE, _IMPORT, _STAGE].includes(realMode) ) {
         model.cleanForNew();
         yaml = model.cleanYaml(yaml, realMode);
       }
@@ -222,7 +226,7 @@ export default {
     },
 
     offerPreview() {
-      return this.as === _YAML && [_EDIT, _CLONE, _STAGE].includes(this.mode);
+      return this.as === _YAML && [_EDIT, _CLONE, _IMPORT, _STAGE].includes(this.mode);
     },
 
     showComponent() {
@@ -298,7 +302,15 @@ export default {
   methods: {
     setSubtype(subtype) {
       this.resourceSubtype = subtype;
-    }
+    },
+
+    keyAction(act) {
+      const m = this.originalModel;
+
+      if ( m?.[act] ) {
+        m[act]();
+      }
+    },
   }
 };
 </script>
@@ -349,5 +361,10 @@ export default {
       :real-mode="realMode"
       @set-subtype="setSubtype"
     />
+
+    <button v-if="isView" v-shortkey.once="['d']" class="hide" @shortkey="keyAction('goToDetail')" />
+    <button v-if="isView" v-shortkey.once="['c']" class="hide" @shortkey="keyAction('goToViewConfig')" />
+    <button v-if="isView" v-shortkey.once="['y']" class="hide" @shortkey="keyAction('goToViewYaml')" />
+    <button v-if="isView" v-shortkey.once="['e']" class="hide" @shortkey="keyAction('goToEdit')" />
   </div>
 </template>

@@ -103,6 +103,10 @@ export default {
       type:    String,
       default: null,
     },
+    showSpacer: {
+      type:    Boolean,
+      default: true
+    }
   },
 
   data() {
@@ -159,7 +163,7 @@ export default {
     },
 
     namespaces() {
-      const inStore = this.$store.getters['currentProduct'].inStore;
+      const inStore = this.$store.getters['currentStore'](this.namespaceType);
       const choices = this.$store.getters[`${ inStore }/all`](this.namespaceType);
 
       const out = sortBy(
@@ -238,6 +242,10 @@ export default {
         val = this.forceNamespace;
       }
 
+      if (this.namespaced) {
+        this.$emit('isNamespaceNew', this.namespaces && !this.namespaces.find(n => n.value === val));
+      }
+
       if (this.namespaceKey) {
         set(this.value, this.namespaceKey, val);
       } else {
@@ -309,7 +317,7 @@ export default {
         </slot>
       </div>
     </div>
-    <div class="spacer"></div>
+    <div v-if="showSpacer" class="spacer"></div>
   </div>
 </template>
 

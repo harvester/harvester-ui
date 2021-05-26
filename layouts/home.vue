@@ -1,9 +1,14 @@
 <script>
 import Header from '@/components/nav/PureHeader';
+import Brand from '@/mixins/brand';
+import FixedBanner from '@/components/FixedBanner';
+import { mapPref, DEV } from '@/store/prefs';
 
 export default {
 
-  components: { Header },
+  components: { Header, FixedBanner },
+
+  mixins: [Brand],
 
   middleware: ['authenticated'],
 
@@ -14,32 +19,42 @@ export default {
     };
   },
 
-  head() {
-    const theme = this.$store.getters['prefs/theme'];
+  computed: { dev: mapPref(DEV) },
 
-    return {
-      bodyAttrs: { class: `theme-${ theme } overflow-hidden dashboard-body` },
-      title:     this.$store.getters['i18n/t']('nav.title'),
-    };
-  },
+  methods: {
+    toggleTheme() {
+      this.$store.dispatch('prefs/toggleTheme');
+    },
+  }
 
 };
 </script>
 
 <template>
   <div class="dashboard-root">
-    <Header :simple="true" />
+    <FixedBanner />
+    <div class="dashboard-content">
+      <Header :simple="true" />
 
-    <main>
-      <nuxt class="outlet" />
-    </main>
+      <main>
+        <nuxt class="outlet" />
+      </main>
+    </div>
+    <FixedBanner :footer="true" />
+    <button v-if="dev" v-shortkey.once="['shift','t']" class="hide" @shortkey="toggleTheme()" />
   </div>
 </template>
 
 <style lang="scss" scoped>
   .dashboard-root {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     height: 100vh;
+  }
+
+  .dashboard-content {
+    display: grid;
+    flex-grow:1;
 
     grid-template-areas:
       "header"

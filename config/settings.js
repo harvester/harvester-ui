@@ -1,19 +1,14 @@
-// Setttings
+// Settings
+import { MANAGEMENT } from './types';
 
 // Adapted from: https://github.com/rancher/ui/blob/08c379a9529f740666a704b52522a468986c3520/lib/shared/addon/utils/constants.js#L564
 
 // Setting IDs
-const SETTING = {
-  IMAGE_RANCHER:                    'server-image',
+export const SETTING = {
   VERSION_RANCHER:                  'server-version',
-  VERSION_COMPOSE:                  'compose-version',
   VERSION_CLI:                      'cli-version',
   VERSION_MACHINE:                  'machine-version',
   VERSION_HELM:                     'helm-version',
-  VERSIONS_K8S:                     'k8s-version-to-images',
-  VERSION_RKE_K8S_DEFAULT:          'k8s-version',
-  VERSION_K8S_SUPPORTED_RANGE:      'ui-k8s-supported-versions-range',
-  VERSION_SYSTEM_K8S_DEFAULT_RANGE: 'ui-k8s-default-version-range',
 
   CLI_URL:                          {
     DARWIN:                         'cli-url-darwin',
@@ -21,22 +16,13 @@ const SETTING = {
     LINUX:                          'cli-url-linux',
   },
 
-  API_HOST:                         'api-host',
-  CA_CERTS:                         'cacerts',
+  CA_CERTS: 'cacerts',
 
-  HIDE_LOCAL_CLUSTER:               'hide-local-cluster',
-  // CLUSTER_DEFAULTS:              'cluster-defaults',
   AUTH_TOKEN_MAX_TTL_MINUTES:       'auth-token-max-ttl-minutes',
   ENGINE_URL:                       'engine-install-url',
   ENGINE_ISO_URL:                   'engine-iso-url',
   FIRST_LOGIN:                      'first-login',
   INGRESS_IP_DOMAIN:                'ingress-ip-domain',
-  PL:                               'ui-pl',
-  PL_RANCHER_VALUE:                 'rancher',
-  UI_BANNERS:                       'ui-banners',
-  UI_ISSUES:                        'ui-issues',
-  SUPPORTED_DOCKER:                 'engine-supported-range',
-  NEWEST_DOCKER:                    'engine-newest-version',
   SERVER_URL:                       'server-url',
   RKE_METADATA_CONFIG:              'rke-metadata-config',
   TELEMETRY:                        'telemetry-opt',
@@ -45,9 +31,18 @@ const SETTING = {
   AUTH_USER_SESSION_TTL_MINUTES:    'auth-user-session-ttl-minutes',
   AUTH_USER_INFO_RESYNC_CRON:       'auth-user-info-resync-cron',
   AUTH_LOCAL_VALIDATE_DESC:         'auth-password-requirements-description',
-  FEEDBACK_FORM:                    'ui-feedback-form',
   CLUSTER_TEMPLATE_ENFORCEMENT:     'cluster-template-enforcement',
-  UI_DEFAULT_LANDING:               'ui-default-landing',
+  UI_INDEX:                       'ui-index',
+  SYSTEM_DEFAULT_REGISTRY:        'system-default-registry',
+  PL:                               'ui-pl',
+  PL_RANCHER_VALUE:                 'rancher',
+  SUPPORTED:                        'has-support',
+  BANNERS:                          'ui-banners',
+  ISSUES:                           'ui-issues',
+  BRAND:                            'ui-brand',
+  LOGO_LIGHT:                       'ui-logo-light',
+  LOGO_DARK:                        'ui-logo-dark',
+  PRIMARY_COLOR:                    'ui-primary-color'
 };
 
 // These are the settings that are allowed to be edited via the UI
@@ -56,8 +51,8 @@ export const ALLOWED_SETTINGS = {
   // [SETTING.CLUSTER_DEFAULTS]:            { kind: 'json' },
   [SETTING.ENGINE_URL]:                     {},
   [SETTING.ENGINE_ISO_URL]:                 {},
-  [SETTING.PL]:                             {},
-  [SETTING.UI_ISSUES]:                      {},
+  // [SETTING.PL]:                             {},
+  // [SETTING.ISSUES]:                         {},
   [SETTING.INGRESS_IP_DOMAIN]:              {},
   [SETTING.AUTH_USER_INFO_MAX_AGE_SECONDS]: {},
   [SETTING.AUTH_USER_SESSION_TTL_MINUTES]:  {},
@@ -65,15 +60,12 @@ export const ALLOWED_SETTINGS = {
   [SETTING.AUTH_USER_INFO_RESYNC_CRON]:     {},
   [SETTING.SERVER_URL]:                     { kind: 'url' },
   [SETTING.RKE_METADATA_CONFIG]:            { kind: 'json' },
-  [SETTING.UI_BANNERS]:                     { kind: 'json' },
-  'system-default-registry':                  {},
-  'ui-index':                                 {},
+  // [SETTING.BANNERS]:                        { kind: 'json' },
+  [SETTING.SYSTEM_DEFAULT_REGISTRY]:        {},
+  [SETTING.UI_INDEX]:                       {},
+  [SETTING.BRAND]:                          {},
   [SETTING.CLUSTER_TEMPLATE_ENFORCEMENT]:   { kind: 'boolean' },
 
-  [SETTING.UI_DEFAULT_LANDING]: {
-    kind:    'enum',
-    options: ['ember', 'vue']
-  },
   [SETTING.TELEMETRY]: {
     kind:    'enum',
     options: ['prompt', 'in', 'out']
@@ -105,5 +97,34 @@ export const HARVESTER_ALLOWED_SETTINGS = {
   [HARVESTER_SETTING.UI_INDEX]:                         { kind: 'url' },
   [HARVESTER_SETTING.UPGRADE_CHECKER_ENABLED]:          { kind: 'boolean' },
   [HARVESTER_SETTING.UPGRADE_CHECKER_URL]:              { kind: 'url' },
-  [HARVESTER_SETTING.VLAN]:                             { alias: 'vlan' },
+  [HARVESTER_SETTING.VLAN]:                             { alias: 'vlan' }
+};
+
+export const fetchOrCreateSetting = async(store, id, val, save = true) => {
+  let setting;
+
+  try {
+    setting = await store.dispatch('management/find', { type: MANAGEMENT.SETTING, id });
+  } catch {
+    const schema = store.getters['management/schemaFor'](MANAGEMENT.SETTING);
+    const url = schema.linkFor('collection');
+
+    setting = await store.dispatch('management/create', {
+      type: MANAGEMENT.SETTING, metadata: { name: id }, value: val, default: val || ''
+    });
+
+    if ( save ) {
+      setting.save({ url });
+    }
+  }
+
+  return setting;
+};
+
+export const setSetting = async(store, id, val) => {
+  const setting = await fetchOrCreateSetting(store, id, val, false);
+
+  setting.value = val;
+
+  return setting.save();
 };

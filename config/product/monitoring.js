@@ -174,6 +174,7 @@ export function init(store) {
     group:         'monitoring',
     name:     'route-receiver',
     icon:     'globe',
+    route: { name: 'c-cluster-monitoring-route-receiver' }
   });
 
   virtualType({
@@ -181,28 +182,17 @@ export function init(store) {
     group:         'monitoring',
     name:     'monitor',
     icon:     'globe',
+    route: { name: 'c-cluster-monitoring-monitor' }
   });
 
   configureType('route-receiver', { showListMasthead: false });
   configureType('monitor', { showListMasthead: false });
-  configureType(ROUTE, { showState: false, showAge: false });
-  configureType(RECEIVER, { showState: false, showAge: false });
 
   basicType([
     'monitoring-overview',
     'monitor',
     'route-receiver',
-  ], 'monitoring');
-
-  // virtualType({
-  //   label:      'Advanced',
-  //   group:      'monitoring-overview',
-  //   namespaced: false,
-  //   name:       'monitoring-advanced',
-  //   weight:     105,
-  //   route:      { name: 'c-cluster-monitoring' },
-  //   exact:      true
-  // });
+  ]);
 
   basicType([
     PROMETHEUSRULE,

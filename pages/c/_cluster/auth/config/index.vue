@@ -22,7 +22,7 @@ export default {
   data() {
     const resource = MANAGEMENT.AUTH_CONFIG;
     const getters = this.$store.getters;
-    const inStore = getters['currentProduct'].inStore;
+    const inStore = getters['currentStore'](resource);
     const hasListComponent = getters['type-map/hasCustomList'](resource);
     const hasEditComponent = getters['type-map/hasCustomEdit'](resource);
     const schema = getters[`${ inStore }/schemaFor`](resource);
@@ -45,12 +45,21 @@ export default {
 
     displayName() {
       return this.$store.getters['type-map/labelFor'](this.schema, 2);
-    }
+    },
+
+    localUsersRoute() {
+      return {
+        name:   'c-cluster-product-resource',
+        params: {
+          cluster: this.$route.params.cluster, product: 'auth', resource: MANAGEMENT.USER
+        }
+      };
+    },
   },
 
   methods: {
     colorFor(row) {
-      const types = ['ldap', 'oauth', 'saml'];
+      const types = ['ldap', 'oauth', 'saml', 'oidc'];
 
       const idx = types.indexOf(row.configType);
 
@@ -67,7 +76,7 @@ export default {
         params: { id },
         query:  { [MODE]: _EDIT }
       });
-    }
+    },
   }
 };
 </script>
@@ -77,11 +86,18 @@ export default {
     <h1 class="m-0">
       {{ displayName }}
     </h1>
-    <Banner v-if="!enabled.length" :label="t('authConfig.noneEnabled')" color="info" />
+    <Banner v-if="!enabled.length" :label="t('authConfig.noneEnabled')" color="info">
+      {{ t('authConfig.localEnabled') }}
+      <nuxt-link :to="localUsersRoute">
+        {{ t('authConfig.manageLocal') }}
+      </nuxt-link>
+      <br />
+      {{ t('authConfig.noneEnabled') }}
+    </Banner>
     <SelectIconGrid
       :rows="rows"
       :color-for="colorFor"
-      name-field="nameDisplay"
+      name-field="provider"
       @clicked="(row) => goTo(row.id)"
     />
   </div>

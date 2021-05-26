@@ -1,41 +1,44 @@
 <script>
 import day from 'dayjs';
+import BackLink from '@/components/BackLink';
+import BackRoute from '@/mixins/back-link';
 import ButtonGroup from '@/components/ButtonGroup';
 import Checkbox from '@/components/form/Checkbox';
+import LandingPagePreference from '@/components/LandingPagePreference';
 import {
-  mapPref, THEME, LANDING, KEYMAP, DEV, DATE_FORMAT, TIME_FORMAT, ROWS_PER_PAGE, HIDE_DESC, SHOW_PRE_RELEASE
+  mapPref, THEME, KEYMAP, DEV, DATE_FORMAT, TIME_FORMAT, ROWS_PER_PAGE, HIDE_DESC, SHOW_PRE_RELEASE
 } from '@/store/prefs';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import { addObject } from '@/utils/array';
 
 export default {
+  layout:     'plain',
   components: {
-    ButtonGroup, LabeledSelect, Checkbox
+    BackLink, ButtonGroup, LabeledSelect, Checkbox, LandingPagePreference
   },
+  mixins:     [BackRoute],
   computed:   {
-    theme:          mapPref(THEME),
     keymap:         mapPref(KEYMAP),
     dev:            mapPref(DEV),
-    landing:        mapPref(LANDING),
     dateFormat:     mapPref(DATE_FORMAT),
     timeFormat:     mapPref(TIME_FORMAT),
     perPage:        mapPref(ROWS_PER_PAGE),
     hideDesc:       mapPref(HIDE_DESC),
     showPreRelease:   mapPref(SHOW_PRE_RELEASE),
 
+    theme: {
+      get() {
+        return this.$store.getters['prefs/get'](THEME);
+      },
+      set(neu) {
+        this.$store.dispatch('prefs/setTheme', neu);
+      }
+    },
+
     themeOptions() {
       return this.$store.getters['prefs/options'](THEME).map((value) => {
         return {
           labelKey: `prefs.theme.${ value }`,
-          value
-        };
-      });
-    },
-
-    landingOptions() {
-      return this.$store.getters['prefs/options'](LANDING).map((value) => {
-        return {
-          labelKey: `prefs.landing.${ value }`,
           value
         };
       });
@@ -127,6 +130,7 @@ export default {
 
 <template>
   <div>
+    <BackLink :link="backLink" />
     <h1 v-t="'prefs.title'" />
 
     <h4 v-t="'prefs.theme.label'" />
@@ -138,7 +142,7 @@ export default {
     </div>
     <hr />
     <!-- <h4 v-t="'prefs.landing.label'" />
-    <ButtonGroup v-model="landing" :options="landingOptions" />
+    <LandingPagePreference />
     <hr /> -->
     <h4 v-t="'prefs.formatting'" />
     <div class="row">

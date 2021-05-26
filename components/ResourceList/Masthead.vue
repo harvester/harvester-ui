@@ -39,6 +39,10 @@ export default {
       type:    Object,
       default: null,
     },
+    createButtonLabel: {
+      type:    String,
+      default: null
+    }
   },
 
   async fetch() {
@@ -156,6 +160,10 @@ export default {
 
     _yamlCreateLocation() {
       return this.yamlCreateLocation || this.yamlRoute;
+    },
+
+    _createButtonlabel() {
+      return this.createButtonLabel || this.t('resourceList.head.create');
     },
 
     customCreateText() {

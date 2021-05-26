@@ -1,20 +1,62 @@
 <script>
 import { options } from '@/config/footer';
 import BannerGraphic from '@/components/BannerGraphic';
+import AsyncButton from '@/components/AsyncButton';
 import IndentedPanel from '@/components/IndentedPanel';
+import Card from '@/components/Card';
+
+import { MANAGEMENT } from '@/config/types';
+import { getVendor } from '@/config/private-label';
+import { SETTING } from '@/config/settings';
+
+const KEY_REGX = /^[0-9a-fA-F]{8}$/;
 
 export default {
   layout: 'home',
 
   components: {
     BannerGraphic,
-    IndentedPanel
+    IndentedPanel,
+    AsyncButton,
+    Card
+  },
+
+  async fetch() {
+    const fetchOrCreateSetting = async(id, val) => {
+      let setting;
+
+      try {
+        setting = await this.$store.dispatch('management/find', { type: MANAGEMENT.SETTING, id });
+      } catch {
+        const schema = this.$store.getters['management/schemaFor'](MANAGEMENT.SETTING);
+        const url = schema.linkFor('collection');
+
+        setting = await this.$store.dispatch('management/create', {
+          type:     MANAGEMENT.SETTING,
+          metadata: { name: id },
+          value:    val,
+          default:  val || ''
+        });
+
+        setting.save({ url });
+      }
+
+      return setting;
+    };
+
+    this.supportSetting = await fetchOrCreateSetting('has-support', 'false');
+    this.brandSetting = await fetchOrCreateSetting(SETTING.BRAND, '');
+    this.uiIssuesSetting = await this.$store.dispatch('management/find', { type: MANAGEMENT.SETTING, id: SETTING.ISSUES });
   },
 
   data() {
     return {
-      hasSupport: false,
-      promos:     [
+      vendor:          getVendor(),
+      supportKey:      '',
+      supportSetting:  null,
+      brandSetting:    null,
+      uiIssuesSetting: null,
+      promos:          [
         'support.promos.one',
         'support.promos.two',
         'support.promos.three',
@@ -24,39 +66,74 @@ export default {
   },
 
   computed: {
-    pl() {
-      // @TODO PL support
-      return 'rancher';
+    hasSupport() {
+      return this.supportSetting?.value && this.supportSetting?.value !== 'false';
     },
 
     options() {
-      return options(this.pl);
+      return options(this.vendor, this.uiIssuesSetting?.value);
     },
 
     title() {
       return this.hasSupport ? 'support.suse.title' : 'support.community.title';
+    },
+
+    validSupportKey() {
+      return !!this.supportKey.match(KEY_REGX);
     }
   },
 
   methods: {
-    addSubscription() {
-      this.hasSupport = true;
+    async addSubscription(done) {
+      try {
+        this.supportSetting.value = 'true';
+        this.brandSetting.value = 'suse';
+        await Promise.all([this.supportSetting.save(), this.brandSetting.save()]);
+        this.$cookies.set('brand', 'suse');
+        done(true);
+        this.$modal.hide('toggle-support');
+      } catch {
+        done(false);
+      }
+    },
+
+    async removeSubscription(done) {
+      try {
+        this.supportSetting.value = 'false';
+        this.brandSetting.value = '';
+        await Promise.all([this.supportSetting.save(), this.brandSetting.save()]);
+        if (this.$cookies.get('brand')) {
+          this.$cookies.remove('brand');
+        }
+        done(true);
+        this.$modal.hide('toggle-support');
+      } catch {
+        done(false);
+      }
+    },
+
+    showDialog(isAdd) {
+      this.isRemoveDialog = isAdd;
+      this.$modal.show('toggle-support');
     }
   }
 };
 </script>
 <template>
   <div>
-    <BannerGraphic :title="t(title)" />
+    <BannerGraphic :title="t(title, {}, true)" />
 
-    <IndentedPanel v-if="!hasSupport">
+    <IndentedPanel>
       <div class="content mt-20">
         <div class="promo">
-          <div class="register hide">
-            <div>{{ t('support.community.register') }}</div>
-            <button class="btn add" @click="addSubscription()">
-              {{ t('support.community.addSubscription') }}
-            </button>
+          <div class="box mb-20 box-primary">
+            <h2>{{ t('support.suse.access.title') }}</h2>
+            <div>
+              <p class="pb-10">
+                {{ t('support.suse.access.text') }}
+              </p>
+              <a href="https://scc.suse.com" target="_blank" rel="noopener noreferrer nofollow">{{ t('support.suse.access.action') }} <i class="icon icon-external-link" /></a>
+            </div>
           </div>
           <div class="boxes">
             <div v-for="key in promos" :key="key" class="box">
@@ -64,8 +141,23 @@ export default {
               <div>{{ t(`${key}.text`) }}</div>
             </div>
           </div>
-          <div class="external">
-            <a href="https://rancher.com/pricing" target="_blank" rel="noopener noreferrer nofollow">{{ t('support.community.learnMore') }} <i class="icon icon-external-link" /></a>
+          <div v-if="!hasSupport" class="external">
+            <a href="https://rancher.com/support-maintenance-terms" target="_blank" rel="noopener noreferrer nofollow">{{ t('support.community.learnMore') }} <i class="icon icon-external-link" /></a>
+            or
+            <a href="https://rancher.com/pricing" target="_blank" rel="noopener noreferrer nofollow">{{ t('support.community.pricing') }} <i class="icon icon-external-link" /></a>
+          </div>
+          <div v-if="!hasSupport" class="register row">
+            <div>
+              {{ t('support.subscription.haveSupport') }}
+            </div>
+            <button class="ml-5 btn role-secondary btn-sm" type="button" @click="showDialog(false)">
+              {{ t('support.subscription.addSubscription') }}
+            </button>
+          </div>
+          <div v-if="hasSupport" class="register row">
+            <a class="remove-link" @click="showDialog(true)">
+              {{ t('support.subscription.removeSubscription') }}
+            </a>
           </div>
         </div>
         <div class="community">
@@ -76,9 +168,32 @@ export default {
         </div>
       </div>
     </IndentedPanel>
-    <IndentedPanel v-else>
-      {{ t('support.suse.title') }}
-    </IndentedPanel>
+    <modal
+      name="toggle-support"
+      height="auto"
+      :width="340"
+    >
+      <Card :show-highlight-border="false" class="toogle-support">
+        <template #title>
+          {{ isRemoveDialog? t('support.subscription.removeTitle') : t('support.subscription.addTitle') }}
+        </template>
+        <template #body>
+          <div v-if="isRemoveDialog" class="mt-20">
+            {{ t('support.subscription.removeBody') }}
+          </div>
+          <div v-else class="mt-20">
+            <input v-model="supportKey" />
+          </div>
+        </template>
+        <template #actions>
+          <button type="button" class="btn role-secondary" @click="$modal.hide('toggle-support')">
+            {{ t('generic.cancel') }}
+          </button>
+          <AsyncButton v-if="!isRemoveDialog" :disabled="!validSupportKey" class="pull-right" @click="addSubscription" />
+          <AsyncButton v-else :action-label="t('generic.remove')" class="pull-right" @click="removeSubscription" />
+        </template>
+      </Card>
+    </modal>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -88,6 +203,20 @@ export default {
   grid-row-gap: 20px;
   grid-template-columns: 70% 30%;
 }
+
+.toogle-support {
+    height: 100%;
+
+    &.card-container {
+      box-shadow: none;
+    }
+
+    &::v-deep .card-actions {
+      display: flex;
+      justify-content: space-between;
+    }
+}
+
 .community {
   border-left: 1px solid var(--border);
   padding-left: 20px;
@@ -106,14 +235,12 @@ export default {
 .register {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  margin-top: 20px;
   font-size: 16px;
-
-  .btn.add {
-    min-height: 32px;
-    line-height: 32px;
-    margin-left: 10px;
-  }
+}
+.remove-link {
+  cursor: pointer;
+  font-size: 14px;
 }
 .boxes {
   display: grid;
@@ -121,21 +248,25 @@ export default {
   grid-row-gap: 20px;
   grid-template-columns: 50% 50%;
   margin-right: 20px;
+}
 
-  .box {
-    padding: 20px;
-    border: 1px solid var(--border);
+.box {
+  padding: 20px;
+  border: 1px solid var(--border);
 
-    > h2 {
-      font-size: 20px;
-      font-weight: 300;
-    }
+  &.box-primary {
+    border-color: var(--primary);
+  }
 
-    > div {
-      font-weight: 300;
-      line-height: 18px;
-      opacity: 0.8;
-    }
+  > h2 {
+    font-size: 20px;
+    font-weight: 300;
+  }
+
+  > div {
+    font-weight: 300;
+    line-height: 18px;
+    opacity: 0.8;
   }
 }
 </style>

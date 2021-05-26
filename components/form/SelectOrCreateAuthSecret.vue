@@ -75,6 +75,16 @@ export default {
       type:     Function,
       required: true,
     },
+
+    hookName: {
+      type:    String,
+      default: 'registerAuthSecret'
+    },
+
+    vertical: {
+      type:    Boolean,
+      default: false,
+    },
   },
 
   async fetch() {
@@ -195,11 +205,23 @@ export default {
     },
 
     firstCol() {
-      if ( this.selected === _SSH || this.selected === _BASIC ) {
-        return 'span-4';
+      if ( this.vertical ) {
+        return '';
       }
 
-      return 'span-6';
+      if ( this.selected === _SSH || this.selected === _BASIC ) {
+        return 'col span-4';
+      }
+
+      return 'col span-6';
+    },
+
+    moreCols() {
+      if ( this.vertical ) {
+        return 'mt-20';
+      }
+
+      return 'col span-4';
     }
   },
 
@@ -215,7 +237,7 @@ export default {
 
   created() {
     if (this.registerBeforeHook) {
-      this.registerBeforeHook(this.doCreate, 'createAuthSecret');
+      this.registerBeforeHook(this.doCreate, this.hookName);
     }
   },
 
@@ -261,6 +283,9 @@ export default {
             username:  base64Encode(this.username),
             password: base64Encode(this.password),
           };
+          if (this.allowCacerts && this.cacerts) {
+            secret.data.cacerts = base64Encode(this.cacerts);
+          }
         }
 
         await secret.save();
@@ -277,8 +302,8 @@ export default {
 <template>
   <Loading v-if="$fetchState.pending" />
   <div v-else>
-    <div class="row mt-20">
-      <div class="col" :class="{[firstCol]: true}">
+    <div class="mt-20" :class="{'row': !vertical}">
+      <div :class="firstCol">
         <LabeledSelect
           v-model="selected"
           :mode="mode"
@@ -300,18 +325,18 @@ export default {
         </LabeledSelect>
       </div>
       <template v-if="selected === _SSH">
-        <div class="col span-4">
+        <div :class="moreCols">
           <LabeledInput v-model="publicKey" type="multiline" label-key="selectOrCreateAuthSecret.ssh.publicKey" />
         </div>
-        <div class="col span-4">
+        <div :class="moreCols">
           <LabeledInput v-model="privateKey" type="multiline" label-key="selectOrCreateAuthSecret.ssh.privateKey" />
         </div>
       </template>
       <template v-else-if="selected === _BASIC">
-        <div class="col span-4">
+        <div :class="moreCols">
           <LabeledInput v-model="username" label-key="selectOrCreateAuthSecret.basic.username" />
         </div>
-        <div class="col span-4">
+        <div :class="moreCols">
           <LabeledInput v-model="password" type="password" label-key="selectOrCreateAuthSecret.basic.password" />
         </div>
       </template>

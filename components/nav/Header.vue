@@ -4,10 +4,15 @@ import { NORMAN } from '@/config/types';
 import { ucFirst } from '@/utils/string';
 import { isMac } from '@/utils/platform';
 import Import from '@/components/Import';
+import BrandImage from '@/components/BrandImage';
+import { getProduct } from '@/config/private-label';
+import RancherProviderIcon from '@/components/RancherProviderIcon';
 import NamespaceFilter from './NamespaceFilter';
 import WorkspaceSwitcher from './WorkspaceSwitcher';
 import TopLevelMenu from './TopLevelMenu';
 import Jump from './Jump';
+
+const PAGE_HEADER_ACTION = 'page-action';
 
 export default {
 
@@ -17,6 +22,8 @@ export default {
     Import,
     TopLevelMenu,
     Jump,
+    BrandImage,
+    RancherProviderIcon,
   },
 
   props: {
@@ -33,9 +40,13 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['clusterReady', 'isMultiCluster', 'isRancher', 'currentCluster',
-      'currentProduct', 'backToRancherLink', 'backToRancherGlobalLink']),
+    ...mapGetters(['clusterReady', 'isExplorer', 'isMultiCluster', 'isRancher', 'currentCluster',
+      'currentProduct', 'backToRancherLink', 'backToRancherGlobalLink', 'pageActions']),
     ...mapGetters('type-map', ['activeProducts']),
+
+    appName() {
+      return getProduct();
+    },
 
     authEnabled() {
       return this.$store.getters['auth/enabled'];
@@ -45,11 +56,15 @@ export default {
       return this.$store.getters['rancher/byId'](NORMAN.PRINCIPAL, this.$store.getters['auth/principalId']) || {};
     },
 
-    showShell() {
+    kubeConfigEnabled() {
+      return true;
+    },
+
+    shellEnabled() {
       return !!this.currentCluster?.links?.shell;
     },
 
-    showImport() {
+    importEnabled() {
       return !!this.currentCluster?.actions?.apply;
     },
 
@@ -89,6 +104,20 @@ export default {
 
     hideSearch() {
       this.$modal.hide('searchModal');
+    },
+
+    showPageActionsMenu(show) {
+      if (this.$refs.pageActions) {
+        if (show) {
+          this.$refs.pageActions.show();
+        } else {
+          this.$refs.pageActions.hide();
+        }
+      }
+    },
+
+    pageAction(action) {
+      this.$nuxt.$emit(PAGE_HEADER_ACTION, action);
     }
   }
 };
@@ -99,14 +128,15 @@ export default {
     <div class="menu-spacer"></div>
     <div v-if="!simple" class="product">
       <div v-if="currentProduct && currentProduct.showClusterSwitcher" class="cluster">
-        <img v-if="currentCluster" class="cluster-os-logo" :src="currentCluster.providerLogo" />
+        <RancherProviderIcon v-if="currentCluster.isLocal" class="mr-10" width="25" />
+        <img v-else-if="currentCluster" class="cluster-os-logo" :src="currentCluster.providerLogo" />
         <div v-if="currentCluster" class="cluster-name">
           {{ currentCluster.spec.displayName }}
         </div>
         <div v-else class="simple-title">
           <img class="side-menu-logo" src="~/assets/images/pl/rancher-logo.svg" width="110" />
           <div class="title">
-            {{ t('nav.title') }}
+            {{ appName }}
           </div>
         </div>
       </div>
@@ -117,50 +147,59 @@ export default {
       </div>
     </div>
     <div v-else class="simple-title">
-      <img class="side-menu-logo" src="~/assets/images/pl/rancher-logo.svg" width="110" />
-      <div class="title">
-        {{ t('nav.title') }}
+      <div class="side-menu-logo">
+        <BrandImage class="side-menu-logo-img" file-name="rancher-logo.svg" />
       </div>
     </div>
 
     <TopLevelMenu></TopLevelMenu>
 
     <div v-if="!simple" class="top">
-      <NamespaceFilter v-if="clusterReady && currentProduct && currentProduct.showNamespaceFilter" />
+      <NamespaceFilter v-if="clusterReady && currentProduct && (currentProduct.showNamespaceFilter || isExplorer)" />
       <WorkspaceSwitcher v-else-if="clusterReady && currentProduct && currentProduct.showWorkspaceSwitcher" />
     </div>
 
     <div v-if="!simple" class="header-buttons">
-      <button
-        v-if="currentProduct && currentProduct.showClusterSwitcher"
-        v-tooltip="t('nav.import')"
-        :disabled="!showImport"
-        type="button"
-        class="btn header-btn role-tertiary"
-        @click="openImport()"
-      >
-        <i class="icon icon-upload icon-lg" />
-      </button>
-      <modal
-        class="import-modal"
-        name="importModal"
-        width="75%"
-        height="auto"
-        styles="max-height: 90vh;"
-      >
-        <Import :cluster="currentCluster" @close="closeImport" />
-      </modal>
+      <template v-if="currentProduct && currentProduct.showClusterSwitcher">
+        <button
+          v-tooltip="t('nav.import')"
+          :disabled="!importEnabled"
+          type="button"
+          class="btn header-btn role-tertiary"
+          @click="openImport()"
+        >
+          <i class="icon icon-upload icon-lg" />
+        </button>
+        <modal
+          class="import-modal"
+          name="importModal"
+          width="75%"
+          height="auto"
+          styles="max-height: 90vh;"
+        >
+          <Import :cluster="currentCluster" @close="closeImport" />
+        </modal>
 
-      <button
-        v-if="currentProduct && currentProduct.showClusterSwitcher"
-        v-tooltip="t('nav.shell')"
-        :disabled="!showShell"
-        type="button"
-        class="btn header-btn role-tertiary"
-        @click="currentCluster.openShell()"
-      >
-        <i class="icon icon-terminal icon-lg" />
-      </button>
+        <button
+          v-tooltip="t('nav.shell')"
+          :disabled="!shellEnabled"
+          type="button"
+          class="btn header-btn role-tertiary"
+          @click="currentCluster.openShell()"
+        >
+          <i class="icon icon-terminal icon-lg" />
+        </button>
+
+        <button
+          v-tooltip="t('nav.kubeconfig')"
+          :disabled="!kubeConfigEnabled"
+          type="button"
+          class="btn header-btn role-tertiary"
+          @click="currentCluster.downloadKubeConfig()"
+        >
+          <i class="icon icon-file icon-lg" />
+        </button>
+      </template>
 
       <button
         v-if="showSearch"
@@ -182,6 +221,30 @@ export default {
       >
         <Jump @closeSearch="hideSearch()" />
       </modal>
+    </div>
+
+    <div v-if="pageActions && pageActions.length" class="actions">
+      <i class="icon icon-actions" @blur="showPageActionsMenu(false)" @click="showPageActionsMenu(true)" @focus.capture="showPageActionsMenu(true)" />
+      <v-popover
+        ref="pageActions"
+        placement="bottom-end"
+        offset="0"
+        trigger="manual"
+        :delay="{show: 0, hide: 0}"
+        :popper-options="{modifiers: { flip: { enabled: false } } }"
+        :container="false"
+      >
+        <template slot="popover" class="user-menu">
+          <ul class="list-unstyled dropdown" @click.stop="showPageActionsMenu(false)">
+            <li v-for="a in pageActions" :key="a.label" class="user-menu-item">
+              <a v-if="!a.seperator" @click="pageAction(a)">{{ a.labelKey ? t(a.labelKey) : a.label }}</a>
+              <div v-else class="menu-seperator">
+                <div class="menu-seperator-line" />
+              </div>
+            </li>
+          </ul>
+        </template>
+      </v-popover>
     </div>
 
     <div class="header-spacer"></div>
@@ -211,13 +274,13 @@ export default {
               </div>
             </li>
             <nuxt-link tag="li" :to="{name: 'prefs'}" class="user-menu-item">
-              <a>Preferences <i class="icon icon-fw icon-gear" /></a>
+              <a>{{ t('nav.userMenu.preferences') }} <i class="icon icon-fw icon-gear" /></a>
             </nuxt-link>
             <nuxt-link v-if="isRancher" tag="li" :to="{name: 'account'}" class="user-menu-item">
-              <a>Account &amp; API Keys <i class="icon icon-fw icon-user" /></a>
+              <a>{{ t('nav.userMenu.accountAndKeys', {}, true) }} <i class="icon icon-fw icon-user" /></a>
             </nuxt-link>
             <nuxt-link v-if="authEnabled" tag="li" :to="{name: 'auth-logout'}" class="user-menu-item">
-              <a @blur="showMenu(false)">Log Out <i class="icon icon-fw icon-close" /></a>
+              <a @blur="showMenu(false)">{{ t('nav.userMenu.logOut') }} <i class="icon icon-fw icon-close" /></a>
             </nuxt-link>
           </ul>
         </template>
@@ -228,7 +291,6 @@ export default {
 <style lang="scss" scoped>
   HEADER {
     display: grid;
-    height: 100vh;
 
     .title {
       border-left: 1px solid var(--header-border);
@@ -259,6 +321,21 @@ export default {
 
     > * {
       padding: 0 5px;
+    }
+
+    .actions {
+      align-items: center;
+      cursor: pointer;
+      display: flex;
+      grid-area: header-actions;
+
+      > I {
+        font-size: 18px;
+        padding: 6px;
+        &:hover {
+          color: var(--link);
+        }
+      }
     }
 
     .back {
@@ -298,7 +375,7 @@ export default {
       }
 
       &:hover {
-        background: var(--link-text);
+        background: var(--primary);
         color: #fff;
       }
 
@@ -309,16 +386,17 @@ export default {
       }
     }
 
-    grid-template-areas:  "menu product top buttons cluster user";
-    grid-template-columns: var(--header-height) calc(var(--nav-width) - var(--header-height)) auto min-content  min-content var(--header-height);
+    grid-template-areas:  "menu product top buttons header-actions cluster user";
+    grid-template-columns: var(--header-height) calc(var(--nav-width) - var(--header-height)) auto min-content min-content min-content var(--header-height);
     grid-template-rows:    var(--header-height);
 
     &.simple {
-      grid-template-columns: var(--header-height) min-content auto min-content min-content var(--header-height);
+      grid-template-columns: var(--header-height) min-content auto min-content min-content min-content var(--header-height);
     }
 
     > .menu-spacer {
       width: 65px;
+      grid-area: menu;
     }
 
     .cluster {
@@ -376,7 +454,18 @@ export default {
     }
 
     .side-menu-logo {
+      align-items: center;
+      display: flex;
       margin-right: 8px;
+      height: 55px;
+      max-width: 200px;
+      padding: 12px 0;
+    }
+
+    .side-menu-logo-img {
+      object-fit: contain;
+      height: 21px;
+      max-width: 200px;
     }
 
     > * {
@@ -386,6 +475,10 @@ export default {
 
     .header-btn {
       width: 40px;
+    }
+
+    .menu-spacer {
+      grid-area: menu;
     }
 
     > .header-spacer {
@@ -504,6 +597,16 @@ export default {
     }
   }
 
+  .actions {
+    ::v-deep .popover:focus {
+      outline: 0;
+    }
+
+    .dropdown {
+      margin: 0 -10px;
+    }
+  }
+
   .user-menu-item {
     a {
       cursor: hand;
@@ -520,6 +623,16 @@ export default {
       &:focus {
         margin: 0 2px;
         padding: 10px 8px;
+      }
+    }
+
+    div.menu-seperator {
+      cursor: default;
+      padding: 4px 0;
+
+      .menu-seperator-line {
+        background-color: var(--border);
+        height: 1px;
       }
     }
   }

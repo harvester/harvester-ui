@@ -1,10 +1,13 @@
 <script>
 import debounce from 'lodash/debounce';
 import { mapState, mapGetters } from 'vuex';
-import { mapPref, DEV, EXPANDED_GROUPS, FAVORITE_TYPES } from '@/store/prefs';
+import {
+  mapPref, DEV, EXPANDED_GROUPS, FAVORITE_TYPES, AFTER_LOGIN_ROUTE
+} from '@/store/prefs';
 import ActionMenu from '@/components/ActionMenu';
 import WindowManager from '@/components/nav/WindowManager';
 import PromptRemove from '@/components/PromptRemove';
+import PromptRestore from '@/components/PromptRestore';
 import AssignTo from '@/components/AssignTo';
 import EjectCDROM from '@/components/EjectCDROM/index';
 import Group from '@/components/nav/Group';
@@ -15,15 +18,20 @@ import { COUNT, SCHEMA, MANAGEMENT } from '@/config/types';
 import { BASIC, FAVORITE, USED } from '@/store/type-map';
 import { addObjects, replaceWith, clear, addObject } from '@/utils/array';
 import { NAME as EXPLORER } from '@/config/product/explorer';
+import { NAME as NAVLINKS } from '@/config/product/navlinks';
 import isEqual from 'lodash/isEqual';
 import { ucFirst } from '@/utils/string';
-import { getVersionInfo } from '@/utils/version';
+import { getVersionInfo, markSeenReleaseNotes } from '@/utils/version';
 import { sortBy } from '@/utils/sort';
+import PageHeaderActions from '@/mixins/page-actions';
+
+const SET_LOGIN_ACTION = 'set-as-login';
 
 export default {
 
   components: {
     PromptRemove,
+    PromptRestore,
     AssignTo,
     EjectCDROM,
     PureHeader,
@@ -33,6 +41,8 @@ export default {
     ServerUrlModal,
     Footer
   },
+
+  mixins: [PageHeaderActions, Brand],
 
   data() {
     const { displayVersion } = getVersionInfo(this.$store);
@@ -44,9 +54,11 @@ export default {
 
   computed: {
     ...mapState(['managementReady', 'clusterReady']),
-    ...mapGetters(['productId', 'namespaceMode', 'isExplorer']),
+    ...mapGetters(['productId', 'clusterId', 'namespaceMode', 'isExplorer', 'currentProduct']),
     ...mapGetters({ locale: 'i18n/selectedLocaleLabel' }),
     ...mapGetters('type-map', ['activeProducts']),
+
+    afterLoginRoute: mapPref(AFTER_LOGIN_ROUTE),
 
     namespaces() {
       return this.$store.getters['namespaces']();
@@ -55,6 +67,27 @@ export default {
     dev:            mapPref(DEV),
     expandedGroups: mapPref(EXPANDED_GROUPS),
     favoriteTypes:  mapPref(FAVORITE_TYPES),
+
+    pageActions() {
+      const pageActions = [];
+      const product = this.$store.getters['currentProduct'];
+
+      if ( !product ) {
+        return [];
+      }
+
+      // Only show for Cluster Explorer or Global Apps (not configuration)
+      const canSetAsHome = product.inStore === 'cluster' || (product.inStore === 'management' && product.category !== 'configuration');
+
+      if (canSetAsHome) {
+        pageActions.push({
+          labelKey: 'nav.header.setLoginPage',
+          action:   SET_LOGIN_ACTION
+        });
+      }
+
+      return pageActions;
+    },
 
     allSchemas() {
       const managementReady = this.$store.getters['managementReady'];
@@ -65,6 +98,14 @@ export default {
       }
 
       return this.$store.getters[`${ product.inStore }/all`](SCHEMA);
+    },
+
+    allNavLinks() {
+      if ( !this.clusterId || !this.$store.getters['cluster/schemaFor'](UI.NAV_LINK) ) {
+        return [];
+      }
+
+      return this.$store.getters['cluster/all'](UI.NAV_LINK);
     },
 
     counts() {
@@ -97,6 +138,10 @@ export default {
       this.queueUpdate();
     },
 
+    allNavLinks() {
+      this.queueUpdate();
+    },
+
     favoriteTypes() {
       this.queueUpdate();
     },
@@ -111,6 +156,13 @@ export default {
       if ( !isEqual(a, b) ) {
         // Immediately update because you'll see it come in later
         this.getGroups();
+      }
+    },
+
+    clusterId(a, b) {
+      if ( !isEqual(a, b) ) {
+        // Store the last visited route when the cluster changes
+        this.setClusterAsLastRoute();
       }
     },
 
@@ -141,15 +193,64 @@ export default {
         this.getGroups();
       }
     },
+
+    async currentProduct(a, b) {
+      if ( !isEqual(a, b) ) {
+        if (a.inStore !== b.inStore || a.inStore !== 'cluster' ) {
+          const route = {
+            name:   'c-cluster-product',
+            params: {
+              cluster: this.clusterId,
+              product: a.name,
+            }
+          };
+
+          await this.$store.dispatch('prefs/setLastVisited', route);
+        }
+      }
+    }
   },
 
-  created() {
+  async created() {
     this.queueUpdate = debounce(this.getGroups, 500);
 
     this.getGroups();
+
+    await this.$store.dispatch('prefs/setLastVisited', this.$route);
   },
 
   methods: {
+    async setClusterAsLastRoute() {
+      const route = {
+        name:   this.$route.name,
+        params: {
+          ...this.$route.params,
+          cluster: this.clusterId,
+        }
+      };
+
+      await this.$store.dispatch('prefs/setLastVisited', route);
+    },
+    handlePageAction(action) {
+      if (action.action === SET_LOGIN_ACTION) {
+        this.afterLoginRoute = this.getLoginRoute();
+        // Mark release notes as seen, so that the login route is honoured
+        markSeenReleaseNotes(this.$store);
+      }
+    },
+
+    getLoginRoute() {
+      // Cluster Explorer
+      if (this.currentProduct.inStore === 'cluster') {
+        return {
+          name:   'c-cluster-explorer',
+          params: { cluster: this.clusterId }
+        };
+      }
+
+      return this.$route;
+    },
+
     collapseAll() {
       this.$refs.groups.forEach((grp) => {
         grp.isExpanded = false;
@@ -229,6 +330,68 @@ export default {
         }
       }
 
+      if ( this.isExplorer ) {
+        const allNavLinks = this.allNavLinks;
+        const toAdd = [];
+        const haveGroup = {};
+
+        for ( const obj of allNavLinks ) {
+          const groupLabel = obj.spec.group;
+          const groupSlug = obj.normalizedGroup;
+
+          const entry = {
+            name:        `link-${ obj._key }`,
+            link:        obj.link,
+            target:      obj.actualTarget,
+            label:       obj.labelDisplay,
+            sideLabel:   obj.spec.sideLabel,
+            iconSrc:     obj.spec.iconSrc,
+            description: obj.spec.description,
+          };
+
+          // If there's a spec.group (groupLabel), all entries with that name go under one nav group
+          if ( groupSlug ) {
+            if ( haveGroup[groupSlug] ) {
+              continue;
+            }
+
+            haveGroup[groupSlug] = true;
+
+            toAdd.push({
+              name:     `navlink-group-${ groupSlug }`,
+              label:    groupLabel,
+              isRoot:   true,
+              // This is the item that actually shows up in the nav, since this outer group will be invisible
+              children: [
+                {
+                  name:  `navlink-child-${ groupSlug }`,
+                  label: groupLabel,
+                  route: {
+                    name:   'c-cluster-navlinks-group',
+                    params: {
+                      cluster: this.clusterId,
+                      group:   groupSlug,
+                    }
+                  },
+                }
+              ],
+              weight: -100,
+            });
+          } else {
+            toAdd.push({
+              name:       `navlink-${ entry.name }`,
+              label:      entry.label,
+              isRoot:     true,
+              // This is the item that actually shows up in the nav, since this outer group will be invisible
+              children:   [entry],
+              weight:     -100,
+            });
+          }
+        }
+
+        addObjects(out, toAdd);
+      }
+
       replaceWith(this.groups, ...sortBy(out, ['weight:desc', 'label']));
     },
 
@@ -280,15 +443,6 @@ export default {
 
       cluster.openShell();
     }
-  },
-
-  head() {
-    const theme = this.$store.getters['prefs/theme'];
-
-    return {
-      bodyAttrs: { class: `theme-${ theme } overflow-hidden dashboard-body` },
-      title:     this.$store.getters['i18n/t']('nav.title'),
-    };
   },
 
 };
@@ -347,6 +501,7 @@ export default {
     <div class="wm">
       <WindowManager />
     </div>
+    <FixedBanner :footer="true" />
   </div>
 </template>
 <style lang="scss" scoped>
@@ -358,11 +513,21 @@ export default {
       overflow-y: auto;
     }
   }
+
 </style>
 <style lang="scss">
-  .dashboard-root {
-    display: grid;
+  .dashboard-root{
+    display: flex;
+    flex-direction: column;
     height: 100vh;
+  }
+
+  .dashboard-content {
+    display: grid;
+    position: relative;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0px;
 
     grid-template-areas:
       "header  header"

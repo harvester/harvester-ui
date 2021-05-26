@@ -39,13 +39,15 @@ export function init(store) {
     removable:           false,
     weight:              3,
     showNamespaceFilter: true,
-    icon:                'compass'
+    icon:                'compass',
+    typeStoreMap:        { [MANAGEMENT.PROJECT]: 'management' }
   });
 
   basicType(['cluster-dashboard', 'cluster-tools']);
   basicType([
     'cluster-dashboard',
-    NAMESPACE,
+    'projects-namespaces',
+    'namespaces',
     NODE,
   ], 'cluster');
   basicType([
@@ -90,6 +92,8 @@ export function init(store) {
 
   ignoreType('events.k8s.io.event'); // Old, moved into core
   ignoreType('extensions.ingress'); // Old, moved into networking
+  ignoreType(MANAGEMENT.PROJECT);
+  ignoreType(NAMESPACE);
 
   mapGroup(/^(core)?$/, 'Core');
   mapGroup('apps', 'Apps');
@@ -97,7 +101,7 @@ export function init(store) {
   mapGroup('autoscaling', 'Autoscaling');
   mapGroup('policy', 'Policy');
   mapGroup('networking.k8s.io', 'Networking');
-  mapGroup(/^api.*\.k8s\.io$/, 'API');
+  mapGroup(/^(.+\.)?api(server)?.*\.k8s\.io$/, 'API');
   mapGroup('rbac.authorization.k8s.io', 'RBAC');
   mapGroup('admissionregistration.k8s.io', 'Admission');
   mapGroup('crd.projectcalico.org', 'Calico');
@@ -107,18 +111,18 @@ export function init(store) {
   mapGroup(/^(.*\.)?tekton\.dev$/, 'Tekton');
   mapGroup(/^(.*\.)?longhorn(\.rancher)?\.io$/, 'Longhorn');
   mapGroup(/^(.*\.)?(fleet|gitjob)\.cattle\.io$/, 'Fleet');
-  mapGroup(/^(.*\.)?(helm|upgrade|k3s)\.cattle\.io$/, 'k3s');
+  mapGroup(/^(.*\.)?(helm|upgrade|k3s)\.cattle\.io$/, 'K3s');
   mapGroup(/^(.*\.)?cis\.cattle\.io$/, 'CIS');
-  mapGroup(/^(catalog|project|management)\.cattle\.io$/, 'Rancher');
+  mapGroup(/^(.*\.)?traefik\.containo\.us$/, 'Træfik');
+  mapGroup(/^(catalog|management|project|ui)\.cattle\.io$/, 'Rancher');
   mapGroup(/^(.*\.)?istio\.io$/, 'Istio');
   mapGroup('split.smi-spec.io', 'SMI');
   mapGroup(/^(.*\.)*knative\.(io|dev)$/, 'Knative');
   mapGroup('argoproj.io', 'Argo');
   mapGroup('logging.banzaicloud.io', 'Logging');
   mapGroup(/.*resources\.cattle\.io.*/, 'Backup-Restore');
-  mapGroup(/^(.*\.)?cluster\.x-k8s\.io$/, 'Cluster API');
-  mapGroup(/^provisioning\.cattle\.io$/, 'Rancher Provisioning');
-  mapGroup(/^rke(-node)?\.cattle\.io$/, 'RKE Provisioning');
+  mapGroup(/^(.*\.)?cluster\.x-k8s\.io$/, 'Cluster Provisioning');
+  mapGroup(/^(aks|eks|gke|rke|rke-node|provisioning)\.cattle\.io$/, 'Cluster Provisioning');
 
   configureType(NODE, { isCreatable: false, isEditable: false });
   configureType(WORKLOAD_TYPES.JOB, { isEditable: false, match: WORKLOAD_TYPES.JOB });
@@ -219,6 +223,30 @@ export function init(store) {
       params:   { resource: WORKLOAD }
     },
     overview: true,
+  });
+
+  virtualType({
+    label:            'Projects/Namespaces',
+    group:            'cluster',
+    icon:             'globe',
+    namespaced:       false,
+    ifRancherCluster: true,
+    name:             'projects-namespaces',
+    weight:           98,
+    route:            { name: 'c-cluster-product-projectsnamespaces' },
+    exact:            true,
+  });
+
+  virtualType({
+    label:            'Namespaces',
+    group:            'cluster',
+    icon:             'globe',
+    namespaced:       false,
+    ifRancherCluster: false,
+    name:             'namespaces',
+    weight:           98,
+    route:            { name: 'c-cluster-product-namespaces' },
+    exact:            true,
   });
 
   // Ignore these types as they are managed through the settings product

@@ -1,19 +1,26 @@
 <script>
-import { mapPref, AFTER_LOGIN_ROUTE, SEEN_WHATS_NEW, HIDE_HOME_PAGE_CARDS } from '@/store/prefs';
+import { mapPref, AFTER_LOGIN_ROUTE, READ_WHATS_NEW, HIDE_HOME_PAGE_CARDS } from '@/store/prefs';
 import Banner from '@/components/Banner';
 import BannerGraphic from '@/components/BannerGraphic';
 import IndentedPanel from '@/components/IndentedPanel';
-import RadioGroup from '@/components/form/RadioGroup';
-import RadioButton from '@/components/form/RadioButton';
 import SortableTable from '@/components/SortableTable';
 import BadgeState from '@/components/BadgeState';
 import CommunityLinks from '@/components/CommunityLinks';
 import SimpleBox from '@/components/SimpleBox';
+import LandingPagePreference from '@/components/LandingPagePreference';
 import { mapGetters } from 'vuex';
-import { MANAGEMENT } from '@/config/types';
+import { MANAGEMENT, CAPI } from '@/config/types';
+import { NAME as MANAGER } from '@/config/product/manager';
 import { STATE } from '@/config/table-headers';
+import { MODE, _IMPORT } from '@/config/query-params';
 import { createMemoryFormat, formatSi, parseSi } from '@/utils/units';
-import { compare } from '@/utils/version';
+import { getVersionInfo, readReleaseNotes, markReadReleaseNotes, markSeenReleaseNotes } from '@/utils/version';
+import PageHeaderActions from '@/mixins/page-actions';
+import { getVendor } from '@/config/private-label';
+import { mapFeature, MULTI_CLUSTER } from '@/store/features';
+
+const SET_LOGIN_ACTION = 'set-as-login';
+const RESET_CARDS_ACTION = 'reset-homepage-cards';
 
 export default {
   name:       'Home',
@@ -22,89 +29,79 @@ export default {
     Banner,
     BannerGraphic,
     IndentedPanel,
-    RadioGroup,
-    RadioButton,
     SortableTable,
     BadgeState,
     CommunityLinks,
-    SimpleBox
+    SimpleBox,
+    LandingPagePreference,
   },
+
+  mixins: [PageHeaderActions],
 
   async fetch() {
     this.clusters = await this.$store.dispatch('management/findAll', {
       type: MANAGEMENT.CLUSTER,
       opt:  { url: MANAGEMENT.CLUSTER }
     });
-
-    const lastSeenNew = this.$store.getters['prefs/get'](SEEN_WHATS_NEW) ;
-    const setting = this.$store.getters['management/byId'](MANAGEMENT.SETTING, 'server-version');
-    const fullVersion = setting?.value || 'unknown';
-
-    this.fullVersion = fullVersion;
-    this.seenWhatsNewAlready = compare(lastSeenNew, fullVersion) >= 0 && !!lastSeenNew;
   },
 
   data() {
+    const fullVersion = getVersionInfo(this.$store).fullVersion;
+
+    // Page actions don't change on the Home Page
+    const pageActions = [
+      {
+        labelKey: 'nav.header.setLoginPage',
+        action:   SET_LOGIN_ACTION
+      },
+      { seperator: true },
+      {
+        labelKey: 'nav.header.restoreCards',
+        action:   RESET_CARDS_ACTION
+      },
+    ];
+
     return {
-      HIDE_HOME_PAGE_CARDS, clusters: [], seenWhatsNewAlready: false, fullVersion: ''
+      HIDE_HOME_PAGE_CARDS, clusters: [], fullVersion, pageActions, vendor: getVendor(),
     };
   },
 
   computed: {
+    ...mapGetters(['currentCluster']),
+    mcm: mapFeature(MULTI_CLUSTER),
+
+    createLocation() {
+      return {
+        name:   'c-cluster-product-resource-create',
+        params: {
+          product:  MANAGER,
+          cluster:  this.currentCluster?.id || 'local',
+          resource: CAPI.RANCHER_CLUSTER
+        },
+      };
+    },
+
+    importLocation() {
+      return {
+        name:   'c-cluster-product-resource-create',
+        params: {
+          product:  MANAGER,
+          cluster:  this.currentCluster?.id || 'local',
+          resource: CAPI.RANCHER_CLUSTER
+        },
+        query: { [MODE]: _IMPORT }
+      };
+    },
+
     afterLoginRoute: mapPref(AFTER_LOGIN_ROUTE),
     homePageCards:   mapPref(HIDE_HOME_PAGE_CARDS),
 
+    readWhatsNewAlready() {
+      return readReleaseNotes(this.$store);
+    },
+
     showSidePanel() {
       return !(this.homePageCards.commercialSupportTip && this.homePageCards.communitySupportTip);
-    },
-
-    routeFromDropdown: {
-      get() {
-        if (this.afterLoginRoute !== 'home' && this.afterLoginRoute !== 'last-visited') {
-          const out = (this.routeDropdownOptions.filter(opt => opt.value === this.afterLoginRoute) || [])[0];
-
-          return out;
-        }
-
-        return this.routeDropdownOptions[0];
-      },
-      set(neu) {
-        this.afterLoginRoute = neu.value;
-      }
-    },
-
-    routeRadioOptions() {
-      return [
-        {
-          label: this.t('landing.landingPrefs.options.thisScreen'),
-          value: 'home'
-        },
-        {
-          label: this.t('landing.landingPrefs.options.lastVisited'),
-          value: 'last-visited'
-        },
-        {
-          label: this.t('landing.landingPrefs.options.custom'),
-          value: 'dropdown'
-        }
-      ];
-    },
-
-    routeDropdownOptions() {
-      const out = [
-        {
-          label: this.t('landing.landingPrefs.options.appsAndMarketplace'),
-          value: 'apps'
-        },
-        {
-          label: this.t('landing.landingPrefs.options.defaultOverview', { cluster: this.defaultClusterId }),
-          value: `${ this.defaultClusterId }-dashboard`
-        }
-      ];
-
-      out.push( );
-
-      return out;
     },
 
     clusterHeaders() {
@@ -113,13 +110,15 @@ export default {
         {
           name:          'name',
           labelKey:      'tableHeaders.name',
+          value:         'nameDisplay',
           sort:          ['nameSort'],
-          canBeVariable: true
+          canBeVariable: true,
         },
         {
           label: this.t('landing.clusters.provider'),
           value: 'status.provider',
-          name:  'Provider'
+          name:  'Provider',
+          sort:  ['status.provider'],
         },
         {
           label: this.t('landing.clusters.kubernetesVersion'),
@@ -141,7 +140,7 @@ export default {
 
         },
         {
-          label:  this.t('tableHeaders.pods'),
+          label: this.t('tableHeaders.pods'),
           name:  'pods',
           value: '',
           sort:  ['status.allocatable.pods', 'status.available.pods']
@@ -156,12 +155,18 @@ export default {
     ...mapGetters(['currentCluster', 'defaultClusterId'])
   },
 
+  async created() {
+    // Update last visited on load
+    await this.$store.dispatch('prefs/setLastVisited', { name: 'home' });
+    markSeenReleaseNotes(this.$store);
+  },
+
   methods: {
-    updateLoginRoute(neu) {
-      if (neu) {
-        this.afterLoginRoute = neu;
-      } else {
-        this.afterLoginRoute = this.routeFromDropdown?.value;
+    handlePageAction(action) {
+      if (action.action === RESET_CARDS_ACTION) {
+        this.resetCards();
+      } else if (action.action === SET_LOGIN_ACTION) {
+        this.afterLoginRoute = 'home';
       }
     },
 
@@ -182,7 +187,6 @@ export default {
 
     memoryAllocatable(cluster) {
       const parsedAllocatable = (parseSi(cluster.status.allocatable?.memory) || 0).toString();
-
       const format = createMemoryFormat(parsedAllocatable);
 
       return formatSi(parsedAllocatable, format);
@@ -190,22 +194,23 @@ export default {
 
     showWhatsNew() {
       // Update the value, so that the message goes away
-      const setting = this.$store.getters['management/byId'](MANAGEMENT.SETTING, 'server-version');
-      const fullVersion = setting?.value || 'unknown';
-
-      this.$store.dispatch('prefs/set', { key: SEEN_WHATS_NEW, value: fullVersion });
-
+      markReadReleaseNotes(this.$store);
       this.$router.push({ name: 'docs-doc', params: { doc: 'release-notes' } });
     },
+
+    async resetCards() {
+      await this.$store.dispatch('prefs/set', { key: HIDE_HOME_PAGE_CARDS, value: {} });
+      await this.$store.dispatch('prefs/set', { key: READ_WHATS_NEW, value: '' });
+    }
   }
 };
 
 </script>
 <template>
   <div class="home-page">
-    <BannerGraphic :small="true" :title="t('landing.welcomeToRancher')" :pref="HIDE_HOME_PAGE_CARDS" pref-key="welcomeBanner" />
+    <BannerGraphic :small="true" :title="t('landing.welcomeToRancher', {vendor})" :pref="HIDE_HOME_PAGE_CARDS" pref-key="welcomeBanner" />
     <IndentedPanel class="mt-20">
-      <div v-if="!seenWhatsNewAlready" class="row">
+      <div v-if="!readWhatsNewAlready" class="row">
         <div class="col span-12">
           <Banner color="info whats-new">
             <div>{{ t('landing.seeWhatsNew') }}</div>
@@ -215,20 +220,6 @@ export default {
       </div>
       <div class="row">
         <div :class="{'span-9': showSidePanel, 'span-12': !showSidePanel }" class="col">
-          <SimpleBox v-if="false" :title="t('landing.landingPrefs.title')" :pref="HIDE_HOME_PAGE_CARDS" pref-key="setLoginPage" class="panel">
-            <RadioGroup id="login-route" :value="afterLoginRoute" name="login-route" :options="routeRadioOptions" @input="updateLoginRoute">
-              <template #2="{option, listeners}">
-                <div class="row">
-                  <div class="col">
-                    <RadioButton :label="option.label" :val="false" :value="afterLoginRoute=== 'home' || afterLoginRoute === 'last-visited'" v-on="listeners" />
-                  </div>
-                  <div class="col span-6">
-                    <v-select v-model="routeFromDropdown" :clearable="false" :options="routeDropdownOptions" />
-                  </div>
-                </div>
-              </template>
-            </RadioGroup>
-          </SimpleBox>
           <SimpleBox
             id="migration"
             class="panel"
@@ -245,9 +236,34 @@ export default {
               </nuxt-link>
             </div>
           </SimpleBox>
+          <SimpleBox :title="t('landing.landingPrefs.title')" :pref="HIDE_HOME_PAGE_CARDS" pref-key="setLoginPage" class="panel">
+            <LandingPagePreference />
+          </SimpleBox>
           <div class="row panel">
             <div class="col span-12">
               <SortableTable :table-actions="false" :row-actions="false" key-field="id" :rows="clusters" :headers="clusterHeaders">
+                <template #header-left>
+                  <div class="row table-heading">
+                    <h2 class="mb-0">
+                      {{ t('landing.clusters.title') }}
+                    </h2>
+                    <BadgeState :label="clusters.length.toString()" color="role-tertiary ml-20 mr-20" />
+                  </div>
+                </template>
+                <template v-if="mcm" #header-middle>
+                  <n-link
+                    :to="importLocation"
+                    class="btn btn-sm role-primary"
+                  >
+                    {{ t('cluster.importAction') }}
+                  </n-link>
+                  <n-link
+                    :to="createLocation"
+                    class="btn btn-sm role-primary"
+                  >
+                    {{ t('generic.create') }}
+                  </n-link>
+                </template>
                 <template #col:name="{row}">
                   <td>
                     <span>
@@ -257,14 +273,6 @@ export default {
                       <span v-else>{{ row.nameDisplay }}</span>
                     </span>
                   </td>
-                </template>
-                <template #title>
-                  <div class="row pb-20 table-heading">
-                    <h2 class="mb-0">
-                      {{ t('landing.clusters.title') }}
-                    </h2>
-                    <BadgeState :label="clusters.length.toString()" color="role-tertiary ml-20 mr-20" />
-                  </div>
                 </template>
                 <template #col:cpu="{row}">
                   <td v-if="cpuAllocatable(row)">
@@ -305,7 +313,9 @@ export default {
         <div v-if="showSidePanel" class="col span-3">
           <CommunityLinks :pref="HIDE_HOME_PAGE_CARDS" pref-key="communitySupportTip" class="mb-20" />
           <SimpleBox :pref="HIDE_HOME_PAGE_CARDS" pref-key="commercialSupportTip" :title="t('landing.commercial.title')">
-            <span v-html="t('landing.commercial.body', {}, true)" />
+            <nuxt-link :to="{ path: 'support'}">
+              {{ t('landing.commercial.body') }}
+            </nuxt-link>
           </SimpleBox>
         </div>
       </div>

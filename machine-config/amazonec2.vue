@@ -24,6 +24,11 @@ export default {
   mixins: [CreateEditView],
 
   props: {
+    uuid: {
+      type:     String,
+      required: true,
+    },
+
     credentialId: {
       type:     String,
       required: true,
@@ -125,7 +130,6 @@ export default {
       securityGroupInfo: null,
       selectedNetwork:   null,
       securityGroupMode: null,
-      showAdvanced:      false,
     };
   },
 
@@ -277,16 +281,12 @@ export default {
     },
 
     'securityGroupMode'(val) {
-      this.value.securityGroupReadonly = ( val === 'default' );
+      this.value.securityGroupReadonly = ( val !== 'default' );
     },
   },
 
   methods: {
     stringify,
-
-    toggleAdvanced() {
-      this.showAdvanced = !this.showAdvanced;
-    },
 
     initNetwork() {
       const id = this.value.subnetId || this.value.vpcId;
@@ -363,7 +363,7 @@ export default {
         />
       </div>
     </div>
-    <div v-else-if="loadedRegionalFor" class="mt-20">
+    <div v-else-if="loadedRegionalFor">
       <div class="row mb-20">
         <div class="col span-6">
           <LabeledSelect
@@ -407,7 +407,14 @@ export default {
           </LabeledSelect>
         </div>
         <div class="col span-3">
-          <UnitInput v-model="value.rootSize" :mode="mode" placeholder="Default: 16" label="Root Disk Size" suffix="GB" />
+          <UnitInput
+            v-model="value.rootSize"
+            output-as="string"
+            :mode="mode"
+            placeholder="Default: 16"
+            label="Root Disk Size"
+            suffix="GB"
+          />
         </div>
       </div>
       <div class="row mt-20 mb-20">
@@ -442,9 +449,7 @@ export default {
         </div>
       </div>
 
-      <template v-if="showAdvanced">
-        <a v-t="'generic.hideAdvanced'" @click="toggleAdvanced" />
-
+      <portal :to="'advanced-'+uuid">
         <div class="row mt-20">
           <div class="col span-6">
             <LabeledInput
@@ -534,7 +539,14 @@ export default {
           <div class="col span-6">
             <Checkbox v-model="value.requestSpotInstance" :mode="mode" label="Request Spot Instance" />
             <div v-if="value.requestSpotInstance" class="mt-10">
-              <UnitInput v-model="value.spotPrice" :mode="mode" placeholder="Default: 0.50" label="Spot Price" suffix="Dollars per hour" />
+              <UnitInput
+                v-model="value.spotPrice"
+                output-as="string"
+                :mode="mode"
+                placeholder="Default: 0.50"
+                label="Spot Price"
+                suffix="Dollars per hour"
+              />
             </div>
           </div>
         </div>
@@ -554,14 +566,12 @@ export default {
               :value="tags"
               :mode="mode"
               :read-allowed="false"
-              title="Tags"
+              title="EC2 Tags"
               @input="updateTags"
-            >
-            </keyvalue>
+            />
           </div>
         </div>
-      </template>
-      <a v-else v-t="'generic.showAdvanced'" @click="toggleAdvanced" />
+      </portal>
     </div>
   </div>
 </template>

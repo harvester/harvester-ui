@@ -37,11 +37,47 @@ export default {
       removeObject(providers, 'local');
     }
 
+    let firstLoginSetting, plSetting;
+
+    // Load settings.
+    // For newer versions this will return all settings if you are somehow logged in,
+    // and just the public ones if you aren't.
+    try {
+      await store.dispatch('management/findAll', {
+        type: MANAGEMENT.SETTING,
+        load: _ALL_IF_AUTHED,
+        opt:  { url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false },
+      });
+
+      firstLoginSetting = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.FIRST_LOGIN);
+      plSetting = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.PL);
+    } catch (e) {
+      // Older versions used Norman API to get these
+      firstLoginSetting = await store.dispatch('rancher/find', {
+        type: 'setting',
+        id:   SETTING.FIRST_LOGIN,
+        opt:  { url: `/v3/settings/${ SETTING.FIRST_LOGIN }` }
+      });
+
+      plSetting = await store.dispatch('rancher/find', {
+        type: 'setting',
+        id:   SETTING.PL,
+        opt:  { url: `/v3/settings/${ SETTING.PL }` }
+      });
+    }
+
+    if (plSetting.value?.length && plSetting.value !== getVendor()) {
+      setVendor(plSetting.value);
+    }
+    const needsSetup = firstLoginSetting?.value === 'true';
+
     return {
+      vendor:    getVendor(),
       providers,
       hasOthers,
       hasLocal,
       showLocal: !hasOthers || (route.query[LOCAL] === _FLAGGED),
+      needsSetup
     };
   },
 

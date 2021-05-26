@@ -123,6 +123,7 @@ export default {
           label: 'monitoring.accessModes.many',
         },
       ],
+      clusterType:           {},
       disableAggregateRoles: false,
       prometheusResources:   [],
       pvcs:                  [],
@@ -157,22 +158,24 @@ export default {
 
   created() {
     if (this.mode === 'create') {
+      // merge here doesn't work (existing values are lost when going from form to yaml and back again) so instead supply some better default values
+      // any changes here need to respect the order of properties (reflected in the yaml diff)
       const extendedDefaults = {
         global: {
           rbac: {
             userRoles: {
-              create:                  true,
-              aggregateToDefaultRoles: true,
+              create:                  this.mergeValue(this.value?.global?.rbac?.userRoles?.create, true),
+              aggregateToDefaultRoles:  this.mergeValue(this.value?.global?.rbac?.userRoles?.aggregateToDefaultRoles, true),
             },
           },
         },
         prometheus: {
           prometheusSpec: {
-            scrapeInterval:     '1m',
-            evaluationInterval: '1m',
-            retention:          '10d',
-            retentionSize:      '50GiB',
-            enableAdminAPI:     false,
+            scrapeInterval:     this.mergeValue(this.value?.prometheus?.prometheusSpec?.scrapeInterval, '1m'),
+            evaluationInterval: this.mergeValue(this.value?.prometheus?.prometheusSpec?.evaluationInterval, '1m'),
+            retention:          this.mergeValue(this.value?.prometheus?.prometheusSpec?.retention, '10d'),
+            retentionSize:      this.mergeValue(this.value?.prometheus?.prometheusSpec?.retentionSize, '50GiB'),
+            enableAdminAPI:     this.mergeValue(this.value?.prometheus?.prometheusSpec?.enableAdminAPI, false),
           },
         },
       };
@@ -207,17 +210,28 @@ export default {
           .volumeClaimTemplate.spec.selector;
       }
     },
+
+    mergeValue(value, defaultValue) {
+      return value === undefined || (typeof value === 'string' && !value.length) ? defaultValue : value;
+    }
   },
 };
 </script>
 
 <template>
-  <Loading v-if="$fetchState.pending" />
+  <Loading v-if="$fetchState.pending" mode="relative" />
   <div v-else class="config-monitoring-container">
     <Tab name="general" :label="t('monitoring.tabs.general')" :weight="99">
       <div>
         <div class="row mb-20">
-          <ClusterSelector :value="value" :mode="mode" />
+          <ClusterSelector :value="value" :mode="mode" @onClusterTypeChanged="clusterType = $event" />
+        </div>
+        <div v-if="clusterType.group === 'managed'" class="row mb-20">
+          <Checkbox
+            v-model="value.prometheusOperator.hostNetwork"
+            label-key="monitoring.hostNetwork.label"
+            :tooltip="t('monitoring.hostNetwork.tip', {}, true)"
+          />
         </div>
         <div class="row">
           <div class="col span-6">

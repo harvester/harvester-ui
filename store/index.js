@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Steve from '@/plugins/steve';
 import {
-  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, VMIM, FLEET, POD, HARVESTER_SETTING, NODE, HARVESTER_RESTORE, NETWORK_ATTACHMENT
+  COUNT, NAMESPACE, NORMAN, EXTERNAL, MANAGEMENT, STEVE, IMAGE, VM_TEMPLATE, SSH, DATA_VOLUME, VM, VMIM, FLEET, POD, HARVESTER_SETTING, NODE, HARVESTER_RESTORE, NETWORK_ATTACHMENT, UI
 } from '@/config/types';
 import { CLUSTER as CLUSTER_PREF, NAMESPACE_FILTERS, LAST_NAMESPACE, WORKSPACE } from '@/store/prefs';
 import { allSettled } from '@/utils/promise';
@@ -11,6 +11,7 @@ import { filterBy, findBy } from '@/utils/array';
 import { BOTH, CLUSTER_LEVEL, NAMESPACED } from '@/store/type-map';
 import { NAME as EXPLORER } from '@/config/product/explorer';
 import { TIMED_OUT, LOGGED_OUT } from '@/config/query-params';
+import { setVendor } from '@/config/private-label';
 
 // Disables strict mode for all store instances to prevent warning about changing state outside of mutations
 // becaues it's more efficient to do that sometimes.
@@ -19,7 +20,7 @@ export const strict = false;
 export const plugins = [
   Steve({ namespace: 'clusterExternal', baseUrl: '' }), // project scoped cluster stuff, url set later
   Steve({ namespace: 'management', baseUrl: '/v1' }),
-  Steve({ namespace: 'cluster', baseUrl: '' }), // url set later
+  Steve({ namespace: 'cluster', baseUrl: '' }), // URL dynamically set for the selected cluster
   Steve({ namespace: 'rancher', baseUrl: '/v3' }),
 ];
 
@@ -37,6 +38,7 @@ export const state = () => {
     workspace:        null,
     error:            null,
     cameFromError:    false,
+    pageActions:      [],
   };
 };
 
@@ -65,6 +67,10 @@ export const getters = {
     return state.workspace;
   },
 
+  pageActions(state) {
+    return state.pageActions;
+  },
+
   currentCluster(state, getters) {
     return getters['management/byId'](MANAGEMENT.CLUSTER, state.clusterId);
   },
@@ -83,6 +89,22 @@ export const getters = {
     }
 
     return out;
+  },
+
+  currentStore(state, getters) {
+    return (type) => {
+      const product = getters['currentProduct'];
+
+      if (!product) {
+        return 'cluster';
+      }
+
+      if (type && product.typeStoreMap?.[type]) {
+        return product.typeStoreMap[type];
+      }
+
+      return product.inStore;
+    };
   },
 
   isExplorer(state, getters) {
@@ -327,12 +349,6 @@ export const getters = {
 
     return '/';
   },
-
-  featureFlag(state, getters, rootState, rootGetters) {
-    return (name) => {
-      return rootGetters['management/byId'](MANAGEMENT.FEATURE, name)?.enabled || false;
-    };
-  },
 };
 
 export const mutations = {
@@ -352,6 +368,10 @@ export const mutations = {
     if ( all ) {
       state.allNamespaces = all;
     }
+  },
+
+  pageActions(state, pageActions) {
+    state.pageActions = pageActions;
   },
 
   updateWorkspace(state, { value, all }) {
@@ -452,6 +472,12 @@ export const actions = {
 
     const res = await allSettled(promises);
 
+    const pl = res.settings?.find(x => x.name === 'ui-pl')?.value;
+
+    if ( pl ) {
+      setVendor(pl);
+    }
+
     commit('managementChanged', {
       ready: true,
       isMultiCluster
@@ -495,6 +521,7 @@ export const actions = {
       // });
       // commit('management/forgetType', MANAGEMENT.PROJECT);
 
+      commit('management/forgetType', MANAGEMENT.PROJECT);
       commit('catalog/reset');
       commit('clusterChanged', false);
     }

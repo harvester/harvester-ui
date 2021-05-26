@@ -77,9 +77,10 @@ nav:
   title: Harvester
   backToRancher: Rancher
   clusterTools: Cluster Tools
-  shell: Kubectl Shell
+  kubeconfig: Download KubeConfig
   import: Import YAML
   home: Home
+  shell: Kubectl Shell
   support: Get Support
   group:
     cluster: Cluster
@@ -112,6 +113,13 @@ nav:
     label: Resource Search
     toolTip: Resource Search {key}
     placeholder: Type to search for a resource...
+  header:
+    setLoginPage: Set as login page
+    restoreCards: Restore hidden cards
+  userMenu:
+    preferences: Preferences
+    accountAndKeys: Account & API Keys
+    logOut: Log Out
 
 product:
   apps: Apps & Marketplace
@@ -128,12 +136,16 @@ product:
   logging: Logging
   rio: Rio
   settings: Global Settings
+  clusterManagement: Cluster Management
   monitoring: Monitoring
 
 suffix:
   percent: "%"
+  milliCpus: mili CPUs
   cpus: CPUs
   ib: iB
+  mib: MiB
+  gb: GB
   revisions: |-
     {count, plural,
       =1 { Revision }
@@ -153,6 +165,25 @@ suffix:
 ##############################
 # Components & Pages
 ##############################
+about:
+  title: About
+  versions:
+    title: Versions
+    component: Component
+    version: Version
+    cli: CLI
+    helm: Helm
+    machine: Machine
+    releaseNotes: 'View release notes'
+  os:
+    mac: macOS
+    windows: Windows
+    linux: Linux
+  downloadImageList:
+    title: Image Lists
+  downloadCLI:
+    title: CLI Downloads
+
 accountAndKeys:
   title: Account and API Keys
   account:
@@ -201,7 +232,7 @@ authConfig:
     unrestricted: Allow any valid user
   allowedPrincipalIds:
     title: Authorized Users & Groups
-  associatedWarning: 'Note: The {provider} user you authenticate as will be associated as an alternate way to login to the {vendor} user you are currently logged in as (<code>{username}</code>).'
+  associatedWarning: 'Note: The {provider} user you authenticate as will be associated as an alternate way to login to the {vendor} user you are currently logged in as <code>{username}</code>; all the global permissions, project, and cluster role bindings of this {vendor} user will also apply to the {provider} user.'
   github:
     clientId:
       label: Client ID
@@ -305,7 +336,7 @@ authConfig:
     serverConnectionTimeout: Server Connection Timeout
     serviceAccountDN: Service Account Distinguished Name
     serviceAccountPassword: Service Account Password
-    serviceAccountInfo: Rancher needs a service account that has read-only access to all of the domains that will be able to login, so that we can determine what groups a user is a member of when they make a request with an API key.
+    serviceAccountInfo: '{vendor} needs a service account that has read-only access to all of the domains that will be able to login, so that we can determine what groups a user is a member of when they make a request with an API key.'
     starttls:
       label: Start TLS
       tip: Upgrades non-encrypted connections by wrapping with TLS during the connection process. Can not be used in conjunction with TLS.
@@ -324,7 +355,7 @@ authConfig:
     entityID: Entity ID Field
     UID: UID Field
     adfs: Configure an AD FS account
-    api: Rancher API Host
+    api: '{vendor} API Host'
     cert: 
       label: Certificate
       placeholder: Paste in the certificate, starting with -----BEGIN CERTIFICATE-----
@@ -349,11 +380,34 @@ authConfig:
     graphEndpoint: Graph Endpoint
     tokenEndpoint: Token Endpoint
     authEndpoint: Auth Endpoint
+  oidc:
+    oidc: Configure an OIDC account
+    keycloakoidc: Configure a Keycloak OIDC account
+    rancherUrl: Rancher URL
+    clientId: Client ID
+    clientSecret: Client Secret
+    customEndpoint:
+      label: Endpoints
+      custom: Specify (advanced)
+      standard: Generate
+    keycloak:
+      url: Keycloak URL
+      realm: Keycloak Realm
+    issuer: Issuer
+    authEndpoint: Auth Endpoint
+    cert:
+      label: Certificate
+      placeholder: Paste in the certificate, starting with -----BEGIN CERTIFICATE-----
+    key:
+      label: Private Key
+      placeholder: Paste in the private key, typically starting with -----BEGIN RSA PRIVATE KEY-----
   stateBanner:
     disabled: 'The {provider} authentication provider is currently disabled.'
     enabled: 'The {provider} authentication provider is currently enabled.'
   testAndEnable: Test and Enable Authentication
   noneEnabled: Local Authentication is always enabled, but you may select another additional authentication provider from those shown below.
+  localEnabled: '{vendor} is configured to allow access to accounts in its local database.'
+  manageLocal: Manage Accounts
 
 authGroups:
   actions:
@@ -457,6 +511,18 @@ asyncButton:
     action: Remove
     success: Removed
     waiting: Removing&hellip;
+  restore:
+    action: Restore
+    waiting: Restoring&hellip;
+    success: Restored
+  snapshot:
+    action: Snapshow Now
+    waiting: Snapshotting&hellip;
+    success: Shapshot Creating
+  update:
+    action: Update
+    success: Updated
+    waiting: Updating&hellip;
   upgrade:
     action: Upgrade
     success: Upgrading
@@ -546,6 +612,22 @@ catalog:
       readme: Chart README
       resources: Resources
       values: Values YAML
+  chart:
+    header:
+      charts: Charts
+    info:
+      appVersion: Application Version
+      chartVersions:
+        label: Chart Versions
+        showMore: Show More
+        showLess: Show Less
+      home: Home
+      maintainers: Maintainers
+      related: Related
+      chartUrls: Chart
+      keywords: Keywords
+    errors:
+      clusterToolExists: This chart has a fixed namespace and name. A matching <a href="{url}">application</a> has been found and any changes will be made to it. 
   charts:
     all: All
     categories:
@@ -553,7 +635,7 @@ catalog:
     certified:
       other: Other
       partner: Partner
-      rancher: Rancher
+      rancher: '{vendor}'
     header: Deploy Chart
     noCharts: 'There are no charts available, have you added any repos?'
     noWindows: Your catalogs do not contain any charts capable of being deployed on a Windows cluster.
@@ -561,11 +643,11 @@ catalog:
   install:
     action:
       goToUpgrade: Edit/Upgrade
-      ignoreWarning: Continue Anyways
-    appReadmeGeneric: This chart doesn't have a Rancher-specific README.  Review the Helm README to learn more about the available configuration options and their usage.
+    appReadmeMissing: This chart doesn't have any additional chart information.
+    appReadmeTitle: Chart Information (Helm README)
     chart: Chart
     error:
-      requiresFound: '<a href="{url}">${name}</a> must be installed before you can install this chart.'
+      requiresFound: '<a href="{url}">{name}</a> must be installed before you can install this chart.'
       requiresMissing: 'This chart requires another chart that provides {name}, but none was was found.'
       insufficientCpu: 'This chart requires {need, number} CPU cores, but the cluster only has {have, number} available.'
       insufficientMemory: 'This chart requires {need} of memory, but the cluster only has {have} available.'
@@ -600,14 +682,39 @@ catalog:
     namespaceIsInProject: "This chart's target namespace, <code>{namespace}</code>, already exists and cannot be added to a different project."
     project: Install into Project
     section:
-      appReadme: README
-      chartOptions: Chart Options
-      helm: Helm Deploy Options
-      readme: Helm README
-      valuesYaml: Values YAML
+      chartOptions: Edit Options
+      valuesYaml: Edit YAML
+      diff: Compare Changes
+    slideIn:
+      dock: Dock to bottom
+    steps:
+      basics:
+        label: Metadata
+        subtext: Set App metadata
+        description: This process will help {action, select,
+            install { create }
+            upgrade { upgrade }
+            update { update }
+          } the {existing, select,
+            true { app}
+            false { chart}
+          }. Start by setting some basic information used by {vendor} to manage the App.
+        createNamespace: Namespace will be created
+      helmValues:
+        label: Values
+        subtext: Change how the App works
+        description: Configure Values used by Helm that help define the App.
+        chartInfo:
+          button: View Chart Info
+          label: Chart Info
+      helmCli:
+        checkbox: Enable additional deployment options
+        label: Deploy Options
+        subtext: Change how the app is deployed
+        description: Supply additional deployment options
     version: Version
     versions:
-      current: '{ver} (current)'
+      current: '{ver} (Current)'
       linux: '{ver} (Linux-only)'
       windows: '{ver} (Windows-only)'
   operation:
@@ -626,7 +733,7 @@ catalog:
       label: Git Repo URL
       placeholder: 'e.g. https://github.com/your-company/charts.git'
     name:
-      rancher-charts: Rancher
+      rancher-charts: '{vendor}'
       rancher-partner-charts: Partners
       rancher-rke2-charts: RKE2
     target:
@@ -676,7 +783,10 @@ chartHeading:
 
 cis:
   addTest: Add Test ID
-  alertNeeded: Alerting must be enabled within the CIS chart values.yaml. This requires that <a tabindex="0" aria-label="Link to Rancher's Monitoring" href="{link}"> Rancher's Monitoring and Alerting app</a> is installed and the Receivers and Routes are <a target="_blank" rel='noopener noreferrer nofollow' href='https://rancher.com/docs/rancher/v2.x/en/monitoring-alerting/v2.5/configuration/#alertmanager-config'> configured to send out alerts.</a>
+  alertNeeded: |-
+    Alerting must be enabled within the CIS chart values.yaml.
+    This requires that the <a tabindex="0" href="{link}">{vendor} Monitoring and Alerting app</a> is installed
+    and the Receivers and Routes are <a target="_blank" rel='noopener noreferrer nofollow' href='https://rancher.com/docs/rancher/v2.x/en/monitoring-alerting/v2.5/configuration/#alertmanager-config'> configured to send out alerts.</a>
   alertOnComplete: Alert on scan completion
   alertOnFailure: Alert on scan failure
   benchmarkVersion: Benchmark Version
@@ -767,14 +877,15 @@ cluster:
     label: Cluster Description
     placeholder: Any text you want that better describes this cluster
   import:
-    commandInstructions: 'Run the <code>kubectl</code> command below on an existing Kubernetes cluster running a supported Kubernetes version to import it into Rancher:'
-    commandInstructionsInsecure: 'If you get a &quot;certificate signed by unknown authority&quot; error, your Rancher installation has a self-signed or untrusted SSL certificate.  Run the command below instead to bypass the certificate verification:'
+    commandInstructions: 'Run the <code>kubectl</code> command below on an existing Kubernetes cluster running a supported Kubernetes version to import it into {vendor}:'
+    commandInstructionsInsecure: 'If you get a &quot;certificate signed by unknown authority&quot; error, your {vendor} installation has a self-signed or untrusted SSL certificate.  Run the command below instead to bypass the certificate verification:'
     clusterRoleBindingInstructions: 'If you get permission errors creating some of the resources, your user may not have the <code>cluster-admin</code> role.  Use this command to apply it:'
     clusterRoleBindingCommand: 'kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user <your username from your kubeconfig>'
 
   importAction: Import Existing
   kubernetesVersion:
     label: Kubernetes Version
+  toolsTip: Use the new Cluster Tools to manage and install Monitoring, Logging and other tools
   name:
     label: Cluster Name
     placeholder: A unique name for the cluster
@@ -836,21 +947,26 @@ cluster:
             other {}
           }
   provider:
-    aliyun: Alibaba ACK
     aliyunecs: Aliyun ECS
+    aliyunkubernetescontainerservice: Alibaba ACK
     amazonec2: Amazon EC2
     amazoneks: Amazon EKS
     aws: Amazon AWS
     azure: Azure
     azureaks: Azure AKS
-    baidu: Baidu CCE
+    aks: Azure AKS
+    baiducloudcontainerengine: Baidu CCE
     cloudca: Cloud.ca
     custom: Custom
     digitalocean: DigitalOcean
     docker: Docker
+    eks: Amazon EKS
     exoscale: Exoscale
+    google: Google GCE
     googlegke: Google GKE
+    gke: Google GKE
     huaweicce: Huawei CCE
+    import: Import
     imported: Imported
     k3s: K3s
     kubeAdmin: KubeADM
@@ -859,6 +975,7 @@ cluster:
     minikube: Minikube
     oci: Oracle Cloud Infrastructure
     openstack: OpenStack
+    opentelekomcloudcontainerengine: Open Telekom Cloud CCE
     oracleoke: Oracle OKE
     otc: Open Telekom Cloud
     other: Other
@@ -866,8 +983,8 @@ cluster:
     pinganyunecs: Pinganyun ECS
     rackspace: RackSpace
     rancherkubernetesengine: RKE
-    rke: RKE
     rke2: RKE2
+    rke: RKE
     rkeWindows: Windows
     softlayer: SoftLayer
     tencenttke: Tencent TKE
@@ -875,9 +992,12 @@ cluster:
     vmwarevsphere: vSphere
     zstack: ZStack
   providerGroup:
-    create-custom: Use existing nodes and create a cluster using RKE
-    create-kontainer: Create a cluster in a hosted Kuberetes provider
-    create-machine: Provision new nodes and create a cluster using RKE
+    create-custom1: Use existing nodes and create a cluster using RKE
+    create-custom2: Use existing nodes and create a cluster using RKE2
+    create-kontainer: Create a cluster in a hosted Kubernetes provider
+    register-kontainer: Register an existing cluster in a hosted Kubernetes provider
+    create-rke1: Provision new nodes and create a cluster using RKE
+    create-rke2: Provision new nodes and create a cluster using RKE2
     create-template: Use a Catalog Template to create a cluster
     register-custom: Import any Kubernetes cluster
   rke2:
@@ -892,8 +1012,10 @@ cluster:
     agentEnv: Agent Environment Vars
     basic: Basics
     cluster: Cluster Configuration
+    etcd: etcd
     networking: Networking
     nodePools: Node Pools
+    registry: Private Registry
     upgrade: Upgrade Strategy
 
 clusterIndexPage:
@@ -995,6 +1117,8 @@ fleet:
       unready: Non-Ready
     auth:
       label: Authentication
+      git: Git Authentication
+      helm: Helm Authentication
     caBundle:
       label: Certificates
       placeholder: "Paste in one or more certificates, starting with -----BEGIN CERTIFICATE----"
@@ -1257,7 +1381,7 @@ istio:
   links:
     kiali:
       label: Kiali
-      description: Visualization of services within a service mesh and how they are connected. For Kiali to display data, you need Prometheus installed. If you need a monitoring solution, install <a tabindex="0" aria-label="Link to Rancher's Monitoring" href="{link}"> Rancher's monitoring</a>.
+      description: 'Visualization of services within a service mesh and how they are connected. For Kiali to display data, you need Prometheus installed. If you need a monitoring solution, install <a tabindex="0" href="{link}">{vendor} monitoring</a>.'
     jaeger:
       label: Jaeger
       description: Monitor and Troubleshoot microservices-based distributed systems.
@@ -1265,8 +1389,8 @@ istio:
   cni: Enabled CNI
   customOverlayFile:
     label: Custom Overlay File
-    tip: 'The <a target="_blank" rel="noopener noreferrer nofollow" href="https://istio.io/latest/docs/setup/install/istioctl/#customizing-the-configuration">overlay file</a> allows for additional configuration on top of the base Rancher Istio installation. You can utilize the <a href="https://istio.io/latest/docs/reference/config/istio.operator.v1alpha1/" target="_blank" rel="noopener noreferrer nofollow" >IstioOperator API</a> to make changes and additions for all components and apply those changes via this overlay YAML file.'
-  description: 'Rancher Istio helm chart installs a minimal Istio configuration for you to get started integrating with your applications.
+    tip: 'The <a target="_blank" rel="noopener noreferrer nofollow" href="https://istio.io/latest/docs/setup/install/istioctl/#customizing-the-configuration">overlay file</a> allows for additional configuration on top of the base {vendor} Istio installation. You can utilize the <a href="https://istio.io/latest/docs/reference/config/istio.operator.v1alpha1/" target="_blank" rel="noopener noreferrer nofollow" >IstioOperator API</a> to make changes and additions for all components and apply those changes via this overlay YAML file.'
+  description: '{vendor} Istio helm chart installs a minimal Istio configuration for you to get started integrating with your applications.
   If you would like to get additional information about Istio, visit <a target="_blank" href="https://istio.io/latest/docs/concepts/what-is-istio" rel="noopener noreferrer nofollow">https://istio.io/latest/docs/concepts/what-is-istio/</a>'
   egressGateway: Enabled Egress Gateway
   ingressGateway: Enabled Ingress Gateway
@@ -1316,17 +1440,15 @@ landing:
     forums: Forums
   commercial:
     title: Commercial Support
-    body: Learn about commercial support <a href="https://rancher.com/support-maintenance-terms/" target='_blank' rel='noopener nofollow noreferrer'>here</a>.
+    body: Learn about commercial support
   landingPrefs:
     title: What do you want to see when you log in?
+    body: "You can change where you land when you login:"
     options:
-      thisScreen: Take me back to this screen
-      lastVisited: Take me back to the last place I visited
-      custom: Make my home screen...
-      defaultOverview: Overview for the default cluster ({cluster})
-      appsAndMarketplace: Apps and Marketplace
-      fleet: Fleet
-  welcomeToRancher: Welcome to Rancher
+      homePage: Take me to the home page
+      lastVisited: Take me to the area I last visited
+      custom: "Take me to cluster:"
+  welcomeToRancher: 'Welcome to {vendor}'
 
 logging:
   clusterFlow:
@@ -1608,6 +1730,9 @@ monitoring:
       volumeMode: Volume Mode
       volumeName: Volume Name
     title: Configure Grafana
+  hostNetwork:
+    label: Use Host Network For Prometheus Operator
+    tip: If you are using a managed Kubernetes cluster with custom CNI (e.g. Calico), you must enable this option to allow a managed control plane to contact the admission webhook exposed by Prometheus Operator to mutate or validate incoming PrometheusRules.
   overview:
     alertsList:
       ends:
@@ -1638,7 +1763,7 @@ monitoring:
         label: Prometheus Targets
     subtitle: 'Powered By: <a href="https://github.com/coreos/prometheus-operator" target="_blank" rel="noopener noreferrer nofollow">Prometheus</a>'
     title: Dashboard
-    v1Warning: 'Monitoring is currently deployed from Cluster Manager. If you are migrating from an older version of Rancher with monitoring enabled, please disable monitoring in Cluster Manager before attempting to use monitoring in Cluster Explorer.'
+    v1Warning: 'Monitoring is currently deployed from Cluster Manager. If you are migrating from an older version of {vendor} with monitoring enabled, please disable monitoring in Cluster Manager before attempting to use monitoring in Cluster Explorer.'
   prometheus:
     config:
       adminApi: Admin API
@@ -1671,7 +1796,7 @@ monitoring:
     title: Configure Prometheus
     warningInstalled: |
       Warning: Prometheus Operators are currently deployed. Deploying multiple Prometheus Operators onto one cluster is not currently supported. Please remove all other Prometheus Operator deployments from this cluster before trying to install this chart.
-      If you are migrating from an older version of Rancher with Monitoring enabled, please disable Monitoring on this cluster completely before attempting to install this chart.
+      If you are migrating from an older version of {vendor} with Monitoring enabled, please disable Monitoring on this cluster completely before attempting to install this chart.
   receiver:
     fields:
       name: Name
@@ -1702,7 +1827,7 @@ monitoring:
     general: General
     grafana: Grafana
     prometheus: Prometheus
-  v1Warning: 'Monitoring is currently deployed from Cluster Manager. If you are migrating from an older version of Rancher with monitoring enabled, please disable monitoring in Cluster Manager before attempting to install the new Rancher Monitoring chart in Cluster Explorer.'
+  v1Warning: 'Monitoring is currently deployed from Cluster Manager. If you are migrating from an older version of {vendor} with monitoring enabled, please disable monitoring in Cluster Manager before attempting to install the new {vendor} Monitoring chart in Cluster Explorer.'
   volume:
     modes:
       block: Block
@@ -1767,7 +1892,7 @@ monitoringRoute:
   interval:
     label: Group Interval
   matching:
-    info: The root route has to match everything so matching can't be configured.
+    info: The root route has to match everything so matching cannot be configured.
     label: Match
   receiver:
     label: Receiver
@@ -1777,6 +1902,11 @@ monitoringRoute:
     label: Repeat Interval
   wait:
     label: Group Wait
+
+moveModal:
+  title: Move to a new project?
+  description: 'You are moving the following namespaces:'
+  moveButtonLabel: Move
 
 nameNsDescription:
   name:
@@ -1799,6 +1929,7 @@ namespace:
   resources: Resources
   enableAutoInjection: Enable Istio Auto Injection
   disableAutoInjection: Disable Istio Auto Injection
+  move: Move
 
 namespaceFilter:
   selected:
@@ -1831,6 +1962,7 @@ node:
     tab:
       conditions: Conditions
       images: Images
+      metrics: Metrics
       info:
         label: Info
         key:
@@ -2258,6 +2390,16 @@ probe:
     label: Type
     placeholder: Select a check type
 
+project:
+  containerDefaultResourceLimit: Container Default Resource Limit
+  resourceQuotas: Resource Quotas
+
+projectNamespaces:
+  createNamespace: Create Namespace
+  createProject: Create Project
+  label: Projects/Namespaces
+  noNamespaces: There are no namespaces defined.
+
 prometheusRule:
   alertingRules:
     addLabel: Add Alert
@@ -2322,6 +2464,9 @@ promptRemove:
   attemptingToRemove: "You are attempting to delete the {type}"
   protip: "Tip: Hold the {alternateLabel} key while clicking delete to bypass this confirmation"
   confirmName: "Enter <b>{nameToMatch}</b> below to confirm:"
+
+promptRestore:
+  title: Restore Snapshot
 
 rancherAlertingDrivers:
   msTeams: Enable Microsoft Teams
@@ -2389,7 +2534,7 @@ rbac:
           false {group}} has to administer the overall {appName} installation.
       custom:
         label: Custom
-        description: Roles not created by Rancher.
+        description: 'Roles not created by {vendor}.'
       builtin:
         label: Built-in
         description: Additional roles to define more fine-grain permissions model.
@@ -2447,7 +2592,7 @@ rbac:
         description: Allows the user to define, edit, and remove Role definitions.
       settings-manage:
         label: Manage Settings
-        description: Allows the user to manage Rancher Settings.
+        description: 'Allows the user to manage {vendor} Settings.'
       users-manage:
         label: Manage Users
         description: Allows the user to create, remove, and set passwords for all Users.
@@ -2458,7 +2603,7 @@ rbac:
         label: Use Node Templates
         description: Allows the user to deploy new Nodes using any existing Node Templates.
       view-rancher-metrics:
-        label: View Rancher Metrics
+        label: 'View {vendor} Metrics'
         description: Allows the user to view Metrics through the API.
       base:
         label: Login Access
@@ -2486,6 +2631,7 @@ resourceDetail:
   header:
     clone: "Clone from {subtype} {name}"
     create: Create {subtype}
+    import: Import {subtype}
     edit: "{subtype} {name}"
     stage: "Stage from {subtype} {name}"
     view: "{subtype} {name}"
@@ -2550,7 +2696,10 @@ resourceYaml:
     namespaceRequired: This resource is namespaced, so a namespace must be provided.
   buttons:
     continue: Continue Editing
+    edit: Edit YAML
     diff: Show Diff
+    unified: Unified
+    split: Split
 
 rioConfig:
   configure:
@@ -2733,6 +2882,28 @@ servicesPage:
       label: Node Port
   typeOpts:
     label: Service Type
+
+setup:
+  welcome: Welcome to {vendor}!
+  setPassword: The first order of business is to set a strong password for the default <code>admin</code> user. We suggest using this random one generated just for you, but enter your own if you like. 
+  newPassword: New Password
+  confirmPassword: Confirm New Password
+  useRandom: Use a randomly generated password
+  useManual: Set a specific password to use
+  defaultPasswordError: It looks like this is your first time visting the Rancher UI, but the local admin account password is already set to something unique. Log in with that account below to continue the setup process.
+  telemetry:
+    label: Allow collection of anonymous statistics to help us improve Rancher
+    tip:  'Rancher Labs would like to collect a bit of anonymized information
+          about the configuration of your installation to help make Rio better.
+          Your data will not be shared with anyone else, and no information about
+          what specific resources or endpoints you are deploying is included.
+          Once enabled you can view exactly what data will be sent at <code>/v1-telemetry</code>.
+          <a href="https://rancher.com/docs/rancher/v2.x/en/faq/telemetry/" target="_blank" rel="noopener noreferrer nofollow">More Info</a>'
+  eula: I agree to the <a href="https://rancher.com/eula" target="_blank" rel="noopener noreferrer nofollow">terms and conditions</a> for using Rancher.
+  serverUrl: 
+    label: Server URL
+    tip:  What URL should be used for this Rancher installation? All the nodes in your clusters will need to be able to reach this. You can skip setting this for now, and update it later in General Settings>Advanced Settings.
+    skip: Skip
 
 sortableTable:
   actionAvailability:
@@ -3095,6 +3266,7 @@ tableHeaders:
   lastSeen: Last Seen
   loggingOutputProviders: Provider
   machines: Machines
+  manual: Manual
   matches: Matches
   maxKubernetesVersion: Max Kubernetes Version
   message: Message
@@ -3147,6 +3319,7 @@ tableHeaders:
   simpleName: Name
   simpleScale: Scale
   simpleType: Type
+  size: Size
   started: Started
   state: State
   status: Status
@@ -3337,10 +3510,10 @@ validation:
       interval: '"{key}" must be of a format with digits followed by a unit i.e. 1h, 2m, 30s'
 
 wizard:
-  back: Back
+  previous: Previous
   finish: Finish
   next: Next
-  step: "Step {number}:"
+  step: "Step {number}"
 
 wm:
   connection:
@@ -3451,7 +3624,7 @@ workload:
       name: Name
       protocol: Protocol
       listeningPort: Listening Port
-      removeContainer: Remove Container
+    removeContainer: Remove Container
     security:
       addCapabilities: Add Capabilities
       addGroupIDs: Add Group IDs
@@ -3491,12 +3664,14 @@ workload:
       containers: Containers
       env: Environment Variables
       events: Events
+      general: General
       healthCheck: Health Check
       image: Image
       networking: Networking
       networkSettings: Network Settings
       podAnnotations: Pod Annotations
       podLabels: Pod Labels
+      metrics: Metrics
       podScheduling: Pod Scheduling
       nodeScheduling: Node Scheduling
       ports: Ports
@@ -3797,6 +3972,10 @@ model:
       ldap: LDAP
       saml: SAML
       oauth: OAuth
+      oidc: OIDC
+    name:
+      keycloak: Keycloak (SAML)
+      keycloakoidc: Keycloak (OIDC)
     provider:
       system: System
       local: Local
@@ -3813,6 +3992,8 @@ model:
       okta: Okta
       freeipa: FreeIPA
       googleoauth: Google
+      oidc: OIDC
+      keycloakoidc: Keycloak
 
   cluster:
     name: Cluster Name
@@ -3863,7 +4044,7 @@ typeDescription:
   monitoring.coreos.com.prometheusrule: A Prometheus Rule resource defines both recording and/or alert rules. A recording rule can pre-compute values and save the results. Alerting rules allow you to define conditions on when to send notifications to AlertManager.
   monitoring.coreos.com.prometheus: A Prometheus server is a Prometheus deployment whose scrape configuration and rules are determined by selected ServiceMonitors, PodMonitors, and PrometheusRules and whose alerts will be sent to all selected Alertmanagers with the custom resource's configuration.
   monitoring.coreos.com.alertmanager: An alert manager is deployment whose configuration will be specified by a secret in the same namespace, which determines which alerts should go to which receiver.
-  catalog.cattle.io.clusterrepo: A chart repository is a Helm repository or Rancher's git based application catalog. It provides the list of available charts in the cluster.
+  catalog.cattle.io.clusterrepo: 'A chart repository is a Helm repository or {vendor} git based application catalog. It provides the list of available charts in the cluster.'
   catalog.cattle.io.operation: An operation is the list of recent Helm operations that have been applied to the cluster.
   catalog.cattle.io.app: An installed application is a Helm 3 chart that was installed either via our charts or through the Helm CLI.
   logging.banzaicloud.io.clusterflow: Logs from the cluster will be collected and logged to the selected Cluster Output.
@@ -4581,6 +4762,7 @@ advancedSettings:
     'server-version': Harvester server version.
     'upgrade-checker-enabled': Specify whether to enable Harvester upgrade check or not. Default is true.
     'upgrade-checker-url': Default Harvester upgrade check url. Only used when the <code>upgrade-checker-enabled</code>  is equal to true.
+    'brand': Folder name for an alternative theme defined in '/assets/brand'
   editHelp:
     'ui-banners': This setting takes a JSON object containing 3 root parameters; <code>banner</code>, <code>showHeader</code>, <code>showFooter</code>. <code>banner</code> is an object containing; <code>textColor</code>, <code>background</code>, and <code>text</code>, where <code>textColor</code> and <code>background</code> are any valid CSS color value.
   enum:
@@ -4594,10 +4776,75 @@ advancedSettings:
 
 featureFlags:
   label: Feature Flags
-  warning: Feature flags allow Rancher to gate certain features behind flags. You should enable these features with caution, and they should be considered beta functionality, which could cause problems for your system. Additionally, some features (non-dynamic) require a restart of the Rancher server to be enabled. Changing non-dynamic features will restart Rancher pods, which will result in a short outage.
+  warning: |-
+    Feature flags allow {vendor} to gate certain features behind flags.
+    Features that are off by defult shoud be considered experimental functionality.
+    Some features require a restart of the {vendor} server to change.
+    This will result in a short outage of the API and UI, but not affect running clusters or workloads.
   promptActivate: Please confirm that you want to activate the feature flag "{flag}"
   promptDeactivate: Please confirm that you want to deactivate the feature flag "{flag}"
   restartRequired: "Note: Updating this feature flag requires a restart"
+
+branding:
+  label: Branding
+  directoryName: Brand Asset Directory Name
+  logos:
+    label: Logo
+    tip: 'Upload a logo to replace the Rancher logo in the top-level navigation header. Image height should be 21 pixels with a max width of 200 pixels. Max file size is 20KB'
+    lightPreview: Light Theme Preview
+    darkPreview: Dark Theme Preview
+    uploadLight: Upload Light Logo
+    uploadDark: Upload Dark Logo
+    useCustom: Use a Custom Logo
+  options:
+    default: Default Rancher Theme
+    suse: SUSE Theme
+    custom: Define a Custom Theme
+  uiPL:
+    label: Private Label Company Name
+  uiIssues:
+    label: Issue Reporting URL
+  uiBanner:
+    label: Fixed Banners
+    text: Text
+    textColor: Text Color
+    background: Background Color
+    showHeader: Show Banner in Header
+    showFooter: Show Banner in Footer
+  color:
+    label: Primary Color
+    tip: You can override the primary color used throughout the UI with a custom color of your choice.
+    useCustom: Use a Custom Color
+
+resourceQuota:
+  configMaps: Config Maps
+  limitsCpu: CPU Limit
+  limitsMemory: Memory Limit
+  persistentVolumeClaims: Persistent Volume Claims
+  pods: Pods
+  replicationControllers: Replication Controllers
+  requestsCpu: CPU Reservation
+  requestsMemory: Memory Reservation
+  requestsStorage: Storage Reservation
+  secrets: Secrets
+  services: Services
+  servicesLoadBalancers: Services Load Balancers
+  servicesNodePorts: Service Node Ports
+  projectLimit:
+    label: Project Limit
+    cpuPlaceholder: e.g. 2000
+    memoryPlaceholder: e.g. 2048
+    storagePlaceholder: e.g. 50
+    unitlessPlaceholder: e.g. 50
+  namespaceDefaultLimit:
+    label: Namespace Default Limit
+    cpuPlaceholder: e.g. 500
+    memoryPlaceholder: e.g. 1024
+    storagePlaceholder: e.g. 10
+    unitlessPlaceholder: e.g. 10
+  resourceType:
+    label: Resource Type
+
 
 ##############################
 ### Support Page
@@ -4606,12 +4853,23 @@ featureFlags:
 support:
   community:
     title: SUSE Rancher provides world-class support
-    register: Already have support? Add your SUSE Subscription ID
-    addSubscription: Add
     linksTitle: Community Support
     learnMore: Find out more about SUSE Rancher Support
+    pricing: Contact us for pricing
+  subscription:
+    haveSupport: Already have support? 
+    addSubscription: Add a Subscription ID
+    removeSubscription: Remove your Subscription ID
+    addTitle: Add your SUSE Subscription ID
+    removeTitle: Remove your ID?
+    removeBody: "Note: This will not effect your subscription."
   suse:
     title: "Great News - You're covered"
+    editBrand: Customize UI Theme
+    access:
+      title: Get Support
+      text: Login to SUSE Customer Center to access support for your subscription
+      action: SUSE Customer Center
   promos:
     one:
       title: 24x7 Support
@@ -4625,3 +4883,7 @@ support:
     four:
       title: Innovate with Freedom
       text: Take advantage of our certified compatibility with a wide range of Kubernetes providers, operating systems, and open source software.
+
+embedding:
+  retry: Retry
+  unavailable: Cluster Manager UI is not available

@@ -8,12 +8,16 @@ export const state = function() {
     resources:             [],
     elem:                  null,
     event:                 null,
+    showPromptMove:        false,
     showPromptRemove:      false,
+    showPromptRestore:     false,
     showAssignTo:          false,
     showEjectCDROM:        false,
     showPromptUpdate:      false,
+    toMove:                [],
     toRemove:              [],
     toAssign:              [],
+    toRestore:             [],
     toEject:               [],
     toUpdate:              [],
     toEnable:              null,
@@ -86,6 +90,29 @@ export const mutations = {
       }
     }
     state.toRemove = resources;
+  },
+
+  togglePromptMove(state, resources) {
+    if (!resources) {
+      state.showPromptMove = false;
+      resources = [];
+    } else {
+      state.showPromptMove = !state.showPromptMove;
+      state.toMove = Array.isArray(resources) ? resources : [resources];
+    }
+  },
+
+  togglePromptRestore(state, resources) {
+    if (!resources) {
+      state.showPromptRestore = false;
+      resources = [];
+    } else {
+      state.showPromptRestore = !state.showPromptRestore;
+      if (!isArray(resources)) {
+        resources = [resources];
+      }
+    }
+    state.toRestore = resources;
   },
 
   toggleAssignTo(state, resources) {

@@ -278,7 +278,11 @@ export default {
     },
 
     showHeaderRow() {
-      return this.search || this.tableActions;
+      return this.search ||
+        this.tableActions ||
+        this.$slots['header-left']?.length ||
+        this.$slots['header-middle']?.length ||
+        this.$slots['header-right']?.length;
     },
 
     columns() {
@@ -436,13 +440,19 @@ export default {
       }
     },
 
+    nearestCheckbox() {
+      const $cur = $(document.activeElement).closest('tr.main-row').find('.checkbox-custom');
+
+      return $cur[0];
+    },
+
     focusAdjacent(next = true) {
       const all = $('.checkbox-custom', this.$el).toArray();
-      const $cur = $(document.activeElement).closest('tr.main-row').find('.checkbox-custom');
+      const cur = this.nearestCheckbox();
       let idx = -1;
 
-      if ( $cur.length ) {
-        idx = all.indexOf($cur[0]) + (next ? 1 : -1 );
+      if ( cur ) {
+        idx = all.indexOf(cur) + (next ? 1 : -1 );
       } else if ( next ) {
         idx = 1;
       } else {
@@ -459,16 +469,24 @@ export default {
 
       if ( all[idx] ) {
         all[idx].focus();
+
+        return all[idx];
       }
     },
 
-    focusNext: throttle(function() {
-      this.focusAdjacent(true);
-    }, 100),
+    focusNext: throttle(function(event, more = false) {
+      const elem = this.focusAdjacent(true);
+      const row = $(elem).parents('tr');
 
-    focusPrevious: throttle(function() {
-      this.focusAdjacent(false);
-    }, 100),
+      this.keySelectRow(row, more);
+    }, 50),
+
+    focusPrevious: throttle(function(event, more = false) {
+      const elem = this.focusAdjacent(false);
+      const row = $(elem).parents('tr');
+
+      this.keySelectRow(row, more);
+    }, 50),
   }
 };
 </script>
@@ -522,12 +540,20 @@ export default {
           </label>
         </div>
 
-        <div class="middle">
+        <div v-if="$slots['header-middle'] && $slots['header-middle'].length" class="middle">
           <slot name="header-middle" />
         </div>
 
-        <div v-if="search" class="search">
-          <input ref="searchQuery" v-model="searchQuery" type="search" class="input-sm" :placeholder="t('sortableTable.search')">
+        <div v-if="search || ($slots['header-right'] && $slots['header-right'].length)" class="search">
+          <slot name="header-right" />
+          <input
+            v-if="search"
+            ref="searchQuery"
+            v-model="searchQuery"
+            type="search"
+            class="input-sm"
+            :placeholder="t('sortableTable.search')"
+          >
         </div>
       </div>
     </div>
@@ -544,14 +570,16 @@ export default {
         :sort-by="sortBy"
         :default-sort-by="_defaultSortBy"
         :descending="descending"
+        :no-rows="noRows"
+        :no-results="noResults"
         @on-toggle-all="onToggleAll"
         @on-sort-change="changeSort"
       />
 
       <tbody v-if="noRows">
         <slot name="no-rows">
-          <tr>
-            <td :colspan="fullColspan" class="no-rows">
+          <tr class="no-rows">
+            <td :colspan="fullColspan">
               <t v-if="showNoRows" :k="noRowsKey" />
             </td>
           </tr>
@@ -559,8 +587,8 @@ export default {
       </tbody>
       <tbody v-else-if="noResults">
         <slot name="no-results">
-          <tr>
-            <td :colspan="fullColspan" class="no-results text-center">
+          <tr class="no-results">
+            <td :colspan="fullColspan" class="text-center">
               <t :k="noDataKey" />
             </td>
           </tr>
@@ -581,61 +609,63 @@ export default {
             </slot>
           </tr>
         </slot>
-        <template v-for="row in group.rows">
+        <template v-for="(row, i) in group.rows">
           <slot name="main-row" :row="row">
-            <!-- The data-cant-run-bulk-action-of-interest attribute is being used instead of :class because
-            because our selection.js invokes toggleClass and :class clobbers what was added by toggleClass if
-            the value of :class changes. -->
-            <tr :key="get(row,keyField)" class="main-row" :data-node-id="get(row,keyField)" :data-cant-run-bulk-action-of-interest="actionOfInterest && !canRunBulkActionOfInterest(row)">
-              <td v-if="tableActions" class="row-check" align="middle">
-                <Checkbox class="selection-checkbox" :data-node-id="get(row,keyField)" :value="tableSelected.includes(row)" />
-              </td>
-              <td v-if="subExpandColumn" class="row-expand" align="middle">
-                <i data-title="Toggle Expand" :class="{icon: true, 'icon-chevron-right': true, 'icon-chevron-down': !!expanded[get(row, keyField)]}" @click.stop="toggleExpand(row)" />
-              </td>
-              <template v-for="col in columns">
-                <slot
-                  :name="'col:' + col.name"
-                  :row="row"
-                  :col="col"
-                  :dt="dt"
-                  :expanded="expanded"
-                  :rowKey="get(row,keyField)"
-                >
-                  <td
-                    :key="col.name"
-                    :data-title="labelFor(col)"
-                    :align="col.align || 'left'"
-                    :class="{['col-'+dasherize(col.formatter||'')]: !!col.formatter}"
-                    :width="col.width"
+            <slot :name="'main-row:' + (row.mainRowKey || i)">
+              <!-- The data-cant-run-bulk-action-of-interest attribute is being used instead of :class because
+              because our selection.js invokes toggleClass and :class clobbers what was added by toggleClass if
+              the value of :class changes. -->
+              <tr :key="get(row,keyField)" class="main-row" :data-node-id="get(row,keyField)" :data-cant-run-bulk-action-of-interest="actionOfInterest && !canRunBulkActionOfInterest(row)">
+                <td v-if="tableActions" class="row-check" align="middle">
+                  {{ row.mainRowKey }}<Checkbox class="selection-checkbox" :data-node-id="get(row,keyField)" :value="tableSelected.includes(row)" />
+                </td>
+                <td v-if="subExpandColumn" class="row-expand" align="middle">
+                  <i data-title="Toggle Expand" :class="{icon: true, 'icon-chevron-right': true, 'icon-chevron-down': !!expanded[get(row, keyField)]}" @click.stop="toggleExpand(row)" />
+                </td>
+                <template v-for="col in columns">
+                  <slot
+                    :name="'col:' + col.name"
+                    :row="row"
+                    :col="col"
+                    :dt="dt"
+                    :expanded="expanded"
+                    :rowKey="get(row,keyField)"
                   >
-                    <slot :name="'cell:' + col.name" :row="row" :col="col" :value="valueFor(row,col)">
-                      <component
-                        :is="col.formatter"
-                        v-if="col.formatter"
-                        :value="valueFor(row,col)"
-                        :row="row"
-                        :col="col"
-                        v-bind="col.formatterOpts"
-                      />
-                      <template v-else-if="valueFor(row,col) !== ''">
-                        {{ valueFor(row,col) }}
-                      </template>
-                      <template v-else-if="col.dashIfEmpty">
-                        <span class="text-muted">&mdash;</span>
-                      </template>
-                    </slot>
-                  </td>
-                </slot>
-              </template>
-              <td v-if="rowActions" align="middle">
-                <slot name="row-actions" :row="row">
-                  <button aria-haspopup="true" aria-expanded="false" type="button" class="btn btn-sm role-multi-action actions">
-                    <i class="icon icon-actions" />
-                  </button>
-                </slot>
-              </td>
-            </tr>
+                    <td
+                      :key="col.name"
+                      :data-title="labelFor(col)"
+                      :align="col.align || 'left'"
+                      :class="{['col-'+dasherize(col.formatter||'')]: !!col.formatter}"
+                      :width="col.width"
+                    >
+                      <slot :name="'cell:' + col.name" :row="row" :col="col" :value="valueFor(row,col)">
+                        <component
+                          :is="col.formatter"
+                          v-if="col.formatter"
+                          :value="valueFor(row,col)"
+                          :row="row"
+                          :col="col"
+                          v-bind="col.formatterOpts"
+                        />
+                        <template v-else-if="valueFor(row,col) !== ''">
+                          {{ valueFor(row,col) }}
+                        </template>
+                        <template v-else-if="col.dashIfEmpty">
+                          <span class="text-muted">&mdash;</span>
+                        </template>
+                      </slot>
+                    </td>
+                  </slot>
+                </template>
+                <td v-if="rowActions" align="middle">
+                  <slot name="row-actions" :row="row">
+                    <button aria-haspopup="true" aria-expanded="false" type="button" class="btn btn-sm role-multi-action actions">
+                      <i class="icon icon-actions" />
+                    </button>
+                  </slot>
+                </td>
+              </tr>
+            </slot>
           </slot>
           <slot
             v-if="subRows && (!subExpandable || expanded[get(row,keyField)])"
@@ -684,9 +714,14 @@ export default {
         <i class="icon icon-chevron-end" />
       </button>
     </div>
-    <button v-shortkey.once="['/']" class="hide" @shortkey="focusSearch()" />
-    <button v-if="tableActions" v-shortkey="['j']" class="hide" @shortkey="focusNext()" />
-    <button v-if="tableActions" v-shortkey="['k']" class="hide" @shortkey="focusPrevious()" />
+    <button v-if="search" v-shortkey.once="['/']" class="hide" @shortkey="focusSearch()" />
+    <template v-if="tableActions">
+      <button v-shortkey="['j']" class="hide" @shortkey="focusNext($event)" />
+      <button v-shortkey="['k']" class="hide" @shortkey="focusPrevious($event)" />
+      <button v-shortkey="['shift','j']" class="hide" @shortkey="focusNext($event, true)" />
+      <button v-shortkey="['shift','k']" class="hide" @shortkey="focusPrevious($event, true)" />
+      <slot name="shortkeys" />
+    </template>
   </div>
 </template>
 
@@ -775,8 +810,16 @@ $spacing: 10px;
     }
 
     .no-rows {
-      padding: 30px 0;
-      text-align: center;
+      td {
+        padding: 30px 0;
+        text-align: center;
+      }
+    }
+
+    .no-rows, .no-results {
+      &:hover {
+        background-color: var(--body-bg);
+      }
     }
 
     &.group {
@@ -908,6 +951,7 @@ $spacing: 10px;
 
   .search {
     grid-area: search;
+    text-align: right;
   }
 
   .external-actions {

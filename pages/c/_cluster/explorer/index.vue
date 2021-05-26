@@ -5,8 +5,8 @@ import { mapGetters } from 'vuex';
 import isEmpty from 'lodash/isEmpty';
 import SortableTable from '@/components/SortableTable';
 import { allHash } from '@/utils/promise';
-import Poller from '@/utils/poller';
 import AlertTable from '@/components/AlertTable';
+import Banner from '@/components/Banner';
 import {
   parseSi, formatSi, exponentNeeded, UNITS, createMemoryFormat, MEMORY_PARSE_RULES
 } from '@/utils/units';
@@ -30,15 +30,14 @@ import {
   CATALOG,
 } from '@/config/types';
 import { findBy } from '@/utils/array';
+import { mapPref, CLUSTER_TOOLS_TIP } from '@/store/prefs';
 import Tabbed from '@/components/Tabbed';
 import Tab from '@/components/Tabbed/Tab';
 import { allDashboardsExist } from '@/utils/grafana';
 import EtcdInfoBanner from '@/components/EtcdInfoBanner';
+import metricPoller from '@/mixins/metric-poller';
 import ResourceSummary, { resourceCounts } from './ResourceSummary';
 import HardwareResourceGauge from './HardwareResourceGauge';
-
-const METRICS_POLL_RATE_MS = 30000;
-const MAX_FAILURES = 2;
 
 const RESOURCES = [NAMESPACE, INGRESS, PV, WORKLOAD_TYPES.DEPLOYMENT, WORKLOAD_TYPES.STATEFUL_SET, WORKLOAD_TYPES.JOB, WORKLOAD_TYPES.DAEMON_SET, SERVICE];
 
@@ -59,8 +58,11 @@ export default {
     SortableTable,
     Tab,
     Tabbed,
-    AlertTable
+    AlertTable,
+    Banner,
   },
+
+  mixins: [metricPoller],
 
   async fetch() {
     const hash = {
@@ -126,7 +128,6 @@ export default {
     ];
 
     return {
-      metricPoller:        null,
       eventHeaders,
       nodeHeaders,
       constraints:         [],
@@ -150,6 +151,8 @@ export default {
 
   computed: {
     ...mapGetters(['currentCluster']),
+
+    hideClusterToolsTip: mapPref(CLUSTER_TOOLS_TIP),
 
     displayProvider() {
       const other = 'other';
@@ -259,11 +262,10 @@ export default {
     canAccessDeployments() {
       return !!this.clusterCounts?.[0]?.counts?.[WORKLOAD_TYPES.DEPLOYMENT];
     },
-  },
 
-  mounted() {
-    this.metricPoller = new Poller(this.loadMetrics, METRICS_POLL_RATE_MS, MAX_FAILURES);
-    this.metricPoller.start();
+    hasMetricsTabs() {
+      return this.showClusterMetrics || this.showK8sMetrics || this.showEtcdMetrics;
+    }
   },
 
   methods: {
@@ -318,10 +320,6 @@ export default {
     findBy,
   },
 
-  beforeRouteLeave(to, from, next) {
-    this.metricPoller.stop();
-    next();
-  }
 };
 </script>
 
@@ -338,6 +336,14 @@ export default {
         </div>
       </div>
     </header>
+    <Banner
+      v-if="!hideClusterToolsTip"
+      :closable="true"
+      class="cluster-tools-tip"
+      color="info"
+      label-key="cluster.toolsTip"
+      @close="hideClusterToolsTip = true"
+    />
     <div
       class="cluster-dashboard-glance"
     >
@@ -403,7 +409,7 @@ export default {
         </template>
       </SortableTable>
     </div>
-    <Tabbed class="mt-30">
+    <Tabbed v-if="hasMetricsTabs" class="mt-30">
       <Tab v-if="showClusterMetrics" name="cluster-metrics" :label="t('clusterIndexPage.sections.clusterMetrics.label')" :weight="2">
         <template #default="props">
           <DashboardMetrics
@@ -478,5 +484,9 @@ export default {
 
 .etcd-metrics ::v-deep .external-link {
   top: -102px;
+}
+
+.cluster-tools-tip {
+  margin-top: 0;
 }
 </style>

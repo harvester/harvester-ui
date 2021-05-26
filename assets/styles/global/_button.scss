@@ -60,10 +60,15 @@ button,
 
 //btn roles
 .role-primary {
-  background: var(--link-text);
+  background: var(--primary);
   color: var(--primary-text);
 
   &:hover {
+    background-color: var(--primary-hover-bg);
+    color: var(--primary-text);
+  }
+
+  &:focus {
     background-color: var(--primary-hover-bg);
     color: var(--primary-text);
   }
@@ -77,19 +82,19 @@ button,
 
 .role-tertiary {
   background: var(--accent-btn);
-  border: solid thin var(--link-text);
-  color: var(--link-text);
+  border: solid thin var(--primary);
+  color: var(--primary);
 }
 
 .role-link {
   background: transparent;
-  color: var(--link-text) !important;
+  color: var(--link) !important;
 }
 
 .role-multi-action {
   background: var(--accent-btn);
-  border: solid thin var(--link-text);
-  color: var(--link-text);
+  border: solid thin var(--primary);
+  color: var(--primary);
   border-radius: 2px;
 }
 
@@ -141,5 +146,10 @@ fieldset[disabled] .btn {
       border-top-right-radius: var(--border-radius);
       border-bottom-right-radius: var(--border-radius);
     }
+  }
+
+  .btn[disabled] {
+    // Ensure disabled button's border remains as-is, otherwise button appears vertically shorter than others in group
+    border: inherit;
   }
 }

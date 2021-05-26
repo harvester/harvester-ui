@@ -1,6 +1,6 @@
-export function options(pl) {
-  if ( pl !== 'rancher' ) {
-    return {};
+export function options(pl, issues) {
+  if (!issues) {
+    issues = 'https://github.com/rancher/dashboard/issues/new';
   }
 
   return {

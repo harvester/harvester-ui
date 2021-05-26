@@ -1,19 +1,35 @@
 <script>
+import ActionMenu from '@/components/ActionMenu';
 import PureHeader from '@/components/nav/PureHeader';
+import PromptRemove from '@/components/PromptRemove';
+import AssignTo from '@/components/AssignTo';
+import IndentedPanel from '@/components/IndentedPanel';
+import Brand from '@/mixins/brand';
+import FixedBanner from '@/components/FixedBanner';
 
 export default {
 
-  components: { PureHeader },
+  components: {
+    ActionMenu,
+    AssignTo,
+    PureHeader,
+    IndentedPanel,
+    PromptRemove,
+    FixedBanner
+  },
 
   middleware: ['authenticated'],
 
-  head() {
-    const theme = this.$store.getters['prefs/theme'];
+  mixins: [Brand],
 
+  data() {
     return {
-      bodyAttrs: { class: `theme-${ theme } overflow-hidden dashboard-body` },
-      title:     this.$store.getters['i18n/t']('nav.title'),
+      // Assume home pages have routes where the name is the key to use for string lookup
+      name: this.$route.name,
     };
+  },
+  mounted() {
+    this.$store.dispatch('prefs/setBrand');
   },
 
 };
@@ -21,18 +37,31 @@ export default {
 
 <template>
   <div class="dashboard-root">
-    <PureHeader />
+    <div class="dashboard-content">
+      <PureHeader />
+      <main>
+        <IndentedPanel class="pt-20">
+          <nuxt class="outlet" />
+        </IndentedPanel>
+        <ActionMenu />
+        <PromptRemove />
+        <AssignTo />
+      </main>
+    </div>
 
-    <main>
-      <nuxt class="outlet" />
-    </main>
+    <FixedBanner :footer="true" />
   </div>
 </template>
 
 <style lang="scss" scoped>
   .dashboard-root {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     height: 100vh;
+  }
+  .dashboard-content {
+    display: grid;
+    flex-grow: 1;
 
     grid-template-areas:
       "header"
@@ -51,13 +80,8 @@ export default {
     overflow: auto;
 
     .outlet {
-      padding: 20px;
       min-height: 100%;
-    }
-
-    FOOTER {
-      background-color: var(--nav-bg);
-      height: var(--footer-height);
+      padding: 0;
     }
   }
 </style>

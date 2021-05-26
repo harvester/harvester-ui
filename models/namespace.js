@@ -7,7 +7,7 @@ import { insertAt, isArray } from '@/utils/array';
 export default {
 
   _availableActions() {
-    const out = this._standardActions;
+    const out = [...this._standardActions];
 
     insertAt(out, 0, { divider: true });
     if (this.istioInstalled) {
@@ -32,7 +32,25 @@ export default {
       });
     }
 
+    if (this.$rootGetters['isRancher']) {
+      insertAt(out, 0, {
+        action:     'move',
+        label:      this.t('namespace.move'),
+        bulkable:   true,
+        bulkAction: 'move',
+        enabled:    true,
+        icon:       'icon icon-fork',
+        weight:     3,
+      });
+    }
+
     return out;
+  },
+
+  move() {
+    return (resources = this) => {
+      this.$dispatch('promptMove', resources);
+    };
   },
 
   isSystem() {
@@ -125,5 +143,13 @@ export default {
 
   isHCIUserNS() {
     return this?.getAnnotationValue(HCI_USER_NAMESPACE) === 'true' || this?.id === 'harvester-public';
+  },
+
+  listLocation() {
+    return { name: this.$rootGetters['isRancher'] ? 'c-cluster-product-projectsnamespaces' : 'c-cluster-product-namespaces' };
+  },
+
+  parentLocationOverride() {
+    return this.listLocation;
   }
 };

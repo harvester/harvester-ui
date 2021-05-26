@@ -1,4 +1,6 @@
 <script>
+import BrandImage from '@/components/BrandImage';
+import RancherProviderIcon from '@/components/RancherProviderIcon';
 import { mapGetters } from 'vuex';
 import { MANAGEMENT } from '@/config/types';
 import { mapPref, DEV } from '@/store/prefs';
@@ -14,7 +16,7 @@ const MAX_CLUSTERS_TO_SHOW = 4;
 
 export default {
 
-  components: {},
+  components: { BrandImage, RancherProviderIcon },
 
   data() {
     const { displayVersion, fullVersion } = getVersionInfo(this.$store);
@@ -52,11 +54,12 @@ export default {
       const all = this.$store.getters['management/all'](MANAGEMENT.CLUSTER);
       let out = all.map((x) => {
         return {
-          id:     x.id,
-          label:  x.nameDisplay,
-          ready:  x.isReady,
-          osLogo: x.providerOsLogo,
-          logo:   x.providerLogo,
+          id:      x.id,
+          label:   x.nameDisplay,
+          ready:   x.isReady,
+          osLogo:  x.providerOsLogo,
+          logo:    x.providerLogo,
+          isLocal: x.isLocal
         };
       });
 
@@ -167,7 +170,9 @@ export default {
       <div v-if="shown" class="side-menu" tabindex="-1">
         <div class="title">
           <div class="menu-spacer"></div>
-          <img class="side-menu-logo" src="~/assets/images/pl/rancher-logo.svg" width="110" />
+          <div class="side-menu-logo">
+            <BrandImage file-name="rancher-logo.svg" />
+          </div>
         </div>
         <div class="body">
           <div @click="hide()">
@@ -196,10 +201,11 @@ export default {
             <div v-for="c in clusters" :key="c.id" @click="hide()">
               <nuxt-link
                 v-if="c.ready"
-                class="cluster selector"
+                class="cluster selector option"
                 :to="{ name: 'c-cluster', params: { cluster: c.id } }"
               >
-                <img :src="c.logo" />
+                <RancherProviderIcon v-if="c.isLocal" width="25" class="rancher-provider-icon" />
+                <img v-else :src="c.logo" />
                 <div>{{ c.label }}</div>
               </nuxt-link>
               <span v-else class="cluster selector disabled">
@@ -215,19 +221,23 @@ export default {
             <div class="category">
               {{ t('nav.categories.multiCluster') }}
             </div>
-            <nuxt-link v-for="a in multiClusterApps" :key="a.label" class="option" :to="a.to">
-              <i class="icon group-icon" :class="a.icon" />
-              <div>{{ a.label }}</div>
-            </nuxt-link>
+            <div v-for="a in multiClusterApps" :key="a.label" @click="hide()">
+              <nuxt-link class="option" :to="a.to">
+                <i class="icon group-icon" :class="a.icon" />
+                <div>{{ a.label }}</div>
+              </nuxt-link>
+            </div>
           </template>
           <template v-if="configurationApps.length">
             <div class="category">
               {{ t('nav.categories.configuration') }}
             </div>
-            <nuxt-link v-for="a in configurationApps" :key="a.label" class="option" :to="a.to">
-              <i class="icon group-icon" :class="a.icon" />
-              <div>{{ a.label }}</div>
-            </nuxt-link>
+            <div v-for="a in configurationApps" :key="a.label" @click="hide()">
+              <nuxt-link class="option" :to="a.to">
+                <i class="icon group-icon" :class="a.icon" />
+                <div>{{ a.label }}</div>
+              </nuxt-link>
+            </div>
           </template>
           <div class="pad"></div>
           <div class="cluster-manager">
@@ -245,7 +255,7 @@ export default {
           <div @click="hide()">
             <nuxt-link
               v-tooltip="{ content: fullVersion, classes: 'footer-tooltip' }"
-              :to="{ name: 'docs-doc', params: { doc: 'release-notes' } }"
+              :to="{ name: 'about' }"
               class="version"
               v-html="displayVersion"
             />
@@ -299,6 +309,12 @@ export default {
     background: var(--primary-hover-bg);
     border-radius: 5px;
     text-decoration: none;
+
+    .rancher-provider-icon {
+      .rancher-icon-fill {
+        fill: var(--primary-hover-text);;
+      }
+    }
   }
 
   .localeSelector {
@@ -314,6 +330,7 @@ export default {
       outline: 0;
     }
   }
+
 </style>
 
 <style lang="scss" scoped>
@@ -327,9 +344,17 @@ export default {
     cursor: pointer;
     display: flex;
     padding: $option-padding 0 $option-padding 10px;
+    color: var(--link);
 
     &:hover {
       text-decoration: none;
+    }
+
+    &:focus {
+      outline: 0;
+      > div {
+        text-decoration: underline;
+      }
     }
 
     > i {
@@ -342,7 +367,7 @@ export default {
     }
 
     > div {
-      color: var(--link-text);
+      color: var(--link);
     }
 
     &:hover {
@@ -389,7 +414,7 @@ export default {
     position: absolute;
     top: 0;
     left: 0px;
-    height: 100vh;
+    bottom: 0;
     width: 280px;
     background-color: var(--topmenu-bg);
     z-index: 100;
@@ -494,7 +519,7 @@ export default {
           opacity: 0.7;
           cursor: pointer;
           &:hover {
-            color: var(--primary-hover-bg);
+            color: var(--disabled-bg);
           }
         }
       }
@@ -520,7 +545,7 @@ export default {
       flex-direction: row;
       > * {
         flex: 1;
-        color: var(--link-text);
+        color: var(--link);
 
         &:first-child {
           text-align: left;
@@ -542,17 +567,26 @@ export default {
     position: absolute;
     top: 0;
     left: 0px;
-    height: 100vh;
+    bottom: 0;
     width: 100vw;
     z-index: 99;
     opacity: 1;
   }
 
   .side-menu-logo {
+    align-items: center;
+    display: flex;
     margin-left: 10px;
     opacity: 1;
     transition: opacity 1.2s;
     transition-delay: 0s;
+    height: 55px;
+    max-width: 200px;
+    & IMG {
+      object-fit: contain;
+      height: 21px;
+      max-width: 200px;
+    }
   }
 
   .fade-enter-active {
@@ -603,8 +637,8 @@ export default {
       padding: 8px 20px;
 
       &:hover {
-        background-color: var(--dropdown-hover-bg);
-        color: var(--dropdown-hover-text);
+        background-color: var(--primary-hover-bg);
+        color: var(--primary-hover-text);
         text-decoration: none;
       }
     }

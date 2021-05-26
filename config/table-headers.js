@@ -48,11 +48,12 @@ export const LOGGING_OUTPUT_PROVIDERS = {
 };
 
 export const SIMPLE_NAME = {
-  name:     'name',
-  labelKey: 'tableHeaders.simpleName',
-  value:    'name',
-  sort:     ['name'],
-  width:    200
+  name:          'name',
+  labelKey:      'tableHeaders.simpleName',
+  value:         'name',
+  sort:          ['name'],
+  width:         200,
+  canBeVariable: true,
 };
 
 export const EFFECT = {
@@ -834,7 +835,7 @@ export const FEATURE_DESCRIPTION = {
   width:    300,
 };
 
-export const FEATURE_STATE = {
+export const STATE_NORMAN = {
   name:      'state',
   labelKey:  'tableHeaders.state',
   sort:      ['stateSort', 'nameSort'],

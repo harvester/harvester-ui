@@ -84,7 +84,7 @@ export default {
       if (this.spoofedCounts) {
         return this.spoofedCounts.name;
       }
-      const inStore = this.$store.getters['currentProduct'].inStore;
+      const inStore = this.$store.getters['currentStore'](this.resource);
       const schema = this.$store.getters[`${ inStore }/schemaFor`](this.resource);
 
       return this.$store.getters['type-map/labelFor'](schema, this.resourceCounts.useful);
@@ -126,7 +126,7 @@ export default {
     cursor: pointer;
 
     &:hover {
-      border-color: var(--link-text);
+      border-color: var(--link);
     }
   }
 

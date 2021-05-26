@@ -1,5 +1,6 @@
 import { CAPI, MANAGEMENT, NORMAN } from '@/config/types';
-import { findBy } from '@/utils/array';
+import { proxyFor } from '@/plugins/steve/resource-proxy';
+import { findBy, insertAt } from '@/utils/array';
 import { sortBy } from '@/utils/sort';
 import { ucFirst } from '@/utils/string';
 
@@ -25,6 +26,28 @@ export default {
     return out;
   },
 
+  _availableActions() {
+    const out = this._standardActions;
+
+    insertAt(out, 0, {
+      action:     'openShell',
+      label:      'Kubectl Shell',
+      icon:       'icon icon-terminal',
+      enabled:    !!this.mgmt?.links.shell,
+    });
+
+    insertAt(out, 1, {
+      action:     'downloadKubeConfig',
+      bulkAction: 'downloadKubeConfigBulk',
+      label:      'Download KubeConfig',
+      icon:       'icon icon-download',
+      bulkable:   true,
+      enabled:    this.$rootGetters['isRancher'],
+    });
+
+    return out;
+  },
+
   isImported() {
     return this.provisioner === 'imported';
   },
@@ -35,6 +58,10 @@ export default {
 
   isRke2() {
     return !!this.spec?.rkeConfig;
+  },
+
+  isRke1() {
+    return !!this.mgmt?.spec?.rancherKubernetesEngineConfig;
   },
 
   mgmt() {
@@ -96,14 +123,14 @@ export default {
     if ( this.isImported ) {
       return null;
     } else if ( this.isRke2 ) {
-      const kind = this.spec?.rkeConfig?.nodePools?.[0]?.nodeConfigRef?.kind.toLowerCase();
+      const kind = this.spec?.rkeConfig?.nodePools?.[0]?.nodeConfigRef?.kind?.toLowerCase();
 
       if ( kind ) {
         return kind.replace(/config$/i, '').toLowerCase();
       }
 
       return null;
-    } else if ( this.mgmt ) {
+    } else if ( this.mgmt?.nodeProvider ) {
       return this.mgmt.nodeProvider.toLowerCase();
     }
   },
@@ -115,7 +142,11 @@ export default {
 
     const provider = (this.nodeProvider || '').toLowerCase();
 
-    return this.$rootGetters['i18n/withFallback'](`cluster.provider."${ provider }"`, null, 'generic.unknown', true);
+    if ( provider ) {
+      return this.$rootGetters['i18n/withFallback'](`cluster.provider."${ provider }"`, null, provider);
+    } else {
+      return this.$rootGetters['i18n/t']('generic.unknown');
+    }
   },
 
   displayName() {
@@ -204,5 +235,41 @@ export default {
 
       return token.save();
     };
-  }
+  },
+
+  openShell() {
+    return () => {
+      return this.mgmt?.openShell();
+    };
+  },
+
+  generateKubeConfig() {
+    return () => {
+      return this.mgmt?.generateKubeConfig();
+    };
+  },
+
+  downloadKubeConfig() {
+    return () => {
+      return this.mgmt?.downloadKubeConfig();
+    };
+  },
+
+  downloadKubeConfigBulk() {
+    return (items) => {
+      return this.mgmt?.downloadKubeConfigBulk(items);
+    };
+  },
+
+  etcdSnapshots() {
+    return (this.status?.etcdSnapshots || []).map((x) => {
+      x.id = x._name;
+      x.type = 'etcdBackup';
+      x.state = 'active';
+      x.clusterId = this.id;
+      x.rke2 = true;
+
+      return proxyFor(this.$ctx, x);
+    });
+  },
 };

@@ -299,7 +299,7 @@ export default {
   },
 
   description() {
-    return this.metadata?.annotations?.[DESCRIPTION];
+    return this.metadata?.annotations?.[DESCRIPTION] || this.spec?.description;
   },
 
   labels() {
@@ -341,7 +341,7 @@ export default {
   },
 
   nameDisplay() {
-    return this.displayName || this.spec?.displayName || this.metadata?.annotations?.[NORMAN_NAME] || this.metadata?.name || this.id || this.username;
+    return this.displayName || this.spec?.displayName || this.metadata?.annotations?.[NORMAN_NAME] || this.metadata?.name || this.name || this.id || this.username;
   },
 
   nameSort() {
@@ -462,7 +462,7 @@ export default {
 
   // You can override the state by providing your own state (and possibly reading metadata.state)
   state() {
-    return this.metadata?.state?.name || 'unknown';
+    return this.metadata?.state?.name || this._state || 'unknown';
   },
 
   // You can override the displayed by providing your own stateDisplay (and possibly using the function exported above)
@@ -1046,6 +1046,10 @@ export default {
     return this._detailLocation;
   },
 
+  goToDetail() {
+    this.currentRouter().push(this.detailLocation);
+  },
+
   goToClone() {
     return (moreQuery = {}) => {
       const location = this.detailLocation;
@@ -1342,6 +1346,8 @@ export default {
       let field, key, val, displayKey;
 
       for ( let i = 0 ; i < keys.length ; i++ ) {
+        const fieldErrors = [];
+
         key = keys[i];
         field = fields[key];
         val = get(data, key);
@@ -1371,15 +1377,15 @@ export default {
           }
         }
         if (fieldType === 'boolean') {
-          validateBoolean(val, field, displayKey, this.$rootGetters, errors);
+          validateBoolean(val, field, displayKey, this.$rootGetters, fieldErrors);
         } else {
-          validateLength(val, field, displayKey, this.$rootGetters, errors);
-          validateChars(val, field, displayKey, this.$rootGetters, errors);
+          validateLength(val, field, displayKey, this.$rootGetters, fieldErrors);
+          validateChars(val, field, displayKey, this.$rootGetters, fieldErrors);
         }
 
-        if (errors.length > 0) {
-          errors.push(this.t('validation.required', { key: displayKey }));
-
+        if (fieldErrors.length > 0) {
+          fieldErrors.push(this.t('validation.required', { key: displayKey }));
+          errors.push(...fieldErrors);
           continue;
         }
 
@@ -1394,8 +1400,9 @@ export default {
             Vue.set(data, key, val);
           }
 
-          errors.push(...validateDnsLikeTypes(val, fieldType, displayKey, this.$rootGetters, errors));
+          fieldErrors.push(...validateDnsLikeTypes(val, fieldType, displayKey, this.$rootGetters, fieldErrors));
         }
+        errors.push(...fieldErrors);
       }
 
       let { customValidationRules } = this;

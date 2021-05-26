@@ -37,6 +37,7 @@
 //   inStore,                 -- Which store to look at for if* above and the left-nav, defaults to "cluster"
 //   public,                  -- If true, show to all users.  If false, only show when the Developer Tools pref is on (default true)
 //   category,                -- Group to show the product in for the nav hamburger menu
+//   typeStoreMap,            -- An object mapping types to the store that should be used to retrieve information about the type
 // })
 //
 // externalLink(stringOrFn)  The product has an external page (function gets context object
@@ -714,6 +715,8 @@ export const getters = {
         } else if ( !attrs.kind ) {
           // Skip the schemas that aren't top-level types
           continue;
+        } else if ( typeof typeOptions.ifRancherCluster !== 'undefined' && typeOptions.ifRancherCluster !== rootGetters.isRancher ) {
+          continue;
         }
 
         out[schema.id] = {
@@ -756,6 +759,10 @@ export const getters = {
             if (!hasSome) {
               continue;
             }
+          }
+
+          if ( typeof item.ifRancherCluster !== 'undefined' && item.ifRancherCluster !== rootGetters.isRancher ) {
+            continue;
           }
 
           if ( isBasic && !getters.groupForBasicType(product, id) ) {
@@ -1131,7 +1138,7 @@ export const getters = {
         }
       }
 
-      if ( p.ifFeature && !rootGetters['featureFlag'](p.ifFeature) ) {
+      if ( p.ifFeature && !rootGetters['features/get'](p.ifFeature) ) {
         return false;
       }
 

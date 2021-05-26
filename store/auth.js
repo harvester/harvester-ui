@@ -10,7 +10,10 @@ import { parse as parseUrl, removeParam, addParams } from '@/utils/url';
 import Parse from 'url-parse';
 
 export const BASE_SCOPES = {
-  github: ['read:org'], googleoauth: ['openid profile email'], azuread: []
+  github:       ['read:org'],
+  googleoauth:  ['openid profile email'],
+  azuread:      [],
+  keycloakoidc: ['profile,email']
 };
 
 const KEY = 'rc_nonce';
@@ -21,6 +24,7 @@ const ERR_SERVER = 'server';
 
 export const state = function() {
   return {
+    fromHeader:      null,
     hasAuth:         true,
     loggedIn:        true,
     principalId:     null,
@@ -32,6 +36,10 @@ export const state = function() {
 };
 
 export const getters = {
+  fromHeader() {
+    return state.fromHeader;
+  },
+
   enabled(state) {
     return state.hasAuth;
   },
@@ -62,6 +70,10 @@ export const getters = {
 };
 
 export const mutations = {
+  gotHeader(state, fromHeader) {
+    state.fromHeader = fromHeader;
+  },
+
   hasAuth(state, hasAuth) {
     state.hasAuth = !!hasAuth;
   },
@@ -91,6 +103,10 @@ export const mutations = {
 };
 
 export const actions = {
+  gotHeader({ commit }, fromHeader) {
+    commit('gotHeader', fromHeader);
+  },
+
   getAuthProviders({ dispatch }) {
     return dispatch('rancher/findAll', {
       type: 'authProvider',

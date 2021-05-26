@@ -1,9 +1,9 @@
 <script>
 import ResourceTable from '@/components/ResourceTable';
 import Masthead from '@/components/ResourceList/Masthead';
-import { REGISTER, _FLAGGED } from '@/config/query-params';
 import { allHash } from '@/utils/promise';
 import { CAPI, MANAGEMENT } from '@/config/types';
+import { MODE, _IMPORT } from '@/config/query-params';
 
 export default {
   components: { ResourceTable, Masthead },
@@ -52,7 +52,7 @@ export default {
           product:  this.$store.getters['currentProduct'].name,
           resource: this.resource
         },
-        query: { [REGISTER]: _FLAGGED }
+        query: { [MODE]: _IMPORT }
       };
     }
   },
@@ -82,7 +82,7 @@ export default {
 
     <ResourceTable :schema="schema" :rows="rows" :namespaced="false">
       <template #cell:provider="{row}">
-        <template v-if="row.nodeProviderDisplay">
+        <template v-if="row.nodeProvider">
           {{ row.nodeProviderDisplay }}
           <div class="text-muted">
             {{ row.provisionerDisplay }}
@@ -91,6 +91,9 @@ export default {
         <template v-else>
           {{ row.provisionerDisplay }}
         </template>
+      </template>
+      <template #cell:summary="{row}">
+        <span v-if="!row.isRke2" class="text-muted">&mdash;</span>
       </template>
       <template #cell:explorer="{row}">
         <n-link v-if="row.mgmt && row.mgmt.isReady" class="btn btn-sm role-primary" :to="{name: 'c-cluster', params: {cluster: row.mgmt.id}}">

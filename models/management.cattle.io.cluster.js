@@ -1,7 +1,13 @@
 import { CATALOG } from '@/config/labels-annotations';
 import { FLEET, MANAGEMENT } from '@/config/types';
 import { insertAt } from '@/utils/array';
+import { downloadFile } from '@/utils/download';
 import { parseSi } from '@/utils/units';
+import jsyaml from 'js-yaml';
+import { eachLimit } from '@/utils/promise';
+import { addParams } from '@/utils/url';
+import { isEmpty } from '@/utils/object';
+import { KONTAINER_TO_DRIVER } from './management.cattle.io.kontainerdriver';
 
 // See translation file cluster.providers for list of providers
 // If the logo is not named with the provider name, add an override here
@@ -37,11 +43,26 @@ export default {
       enabled:    !!this.links.shell,
     });
 
+    insertAt(out, 1, {
+      action:     'downloadKubeConfig',
+      bulkAction: 'downloadKubeConfigBulk',
+      label:      'Download KubeConfig',
+      icon:       'icon icon-download',
+      bulkable:   true,
+      enabled:    this.$rootGetters['isRancher'],
+    });
+
     return out;
   },
 
   canDelete() {
     return this.hasLink('remove') && !this?.spec?.internal;
+  },
+
+  nodePools() {
+    const pools = this.$getters['all'](MANAGEMENT.NODE_POOL);
+
+    return pools.filter(x => x.spec?.clusterName === this.id);
   },
 
   provisioner() {
@@ -53,12 +74,6 @@ export default {
     }
   },
 
-  nodePools() {
-    const pools = this.$getters['all'](MANAGEMENT.NODE_POOL);
-
-    return pools.filter(x => x.spec?.clusterName === this.id);
-  },
-
   nodeProvider() {
     const kind = this.nodePools?.[0]?.provider;
 
@@ -67,6 +82,45 @@ export default {
     } else if ( this.spec?.internal ) {
       return 'local';
     }
+  },
+
+  emberEditPath() {
+    // Ember wants one word called provider to tell what component to show, but has much indirect mapping to figure out what it is.
+    let provider;
+
+    // Provisioner is the "<something>Config" in the model
+    const provisioner = KONTAINER_TO_DRIVER[(this.provisioner || '').toLowerCase()] || this.provisioner;
+
+    if ( provisioner === 'rancherKubernetesEngine' ) {
+      if ( this.nodePools?.[0] ) {
+        provider = this.nodePools[0]?.nodeTemplate?.spec?.driver || null;
+      } else {
+        provider = 'custom';
+      }
+    } else if ( this.driver && this.provisioner ) {
+      provider = this.driver;
+    } else {
+      provider = 'import';
+    }
+
+    const qp = { provider };
+
+    // Copied out of https://github.com/rancher/ui/blob/20f56dc54c4fc09b5f911e533cb751c13609adaf/app/models/cluster.js#L844
+    if ( provider === 'import' && isEmpty(this.eksConfig) && isEmpty(this.gkeConfig) ) {
+      qp.importProvider = 'other';
+    } else if (
+      (provider === 'amazoneks' && !isEmpty(this.eksConfig) ) ||
+       (provider === 'gke' && !isEmpty(this.gkeConfig) )
+       // || something for aks v2
+    ) {
+      qp.importProvider = KONTAINER_TO_DRIVER[provider];
+    }
+
+    if ( this.clusterTemplateRevisionId ) {
+      qp.clusterTemplateRevision = this.clusterTemplateRevisionId;
+    }
+
+    return addParams(`/c/${ escape(this.id) }/edit`, qp);
   },
 
   groupByLabel() {
@@ -102,21 +156,6 @@ export default {
     return '';
   },
 
-  openShell() {
-    return () => {
-      this.$dispatch('wm/open', {
-        id:        `kubectl-${ this.id }`,
-        label:     this.$rootGetters['i18n/t']('wm.kubectlShell.title', { name: this.nameDisplay }),
-        icon:      'terminal',
-        component: 'KubectlShell',
-        attrs:     {
-          cluster: this,
-          pod:     {}
-        }
-      }, { root: true });
-    };
-  },
-
   providerOs() {
     if ( this.status?.provider === 'rke.windows' ) {
       return 'windows';
@@ -127,6 +166,10 @@ export default {
 
   providerOsLogo() {
     return require(`~/assets/images/vendor/${ this.providerOs }.svg`);
+  },
+
+  isLocal() {
+    return this.spec?.internal === true;
   },
 
   providerLogo() {
@@ -189,5 +232,67 @@ export default {
     } else {
       return null;
     }
-  }
+  },
+
+  openShell() {
+    return () => {
+      this.$dispatch('wm/open', {
+        id:        `kubectl-${ this.id }`,
+        label:     this.$rootGetters['i18n/t']('wm.kubectlShell.title', { name: this.nameDisplay }),
+        icon:      'terminal',
+        component: 'KubectlShell',
+        attrs:     {
+          cluster: this,
+          pod:     {}
+        }
+      }, { root: true });
+    };
+  },
+
+  generateKubeConfig() {
+    return async() => {
+      const res = await this.$dispatch('request', {
+        method: 'post',
+        url:    `/v3/clusters/${ this.id }?action=generateKubeconfig`
+      });
+
+      return res.config;
+    };
+  },
+
+  downloadKubeConfig() {
+    return async() => {
+      const config = await this.generateKubeConfig();
+
+      downloadFile(`${ this.nameDisplay }.yaml`, config, 'application/yaml');
+    };
+  },
+
+  downloadKubeConfigBulk() {
+    return async(items) => {
+      let obj = {};
+      let first = true;
+
+      await eachLimit(items, 10, (item, idx) => {
+        return item.generateKubeConfig().then((config) => {
+          const entry = jsyaml.safeLoad(config);
+
+          if ( first ) {
+            obj = entry;
+            first = false;
+          } else {
+            obj.clusters.push(...entry.clusters);
+            obj.users.push(...entry.users);
+            obj.contexts.push(...entry.contexts);
+          }
+        });
+      });
+
+      delete obj['current-context'];
+
+      const out = jsyaml.safeDump(obj);
+
+      downloadFile('kubeconfig.yaml', out, 'application/yaml');
+    };
+  },
 };

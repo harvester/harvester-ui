@@ -13,6 +13,7 @@ export const STEVE = {
 // Base: /v3
 export const NORMAN = {
   AUTH_CONFIG:   'authconfig',
+  ETCD_BACKUP:   'etcdbackup',
   CLUSTER_TOKEN: 'clusterregistrationtoken',
   GROUP:         'group',
   PRINCIPAL:     'principal',
@@ -132,6 +133,8 @@ export const MANAGEMENT = {
   CLUSTER_ROLE_TEMPLATE_BINDING: 'management.cattle.io.clusterroletemplatebinding',
   FEATURE:                       'management.cattle.io.feature',
   GROUP:                         'management.cattle.io.group',
+  KONTANIER_DRIVER:              'management.cattle.io.kontainerdriver',
+  NODE_DRIVER:                   'management.cattle.io.nodedriver',
   NODE_POOL:                     'management.cattle.io.nodepool',
   NODE_TEMPLATE:                 'management.cattle.io.nodetemplate',
   PROJECT:                       'management.cattle.io.project',
@@ -266,3 +269,5 @@ export const HARVESTER_SUPPORT_BUNDLE = 'harvesterhci.io.supportbundle';
 // longhorn
 export const LONGHORN_IO_ENGINE = 'longhorn.io.engine';
 export const LONGHORN_IO_VOLUME = 'longhorn.io.volume';
+
+export const UI = { NAV_LINK: 'ui.cattle.io.navlink' };
