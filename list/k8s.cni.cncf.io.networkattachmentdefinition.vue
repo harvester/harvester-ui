@@ -3,7 +3,9 @@ import Banner from '@/components/Banner';
 import Loading from '@/components/Loading';
 import ResourceTable from '@/components/ResourceTable';
 
-import { NAME, NETWORK_TYPE, NETWORK_VLAN, AGE } from '@/config/table-headers';
+import {
+  NAME, NETWORK_TYPE, NETWORK_VLAN, AGE, NAMESPACE
+} from '@/config/table-headers';
 import { HCI, NODE } from '@/config/types';
 
 import { findBy } from '@/utils/array';
@@ -50,6 +52,7 @@ export default {
     headers() {
       return [
         NAME,
+        NAMESPACE,
         NETWORK_TYPE,
         NETWORK_VLAN,
         AGE
@@ -124,6 +127,7 @@ export default {
       v-bind="$attrs"
       :headers="headers"
       default-sort-by="age"
+      :schema="schema"
       :groupable="true"
       :rows="rows"
       key-field="_key"

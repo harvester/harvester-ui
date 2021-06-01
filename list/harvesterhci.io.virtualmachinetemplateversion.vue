@@ -1,5 +1,5 @@
 <script>
-import { STATE, AGE, NAME } from '@/config/table-headers';
+import { STATE, AGE, NAME, NAMESPACE } from '@/config/table-headers';
 import { HCI } from '@/config/types';
 import Loading from '@/components/Loading';
 import ResourceTable from '@/components/ResourceTable';
@@ -41,6 +41,7 @@ export default {
       return [
         STATE,
         NAME,
+        NAMESPACE,
         {
           name:           'defaultVersion',
           label:          'Default Version',
@@ -107,6 +108,7 @@ export default {
     :rows="[...rows]"
     :group-title-by="groupTitleBy"
     :group-by="groupBy"
+    :schema="schema"
     :group-can-action="true"
     key-field="_key"
     v-on="$listeners"

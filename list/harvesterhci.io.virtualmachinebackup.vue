@@ -1,7 +1,7 @@
 <script>
 import { allHash } from '@/utils/promise';
 import Banner from '@/components/Banner';
-import { STATE, AGE, NAME } from '@/config/table-headers';
+import { STATE, AGE, NAME, NAMESPACE } from '@/config/table-headers';
 import Loading from '@/components/Loading';
 import ResourceTable from '@/components/ResourceTable';
 import { HCI } from '@/config/types';
@@ -50,6 +50,7 @@ export default {
           ...NAME,
           width: 200
         },
+        NAMESPACE,
         {
           name:      'sourceName',
           labelKey:  'harvester.tableHeaders.targetVm',
@@ -153,6 +154,7 @@ export default {
       default-sort-by="age"
       :groupable="true"
       :rows="[...rows]"
+      :schema="schema"
       key-field="_key"
       v-on="$listeners"
     />

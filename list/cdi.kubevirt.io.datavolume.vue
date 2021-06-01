@@ -1,5 +1,5 @@
 <script>
-import { STATE, AGE, NAME } from '@/config/table-headers';
+import { STATE, AGE, NAME, NAMESPACE } from '@/config/table-headers';
 import ResourceTable from '@/components/ResourceTable';
 import { HCI, PV } from '@/config/types';
 import { allHash } from '@/utils/promise';
@@ -47,6 +47,7 @@ export default {
           value:     'spec.pvc.resources.requests.storage',
           sort:      'volumeSort',
         },
+        NAMESPACE,
         // {
         //   name:      'accessMode',
         //   label:     'Access Mode',
@@ -93,7 +94,9 @@ export default {
     v-bind="$attrs"
     :headers="headers"
     :groupable="true"
-    :rows="[...rows]"
+    default-sort-by="age"
+    :rows="rows"
+    :schema="schema"
     key-field="_key"
     v-on="$listeners"
   />

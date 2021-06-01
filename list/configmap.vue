@@ -1,6 +1,6 @@
 <script>
 import ResourceTable from '@/components/ResourceTable';
-import { NAME, AGE } from '@/config/table-headers';
+import { NAME, AGE, NAMESPACE } from '@/config/table-headers';
 import { HARVESTER_CLOUD_INIT } from '@/config/labels-annotations';
 
 export default {
@@ -26,6 +26,7 @@ export default {
           ...NAME,
           width: 300
         },
+        NAMESPACE,
         {
           name:          'type',
           labelKey:      'tableHeaders.type',
@@ -53,6 +54,7 @@ export default {
     v-bind="$attrs"
     :headers="headers"
     :groupable="true"
+    :schema="schema"
     :rows="[...filterdRows]"
     key-field="_key"
     v-on="$listeners"

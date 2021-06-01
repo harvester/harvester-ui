@@ -2,7 +2,7 @@
 import ResourceTable from '@/components/ResourceTable';
 import VmState from '@/components/formatter/vmState';
 
-import { STATE, AGE, NAME } from '@/config/table-headers';
+import { STATE, AGE, NAME, NAMESPACE } from '@/config/table-headers';
 import { HCI } from '@/config/types';
 
 import { allSettled } from '@/utils/promise';
@@ -63,6 +63,7 @@ export default {
           width:         300,
           formatter:     'vmName',
         },
+        NAMESPACE,
         {
           name:      'CPU',
           label:     'CPU',

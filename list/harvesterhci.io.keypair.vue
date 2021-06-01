@@ -1,6 +1,8 @@
 <script>
 import ResourceTable from '@/components/ResourceTable';
-import { STATE, NAME, FINGERPRINT, AGE } from '@/config/table-headers';
+import {
+  STATE, NAME, FINGERPRINT, AGE, NAMESPACE
+} from '@/config/table-headers';
 
 export default {
   name:       'LSSHs',
@@ -26,6 +28,7 @@ export default {
           ...NAME,
           width: 250
         },
+        NAMESPACE,
         FINGERPRINT,
         AGE
       ],
@@ -40,6 +43,7 @@ export default {
     :headers="headers"
     :rows="rows"
     :groupable="true"
+    :schema="schema"
     key-field="_key"
     v-on="$listeners"
   />

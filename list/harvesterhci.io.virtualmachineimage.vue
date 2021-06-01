@@ -1,6 +1,6 @@
 <script>
 import ResourceTable from '@/components/ResourceTable';
-import { STATE, NAME, AGE } from '@/config/table-headers';
+import { STATE, NAME, AGE, NAMESPACE } from '@/config/table-headers';
 
 export default {
   name:       'ListImage',
@@ -20,7 +20,6 @@ export default {
 
   data() {
     return {
-      // isAbnormal:  '',
       headers:     [
         STATE,
         {
@@ -28,6 +27,7 @@ export default {
           value: 'spec.displayName',
           width:     300
         },
+        NAMESPACE,
         // {
         //   name:      'Uploaded',
         //   labelKey:  'harvester.tableHeaders.progress',
@@ -55,27 +55,8 @@ export default {
     };
   },
 
-  // watch: {
-  //   isAbnormal(val, oldVal) {
-  //     this.$store.commit('cluster/setConfig', {
-  //       type: HCI.IMAGE,
-  //       data: { disableCreateButton: val }
-  //     });
-
-  //     if (val !== oldVal) {
-  //       this.minioPoller.immediatelyFetch = false;
-  //       this.minioPoller.start();
-  //     }
-  //   }
-  // },
-
   created() {
     this.schema.attributes.actuallyKind = 'Image';
-  },
-
-  mounted() {
-    // this.minioPoller = new Poller(this.loadMinioStatus, 5000, 200 );
-    // this.minioPoller.start();
   },
 };
 </script>
@@ -86,6 +67,7 @@ export default {
     :headers="headers"
     :groupable="true"
     :rows="[...rows]"
+    :schema="schema"
     key-field="_key"
     v-on="$listeners"
   />
