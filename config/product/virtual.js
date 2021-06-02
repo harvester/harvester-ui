@@ -1,10 +1,12 @@
-import { CONFIG_MAP, HCI, NODE } from '@/config/types';
+import { HCI, NODE, CONFIG_MAP } from '@/config/types';
 
 import { DSL } from '@/store/type-map';
 
 export const NAME = 'virtual';
 
 const TEMPLATE = HCI.VM_VERSION;
+const CLOUD_TEMPLATE = 'cloudTemplate';
+const HOST = 'host';
 
 export function init(store) {
   const {
@@ -33,16 +35,27 @@ export function init(store) {
     exact:        true,
   });
 
-  basicType([NODE]);
+  configureType(HOST, {
+    location:    {
+      name:    'c-cluster-product-resource',
+      params:  { resource: HOST },
+    },
+    resource:          NODE,
+    useCustomInImport: true
+  });
+
+  configureType(HOST, { isCreatable: false, isEditable: true });
+  basicType([HOST]);
   virtualType({
     ifHaveType:    NODE,
     group:        'Root',
-    name:         NODE,
+    name:         HOST,
+    label:        'Hosts',
     namespaced:  true,
     weight:       399,
     route:        {
       name:   'c-cluster-product-resource',
-      params: { resource: NODE }
+      params: { resource: HOST }
     },
     exact: false,
   });
@@ -108,7 +121,7 @@ export function init(store) {
     HCI.NETWORK_ATTACHMENT,
     HCI.BACKUP,
     HCI.SSH,
-    CONFIG_MAP,
+    CLOUD_TEMPLATE,
     HCI.SETTING
   ], 'advanced');
 
@@ -165,13 +178,22 @@ export function init(store) {
     exact: false,
   });
 
+  configureType(CLOUD_TEMPLATE, {
+    location:    {
+      name:    'c-cluster-product-resource',
+      params:  { resource: CLOUD_TEMPLATE },
+    },
+    resource:          CONFIG_MAP,
+    useCustomInImport: true
+  });
   virtualType({
-    name:        CONFIG_MAP,
-    namespaced:  true,
-    weight:      87,
-    route:       {
+    name:         CLOUD_TEMPLATE,
+    label:        'Cloud config Templates',
+    namespaced:   true,
+    weight:       87,
+    route:        {
       name:      'c-cluster-product-resource',
-      params:    { resource: CONFIG_MAP }
+      params:    { resource: CLOUD_TEMPLATE }
     },
     exact: false,
   });

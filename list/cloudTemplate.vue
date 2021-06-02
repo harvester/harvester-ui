@@ -1,31 +1,39 @@
 <script>
 import ResourceTable from '@/components/ResourceTable';
+import { CONFIG_MAP, SCHEMA } from '@/config/types';
 import { NAME, AGE, NAMESPACE } from '@/config/table-headers';
 import { HARVESTER_CLOUD_INIT } from '@/config/labels-annotations';
+import { allSettled } from '@/utils/promise';
+
+const schema = {
+  id:         'cloudTemplate',
+  type:       SCHEMA,
+  attributes: {
+    kind:       'cloudTemplate',
+    namespaced: true
+  },
+  metadata: { name: 'cloudTemplate' },
+};
 
 export default {
   name:       'ListConfigMap',
   components: { ResourceTable },
 
-  props: {
-    schema: {
-      type:     Object,
-      required: true,
-    },
+  async fetch() {
+    const store = this.$store;
+    const inStore = store.getters['currentStore']();
 
-    rows: {
-      type:     Array,
-      required: true,
-    },
+    const hash = { rows: store.dispatch(`${ inStore }/findAll`, { type: CONFIG_MAP }) };
+
+    const res = await allSettled(hash);
+
+    this.rows = res.rows;
   },
 
   data() {
     return {
       headers: [
-        {
-          ...NAME,
-          width: 300
-        },
+        NAME,
         NAMESPACE,
         {
           name:          'type',
@@ -35,6 +43,7 @@ export default {
         },
         AGE
       ],
+      rows: []
     };
   },
 
@@ -43,9 +52,23 @@ export default {
       return this.rows.filter((r) => {
         return !!r.metadata?.labels?.[HARVESTER_CLOUD_INIT];
       });
+    },
+
+    schema() {
+      return schema;
     }
   },
 
+  typeDisplay() {
+    const { params:{ resource: type } } = this.$route;
+    let paramSchema = schema;
+
+    if (type !== schema.id) {
+      paramSchema = this.$store.getters['cluster/schemaFor'](type);
+    }
+
+    return this.$store.getters['type-map/labelFor'](paramSchema, 99);
+  },
 };
 </script>
 

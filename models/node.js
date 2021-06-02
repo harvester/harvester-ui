@@ -12,6 +12,7 @@ import {
 } from '@/config/labels-annotations.js';
 import { METRIC, POD, NODE, CAPI } from '@/config/types';
 import { parseSi } from '@/utils/units';
+import { clone } from '@/utils/object';
 import { PRIVATE } from '@/plugins/steve/resource-proxy';
 import findLast from 'lodash/findLast';
 
@@ -58,6 +59,29 @@ export default {
       disableMaintenance,
       ...this._standardActions
     ];
+  },
+
+  detailLocation() { // maybe only harvester mode
+    const detailLocation = clone(this._detailLocation);
+
+    detailLocation.params.resource = 'host';
+
+    return detailLocation;
+  },
+
+  doneOverride() { // maybe only harvester mode
+    const detailLocation = clone(this._detailLocation);
+
+    delete detailLocation.params.namespace;
+    delete detailLocation.params.id;
+    detailLocation.params.resource = 'host';
+    detailLocation.name = 'c-cluster-product-resource';
+
+    return detailLocation;
+  },
+
+  canCustomEdit() {
+    return true;
   },
 
   canUpdate() {

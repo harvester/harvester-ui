@@ -4275,6 +4275,11 @@ typeLabel:
       one { API Key }
       other { API Keys }
     }
+  cloudTemplate: |-
+    {count, plural,
+      one { Cloud Config Template }
+      other { Cloud Config Templates }
+    }
 
 action:
   clone: Clone
