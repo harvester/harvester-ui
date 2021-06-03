@@ -1,4 +1,5 @@
 <script>
+import _ from 'lodash';
 import { mapGetters } from 'vuex';
 import { HCI } from '@/config/types';
 import { HCI_ALLOWED_SETTINGS } from '@/config/settings';
@@ -19,7 +20,6 @@ export default {
 
     const allRows = [...rows.clusterNetwork, ...rows.haversterSettings];
 
-    const t = this.$store.getters['i18n/t'];
     // Map settings from array to object keyed by id
     const settingsMap = allRows.reduce((res, s) => {
       res[s.id] = s;
@@ -27,20 +27,18 @@ export default {
       return res;
     }, {});
 
-    const settings = [];
+    const initSettings = [];
 
     // Combine the allowed settings with the data from the API
     Object.keys(HCI_ALLOWED_SETTINGS).forEach((setting) => {
-      const readonly = !!HCI_ALLOWED_SETTINGS[setting].readOnly;
-
       if (!settingsMap[setting]) {
         return;
       }
 
+      const realSetting = HCI_ALLOWED_SETTINGS[setting]?.alias || setting;
       const s = {
         ...HCI_ALLOWED_SETTINGS[setting],
-        id:          HCI_ALLOWED_SETTINGS[setting]?.alias || setting,
-        description: t(`advancedSettings.descriptions.${ setting }`),
+        id:          realSetting,
         data:        settingsMap[setting],
       };
 
@@ -48,18 +46,42 @@ export default {
 
       // There are only 2 actions that can be enabled - Edit Setting or View in API
       // If neither is available for this setting then we hide the action menu button
-      s.hasActions = !readonly || isDev;
-      settings.push(s);
+      s.hasActions = !s.readOnly || isDev;
+      initSettings.push(s);
     });
 
-    this.settings = settings;
+    this.initSettings = initSettings;
   },
 
   data() {
-    return { settings: [] };
+    return { initSettings: [] };
   },
 
-  computed: { ...mapGetters({ t: 'i18n/t' }) },
+  computed: {
+    ...mapGetters({ t: 'i18n/t' }),
+
+    settings() {
+      return this.initSettings.map((setting) => {
+        const s = setting;
+
+        if (s.kind === 'json') {
+          s.json = JSON.stringify(JSON.parse(s.data.value || s.data.default), null, 2);
+        } else if (s.kind === 'enum') {
+          const v = s.data.value || s.data.default;
+
+          s.enum = `advancedSettings.enum.${ s.id }.${ v }`;
+        } else if (s.kind === 'custom') {
+          s.custom = s.data.customValue;
+        }
+
+        return {
+          ...s,
+          description: this.t(`advancedSettings.descriptions.${ s.id }`),
+          customized:  (!s.readonly && s.data.value && s.data.value !== s.data.default) || s.data.hasCustomized
+        };
+      });
+    }
+  },
 
   methods: {
     showActionMenu(e, setting) {
@@ -71,15 +93,23 @@ export default {
       });
     },
 
-    getDescription(id) {
-      return this.t(`advancedSettings.descriptions.${ id }`);
+    getSettingOption(id) {
+      return HCI_ALLOWED_SETTINGS.find(setting => setting.id === id);
+    },
+
+    toogleHide(s) {
+      this.initSettings.find((setting) => {
+        if (setting.id === s.id) {
+          setting.hide = !setting.hide;
+        }
+      });
     }
   }
 };
 </script>
 
 <template>
-  <Loading v-if="$fetchState.pending" />
+  <Loading v-if="!settings" />
   <div v-else>
     <Banner color="warning" class="settings-banner">
       <div>
@@ -89,8 +119,8 @@ export default {
     <div v-for="setting in settings" :key="setting.id" class="advanced-setting mb-20">
       <div class="header">
         <div class="title">
-          <h1>{{ setting.id }}<span v-if="setting.data.customized" class="modified">Modified</span></h1>
-          <h2 v-html="getDescription(setting.id)"></h2>
+          <h1>{{ setting.id }}<span v-if="setting.customized" class="modified">Modified</span></h1>
+          <h2>{{ setting.description }}</h2>
         </div>
         <div v-if="setting.hasActions" class="action">
           <button aria-haspopup="true" aria-expanded="false" type="button" class="btn btn-sm role-multi-action actions" @click="showActionMenu($event, setting)">
@@ -100,16 +130,20 @@ export default {
       </div>
       <div value>
         <div v-if="setting.hide">
-          <button class="btn btn-sm role-primary" @click="setting.hide = !setting.hide">
+          <button class="btn btn-sm role-primary" @click="toogleHide(setting)">
             {{ t('advancedSettings.show') }} {{ setting.id }}
           </button>
         </div>
         <div v-else class="settings-value">
-          <pre v-if="setting.data.formatValue">{{ setting.data.formatValue }}</pre>
+          <pre v-if="setting.kind === 'json'">{{ setting.json }}</pre>
+          <pre v-else-if="setting.kind === 'multiline'">{{ setting.data.value || setting.data.default }}</pre>
+          <pre v-else-if="setting.kind === 'enum'">{{ t(setting.enum) }}</pre>
+          <pre v-else-if="setting.kind === 'custom' && setting.custom"> {{ setting.custom }}</pre>
+          <pre v-else-if="setting.data.value || setting.data.default">{{ setting.data.value || setting.data.default }}</pre>
           <pre v-else class="text-muted">&lt;{{ t('advancedSettings.none') }}&gt;</pre>
         </div>
         <div v-if="setting.canHide && !setting.hide" class="mt-5">
-          <button class="btn btn-sm role-primary" @click="setting.hide = !setting.hide">
+          <button class="btn btn-sm role-primary" @click="toogleHide(setting)">
             {{ t('advancedSettings.hide') }} {{ setting.id }}
           </button>
         </div>

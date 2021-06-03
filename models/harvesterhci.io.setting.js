@@ -21,24 +21,7 @@ export default {
     return actions;
   },
 
-  formatValue() {
-    let out;
-    const setting = HCI_ALLOWED_SETTINGS[this.id];
-
-    const v = this.value || this.default;
-
-    if (setting.kind === 'json') {
-      out = JSON.stringify(JSON.parse(v), null, 2);
-    } else if (setting.kind === 'enum') {
-      out = `advancedSettings.enum.${ setting }.${ v }`;
-    } else {
-      out = v;
-    }
-
-    return out;
-  },
-
-  customized() {
+  hasCustomized() {
     const setting = HCI_ALLOWED_SETTINGS[this.id];
     const readonly = !!setting.readOnly;
 

@@ -88,17 +88,27 @@ const HCI_SETTING = {
 };
 
 export const HCI_ALLOWED_SETTINGS = {
-  [HCI_SETTING.API_UI_SOURCE]:                    {},
+  [HCI_SETTING.API_UI_SOURCE]: {
+    kind:    'enum',
+    options: ['auto', 'external', 'bundled']
+  },
   [HCI_SETTING.AUTH_TOKEN_MAX_TTL_MINUTES]:       {},
-  [HCI_SETTING.BACKUP_TARGET]:                    { kind: 'json' },
-  [HCI_SETTING.LOG_LEVEL]:                        {},
-  [HCI_SETTING.RANCHER_ENABLED]:                  {},
+  [HCI_SETTING.BACKUP_TARGET]:                    {
+    kind: 'json', from: 'import', disableReset: true
+  },
+  [HCI_SETTING.LOG_LEVEL]:                  {
+    kind:    'enum',
+    options: ['info', 'debug', 'trace']
+  },
+  [HCI_SETTING.RANCHER_ENABLED]:                  { kind: 'boolean' },
   [HCI_SETTING.SERVER_VERSION]:                   {},
-  [HCI_SETTING.SERVER_URL]:                       { kind: 'url' },
+  [HCI_SETTING.SERVER_URL]:                       {},
   [HCI_SETTING.UI_INDEX]:                         { kind: 'url' },
   [HCI_SETTING.UPGRADE_CHECKER_ENABLED]:          { kind: 'boolean' },
   [HCI_SETTING.UPGRADE_CHECKER_URL]:              { kind: 'url' },
-  [HCI_SETTING.VLAN]:                             { alias: 'vlan' }
+  [HCI_SETTING.VLAN]:                             {
+    kind: 'custom', from: 'import', alias: 'vlan'
+  }
 };
 
 export const fetchOrCreateSetting = async(store, id, val, save = true) => {

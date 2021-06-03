@@ -4348,6 +4348,9 @@ keyValue:
 
 harvester:
   model:
+  typeLabel:
+    cloudTemplate: Cloud Config Templates
+    host: Hosts
   webSocket:
     connecting:
       title: Error connecting to WebSocket
@@ -4684,10 +4687,14 @@ harvester:
     username: Username
     password: Password
   settingPage:
+    validation:
+      physicalNIC: DefaultPhysicalNIC
     placeholder:
       accessKeyId: specify your access key id
       secretAccessKey: specify your secret access key
       cert: upload a self-signed SSL certificate
+    vlanChangeTip: The newly modified default physical NIC only applies to newly added nodes, not existing ones
+    defaultPhysicalNIC: Default Physical NIC
   cloudInitPage:
     templateType: Template Type
   loginPage:
@@ -4778,7 +4785,14 @@ advancedSettings:
       prompt: Prompt
       in: Opt-in to Telemetry
       out: Opt-out of Telemetry
-
+    'api-ui-source':
+      auto: 'Auto'
+      bundled: 'Bundled'
+      external: 'External'
+    'log-level':
+      info: Info
+      debug: Debug
+      trace: Trace
 featureFlags:
   label: Feature Flags
   warning: |-

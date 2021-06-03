@@ -1,3 +1,6 @@
+import { HCI } from '@/config/types';
+import { clone } from '@/utils/object';
+
 export default {
   availableActions() {
     let out = this._standardActions;
@@ -12,9 +15,30 @@ export default {
     return out;
   },
 
+  doneOverride() {
+    const detailLocation = clone(this.listLocation);
+
+    detailLocation.params.resource = HCI.SETTING;
+
+    return detailLocation;
+  },
+
   // vlan
   canUseVlan() {
     return this.isVlanOpen && this.defaultPhysicalNic.length > 0;
+  },
+
+  canReset() {
+    return true;
+  },
+
+  defaultValue() {
+    this.enable = false;
+    if (this.config) { // initializing: the config value is empty
+      this.config.defaultPhysicalNIC = '';
+    }
+
+    return this;
   },
 
   isVlanOpen() {
@@ -31,16 +55,28 @@ export default {
     }
   },
 
-  formatValue() {
-    return this.enable && this?.config?.defaultPhysicalNIC;
+  customValue() {
+    return this.enable ? this?.config?.defaultPhysicalNIC : null;
   },
 
-  customized() {
-    // const setting = HCI_ALLOWED_SETTINGS[this.id];
-    // const readonly = !!setting.readOnly;
+  hasCustomized() {
+    return this.enable;
+  },
 
-    // return !readonly && this.value && this.value !== this.default;
-    return false;
+  customValidationRules() {
+    const out = [];
+
+    if (this.enable) {
+      out.push({
+        nullable:       false,
+        path:           'config.defaultPhysicalNIC',
+        required:       true,
+        translationKey: 'harvester.settingPage.validation.physicalNIC',
+        type:           'string',
+      });
+    }
+
+    return out;
   },
 
 };

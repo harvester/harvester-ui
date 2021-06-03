@@ -49,9 +49,10 @@ export function init(store) {
   virtualType({
     ifHaveType:    NODE,
     group:        'Root',
+    labelDisplay: 'harvester.typeLabel.host',
     name:         HOST,
     label:        'Hosts',
-    namespaced:  true,
+    namespaced:   true,
     weight:       399,
     route:        {
       name:   'c-cluster-product-resource',
@@ -189,6 +190,7 @@ export function init(store) {
   virtualType({
     name:         CLOUD_TEMPLATE,
     label:        'Cloud config Templates',
+    labelDisplay: 'harvester.typeLabel.cloudTemplate',
     namespaced:   true,
     weight:       87,
     route:        {
