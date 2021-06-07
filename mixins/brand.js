@@ -84,7 +84,7 @@ export default {
 
     return {
       bodyAttrs: { class: cssClass },
-      title:     this.$store.getters['i18n/t']('nav.title'),
+      title:     this.$store.getters['i18n/t']('harvester.nav.title'),
     };
   },
 

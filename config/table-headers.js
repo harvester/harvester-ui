@@ -720,7 +720,7 @@ export const NETWORK_TYPE = {
   sort:      'spec.config',
   type:      'type',
   formatter: 'ParseNetworkConfig',
-  labelKey:  'tableHeaders.network.type'
+  labelKey:  'harvester.tableHeaders.network.type'
 };
 
 export const NETWORK_VLAN = {
@@ -729,7 +729,7 @@ export const NETWORK_VLAN = {
   sort:      'spec.config',
   type:       'vlan',
   formatter:  'ParseNetworkConfig',
-  labelKey:  'tableHeaders.network.vlan'
+  labelKey:  'harvester.tableHeaders.network.vlan'
 };
 
 export const GROUP_NAME = {

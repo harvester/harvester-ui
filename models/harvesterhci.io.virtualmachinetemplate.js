@@ -20,13 +20,13 @@ export default {
         action:     'createFromTemplate',
         enabled:    true,
         icon:       'icons icon-h-display',
-        label:      this.t('action.createVM'),
+        label:      this.t('harvester.action.createVM'),
       },
       {
         action:     'addVersion',
         enabled:    true,
         icon:       'icon icon-fw icon-circle-plus',
-        label:      this.t('action.addTemplateVersion'),
+        label:      this.t('harvester.action.addTemplateVersion'),
       },
       ...out
     ];

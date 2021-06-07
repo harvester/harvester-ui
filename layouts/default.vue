@@ -247,7 +247,7 @@ export default {
 
     return {
       bodyAttrs: { class: `theme-${ theme } overflow-hidden dashboard-body` },
-      title:     this.$store.getters['i18n/t']('nav.title'),
+      title:     this.$store.getters['i18n/t']('harvester.nav.title'),
     };
   },
 };

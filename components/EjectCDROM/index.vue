@@ -87,7 +87,7 @@ export default {
           </button>
 
           <button class="btn bg-error ml-20" :disabled="isDeleteDisabled" @click="remove">
-            {{ t('generic.delete') }}
+            {{ t('harvester.vmPage.modal.ejectCDROM.delete') }}
           </button>
         </div>
       </template>

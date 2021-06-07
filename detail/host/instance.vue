@@ -73,7 +73,7 @@ export default {
         {
           name:      'ip',
           label:     'IP Address',
-          labelKey:  'tableHeaders.vm.ipAddress',
+          labelKey:  'harvester.tableHeaders.vm.ipAddress',
           value:     'id',
           formatter: 'ipAddress'
         },

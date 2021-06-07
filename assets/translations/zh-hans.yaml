@@ -9,7 +9,6 @@ generic:
   comingSoon: 即将推出
   copy: 复制
   create: 创建
-  delete: 删除
   created: 创建时间
   customize: 定制
   default: 默认
@@ -46,7 +45,6 @@ generic:
   unknown: 未知
   key: 键
   value: 值
-  unknownErrorTip: 发生了未知错误, 请重试!
   yes: 是
   no: 否
   units:
@@ -71,8 +69,8 @@ generic:
   #none: (None)
 
 nav:
-  title: Harvester
-  backToRancher: Rancher
+  title: 仪表盘
+  backToRancher: Cluster Manager
   clusterTools: 集群工具
   shell: 命令行
   import: 导入 YAML 文件
@@ -371,10 +369,6 @@ assignTo:
       other { 分配 {count}集群到&hellip; }
     }
   workspace: 工作空间
-
-enableMaintenance:
-  title: 开启节点维护模式
-  protip: 注意!此操作会迁移当前节点上的所有虚拟机!.
 
 asyncButton:
   apply:
@@ -1806,7 +1800,6 @@ node:
         cpu: CPU
         memory: 内存
         pods: PODS
-        storage: 存储
       diskPressure: 磁盘压力
       kubelet: kubelet
       memoryPressure: 内存压力
@@ -1816,21 +1809,6 @@ node:
       images: 镜像
       info: 信息
       taints: 污点 (Taints)
-    basic:
-      hostIP: 节点IP
-      role: 角色
-      os: 操作系统
-      create: 创建时间
-      update: 最近更新时间
-      customName: 自定义名称
-      more: 更多信息
-    more:
-      uuid: UUID
-      containerRuntime: 容器运行时
-      kernel: 内核
-    type:
-      management: 管理节点
-      compute: 计算节点
 
 persistentVolumeClaim:
   accessModes: 访问模式
@@ -2754,7 +2732,6 @@ tableHeaders:
   ingressDefaultBackend: 默认
   ingressTarget: 目标
   internalExternalIp: 外网 IP 地址或内网 IP 地址
-  hostIp: 主机IP
   jobs: Jobs
   key: 密钥
   keys: 数据
@@ -2855,13 +2832,6 @@ tableHeaders:
   attachedVM: 被挂载到
   progress: 进度
   phase: 阶段
-  vm:
-    ipAddress: IP 地址
-    node: 主机
-    defaultVersion: 默认版本
-  network:
-    type: 类型
-    vlan: Vlan ID
   weight: 权重
 
 target:
@@ -3755,26 +3725,6 @@ action:
   editYaml: 编辑 YAML
   enable: 启用
   openLogs: 查看日志
-  createVM: 创建虚拟机
-  start: 启动
-  restart: 重启
-  stop: 停止
-  pause: 暂停
-  unpause: 取消暂停
-  ejectCDROM: 弹出 CDROM
-  launchFormTemplate: 从模板启动实例
-  modifyTemplate: 修改模版 (创建新版本)
-  setDefaultVersion: 设置默认版本
-  addTemplateVersion: 添加模版版本
-  backup: 备份
-  restore: 恢复
-  restoreNewVM: 恢复新的虚拟机
-  restoreExistingVM: 恢复现存的虚拟机
-  migrate: 迁移
-  abortMigration: 取消迁移
-  createTemplate: 生成模板
-  enableMaintenance: 开启维护模式
-  disableMaintenance: 关闭维护模式
   refresh: 刷新
   remove: 删除
   view: 查看配置
@@ -3832,6 +3782,7 @@ harvester:
   close: 关闭
   open: 打开
   clickToCopy: 点击复制
+  unknownErrorTip: 发生了未知错误, 请重试!
   buttons:
     addPort:  添加端口
   options: 
@@ -3860,7 +3811,30 @@ harvester:
     network: 网络
     advanced: 高级选项
   nav:
+    title: Harvester
+    backToRancher: Rancher
     dashboard: 概览
+  action:
+    createVM: 创建虚拟机
+    start: 启动
+    restart: 重启
+    stop: 停止
+    pause: 暂停
+    unpause: 取消暂停
+    ejectCDROM: 弹出 CDROM
+    launchFormTemplate: 从模板启动实例
+    modifyTemplate: 修改模版 (创建新版本)
+    setDefaultVersion: 设置默认版本
+    addTemplateVersion: 添加模版版本
+    backup: 备份
+    restore: 恢复
+    restoreNewVM: 恢复新的虚拟机
+    restoreExistingVM: 恢复现存的虚拟机
+    migrate: 迁移
+    abortMigration: 取消迁移
+    createTemplate: 生成模板
+    enableMaintenance: 开启维护模式
+    disableMaintenance: 关闭维护模式
   header:
     preference: 用户配置
     logout: 登出
@@ -3876,6 +3850,14 @@ harvester:
     readyToUse: 可用
     backupTarget: 备份路径
     targetVm: 目标VM
+    hostIp: 主机IP
+    vm:
+      ipAddress: IP 地址
+      node: 主机
+      defaultVersion: 默认版本
+    network:
+      type: 类型
+      vlan: Vlan ID
   validation:
     custom:
       tooLongName: '"名称" 不能超过 {max} 个字符'
@@ -4041,6 +4023,7 @@ harvester:
         title: 弹出 CDROM
         warnTip: 弹出卷将导致重新启动虚拟机.
         operationTip: '选择您要删除的卷:'
+        delete: 删除
     backupModal:
       success: '已启动备份 { backUpName }.'
     restoreModal:
@@ -4070,8 +4053,24 @@ harvester:
     detail:
       title:
         network: 网络配置
+      hostIP: 节点IP
+      role: 角色
+      os: 操作系统
+      create: 创建时间
+      update: 最近更新时间
+      customName: 自定义名称
+      more: 更多信息
+      uuid: UUID
+      containerRuntime: 容器运行时
+      kernel: 内核
+      management: 管理节点
+      compute: 计算节点
+      storage: 存储
       networkType: 类型
       nic: 物理网卡
+    enableMaintenance:
+      title: 开启节点维护模式
+      protip: 注意!此操作会迁移当前节点上的所有虚拟机!.
   volumePage:
     size: 大小
     source: 资源类型
@@ -4171,6 +4170,16 @@ harvester:
       info: 提示
       warning: 警告
       error: 错误
+  advancedSettings:
+    descriptions:
+      'vlan': VLAN网络的默认物理NIC名称.
+      'api-ui-source': 配置如何加载API和UI资源.
+      'backup-target': 自定义备份目标用于存储VM备份.
+      'log-level': 配置Harvester服务器日志级别. 默认为信息
+      'rancher-enabled': 指定是否显示Rancher UI导航按钮.
+      'server-version': Harvester服务器版本.
+      'upgrade-checker-enabled': 指定是否启用Harvester升级检查. 默认为true.
+      'upgrade-checker-url': 默认的Harvester升级检查地址。 仅在<code> upgrade-checker-enabled </code> 等于true时使用。
 ###############################
 ### 高级设置
 ###############################
@@ -4211,14 +4220,6 @@ advancedSettings:
     'rke-metadata-config': '配置RKE元数据刷新参数。'
     'ui-banners': '分类横幅是用来在页眉、页脚或两者中显示一个自定义的固定横幅。'
     'ui-default-landing': '用户在登录后登陆的默认页面。'
-    'vlan': VLAN网络的默认物理网卡名称.
-    'api-ui-source': 配置如何加载API和UI资源.
-    'backup-target': 自定义备份目标用于存储VM备份.
-    'log-level': 配置Harvester服务器日志级别. 默认为信息
-    'rancher-enabled': 指定是否显示Rancher UI导航按钮.
-    'server-version': Harvester服务器版本.
-    'upgrade-checker-enabled': 指定是否启用Harvester升级检查. 默认为true.
-    'upgrade-checker-url': 默认的Harvester升级检查地址。 仅在<code> upgrade-checker-enabled </code> 等于true时使用。
   editHelp:
     'ui-banners': 这个设置需要一个JSON对象，包含3个根参数；<code>banner</code>, <code>showHeader</code>, <code>showFooter</code>。<code>banner</code>是一个包含；<code>textColor</code>, <code>background</code>, 和<code>text</code>的对象，其中<code>textColor</code>和<code>background</code>是任何有效的CSS颜色值。
   enum:

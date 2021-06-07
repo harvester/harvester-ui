@@ -47,7 +47,7 @@ export default {
           label:          'Default Version',
           value:          'id',
           formatter:      'defaultVersion',
-          labelKey:  'tableHeaders.vm.defaultVersion'
+          labelKey:  'harvester.tableHeaders.vm.defaultVersion'
         },
         AGE
       ];

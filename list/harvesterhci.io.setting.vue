@@ -1,5 +1,4 @@
 <script>
-import _ from 'lodash';
 import { mapGetters } from 'vuex';
 import { HCI } from '@/config/types';
 import { HCI_ALLOWED_SETTINGS } from '@/config/settings';

@@ -11,7 +11,7 @@ const MAX_FAILURES = 2;
 
 const HOST_IP = {
   name:      'host-ip',
-  labelKey:  'tableHeaders.hostIp',
+  labelKey:  'harvester.tableHeaders.hostIp',
   search:    ['internalIp'],
   value:     'internalIp',
   formatter: 'HostIp'
@@ -66,7 +66,7 @@ export default {
         },
         {
           name:          'storage',
-          labelKey:      'node.detail.glance.consumptionGauge.storage',
+          labelKey:      'harvester.hostPage.detail.storage',
           value:         'id',
           width:         230,
           formatter:     'StorageUsed',
