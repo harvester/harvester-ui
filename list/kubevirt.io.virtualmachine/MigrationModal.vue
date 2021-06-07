@@ -116,6 +116,7 @@ export default {
   <ModalWithCard
     ref="migration-modal"
     name="migration-modal"
+    save-text="migrate"
     width="40%"
     :pivot-y="0.001"
     :errors="errors"
