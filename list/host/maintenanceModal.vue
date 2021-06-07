@@ -70,11 +70,11 @@ export default {
   >
     <Card>
       <h4 slot="title" class="text-default-text">
-        {{ t('enableMaintenance.title') }}
+        {{ t('harvester.hostPage.enableMaintenance.title') }}
       </h4>
 
       <div slot="body" class="pl-10 pr-10">
-        <Banner color="warning" :label="t('enableMaintenance.protip')" class="mt-20" />
+        <Banner color="warning" :label="t('harvester.hostPage.enableMaintenance.protip')" class="mt-20" />
         <Banner v-for="(err, i) in errors" :key="i" color="error" :label="err" />
       </div>
 

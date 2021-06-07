@@ -20,19 +20,19 @@ export default {
         action:     'launchFromTemplate',
         enabled:    true,
         icon:       'icons icon-h-display',
-        label:      this.t('action.launchFormTemplate'),
+        label:      this.t('harvester.action.launchFormTemplate'),
       },
       {
         action:     'cloneTemplate',
         enabled:    true,
         icon:       'icon icon-fw icon-edit',
-        label:      this.t('action.modifyTemplate'),
+        label:      this.t('harvester.action.modifyTemplate'),
       },
       {
         action:     'setDefaultVersion',
         enabled:    true,
         icon:       'icon icon-fw icon-checkmark',
-        label:      this.t('action.setDefaultVersion'),
+        label:      this.t('harvester.action.setDefaultVersion'),
       },
       {
         action:  'goToViewConfig',

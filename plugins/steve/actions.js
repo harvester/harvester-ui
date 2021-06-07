@@ -440,7 +440,7 @@ export default {
     } catch (e) {
       res = e;
       const t = rootGetters['i18n/t'];
-      let message = t('generic.unknownErrorTip');
+      let message = t('harvester.unknownErrorTip');
 
       if (e && e.data) {
         message = e.data;

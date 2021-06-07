@@ -123,7 +123,7 @@ export default {
     },
 
     nodeType() {
-      return this.value.isMaster ? this.t('node.detail.type.management') : this.t('node.detail.type.compute');
+      return this.value.isMaster ? this.t('harvester.hostPage.detail.management') : this.t('harvester.hostPage.detail.compute');
     },
 
     lastUpdateTime() {
@@ -166,20 +166,20 @@ export default {
     <h3>{{ t('harvester.vmPage.detail.tabs.overview') }}</h3>
     <div class="row mb-20">
       <div class="col span-6">
-        <LabelValue :name="t('node.detail.basic.customName')" :value="customName" />
+        <LabelValue :name="t('harvester.hostPage.detail.customName')" :value="customName" />
       </div>
       <div class="col span-6">
-        <LabelValue :name="t('node.detail.basic.hostIP')" :value="value.internalIp" />
+        <LabelValue :name="t('harvester.hostPage.detail.hostIP')" :value="value.internalIp" />
       </div>
     </div>
 
     <div class="row mb-20">
       <div class="col span-6">
-        <LabelValue :name="t('node.detail.basic.os')" :value="value.status.nodeInfo.osImage" />
+        <LabelValue :name="t('harvester.hostPage.detail.os')" :value="value.status.nodeInfo.osImage" />
       </div>
       <div class="col span-6">
         <div class="role">
-          <LabelValue :name="t('node.detail.basic.role')">
+          <LabelValue :name="t('harvester.hostPage.detail.role')">
             <template #value>
               {{ nodeType }}
               <span class="text-warning ml-20">
@@ -193,10 +193,10 @@ export default {
 
     <div class="row mb-20">
       <div class="col span-6">
-        <LabelValue :name="t('node.detail.basic.create')" :value="value.metadata.creationTimestamp" />
+        <LabelValue :name="t('harvester.hostPage.detail.create')" :value="value.metadata.creationTimestamp" />
       </div>
       <div class="col span-6">
-        <LabelValue :name="t('node.detail.basic.update')" :value="lastUpdateTime" />
+        <LabelValue :name="t('harvester.hostPage.detail.update')" :value="lastUpdateTime" />
       </div>
     </div>
 
@@ -225,23 +225,23 @@ export default {
         <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.memory')" :capacity="memoryTotal" :used="memoryUsage" :units="memoryUnits" :number-formatter="memoryFormatter" />
       </div>
       <div class="col span-4">
-        <ConsumptionGauge :resource-name="t('node.detail.glance.consumptionGauge.storage')" :capacity="storageTotal" :used="storageUsage" :units="storageUnits" :number-formatter="memoryFormatter" />
+        <ConsumptionGauge :resource-name="t('harvester.hostPage.detail.storage')" :capacity="storageTotal" :used="storageUsage" :units="storageUnits" :number-formatter="memoryFormatter" />
       </div>
     </div>
 
     <hr class="section-divider" />
-    <h3>{{ t('node.detail.basic.more') }}</h3>
+    <h3>{{ t('harvester.hostPage.detail.more') }}</h3>
     <div class="row mb-20">
       <div class="col span-4">
-        <LabelValue :name="t('node.detail.more.uuid')" :value="value.status.nodeInfo.systemUUID" />
+        <LabelValue :name="t('harvester.hostPage.detail.uuid')" :value="value.status.nodeInfo.systemUUID" />
       </div>
 
       <div class="col span-4">
-        <LabelValue :name="t('node.detail.more.kernel')" :value="value.status.nodeInfo.kernelVersion" />
+        <LabelValue :name="t('harvester.hostPage.detail.kernel')" :value="value.status.nodeInfo.kernelVersion" />
       </div>
 
       <div class="col span-4">
-        <LabelValue :name="t('node.detail.more.containerRuntime')" :value="value.status.nodeInfo.containerRuntimeVersion" />
+        <LabelValue :name="t('harvester.hostPage.detail.containerRuntime')" :value="value.status.nodeInfo.containerRuntimeVersion" />
       </div>
     </div>
   </div>

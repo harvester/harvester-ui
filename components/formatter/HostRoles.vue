@@ -37,8 +37,8 @@ export default {
     },
 
     hostType() {
-      const management = this.t('node.detail.type.management');
-      const compute = this.t('node.detail.type.compute');
+      const management = this.t('harvester.hostPage.detail.management');
+      const compute = this.t('harvester.hostPage.detail.compute');
       const all = 'All';
       const isWorker = this.isWorker;
       const isControlPlane = this.isControlPlane;

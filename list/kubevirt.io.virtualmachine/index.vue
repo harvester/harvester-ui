@@ -84,7 +84,7 @@ export default {
           label:     'IP Address',
           value:     'id',
           formatter: 'ipAddress',
-          labelKey:  'tableHeaders.vm.ipAddress'
+          labelKey:  'harvester.tableHeaders.vm.ipAddress'
         },
         {
           name:      'node',
@@ -92,7 +92,7 @@ export default {
           value:     'id',
           sort:      ['nameSort'],
           formatter: 'nodeName',
-          labelKey:  'tableHeaders.vm.node'
+          labelKey:  'harvester.tableHeaders.vm.node'
         },
         {
           ...AGE,

@@ -19,7 +19,7 @@ export default {
         action:     'createFromImage',
         enabled:    b,
         icon:       'icon icon-fw icon-spinner',
-        label:      this.t('action.createVM'),
+        label:      this.t('harvester.action.createVM'),
       },
       ...out
     ];

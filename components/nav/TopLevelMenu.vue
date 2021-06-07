@@ -242,7 +242,7 @@ export default {
           <div class="pad"></div>
           <div class="cluster-manager">
             <a v-if="currentProduct && isRancher" class="btn role-tertiary" :href="(currentProduct.inStore === 'management' ? backToRancherGlobalLink : backToRancherLink)">
-              {{ t('nav.backToRancher') }}
+              {{ t('harvester.nav.backToRancher') }}
             </a>
           </div>
         </div>

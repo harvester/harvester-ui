@@ -93,7 +93,7 @@ export default {
       <Tab name="basics" :weight="100" :label="t('harvester.vmPage.detail.tabs.basics')">
         <LabeledInput
           v-model="customName"
-          :label="t('node.detail.basic.customName')"
+          :label="t('harvester.hostPage.detail.customName')"
           class="mb-20"
           :mode="mode"
         />

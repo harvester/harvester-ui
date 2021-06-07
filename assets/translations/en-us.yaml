@@ -9,7 +9,6 @@ generic:
   comingSoon: Coming Soon
   copy: Copy
   create: Create
-  delete: Delete
   created: Created
   customize: Customize
   default: Default
@@ -49,7 +48,6 @@ generic:
   unknown: Unknown
   key: Key
   value: Value
-  unknownErrorTip: An error occurred! Please try again.
   yes: Yes
   no: No
   units:
@@ -74,8 +72,7 @@ locale:
   none: (None)
 
 nav:
-  title: Harvester
-  backToRancher: Rancher
+  backToRancher: Cluster Manager
   clusterTools: Cluster Tools
   kubeconfig: Download KubeConfig
   import: Import YAML
@@ -428,10 +425,6 @@ assignTo:
       other { Assign {count} Clusters To&hellip; }
     }
   workspace: Workspace
-
-enableMaintenance:
-  title: Enable Maintenance Mode
-  protip: The operation will migrate all virtual machines on this node to other nodes.
 
 asyncButton:
   apply:
@@ -1954,7 +1947,6 @@ node:
         cpu: CPU
         memory: MEMORY
         pods: PODS
-        storage: Storage Size
       diskPressure: Disk Pressure
       kubelet: kubelet
       memoryPressure: Memory Pressure
@@ -1978,22 +1970,6 @@ node:
           systemUUID: System UUID
       pods: Pods
       taints: Taints
-    basic:
-      hostIP: Host IP
-      role: Role
-      os: Operating System
-      create: Creation Time
-      update: Last Update Time
-      customName: Custom Name
-      more: More Information
-    more:
-      uuid: UUID
-      containerRuntime: Container Runtime
-      kernel: Kernel
-    type:
-      management: Management Node
-      compute: Compute Node
-      
 
 persistentVolume:
   pluginConfiguration:
@@ -2679,8 +2655,6 @@ resourceTabs:
   tabs:
     conditions: Conditions
     events: Recent Events
-    labels: Labels
-    annotations: Annotations
   conditions:
     tab: Conditions
   events:
@@ -3239,7 +3213,6 @@ tableHeaders:
   expires: Expires
   providers: Providers
   cpu: CPU
-  customName: Custom Name
   date: Date
   default: Default
   destination: Target
@@ -3258,7 +3231,6 @@ tableHeaders:
   ingressDefaultBackend: Default
   ingressTarget: Target
   internalExternalIp: External/Internal IP
-  hostIp: Host IP
   jobs: Jobs
   key: Key
   keys: Data
@@ -3342,13 +3314,6 @@ tableHeaders:
   value: Value
   version: Version
   weight: Weight
-  vm:
-    ipAddress: IP Address
-    node: Node
-    defaultVersion: Default Version
-  network:
-    type: Type
-    vlan: Vlan ID
 
 target:
   router:
@@ -4293,32 +4258,12 @@ action:
   remove: Delete
   view: View Config
   viewInApi: View in API
-  createVM: Create a Virtual Machine
-  start: Start
-  restart: Restart
-  stop: Stop
-  pause: Pause
-  unpause: unpasue
-  ejectCDROM: Eject CDROM
-  launchFormTemplate: Launch instance from template
-  modifyTemplate: Modify template (Create new version)
-  setDefaultVersion: Set default version
-  addTemplateVersion: Add templateVersion
   viewYaml: View YAML
   activate: Activate
   deactivate: Deactivate
   show: Show
   hide: Hide
   copy: Copy
-  backup: Take Backup
-  restore: Restore
-  restoreNewVM: Restore New
-  restoreExistingVM: Replace Existing
-  migrate: Migrate
-  abortMigration: Abort Migration
-  createTemplate: Generate Template
-  enableMaintenance: Enable Maintenance Mode
-  disableMaintenance: Disable Maintenance Mode
   unassign: 'Unassign'
 
 unit:
@@ -4367,6 +4312,7 @@ harvester:
   close: Close
   open: Open
   clickToCopy: Click to Copy
+  unknownErrorTip: An error occurred! Please try again.
   buttons:
     addPort:  Add Port
   options: 
@@ -4395,7 +4341,30 @@ harvester:
     network: Networks
     advanced: Advanced Options
   nav:
+    title: Harvester
+    backToRancher: Rancher
     dashboard: Dashboard
+  action:
+    createVM: Create a Virtual Machine
+    start: Start
+    restart: Restart
+    stop: Stop
+    pause: Pause
+    unpause: unpasue
+    ejectCDROM: Eject CDROM
+    launchFormTemplate: Launch instance from template
+    modifyTemplate: Modify template (Create new version)
+    setDefaultVersion: Set default version
+    addTemplateVersion: Add templateVersion
+    backup: Take Backup
+    restore: Restore
+    restoreNewVM: Restore New
+    restoreExistingVM: Replace Existing
+    migrate: Migrate
+    abortMigration: Abort Migration
+    createTemplate: Generate Template
+    enableMaintenance: Enable Maintenance Mode
+    disableMaintenance: Disable Maintenance Mode
   header:
     preference: Preferences
     logout: Log Out
@@ -4411,6 +4380,14 @@ harvester:
     readyToUse: ReadyToUse
     backupTarget: Backup Target
     targetVm: Target VM
+    hostIp: Host IP
+    vm:
+      ipAddress: IP Address
+      node: Node
+      defaultVersion: Default Version
+    network:
+      type: Type
+      vlan: Vlan ID
   validation:
     custom:
       tooLongName: '"Name" cannot be more than {max} characters.'
@@ -4597,6 +4574,7 @@ harvester:
         title: Eject CDROM
         warnTip: Eject volume will restart the virtual machine.
         operationTip: 'Select the volume you want to delete:'
+        delete: Delete
     backupModal:
       success: 'Backup { backUpName } has been initiated.'
     restoreModal:
@@ -4626,8 +4604,24 @@ harvester:
     detail:
       title:
         network: Network Configuration
+      hostIP: Host IP
+      role: Role
+      os: Operating System
+      create: Creation Time
+      update: Last Update Time
+      customName: Custom Name
+      more: More Information
+      uuid: UUID
+      containerRuntime: Container Runtime
+      kernel: Kernel
+      management: Management Node
+      compute: Compute Node
+      storage: Storage Size
       nic: Physical NIC
       networkType: Type
+    enableMaintenance:
+      title: Enable Maintenance Mode
+      protip: The operation will migrate all virtual machines on this node to other nodes.
   volumePage:
     size: Size
     source: Source
@@ -4726,6 +4720,16 @@ harvester:
       info: Info
       warning: Warning
       error: Error
+  advancedSettings:
+    descriptions:
+      'vlan': Default physical NIC name of the VLAN network.
+      'api-ui-source': Config how to load the API and UI source.
+      'backup-target': Custom back target to store VM backups.
+      'log-level': Configure Harvester server log level. Default to info.
+      'rancher-enabled': Specify whether to display the Rancher UI navigation button or not.
+      'server-version': Harvester server version.
+      'upgrade-checker-enabled': Specify whether to enable Harvester upgrade check or not. Default is true.
+      'upgrade-checker-url': Default Harvester upgrade check url. Only used when the <code>upgrade-checker-enabled</code>  is equal to true.
 ##############################
 ### Advanced Settings
 ##############################
@@ -4766,14 +4770,6 @@ advancedSettings:
     'rke-metadata-config': 'Configure RKE metadata refresh parameters.'
     'ui-banners': 'Classification banner is used to display a custom fixed banner in the header, footer, or both.'
     'ui-default-landing': 'The default page users land on after login.'
-    'vlan': Default physical NIC name of the VLAN network.
-    'api-ui-source': Config how to load the API and UI source.
-    'backup-target': Custom back target to store VM backups.
-    'log-level': Configure Harvester server log level. Default to info.
-    'rancher-enabled': Specify whether to display the Rancher UI navigation button or not.
-    'server-version': Harvester server version.
-    'upgrade-checker-enabled': Specify whether to enable Harvester upgrade check or not. Default is true.
-    'upgrade-checker-url': Default Harvester upgrade check url. Only used when the <code>upgrade-checker-enabled</code>  is equal to true.
     'brand': Folder name for an alternative theme defined in '/assets/brand'
   editHelp:
     'ui-banners': This setting takes a JSON object containing 3 root parameters; <code>banner</code>, <code>showHeader</code>, <code>showFooter</code>. <code>banner</code> is an object containing; <code>textColor</code>, <code>background</code>, and <code>text</code>, where <code>textColor</code> and <code>background</code> are any valid CSS color value.

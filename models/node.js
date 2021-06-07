@@ -40,7 +40,7 @@ export default {
       action:     'enableMaintenanceMode',
       enabled:    this.hasAction('enableMaintenanceMode'),
       icon:       'icon icon-fw icon-unlock',
-      label:      this.t('action.enableMaintenance'),
+      label:      this.t('harvester.action.enableMaintenance'),
       total:      1
     };
 
@@ -48,7 +48,7 @@ export default {
       action:     'disableMaintenanceMode',
       enabled:    this.hasAction('disableMaintenanceMode'),
       icon:       'icon icon-fw icon-lock',
-      label:      this.t('action.disableMaintenance'),
+      label:      this.t('harvester.action.disableMaintenance'),
       total:      1
     };
 
