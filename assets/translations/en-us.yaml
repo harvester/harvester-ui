@@ -520,6 +520,10 @@ asyncButton:
     action: Upgrade
     success: Upgrading
     waiting: Starting&hellip;
+  migrate:
+    action: Migrate
+    success: Migrating
+    waiting: Starting&hellip;
 
 backupRestoreOperator:
   backupFilename: Backup Filename
