@@ -204,7 +204,7 @@ export default {
       width="40%"
       :errors="errors"
       @finish="save"
-      @close.prevent="cancel"
+      @close="cancel"
     >
       <template #title>
         {{ t('harvester.vmPage.sshTitle') }}
@@ -216,6 +216,7 @@ export default {
           :label="t('harvester.vmPage.input.name')"
           class="mb-20"
           required
+          @keydown.native.enter.prevent="()=>{}"
         />
 
         <LabeledInput

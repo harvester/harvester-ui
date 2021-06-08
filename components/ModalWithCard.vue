@@ -47,6 +47,7 @@ export default {
   methods: {
     hide() {
       this.$modal.hide(this.name);
+      this.$emit('close');
     },
 
     open() {
@@ -84,12 +85,8 @@ export default {
       <template #actions>
         <slot name="footer">
           <div class="footer">
-            <button v-if="$listeners['close']" class="btn role-secondary mr-20" @click="$emit('close', $event)">
+            <button class="btn role-secondary mr-20" @click.prevent="hide">
               {{ closeText }}
-            </button>
-
-            <button v-else class="btn btn-sm role-secondary mr-10" @click="close">
-              {{ t('generic.close') }}
             </button>
 
             <AsyncButton
