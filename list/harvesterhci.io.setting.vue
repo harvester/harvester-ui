@@ -147,6 +147,9 @@ export default {
           </button>
         </div>
       </div>
+      <Banner v-if="setting.data.errMessage" color="error mt-5" class="settings-banner">
+        {{ setting.data.errMessage }}
+      </Banner>
     </div>
   </div>
 </template>

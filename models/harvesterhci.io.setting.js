@@ -28,6 +28,14 @@ export default {
     return !readonly && this.value && this.value !== this.default;
   },
 
+  errMessage() {
+    if (this.metadata?.state?.error === true) {
+      return this.metadata.state.message;
+    } else {
+      return false;
+    }
+  },
+
   configuredCondition() {
     return findBy((this?.status?.conditions || []), 'type', 'configured') || {};
   },
