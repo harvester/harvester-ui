@@ -1,7 +1,7 @@
 import Parse from 'url-parse';
 import Notification from '@/components/Notification/main.js';
 import { HCI } from '@/config/types';
-
+import _ from 'lodash';
 export const state = function() {
   return {
     latestBundleId:   '',
@@ -57,15 +57,24 @@ export const actions = {
     let bundleCrd = await dispatch('cluster/find', { type: HCI.SUPPORT_BUNDLE, id }, { root: true });
     const t = rootGetters['i18n/t'];
 
-    await commit('setBundlePending', true);
-    const timer = setInterval(() => {
-      if (bundleCrd?.bundleState !== 'ready') {
-        bundleCrd = rootGetters['cluster/byId'](HCI.SUPPORT_BUNDLE, id);
-        const percentage = state.bundlePercentage + 0.025;
+    let count = 0;
 
-        if (percentage < 1) {
-          commit('setBundlePercentage', percentage);
-        }
+    await commit('setBundlePending', true);
+    const timer = setInterval(async() => {
+      count = count + 1;
+      if (count % 3 === 0) { // ws mayby disconnect
+        bundleCrd = await dispatch('cluster/find', {
+          type: HCI.SUPPORT_BUNDLE,
+          id,
+          opt:  { force: true }
+        }, { root: true });
+      }
+
+      if (bundleCrd.bundleState !== 'ready') {
+        bundleCrd = rootGetters['cluster/byId'](HCI.SUPPORT_BUNDLE, id);
+        const percentage = bundleCrd.precent;
+
+        commit('setBundlePercentage', percentage);
 
         if (bundleCrd?.bundleMessage) {
           Notification.warning({
@@ -90,6 +99,6 @@ export const actions = {
         window.location.href = `${ parse.origin }/v1/supportbundles/${ name }/download`;
         clearInterval(timer);
       }
-    }, 500);
+    }, 1000);
   }
 };

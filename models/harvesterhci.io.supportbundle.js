@@ -14,5 +14,9 @@ export default {
     }
 
     return false;
+  },
+
+  precent() {
+    return this?.status?.progress / 100 || 0;
   }
 };
