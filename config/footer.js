@@ -4,7 +4,7 @@ export function options(pl) {
   }
 
   return {
-    'footer.docs':   'https://github.com/harvester/harvester/tree/master/docs',
+    'footer.docs':   'https://docs.harvesterhci.io/',
     'footer.forums': 'https://forums.rancher.com/',
     'footer.slack':  'https://slack.rancher.io',
     'footer.issue':  'https://github.com/harvester/harvester/issues/new/choose',
