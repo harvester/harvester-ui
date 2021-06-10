@@ -1,7 +1,7 @@
 import Parse from 'url-parse';
 import Notification from '@/components/Notification/main.js';
 import { HCI } from '@/config/types';
-import _ from 'lodash';
+
 export const state = function() {
   return {
     latestBundleId:   '',

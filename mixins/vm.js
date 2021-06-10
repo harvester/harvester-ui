@@ -579,9 +579,11 @@ export default {
         }
       }
 
+      const isRunVM = this.isCreate ? this.isRunning : this.isRestartImmediately ? true : this.value.spec.running;
+
       const spec = {
         ...this.spec,
-        running:  this.isRunning,
+        running:  isRunVM,
         dataVolumeTemplates,
         template: {
           ...this.spec.template,

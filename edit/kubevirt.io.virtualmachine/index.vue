@@ -58,6 +58,7 @@ export default {
   data() {
     const MachineType = this.value?.spec?.template?.spec?.domain?.machine?.type || '';
     const cloneDeepVM = _.cloneDeep(this.value);
+    const isRestartImmediately = this.value.actualState === 'Running';
 
     return {
       cloneDeepVM,
@@ -69,7 +70,7 @@ export default {
       isSingle:              true,
       isRunning:             true,
       useTemplate:           false,
-      isRestartImmediately:  true,
+      isRestartImmediately,
       MachineType
     };
   },
@@ -240,7 +241,7 @@ export default {
 
     MachineType(neu) {
       this.$set(this.spec.template.spec.domain.machine, 'type', neu);
-    }
+    },
   },
 
   created() {
@@ -536,7 +537,7 @@ export default {
 
       <template #extend>
         <div class="mt-20">
-          <div>
+          <div v-if="!isEdit">
             <Checkbox v-model="isRunning" class="check mb-20" type="checkbox" :label="t('harvester.vmPage.createRunning')" />
           </div>
 
