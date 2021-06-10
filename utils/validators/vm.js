@@ -29,7 +29,7 @@ export function vmNetworks(spec, getters, errors, validatorArgs) {
       }
     }
 
-    if (I.macAddress && !isValidMac(I.macAddress)) {
+    if (I.macAddress && !isValidMac(I.macAddress) && I.networkName !== 'management Network') {
       const message = getters['i18n/t']('harvester.validation.vm.network.macFormat');
 
       errors.push(getters['i18n/t']('harvester.validation.vm.network.error', { prefix, message }));
