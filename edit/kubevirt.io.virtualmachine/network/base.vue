@@ -92,6 +92,8 @@ export default {
       handler(neu) {
         if (neu === MANAGEMENT_NETWORK && this.value.masquerade) {
           this.value.type = 'masquerade';
+        } else {
+          this.value.type = 'bridge';
         }
       },
       immediate: true
@@ -107,7 +109,7 @@ export default {
       } else {
         // const choices = this.$store.getters['cluster/byId'](HCI.NETWORK_ATTACHMENT, `default/${ neu }`);
         // this.currentRow.isIpamStatic = choices?.isIpamStatic || false;
-        this.value.type = 'bridge';
+        // this.value.type = 'bridge';
         this.value.isPod = false;
       }
       this.$emit('update');
