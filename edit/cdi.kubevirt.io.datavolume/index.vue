@@ -98,7 +98,6 @@ export default {
             :value="value.labels"
             :add-label="t('labels.addLabel')"
             :mode="mode"
-            :title="t('labels.labels.title')"
             :pad-left="false"
             :read-allowed="false"
             @input="value.setLabels"
