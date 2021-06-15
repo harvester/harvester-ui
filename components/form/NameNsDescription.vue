@@ -167,7 +167,7 @@ export default {
       const choices = this.$store.getters[`${ inStore }/all`](this.namespaceType);
 
       const out = sortBy(
-        choices.filter(obj => obj.isHCIUserNS).map((obj) => {
+        choices.map((obj) => {
           return {
             label: obj.nameDisplay,
             value: obj.id,

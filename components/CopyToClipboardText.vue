@@ -31,7 +31,13 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-span {
-  color: var(--link-text);
-}
+  .copy-to-cliboard-text {
+    &.plain {
+      color: var(--body-text);
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
 </style>

@@ -4411,8 +4411,8 @@ harvester:
         volume: '"Volume" is required!'
         docker: '"Docker Image" is required!'
     image:
-      ruleTip: 'The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw.'
-      ruleFileTip: 'The file you have chosen ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow2, .raw.'
+      ruleTip: 'The URL you have entered ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow, .qcow2, .raw.'
+      ruleFileTip: 'The file you have chosen ends in an extension that we do not support. We only accept image files that end in .img, .iso, .qcow, .qcow2, .raw.'
     volume:
       sizeRange: Size must be integer and between 1 and 999999
   promptRemove:

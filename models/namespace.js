@@ -141,10 +141,6 @@ export default {
     return true;
   },
 
-  isHCIUserNS() {
-    return this?.getAnnotationValue(HCI_USER_NAMESPACE) === 'true' || this?.id === 'harvester-public';
-  },
-
   listLocation() {
     return { name: this.$rootGetters['isRancher'] ? 'c-cluster-product-projectsnamespaces' : 'c-cluster-product-namespaces' };
   },

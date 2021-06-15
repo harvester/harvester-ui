@@ -5,7 +5,7 @@ import {
 } from '@/config/table-headers';
 
 export default {
-  name:       'LSSHs',
+  name:       'ListSSH',
   components: { ResourceTable },
 
   props: {

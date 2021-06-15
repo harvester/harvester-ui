@@ -3882,8 +3882,8 @@ harvester:
         docker: '"Docker 镜像" 是必填项'
 
     image:
-      ruleTip: '仅支持镜像后缀为 .img, .iso, .qcow2, .raw'
-      ruleFileTip: '仅支持镜像后缀为 .img, .iso, .qcow2, .raw'
+      ruleTip: '仅支持镜像后缀为 .img, .iso, .qcow, .qcow2, .raw'
+      ruleFileTip: '仅支持镜像后缀为 .img, .iso, .qcow, .qcow2, .raw'
     volume:
       sizeRange: '"大小" 必须是介于 1 和 999999 之间的整数'
   promptRemove:

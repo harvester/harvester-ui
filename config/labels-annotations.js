@@ -103,6 +103,8 @@ export const ANNOTATIONS_TO_FOLD = [
 ];
 
 // harvester
+export const HCI_IMAGE_SOURCE = 'harvesterhci.io/source';
+
 export const STORAGE_CLASS_LABEL = { DEFAULT_CALSS: 'storageclass.kubernetes.io/is-default-class' };
 
 export const DATA_VOLUME_OWNEDBY = 'harvesterhci.io/owned-by';

@@ -1,4 +1,7 @@
 import { HCI, NODE, CONFIG_MAP } from '@/config/types';
+import {
+  STATE, NAME as NAME_COL, AGE, NAMESPACE, IMAGE_PROGRESS, IMAGE_MESSAGE, IMAGE_DOWNLOAD_SIZE
+} from '@/config/table-headers';
 
 import { DSL } from '@/store/type-map';
 
@@ -12,6 +15,7 @@ export function init(store) {
   const {
     product,
     basicType,
+    headers,
     configureType,
     virtualType,
   } = DSL(store, NAME);
@@ -104,6 +108,7 @@ export function init(store) {
   });
 
   basicType([HCI.IMAGE]);
+  headers(HCI.IMAGE, [STATE, NAME_COL, NAMESPACE, /* IMAGE_PROGRESS, IMAGE_MESSAGE, */IMAGE_DOWNLOAD_SIZE, AGE]);
   virtualType({
     label:      'Images',
     group:      'root',

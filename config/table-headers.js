@@ -696,22 +696,39 @@ export const CONFIGURED_RECEIVER = {
   formatterOpts: { options: { internal: true } },
 };
 
-// harvester
-export const IS_ADMIN = {
-  name:     'Isadmin',
-  value:    'isAdmin'
-};
+/** * harvester ***/
 
-export const SETTING_VALUE = {
-  name:     'value',
-  labelKey: 'harvester.tableHeaders.value',
-  value:    'valueOrDefaultValue'
-};
-
+// SSH keys
 export const FINGERPRINT = {
   name:      'Fingerprint',
   labelKey:  'harvester.tableHeaders.fingerprint',
   value:     'status.fingerPrint',
+};
+
+// images
+export const IMAGE_PROGRESS = {
+  name:      'Uploaded',
+  labelKey:  'harvester.tableHeaders.progress',
+  value:     'status.progress',
+  sort:      'status.progress',
+  formatter: 'ImagePercentageBar',
+};
+
+export const IMAGE_MESSAGE = {
+  name:      'Message',
+  labelKey:  'harvester.tableHeaders.message',
+  value:     'status.conditions',
+  sort:      'status.conditions',
+  formatter: 'ImageMessage',
+};
+
+export const IMAGE_DOWNLOAD_SIZE = {
+  name:      'downloadedBytes',
+  labelKey:  'harvester.tableHeaders.size',
+  value:     'status.size',
+  sort:      'status.size',
+  formatter: 'ByteFormat',
+  width:     120
 };
 
 export const NETWORK_TYPE = {

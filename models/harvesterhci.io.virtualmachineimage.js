@@ -1,15 +1,13 @@
-import { colorForState } from '@/plugins/steve/resource-instance';
 import { HCI } from '@/config/types';
 import {
   DESCRIPTION,
   ANNOTATIONS_TO_IGNORE_REGEX,
+  HCI_IMAGE_SOURCE
 } from '@/config/labels-annotations';
 
 export default {
   availableActions() {
     let out = this._standardActions;
-    const b = this.stateDisplay !== 'Failed';
-
     const toFilter = ['goToEditYaml'];
 
     out = out.filter( A => !toFilter.includes(A.action));
@@ -17,7 +15,7 @@ export default {
     return [
       {
         action:     'createFromImage',
-        enabled:    b,
+        enabled:    this.isReady,
         icon:       'icon icon-fw icon-spinner',
         label:      this.t('harvester.action.createVM'),
       },
@@ -32,28 +30,47 @@ export default {
       router.push({
         name:   `c-cluster-product-resource-create`,
         params: { resource: HCI.VM },
-        query:  { image: this.spec.displayName }
+        query:  { image: this.nameDisplay }
       });
     };
   },
 
+  nameDisplay() {
+    return this.spec?.displayName;
+  },
+
   isReady() {
-    return this?.status?.conditions?.[0].status === 'True';
+    const Initialized = this.getStatusConditionOfType('Initialized');
+
+    return Initialized?.status === 'True';
   },
 
   stateDisplay() {
     const Initialized = this.getStatusConditionOfType('Initialized');
 
-    // if (status === undefined) {
-    //   return 'Unknown';
-    // }
-
-    // return status === 'True' ? 'Imported' : status === 'Unknown' ? 'In-progress' : 'Failed';
-    return Initialized?.status === 'True' ? 'Active' : Initialized?.message ? 'Failed' : 'In-progress';
+    return this.isReady ? 'Active' : Initialized?.message ? 'Failed' : 'In-progress';
   },
 
-  stateBackground() {
-    return colorForState(this.stateDisplay).replace('text-', 'bg-');
+  resourcesStatus() {
+    const imageList = this.$rootGetters['cluster/all'](HCI.IMAGE);
+
+    let warningCount = 0;
+    let errorCount = 0;
+
+    imageList.forEach((item) => {
+      const status = item.getStatusConditionOfType('imported')?.status;
+
+      if (status === 'False') {
+        errorCount += 1;
+      } else if (status === 'Unknown') {
+        warningCount += 1;
+      }
+    });
+
+    return {
+      warningCount,
+      errorCount
+    };
   },
 
   warningCount() {
@@ -64,26 +81,8 @@ export default {
     return this.resourcesStatus.errorCount;
   },
 
-  resourcesStatus() {
-    const imageList = this.$rootGetters['cluster/all'](HCI.IMAGE);
-
-    let warning = 0;
-    let error = 0;
-
-    imageList.forEach((item) => {
-      const status = item.getStatusConditionOfType('imported')?.status;
-
-      if (status === 'False') {
-        error += 1;
-      } else if (status === 'Unknown') {
-        warning += 1;
-      }
-    });
-
-    return {
-      warningCount: warning,
-      errorCount:   error
-    };
+  imageSource() {
+    return this.getAnnotationValue(HCI_IMAGE_SOURCE) || 'url'; // url is default source
   },
 
   annotationsToIgnoreRegexes() {
@@ -91,6 +90,29 @@ export default {
   },
 
   customValidationRules() {
+    const out = [];
+
+    if (this.imageSource === 'url') {
+      const urlFormat = {
+        nullable:       false,
+        path:           'spec.url',
+        validators:     ['imageUrl'],
+      };
+
+      const urlRequired = {
+        nullable:       false,
+        path:           'spec.url',
+        required:       true,
+        translationKey: 'harvester.imagePage.url'
+      };
+
+      out.push(urlFormat, urlRequired);
+    }
+
+    if (this.imageSource === 'file') {
+      // File is required!
+    }
+
     return [
       {
         nullable:       false,
@@ -100,12 +122,13 @@ export default {
         maxLength:      63,
         translationKey: 'generic.name'
       },
-      // {
-      //   nullable:       false,
-      //   path:           'spec.url',
-      //   validators:     ['imageUrl'],
-      // },
+      {
+        nullable:       false,
+        path:           'spec.displayName',
+        required:       true,
+        translationKey: 'generic.name'
+      },
+      ...out
     ];
   },
-
 };
