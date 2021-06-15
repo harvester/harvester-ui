@@ -1,5 +1,5 @@
 import SYSTEM_NAMESPACES from '@/config/system-namespaces';
-import { PROJECT, SYSTEM_NAMESPACE, ISTIO as ISTIO_LABELS, HCI_USER_NAMESPACE } from '@/config/labels-annotations';
+import { PROJECT, SYSTEM_NAMESPACE, ISTIO as ISTIO_LABELS } from '@/config/labels-annotations';
 import { ISTIO, MANAGEMENT } from '@/config/types';
 import { escapeHtml } from '@/utils/string';
 import { insertAt, isArray } from '@/utils/array';

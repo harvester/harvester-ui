@@ -1,6 +1,6 @@
 import { HCI, NODE, CONFIG_MAP } from '@/config/types';
 import {
-  STATE, NAME as NAME_COL, AGE, NAMESPACE, IMAGE_PROGRESS, IMAGE_MESSAGE, IMAGE_DOWNLOAD_SIZE
+  STATE, NAME as NAME_COL, AGE, NAMESPACE, IMAGE_DOWNLOAD_SIZE
 } from '@/config/table-headers';
 
 import { DSL } from '@/store/type-map';
