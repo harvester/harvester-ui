@@ -4071,6 +4071,9 @@ harvester:
     enableMaintenance:
       title: 开启节点维护模式
       protip: 注意!此操作会迁移当前节点上的所有虚拟机!.
+    cordon:
+      title: 封锁
+      protip: 注意! 此操作将会标记节点 { node } 为不可调度.
   volumePage:
     size: 大小
     source: 资源类型

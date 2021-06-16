@@ -5,6 +5,7 @@ import { STATE, NAME, AGE } from '@/config/table-headers';
 import { METRIC, NODE } from '@/config/types';
 import { allSettled } from '@/utils/promise';
 import MaintenanceModal from './maintenanceModal';
+import CordonModal from './cordonModal';
 
 const METRICS_POLL_RATE_MS = 30000;
 const MAX_FAILURES = 2;
@@ -19,7 +20,9 @@ const HOST_IP = {
 
 export default {
   name:       'ListNode',
-  components: { ResourceTable, MaintenanceModal },
+  components: {
+    ResourceTable, MaintenanceModal, CordonModal
+  },
 
   props: {
     schema: {
@@ -113,5 +116,6 @@ export default {
     </ResourceTable>
 
     <MaintenanceModal />
+    <CordonModal />
   </div>
 </template>

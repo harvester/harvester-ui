@@ -5,6 +5,7 @@ import { STATE, NAME, AGE } from '@/config/table-headers';
 import { METRIC, NODE, SCHEMA } from '@/config/types';
 import { allSettled } from '@/utils/promise';
 import MaintenanceModal from './maintenanceModal';
+import CordonModal from './cordonModal';
 
 const schema = {
   id:         'host',
@@ -29,7 +30,9 @@ const HOST_IP = {
 
 export default {
   name:       'ListNode',
-  components: { ResourceTable, MaintenanceModal },
+  components: {
+    ResourceTable, MaintenanceModal, CordonModal
+  },
 
   async fetch() {
     const hash = await allSettled({
@@ -132,5 +135,6 @@ export default {
     </ResourceTable>
 
     <MaintenanceModal />
+    <CordonModal />
   </div>
 </template>

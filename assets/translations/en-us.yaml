@@ -4626,6 +4626,9 @@ harvester:
     enableMaintenance:
       title: Enable Maintenance Mode
       protip: The operation will migrate all virtual machines on this node to other nodes.
+    cordon:
+      title: Cordon
+      protip: This operation will mark the node { node } as unschedulable.
   volumePage:
     size: Size
     source: Source
