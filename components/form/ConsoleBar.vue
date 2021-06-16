@@ -52,7 +52,13 @@ export default {
         uid = this.resource.metadata.uid;
       }
 
-      const url = `//${ window.location.host }/console/${ uid }/${ type }`;
+      let host = window.location.host;
+
+      if (process.env.NODE_ENV === 'production') {
+        host = `${ host }/dashboard`;
+      }
+
+      const url = `https://${ host }/console/${ uid }/${ type }`;
 
       window.open(url, '_blank', 'toolbars=0,width=900,height=700,left=0,top=0');
     },
