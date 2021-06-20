@@ -15,13 +15,13 @@ export default {
     return [
       {
         action:     'restoreExistingVM',
-        enabled:    (!!this.isMatchWithCurrentBakcupTarget) && this.attachVmExisting && this?.status?.readyToUse,
+        enabled:    this.attachVmExisting && this?.status?.readyToUse,
         icon:       'icons icon-h-restore-existing',
         label:      this.t('harvester.action.restoreExistingVM'),
       },
       {
         action:     'restoreNewVM',
-        enabled:    (!!this.isMatchWithCurrentBakcupTarget) && this?.status?.readyToUse,
+        enabled:    this?.status?.readyToUse,
         icon:       'icons icon-h-restore-new',
         label:      this.t('harvester.action.restoreNewVM'),
       },

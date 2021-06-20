@@ -1,16 +1,20 @@
 <script>
-import { allHash } from '@/utils/promise';
 import Banner from '@/components/Banner';
-import { STATE, AGE, NAME, NAMESPACE } from '@/config/table-headers';
 import Loading from '@/components/Loading';
 import ResourceTable from '@/components/ResourceTable';
-import { HCI } from '@/config/types';
 import Masthead from '@/components/ResourceList/Masthead';
+import MessageLink from '@/components/MessageLink';
+
+import { HCI } from '@/config/types';
+import { allHash } from '@/utils/promise';
+import {
+  STATE, AGE, NAME, NAMESPACE, TARGET_VM, BACKUP_TARGET, READY_TO_USE
+} from '@/config/table-headers';
 
 export default {
   name:       'ListBackup',
   components: {
-    ResourceTable, Banner, Loading, Masthead
+    ResourceTable, Banner, Loading, Masthead, MessageLink
   },
 
   props: {
@@ -23,7 +27,7 @@ export default {
   async fetch() {
     const hash = await allHash({
       settings: this.$store.dispatch('cluster/findAll', { type: HCI.SETTING }),
-      rows:             this.$store.dispatch('cluster/findAll', { type: HCI.BACKUP }),
+      rows:     this.$store.dispatch('cluster/findAll', { type: HCI.BACKUP }),
     });
 
     this.rows = hash.rows;
@@ -38,78 +42,37 @@ export default {
     return {
       rows:     [],
       settings: [],
-      resource
+      resource,
+      to:       `${ HCI.SETTING }/backup-target?mode=edit`
     };
   },
 
   computed: {
     headers() {
-      return [
-        { ...STATE },
-        {
-          ...NAME,
-          width: 200
-        },
-        NAMESPACE,
-        {
-          name:      'sourceName',
-          labelKey:  'harvester.tableHeaders.targetVm',
-          value:     'attachVM',
-          align:     'left',
-          formatter: 'AttachVMWithName'
-        },
-        {
-          name:      'backupTarget',
-          labelKey:  'harvester.tableHeaders.backupTarget',
-          value:     'backupTarget',
-          align:     'left',
-          formatter: 'BackupTargetValidation'
-        },
-        {
-          name:     'readyToUse',
-          labelKey:  'harvester.tableHeaders.readyToUse',
-          value:    'status.readyToUse',
-          align:    'left',
-        },
-        AGE
-      ];
+      return [STATE, NAME, NAMESPACE, TARGET_VM, BACKUP_TARGET, READY_TO_USE, AGE];
     },
 
     backupTargetResource() {
       return this.settings.find( O => O.id === 'backup-target');
     },
 
-    backupLength() {
-      const choices = this.$store.getters['cluster/all'](HCI.BACKUP);
-
-      return choices.length;
-    },
-
     isEmptyValue() {
-      return !this.backupTargetResource.value && !this.backupTargetResource?.errorBackupTargetMessage;
-    },
-
-    hasBakcupError() {
-      return this.backupTargetResource?.bakcupError;
+      return this.backupTargetResource.backupTagetetIsEmpty;
     },
 
     errorMessage() {
-      return this.backupTargetResource?.errorBackupTargetMessage;
+      return this.backupTargetResource?.errMessage;
     },
   },
 
   watch: {
-    hasBakcupError: {
+    errorMessage: {
       handler(neu) {
-        const type = this.$route.params.resource;
-        const setting = !!neu ? '' : 'harvesterhci.io.setting/backup-target?mode=edit';
+        const setting = !!neu ? '' : this.to;
 
-        this.$store.commit('cluster/setConfig', {
-          type,
-          data: {
-            disableCreateButton: neu,
-            setting
-          }
+        this.$store.commit('cluster/setConfig', { // Provide a shortcut link, when the configuration is correct
+          type: this.resource,
+          data: { setting }
         });
       },
       immediate: true
@@ -125,37 +88,40 @@ export default {
       :schema="schema"
       :resource="resource"
       :create-button-label="t('harvester.backUpPage.createText')"
-    >
-    </Masthead>
+    />
 
     <Banner
-      v-if="hasBakcupError"
+      v-if="errorMessage || isEmptyValue"
       color="error"
     >
-      <div v-if="isEmptyValue">
-        {{ t('harvester.backUpPage.message.noSetting.prefix') }}
-        <nuxt-link to="harvesterhci.io.setting/backup-target?mode=edit">
-          {{ t('harvester.backUpPage.message.noSetting.middle') }}
-        </nuxt-link>
-        {{ t('harvester.backUpPage.message.noSetting.suffic') }}
-      </div>
+      <MessageLink
+        v-if="isEmptyValue"
+        :to="to"
+        prefix-label="harvester.backUpPage.message.noSetting.prefix"
+        middle-label="harvester.backUpPage.message.noSetting.middle"
+        suffic-label="harvester.backUpPage.message.noSetting.suffic"
+      />
 
-      <div v-else>
-        {{ t('harvester.backUpPage.message.errorTip.prefix') }}
-        <nuxt-link to="harvesterhci.io.setting/backup-target?mode=edit">
-          {{ t('harvester.backUpPage.message.errorTip.middle') }}
-        </nuxt-link> {{ t('harvester.backUpPage.message.errorTip.suffic') }} {{ errorMessage }}
-      </div>
+      <MessageLink
+        v-else
+        :to="to"
+        prefix-label="harvester.backUpPage.message.errorTip.prefix"
+        middle-label="harvester.backUpPage.message.errorTip.middle"
+      >
+        <template v-slot:suffic>
+          {{ t('harvester.backUpPage.message.errorTip.suffic') }} {{ errorMessage }}
+        </template>
+      </MessageLink>
     </Banner>
 
     <ResourceTable
       v-bind="$attrs"
       :headers="headers"
-      default-sort-by="age"
       :groupable="true"
-      :rows="[...rows]"
+      :rows="rows"
       :schema="schema"
       key-field="_key"
+      default-sort-by="age"
       v-on="$listeners"
     />
   </div>
