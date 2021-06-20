@@ -28,6 +28,10 @@ export default {
     return !readonly && this.value && this.value !== this.default;
   },
 
+  backupTagetetIsEmpty() {
+    return !this.value;
+  },
+
   errMessage() {
     if (this.metadata?.state?.error === true) {
       return this.metadata.state.message;
@@ -91,18 +95,6 @@ export default {
 
   isNFS() {
     return this.parseValue.type === 'nfs';
-  },
-
-  bakcupError() {
-    const configured = findBy((this?.status?.conditions || []), 'type', 'configured') || {};
-
-    return configured.status === 'False' || configured.status === undefined;
-  },
-
-  errorBackupTargetMessage() {
-    const configured = findBy((this?.status?.conditions || []), 'type', 'configured') || {};
-
-    return configured.reason;
   },
 
   customValidationRules() {

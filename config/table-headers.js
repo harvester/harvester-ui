@@ -731,6 +731,30 @@ export const IMAGE_DOWNLOAD_SIZE = {
   width:     120
 };
 
+// backup
+export const TARGET_VM = {
+  name:      'targetVM',
+  labelKey:  'harvester.tableHeaders.targetVm',
+  value:     'attachVM',
+  align:     'left',
+  formatter: 'AttachVMWithName'
+};
+
+export const BACKUP_TARGET = {
+  name:      'backupTarget',
+  labelKey:  'harvester.tableHeaders.backupTarget',
+  value:     'backupTarget',
+  align:     'left',
+  formatter: 'BackupTargetValidation'
+};
+
+export const READY_TO_USE = {
+  name:     'readyToUse',
+  labelKey:  'harvester.tableHeaders.readyToUse',
+  value:    'status.readyToUse',
+  align:    'left',
+};
+
 export const NETWORK_TYPE = {
   name:      'type',
   value:     'spec.config',
