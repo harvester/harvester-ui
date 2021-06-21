@@ -4159,6 +4159,11 @@ typeLabel:
       one { Host }
       other { Hosts }
     }
+  host: |-
+    {count, plural,
+      one { Host }
+      other { Hosts }
+    }
   kubevirt.io.virtualmachine: |-
     {count, plural,
       one { Virtual Machine }
@@ -4369,6 +4374,8 @@ harvester:
     createTemplate: Generate Template
     enableMaintenance: Enable Maintenance Mode
     disableMaintenance: Disable Maintenance Mode
+    cordon: Cordon
+    uncordon: Uncordon
   header:
     preference: Preferences
     logout: Log Out
@@ -4626,6 +4633,9 @@ harvester:
     enableMaintenance:
       title: Enable Maintenance Mode
       protip: The operation will migrate all virtual machines on this node to other nodes.
+    cordon:
+      title: Cordon
+      protip: This operation will mark the node { node } as unschedulable.
   volumePage:
     size: Size
     source: Source

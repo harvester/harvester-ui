@@ -1,4 +1,3 @@
-import Vue from 'vue';
 import { formatPercent } from '@/utils/string';
 import {
   NODE_ROLES,
@@ -20,18 +19,18 @@ export default {
   _availableActions() {
     const cordon = {
       action:     'cordon',
-      enabled:    this.hasLink('update') && this.isWorker && !this.isCordoned,
+      enabled:    this.hasAction('cordon'),
       icon:       'icon icon-fw icon-pause',
-      label:      'Cordon',
+      label:      this.t('harvester.action.cordon'),
       total:      1,
       bulkable:   true
     };
 
     const uncordon = {
       action:     'uncordon',
-      enabled:    this.hasLink('update') && this.isWorker && this.isCordoned,
+      enabled:    this.hasAction('uncordon'),
       icon:       'icon icon-fw icon-play',
-      label:      'Uncordon',
+      label:      this.t('harvester.action.uncordon'),
       total:      1,
       bulkable:   true
     };
@@ -280,17 +279,13 @@ export default {
   },
 
   cordon() {
-    return async() => {
-      Vue.set(this.spec, 'unschedulable', true);
-      await this.save();
+    return (resources = this) => {
+      this.$commit('node/toggleCordonModal', resources, { root: true });
     };
   },
 
   uncordon() {
-    return async() => {
-      Vue.set(this.spec, 'unschedulable', false);
-      await this.save();
-    };
+    this.doAction('uncordon', {});
   },
 
   enableMaintenanceMode() {
