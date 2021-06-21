@@ -49,6 +49,11 @@ export default {
       type:     String,
       required: true
     },
+    visitResource: {
+      type:     String,
+      required: false,
+      default:  null
+    }
   },
   computed: {
     resourceCounts() {
@@ -57,7 +62,7 @@ export default {
     location() {
       return {
         name:     'c-cluster-product-resource',
-        params:   { product: VIRTUAL, resource: this.resource }
+        params:   { product: VIRTUAL, resource: this.visitResource || this.resource }
       };
     },
     name() {

@@ -36,7 +36,10 @@ const PARSE_RULES = {
 const METRICS_POLL_RATE_MS = 20000;
 const MAX_FAILURES = 2;
 
-const RESOURCES = [NODE, HCI.VM, HCI.NETWORK_ATTACHMENT, HCI.IMAGE, HCI.DATA_VOLUME];
+const RESOURCES = [{
+  type:          NODE,
+  visitResource: 'host'
+}, { type: HCI.VM }, { type: HCI.NETWORK_ATTACHMENT }, { type: HCI.IMAGE }, { type: HCI.DATA_VOLUME }];
 
 export default {
   components: {
@@ -109,7 +112,7 @@ export default {
 
   computed: {
     accessibleResources() {
-      return RESOURCES.filter(resource => this.$store.getters['cluster/schemaFor'](resource));
+      return RESOURCES.filter(resource => this.$store.getters['cluster/schemaFor'](resource.type));
     },
 
     currentVersion() {
@@ -342,8 +345,9 @@ export default {
     <div class="resource-gauges mb-20">
       <ResourceGauge
         v-for="(resource, i) in accessibleResources"
-        :key="resource"
-        :resource="resource"
+        :key="resource.type"
+        :resource="resource.type"
+        :visit-resource="resource.visitResource"
         :primary-color-var="`--sizzle-${i}`"
       />
     </div>
