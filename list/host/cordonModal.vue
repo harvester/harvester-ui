@@ -23,7 +23,7 @@ export default {
     ...mapGetters({ t: 'i18n/t' }),
 
     nodeName() {
-      return this.actionResources?.nameDisplay || this.actionResources?.id || '';
+      return this.actionResources?.nameDisplay;
     }
   },
 
