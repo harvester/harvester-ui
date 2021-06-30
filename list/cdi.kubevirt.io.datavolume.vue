@@ -60,7 +60,7 @@ export default {
           type:      'attached',
           value:      'spec.claimRef',
           sort:      'name',
-          formatter: 'volumesState'
+          formatter: 'AttachedVMs'
         },
         {
           name:      'progress',

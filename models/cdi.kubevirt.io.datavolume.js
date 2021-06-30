@@ -52,6 +52,21 @@ export default {
     });
   },
 
+  attachVMs() {
+    const vmList = this.$rootGetters['cluster/all'](HCI.VM);
+    const ownerAnnotation = this.getAnnotationValue(DATA_VOLUME_OWNEDBY);
+
+    if (!ownerAnnotation) {
+      return;
+    }
+
+    const refs = JSON.parse(ownerAnnotation)[0]?.refs;
+
+    return vmList.filter( (D) => {
+      return refs.includes(D.id);
+    });
+  },
+
   isRWO() {
     return this.spec?.pvc?.accessModes?.[0] === 'ReadWriteOnce';
   },
