@@ -315,8 +315,6 @@ export default {
             :needs-confirm="needsConfirm"
             :value="toRemove"
           />
-
-          {{ t('promptRemove.attemptingToRemove', { type }) }} <span v-html="resourceNames"></span>
           <div v-if="needsConfirm" class="mt-10">
             <span
               v-html="t('promptRemove.confirmName', { nameToMatch }, true)"
