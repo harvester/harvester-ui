@@ -130,6 +130,7 @@ export default {
       :headers="headers"
       :rows="[...rows]"
       key-field="_key"
+      :namespaced="false"
       v-on="$listeners"
     >
     </ResourceTable>
