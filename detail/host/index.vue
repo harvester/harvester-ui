@@ -100,7 +100,7 @@ export default {
 </script>
 
 <template>
-  <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+  <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true" default-tab="instance">
     <Tab name="basics" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
       <Basic v-model="value" :metrics="metrics" :mode="mode" :host-netowrk-resource="hostNetowrkResource" />
     </Tab>
