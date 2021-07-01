@@ -377,6 +377,14 @@ export default {
   },
 
   isBeingStopped() {
+    const stateChangeRequests = this?.status?.stateChangeRequests || []
+    const actions = stateChangeRequests.map(r => r.action)
+    const restartActions = [StateChangeRequest.Stop, StateChangeRequest.Start]
+
+    if (actions.toString() === restartActions.toString() ) {
+      return { status: STOPPING };
+    }
+
     if (this && !this.isVMExpectedRunning && this.isVMCreated) {
       return { status: STOPPING };
     }
