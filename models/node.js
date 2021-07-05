@@ -9,11 +9,15 @@ import {
   HARVESTER_PROMOTE_STATUS,
   HARVESTER_MAINTENANCE_STATUS
 } from '@/config/labels-annotations.js';
-import { METRIC, POD, NODE, CAPI } from '@/config/types';
+import {
+  METRIC, POD, NODE, CAPI, HCI
+} from '@/config/types';
 import { parseSi } from '@/utils/units';
 import { clone } from '@/utils/object';
 import { PRIVATE } from '@/plugins/steve/resource-proxy';
 import findLast from 'lodash/findLast';
+import { AS, MODE, _EDIT, _YAML } from '@/config/query-params';
+import { findBy } from '@/utils/array';
 
 export default {
   _availableActions() {
@@ -51,11 +55,19 @@ export default {
       total:      1
     };
 
+    const editNodeNetworkYaml = {
+      action:  'goToEditNodeNetworkYaml',
+      label:   this.t('harvester.action.editNodeNetworkYaml'),
+      icon:    'icon icon-file',
+      enabled: this.hasNodeNetwork,
+    };
+
     return [
       cordon,
       uncordon,
       enableMaintenance,
       disableMaintenance,
+      editNodeNetworkYaml,
       ...this._standardActions
     ];
   },
@@ -404,6 +416,32 @@ export default {
     if ( namespace && name ) {
       return this.$rootGetters['management/byId'](CAPI.MACHINE, `${ namespace }/${ name }`);
     }
+  },
+
+  hasNodeNetwork() {
+    const nodenetworks = this.$rootGetters['cluster/all'](HCI.NODE_NETWORK);
+
+    return !!findBy(nodenetworks, 'attachNodeName', this.id);
+  },
+
+  goToEditNodeNetworkYaml() {
+    return () => {
+      const nodenetworks = this.$rootGetters['cluster/all'](HCI.NODE_NETWORK);
+
+      const nodenetwork = findBy(nodenetworks, 'attachNodeName', this.id);
+      const detailLocation = clone(this._detailLocation);
+
+      detailLocation.params.resource = HCI.NODE_NETWORK;
+      detailLocation.params.id = nodenetwork.id;
+
+      detailLocation.query = {
+        ...location.query,
+        [MODE]: _EDIT,
+        [AS]:   _YAML
+      };
+
+      this.currentRouter().push(detailLocation);
+    };
   },
 };
 

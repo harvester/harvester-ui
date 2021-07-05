@@ -3838,6 +3838,7 @@ harvester:
     disableMaintenance: 关闭维护模式
     cordon: 封锁
     uncordon: 解除封锁
+    editNodeNetworkYaml: 编辑节点网络YAML
   header:
     preference: 用户配置
     logout: 登出

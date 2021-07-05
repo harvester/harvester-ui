@@ -389,13 +389,14 @@ export const getters = {
 
   optionsFor(state) {
     const def = {
-      isCreatable: true,
-      isEditable:  true,
-      isRemovable: true,
-      showState:   true,
-      showAge:     true,
-      canYaml:     true,
-      namespaced:  null,
+      isCreatable:       true,
+      isEditable:        true,
+      isRemovable:       true,
+      showState:         true,
+      showAge:           true,
+      canYaml:           true,
+      namespaced:        null,
+      disableParentLink: false,
     };
 
     return (schemaOrType) => {
