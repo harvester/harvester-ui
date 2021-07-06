@@ -92,7 +92,7 @@ export default {
 
             const isExistingRWO = obj.isRWO && obj.attachVM;
 
-            return obj.metadata.namespace === 'default' && obj.phaseStatus === 'Succeeded' && isAvailable && !isExistingRWO;
+            return obj.phaseStatus === 'Succeeded' && isAvailable && !isExistingRWO;
           })
           .map((obj) => {
             return {

@@ -49,7 +49,6 @@ export default {
 
       const out = sortBy(
         choices
-          .filter(C => C.metadata.namespace === 'default')
           .map((obj) => {
             return {
               label: obj.metadata.name,
