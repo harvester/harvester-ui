@@ -5,6 +5,8 @@ import Poller from '@/utils/poller';
 import { METRIC, NODE, HCI } from '@/config/types';
 import { HOSTNAME } from '@/config/labels-annotations';
 import { allHash } from '@/utils/promise';
+import MaintenanceModal from '@/components/maintenanceModal';
+import CordonModal from '@/components/cordonModal';
 import Basic from './basic';
 import Instance from './instance';
 // import Monitor from './monitor';
@@ -13,19 +15,26 @@ const METRICS_POLL_RATE_MS = 30000;
 const MAX_FAILURES = 2;
 
 export default {
-  name: 'DetailNode',
+  name: 'DetailHost',
 
   components: {
     Tabbed,
     Tab,
     Basic,
     Instance,
+    MaintenanceModal,
+    CordonModal,
     // Monitor
   },
 
   props: {
     value: {
       type:     Object,
+      required: true,
+    },
+
+    mode: {
+      type:     String,
       required: true,
     },
   },
@@ -63,7 +72,6 @@ export default {
     return {
       metricPoller:        new Poller(this.loadMetrics, METRICS_POLL_RATE_MS, MAX_FAILURES),
       metrics:             null,
-      mode:                'view',
       rows:                [],
       hostNetowrkResource: null
     };
@@ -78,10 +86,6 @@ export default {
   },
 
   methods: {
-    mapToStatus(isOk) {
-      return isOk ? 'success' : 'error';
-    },
-
     async loadMetrics() {
       const schema = this.$store.getters['cluster/schemaFor'](METRIC.NODE);
 
@@ -100,15 +104,19 @@ export default {
 </script>
 
 <template>
-  <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
-    <Tab name="basics" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
-      <Basic v-model="value" :metrics="metrics" :mode="mode" :host-netowrk-resource="hostNetowrkResource" />
-    </Tab>
-    <Tab name="instance" :label="t('harvester.vmPage.detail.tabs.instance')" :weight="2" class="bordered-table">
-      <Instance :rows="rows" />
-    </Tab>
-    <!-- <Tab name="monitor" :label="t('harvester.vmPage.detail.tabs.monitor')" :weight="1" class="bordered-table">
-      <Monitor v-model="value" />
-    </Tab> -->
-  </Tabbed>
+  <div>
+    <Tabbed v-bind="$attrs" class="mt-15" :side-tabs="true">
+      <Tab name="basics" :label="t('harvester.vmPage.detail.tabs.basics')" :weight="3" class="bordered-table">
+        <Basic v-model="value" :metrics="metrics" :mode="mode" :host-netowrk-resource="hostNetowrkResource" />
+      </Tab>
+      <Tab name="instance" :label="t('harvester.vmPage.detail.tabs.instance')" :weight="2" class="bordered-table">
+        <Instance :rows="rows" />
+      </Tab>
+      <!-- <Tab name="monitor" :label="t('harvester.vmPage.detail.tabs.monitor')" :weight="1" class="bordered-table">
+        <Monitor v-model="value" />
+      </Tab> -->
+    </Tabbed>
+    <MaintenanceModal />
+    <CordonModal />
+  </div>
 </template>

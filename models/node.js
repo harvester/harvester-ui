@@ -280,7 +280,7 @@ export default {
 
   cordon() {
     return (resources = this) => {
-      this.$commit('node/toggleCordonModal', resources, { root: true });
+      this.$commit('host/toggleCordonModal', resources, { root: true });
     };
   },
 
@@ -290,7 +290,7 @@ export default {
 
   enableMaintenanceMode() {
     return (resources = this) => {
-      this.$commit('node/toggleMaintenanceModal', resources, { root: true });
+      this.$commit('host/toggleMaintenanceModal', resources, { root: true });
     };
   },
 
