@@ -2,9 +2,20 @@
 import ResourceTable from '@/components/ResourceTable';
 import Poller from '@/utils/poller';
 import { STATE, NAME, AGE } from '@/config/table-headers';
-import { METRIC, NODE } from '@/config/types';
+import { METRIC, NODE, SCHEMA } from '@/config/types';
 import { allSettled } from '@/utils/promise';
-import MaintenanceModal from './maintenanceModal';
+import MaintenanceModal from '@/components/MaintenanceModal';
+import CordonModal from '@/components/CordonModal';
+
+const schema = {
+  id:         'host',
+  type:       SCHEMA,
+  attributes: {
+    kind:       'host',
+    namespaced: true
+  },
+  metadata: { name: 'host' },
+};
 
 const METRICS_POLL_RATE_MS = 30000;
 const MAX_FAILURES = 2;
@@ -18,14 +29,9 @@ const HOST_IP = {
 };
 
 export default {
-  name:       'ListNode',
-  components: { ResourceTable, MaintenanceModal },
-
-  props: {
-    schema: {
-      type:     Object,
-      required: true,
-    },
+  name:       'ListHost',
+  components: {
+    ResourceTable, MaintenanceModal, CordonModal
   },
 
   async fetch() {
@@ -74,6 +80,10 @@ export default {
         AGE,
       ];
     },
+
+    schema() {
+      return schema;
+    }
   },
 
   mounted() {
@@ -97,6 +107,17 @@ export default {
     }
   },
 
+  typeDisplay() {
+    const { params:{ resource: type } } = this.$route;
+    let paramSchema = schema;
+
+    if (type !== schema.id) {
+      paramSchema = this.$store.getters['cluster/schemaFor'](type);
+    }
+
+    return this.$store.getters['type-map/labelFor'](paramSchema, 99);
+  },
+
 };
 </script>
 
@@ -105,13 +126,16 @@ export default {
     <ResourceTable
       v-bind="$attrs"
       :schema="schema"
+      :groupable="false"
       :headers="headers"
       :rows="[...rows]"
       key-field="_key"
+      :namespaced="false"
       v-on="$listeners"
     >
     </ResourceTable>
 
     <MaintenanceModal />
+    <CordonModal />
   </div>
 </template>

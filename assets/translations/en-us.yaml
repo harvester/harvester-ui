@@ -4630,6 +4630,7 @@ harvester:
       storage: Storage Size
       nic: Physical NIC
       networkType: Type
+      notRecommended: '  (Not recommended)'
     enableMaintenance:
       title: Enable Maintenance Mode
       protip: The operation will migrate all virtual machines on this node to other nodes.

@@ -5,7 +5,7 @@ import Card from '@/components/Card';
 import Banner from '@/components/Banner';
 import { exceptionToErrorsArray } from '@/utils/error';
 
-const { mapState } = createNamespacedHelpers('node');
+const { mapState } = createNamespacedHelpers('host');
 
 export default {
   components: {
@@ -40,7 +40,7 @@ export default {
 
   methods: {
     close() {
-      this.$store.commit('node/toggleMaintenanceModal');
+      this.$store.commit('host/toggleMaintenanceModal');
     },
 
     apply(buttonDone) {

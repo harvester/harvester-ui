@@ -11,7 +11,7 @@ import { allHash } from '@/utils/promise';
 import { HOST_CUSTOM_NAME } from '@/config/labels-annotations';
 import { HCI } from '@/config/types';
 export default {
-  name:       'EditNode',
+  name:       'EditHost',
   components: {
     Footer,
     Tabbed,
@@ -50,8 +50,10 @@ export default {
   },
   computed: {
     nicsOptions() {
+      const tips = this.$store.getters['i18n/t']('harvester.hostPage.detail.notRecommended');
+
       return this.physicalNics.map( (N) => {
-        const isRecommended = N.usedByManagementNetwork ? '  (Not recommended)' : '';
+        const isRecommended = N.usedByManagementNetwork ? tips : '';
 
         return {
           value: N.name,
@@ -83,7 +85,7 @@ export default {
 };
 </script>
 <template>
-  <div class="node">
+  <div class="host">
     <NameNsDescription
       :value="value"
       :namespaced="false"

@@ -5,7 +5,7 @@ import Card from '@/components/Card';
 import Banner from '@/components/Banner';
 import { exceptionToErrorsArray } from '@/utils/error';
 
-const { mapState } = createNamespacedHelpers('node');
+const { mapState } = createNamespacedHelpers('host');
 
 export default {
   components: {
@@ -19,19 +19,23 @@ export default {
   },
 
   computed:   {
-    ...mapState(['isShowMaintenance', 'actionResources']),
+    ...mapState(['isShowCordon', 'actionResources']),
     ...mapGetters({ t: 'i18n/t' }),
+
+    nodeName() {
+      return this.actionResources?.nameDisplay;
+    }
   },
 
   watch: {
-    isShowMaintenance: {
+    isShowCordon: {
       handler(show) {
         if (show) {
           this.$nextTick(() => {
-            this.$modal.show('maintenance-modal');
+            this.$modal.show('cordon-modal');
           });
         } else {
-          this.$modal.hide('maintenance-modal');
+          this.$modal.hide('cordon-modal');
         }
       },
       immediate: true
@@ -40,14 +44,14 @@ export default {
 
   methods: {
     close() {
-      this.$store.commit('node/toggleMaintenanceModal');
+      this.$store.commit('host/toggleCordonModal');
     },
 
     apply(buttonDone) {
       this.errors = [];
 
       try {
-        this.actionResources.doAction('enableMaintenanceMode', {});
+        this.actionResources.doAction('cordon', {});
         buttonDone(true);
         this.close();
       } catch (e) {
@@ -61,8 +65,8 @@ export default {
 
 <template>
   <modal
-    class="maintenance-modal"
-    name="maintenance-modal"
+    class="cordon-modal"
+    name="cordon-modal"
     styles="background-color: var(--nav-bg); border-radius: var(--border-radius); max-height: 100vh;"
     height="auto"
     :scrollable="true"
@@ -70,11 +74,11 @@ export default {
   >
     <Card>
       <h4 slot="title" class="text-default-text">
-        {{ t('harvester.hostPage.enableMaintenance.title') }}
+        {{ t('harvester.hostPage.cordon.title') }}
       </h4>
 
       <div slot="body" class="pl-10 pr-10">
-        <Banner color="warning" :label="t('harvester.hostPage.enableMaintenance.protip')" class="mt-20" />
+        <Banner color="warning" :label="t('harvester.hostPage.cordon.protip', { node: nodeName })" class="mt-20" />
         <Banner v-for="(err, i) in errors" :key="i" color="error" :label="err" />
       </div>
 
