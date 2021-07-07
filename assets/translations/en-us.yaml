@@ -4621,7 +4621,7 @@ harvester:
       create: Creation Time
       update: Last Update Time
       customName: Custom Name
-      consoleUrl: Console Url
+      consoleUrl: Console URL
       more: More Information
       uuid: UUID
       containerRuntime: Container Runtime
