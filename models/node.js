@@ -79,6 +79,10 @@ export default {
     return detailLocation;
   },
 
+  parentLocationOverride() { // maybe only harvester mode
+    return this.doneOverride;
+  },
+
   canCustomEdit() {
     return true;
   },

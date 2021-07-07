@@ -4062,6 +4062,7 @@ harvester:
       create: 创建时间
       update: 最近更新时间
       customName: 自定义名称
+      consoleUrl: Console 地址
       more: 更多信息
       uuid: UUID
       containerRuntime: 容器运行时

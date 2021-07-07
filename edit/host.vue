@@ -8,7 +8,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import CreateEditView from '@/mixins/create-edit-view';
 import { allHash } from '@/utils/promise';
-import { HOST_CUSTOM_NAME } from '@/config/labels-annotations';
+import { HOST_CUSTOM_NAME, HOST_CONSOLE_URL } from '@/config/labels-annotations';
 import { HCI } from '@/config/types';
 export default {
   name:       'EditNode',
@@ -43,6 +43,7 @@ export default {
     return {
       hostNetowrkResource: null,
       customName:          this.value.getAnnotationValue(HOST_CUSTOM_NAME),
+      consoleUrl:          this.value.getAnnotationValue(HOST_CONSOLE_URL),
       type:                'vlan',
       nic:                 '',
       physicalNics:        []
@@ -63,6 +64,10 @@ export default {
   watch: {
     customName(neu) {
       this.value.setAnnotation(HOST_CUSTOM_NAME, neu);
+    },
+
+    consoleUrl(neu) {
+      this.value.setAnnotation(HOST_CONSOLE_URL, neu);
     },
   },
   created() {
@@ -94,6 +99,13 @@ export default {
         <LabeledInput
           v-model="customName"
           :label="t('harvester.hostPage.detail.customName')"
+          class="mb-20"
+          :mode="mode"
+        />
+
+        <LabeledInput
+          v-model="consoleUrl"
+          :label="t('harvester.hostPage.detail.consoleUrl')"
           class="mb-20"
           :mode="mode"
         />
