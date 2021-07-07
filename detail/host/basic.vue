@@ -3,7 +3,7 @@ import ConsumptionGauge from '@/components/ConsumptionGauge';
 import LabelValue from '@/components/LabelValue';
 import Banner from '@/components/Banner';
 import { formatSi, exponentNeeded, UNITS } from '@/utils/units';
-import { HOST_CUSTOM_NAME } from '@/config/labels-annotations';
+import { HOST_CUSTOM_NAME, HOST_CONSOLE_URL } from '@/config/labels-annotations';
 
 export default {
   name: 'BasicNode',
@@ -44,6 +44,10 @@ export default {
   computed: {
     customName() {
       return this.value.getAnnotationValue(HOST_CUSTOM_NAME);
+    },
+
+    consoleUrl() {
+      return this.value.getAnnotationValue(HOST_CONSOLE_URL);
     },
 
     cpuTotal() {
@@ -197,6 +201,14 @@ export default {
       </div>
       <div class="col span-6">
         <LabelValue :name="t('harvester.hostPage.detail.update')" :value="lastUpdateTime" />
+      </div>
+    </div>
+
+    <div class="row mb-20">
+      <div class="col span-6">
+        <LabelValue :name="t('harvester.hostPage.detail.consoleUrl')" :value="consoleUrl">
+          <a slot="value" :href="consoleUrl" target="_blank">{{ consoleUrl }}</a>
+        </LabelValue>
       </div>
     </div>
 
