@@ -129,7 +129,7 @@ export default {
       },
       {
         action:     'ejectCDROM',
-        enabled:    !!this.actions.ejectCdRom,
+        enabled:    !!this.actions?.ejectCdRom,
         icon:       'icon icon-delete',
         label:      this.t('harvester.action.ejectCDROM'),
       },
