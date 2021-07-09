@@ -77,7 +77,7 @@ export default {
 
     vmiIp() {
       const vmiResources = this.$store.getters['cluster/all'](HCI.VMI);
-      const resource = vmiResources.find(VMI => VMI.id === this.value) || null;
+      const resource = vmiResources.find(VMI => VMI.id === this.row.id) || null;
       const out = resource?.status?.interfaces?.[0]?.ipAddress || '';
 
       return [out];

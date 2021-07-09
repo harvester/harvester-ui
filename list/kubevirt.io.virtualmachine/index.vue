@@ -82,14 +82,12 @@ export default {
         {
           name:      'ip',
           label:     'IP Address',
-          value:     'id',
           formatter: 'ipAddress',
           labelKey:  'harvester.tableHeaders.vm.ipAddress'
         },
         {
           name:      'node',
           label:     'Node',
-          value:     'id',
           sort:      ['nameSort'],
           formatter: 'nodeName',
           labelKey:  'harvester.tableHeaders.vm.node'
