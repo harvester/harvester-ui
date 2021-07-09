@@ -13,9 +13,6 @@ export default {
 
   async fetch() {
     await allSettled({ haversterSettings: this.$store.dispatch('cluster/findAll', { type: HCI.SETTING }) });
-    const isRancher = await this.$store.dispatch('auth/getIsRancher');
-
-    this.isRancher = isRancher;
   },
 
   data() {

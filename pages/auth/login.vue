@@ -17,14 +17,9 @@ export default {
     AsyncButton, Loading, LabeledInput, Banner
   },
   async asyncData({ route, redirect, store }) {
-    const isRancher = await store.dispatch('auth/getIsRancher');
-    let drivers = [];
-    let providers = ['local'];
+    const drivers = await store.dispatch('auth/getAuthProviders');
+    const providers = sortBy(drivers.map(x => x.id), ['id']);
 
-    if (isRancher) {
-      drivers = await store.dispatch('auth/getAuthProviders');
-      providers = sortBy(drivers.map(x => x.id), ['id']);
-    }
     const hasLocal = providers.includes('local');
     const hasOthers = hasLocal && !!providers.find(x => x !== 'local');
 

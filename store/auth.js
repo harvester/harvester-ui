@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { randomStr } from '@/utils/string';
-import { HCI, MANAGEMENT } from '@/config/types';
+import { MANAGEMENT } from '@/config/types';
 import { findBy, addObjects } from '@/utils/array';
 import { openAuthPopup, returnTo } from '@/utils/auth';
 import { GITHUB_SCOPE, GITHUB_NONCE, GITHUB_REDIRECT } from '@/config/query-params';
@@ -28,7 +28,6 @@ export const state = function() {
     loggedIn:        true,
     principalId:     null,
     authModes:       null,
-    isRancher:       null,
     isFirstLogin:    null,
     serverUrlTimer:  null,
   };
@@ -53,10 +52,6 @@ export const getters = {
 
   authModes(state) {
     return state.authModes
-  },
-
-  isRancher(state) {
-    return state.isRancher;
   },
 
   isFirstLogin(state) {
@@ -95,10 +90,6 @@ export const mutations = {
   setAuthModes(state, modes) {
     state.authModes = modes;
   },
-
-  setIsRancher(state, isRancher) {
-    state.isRancher = isRancher;
-  }
 };
 
 export const actions = {
@@ -258,43 +249,6 @@ export const actions = {
     }
   },
 
-  async getAuthModes({ commit, dispatch }) {
-    try {
-      const res = await this.$axios({
-        method: 'get',
-        url:    '/v1-public/auth-modes'
-      });
-
-      if (res.data) {
-        commit('setAuthModes', res.data.modes);
-        commit('setIsRancher', (res.data.modes || []).includes('rancher'))
-        await dispatch('isFirstLogin');
-
-        return Promise.resolve(res.data);
-      }
-    } catch (err) {
-      return Promise.reject(err);
-    }
-  },
-
-  async getIsRancher({ dispatch, state }) {
-    if (state.isRancher !== null) {
-      return state.isRancher;
-    }
-
-    let { authModes: modes } = state;
-
-    if (!modes) {
-      const authModes = await dispatch('getAuthModes');
-
-      modes = authModes.modes;
-    }
-
-    state.isRancher = (modes || []).includes('rancher');
-
-    return state.isRancher;
-  },
-
   async login({ state, commit, dispatch }, { provider, body, isLocalUser }) {
     if (!isLocalUser) {
       const driver = await dispatch('getAuthProvider', provider);
@@ -313,28 +267,19 @@ export const actions = {
         return Promise.reject(ERR_SERVER);
       }
     } else {
-      let url = '/v1-public/auth?action=login';
-      const isRancher = state.isRancher;
+      let url = '/v3-public/localProviders/local?action=login';
       const isFirstLogin = state.isFirstLogin;
       const isPasswordMode = !!body.password;
       const passwordCopy = body.password;
 
-      if (isRancher) {
-        body.description = 'UI Session';
-        body.responseType = 'cookie';
-        body.ttl = 57600000;
+      body.description = 'UI Session';
+      body.responseType = 'cookie';
+      body.ttl = 57600000;
 
-        url = '/v3-public/localProviders/local?action=login';
-      }
 
       if (isFirstLogin && isPasswordMode) {
         body.username = 'admin';
-
-        if (isRancher) {
-          body.password = 'admin';
-        } else {
-          body.password = 'password';
-        }
+        body.password = 'admin';
       }
 
       try {
@@ -344,22 +289,18 @@ export const actions = {
           data:   body,
         });
 
-        if (res.data || isRancher) {
+        if (res.data) {
           commit('loggedIn');
           commit('updatePrincipalId', body.username);
           this.$cookies.set('loggedIn', true);
 
           try {
-            if (!isRancher && isPasswordMode && isFirstLogin) {
-              await dispatch('applyHarvesterFirstLogin', { data: { password: passwordCopy} });
-            }
-
-            if (isRancher && isPasswordMode && isFirstLogin) {
+            if (isPasswordMode && isFirstLogin) {
               body.password = passwordCopy;
               await dispatch('applyRancherFirstLogin', { data: body });
             }
 
-            if (isRancher && isFirstLogin) {
+            if (isFirstLogin) {
               await dispatch('applyServerUrl');
             }
 
@@ -380,19 +321,10 @@ export const actions = {
   },
 
   async isFirstLogin({ state }) {
-    const isRancher = state.isRancher;
-    let url;
-
-    if (isRancher) {
-      url = '/v3/settings/first-login';
-    } else {
-      url = '/v1/settings/first-login';
-    }
-
     const headers = { 'Content-Type': 'application/json' }
 
     const firstLogin = await this.$axios({
-      url,
+      url: '/v3/settings/first-login',
       headers,
       method: 'get'
     });
@@ -408,25 +340,6 @@ export const actions = {
         currentPassword: 'admin',
         newPassword:     data.password
       },
-    });
-  },
-
-  async applyHarvesterFirstLogin(ctx, { data }) {
-    const { data: {data: users} } = await this.$axios({
-      url: `/v1/${ HCI.USER }s`,
-      method: 'get'
-    });
-    const userResource = users.find(u => u.username === 'admin');
-
-    if (!userResource) {
-      return;
-    }
-
-    userResource.password = data.password;
-    await this.$axios({
-      url: `/v1/${HCI.USER}s/${userResource.id}`,
-      method: 'put',
-      data: userResource
     });
   },
 

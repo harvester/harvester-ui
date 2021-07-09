@@ -447,27 +447,24 @@ export const actions = {
       //   opt:  { url: MANAGEMENT.CLUSTER }
       // }),
     };
-    const isRancher = getters['auth/isRancher'];
 
-    if (isRancher) {
-      promises['rancherSubscribe'] = dispatch('rancher/subscribe');
-      promises['rancherSchema'] = dispatch('rancher/loadSchemas', true);
+    promises['rancherSubscribe'] = dispatch('rancher/subscribe');
+    promises['rancherSchema'] = dispatch('rancher/loadSchemas', true);
 
-      if ( getters['management/schemaFor'](COUNT) ) {
-        promises['counts'] = dispatch('management/findAll', { type: COUNT });
-      }
+    if ( getters['management/schemaFor'](COUNT) ) {
+      promises['counts'] = dispatch('management/findAll', { type: COUNT });
+    }
 
-      if ( getters['management/schemaFor'](MANAGEMENT.SETTING) ) {
-        promises['settings'] = dispatch('management/findAll', { type: MANAGEMENT.SETTING });
-      }
+    if ( getters['management/schemaFor'](MANAGEMENT.SETTING) ) {
+      promises['settings'] = dispatch('management/findAll', { type: MANAGEMENT.SETTING });
+    }
 
-      if ( getters['management/schemaFor'](NAMESPACE) ) {
-        promises['namespaces'] = dispatch('management/findAll', { type: NAMESPACE });
-      }
+    if ( getters['management/schemaFor'](NAMESPACE) ) {
+      promises['namespaces'] = dispatch('management/findAll', { type: NAMESPACE });
+    }
 
-      if ( getters['management/schemaFor'](FLEET.WORKSPACE) ) {
-        promises['workspaces'] = dispatch('management/findAll', { type: FLEET.WORKSPACE });
-      }
+    if ( getters['management/schemaFor'](FLEET.WORKSPACE) ) {
+      promises['workspaces'] = dispatch('management/findAll', { type: FLEET.WORKSPACE });
     }
 
     const res = await allSettled(promises);
@@ -497,7 +494,6 @@ export const actions = {
     state, commit, dispatch, getters
   }, id) {
     const isMultiCluster = getters['isMultiCluster'];
-    const isRancher = getters['isRancher'];
 
     if ( state.clusterReady && state.clusterId && state.clusterId === id ) {
       // Do nothing, we're already connected/connecting to this cluster
@@ -615,12 +611,9 @@ export const actions = {
     commit('setCluster', null);
     commit('cluster/reset');
 
-    const isRancher = getters['auth/isRancher'];
-    if (isRancher) {
-      await dispatch('rancher/unsubscribe');
-      commit('rancher/reset');
-      commit('catalog/reset');
-    }
+    await dispatch('rancher/unsubscribe');
+    commit('rancher/reset');
+    commit('catalog/reset');
 
     const router = state.$router;
     const route = router.currentRoute;
@@ -647,12 +640,8 @@ export const actions = {
 
     dispatch('management/rehydrateSubscribe');
     dispatch('cluster/rehydrateSubscribe');
+    dispatch('rancher/rehydrateSubscribe');
 
-    if ( rootState.isRancher ) {
-      dispatch('rancher/rehydrateSubscribe');
-    }
-
-    dispatch('auth/getAuthModes');
     dispatch('prefs/loadCookies');
     dispatch('prefs/loadTheme');
   },
