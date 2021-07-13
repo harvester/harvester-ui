@@ -124,6 +124,7 @@ export default {
   methods: {
     update() {
       this.$emit('updateCloudConfig', this.userData, this.networkData);
+      this.$emit('userDataSelectChange');
     },
     onChanges(cm, changes) {
       this.update();

@@ -222,23 +222,6 @@ export default {
       }
     },
 
-    installAgent(neu) {
-      let parsed = {};
-
-      if (neu) {
-        parsed = this.mergeGuestAgent(_.cloneDeep(this.userScript));
-      } else {
-        parsed = this.deleteGuestAgent(_.cloneDeep(this.userScript));
-      }
-      let out = safeDump(parsed);
-
-      if (parsed === '') {
-        out = undefined;
-      }
-
-      this.$set(this, 'userScript', out);
-    },
-
     MachineType(neu) {
       this.$set(this.spec.template.spec.domain.machine, 'type', neu);
     },
@@ -401,6 +384,27 @@ export default {
         this.$refs.yamlEditor.refresh();
       }
     },
+
+    userDataSelectChange() {
+      this.installAgentChange(this.installAgent);
+    },
+
+    installAgentChange(value) {
+      let parsed = {};
+
+      if (value) {
+        parsed = this.mergeGuestAgent(_.cloneDeep(this.userScript));
+      } else {
+        parsed = this.deleteGuestAgent(_.cloneDeep(this.userScript));
+      }
+      let out = safeDump(parsed);
+
+      if (parsed === '') {
+        out = undefined;
+      }
+
+      this.$set(this, 'userScript', out);
+    }
   },
 };
 </script>
@@ -526,12 +530,19 @@ export default {
             :mode="mode"
             :network-script="networkScript"
             @updateCloudConfig="updateCloudConfig"
+            @userDataSelectChange="userDataSelectChange"
           />
 
           <div class="spacer"></div>
           <Checkbox v-model="isUseMouseEnhancement" class="check" type="checkbox" :label="t('harvester.vmPage.enableUsb')" />
 
-          <Checkbox v-model="installAgent" class="check" type="checkbox" label="Install guest agent" />
+          <Checkbox
+            v-model="installAgent"
+            class="check"
+            type="checkbox"
+            label="Install guest agent"
+            @input="value => installAgentChange(value)"
+          />
         </Tab>
       </Tabbed>
 
