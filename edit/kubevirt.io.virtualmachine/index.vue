@@ -325,6 +325,9 @@ export default {
       const realHostname = this.useCustomHostname ? this.value.spec.template.spec.hostname : this.value.metadata.name;
 
       this.$set(this.value.spec.template.spec, 'hostname', realHostname);
+
+      this.willSave();
+
       await this.save(buttonCb, url);
     },
 
@@ -355,6 +358,8 @@ export default {
         this.normalizeSpec();
         this.$set(this.value.spec.template.spec, 'hostname', hostname);
         this.$delete(this.value.spec.template.metadata.annotations, [HARVESTER_DISK_NAMES]);
+
+        this.willSave();
 
         try {
           await this.save(buttonCb);
@@ -401,6 +406,18 @@ export default {
         this.$refs.yamlEditor.refresh();
       }
     },
+
+    willSave() {
+      const disks = this.value?.spec?.template?.spec?.domain?.devices?.disks;
+
+      if (disks) {
+        disks.map((d, idx) => {
+          if (d.bootOrder === '-') {
+            delete this.value?.spec?.template?.spec?.domain?.devices?.disks[idx]?.bootOrder;
+          }
+        });
+      }
+    }
   },
 };
 </script>

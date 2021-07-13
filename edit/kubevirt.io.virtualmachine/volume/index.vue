@@ -57,9 +57,20 @@ export default {
   },
 
   data() {
+    const rows = clone(this.value).map((r) => {
+      if (!r.bootOrder) {
+        return {
+          ...r,
+          bootOrder: '-',
+        };
+      } else {
+        return r;
+      }
+    });
+
     return {
       SOURCE_TYPE,
-      rows:    clone(this.value),
+      rows,
       pvcs:    [],
       nameIdx: 1,
       vol:     null
@@ -171,6 +182,7 @@ export default {
         volumeName:        '',
         bus:              'virtio',
         newCreateId:      randomstring.generate(10), // judge whether it is a disk that has been created
+        bootOrder:        '-',
       };
 
       this.rows.push(neu);

@@ -212,6 +212,7 @@ export default {
           storageClassName: '',
           image:            this.imageName,
           volumeMode:       'Block',
+          bootOrder:        '-',
         });
       } else {
         out = _disks.map( (DISK, index) => {
