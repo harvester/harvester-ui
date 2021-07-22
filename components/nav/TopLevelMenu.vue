@@ -410,6 +410,7 @@ export default {
     }
 
     > i {
+      width: 25px;
       font-size: $icon-size;
       margin-right: 8px;
     }

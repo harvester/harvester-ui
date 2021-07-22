@@ -272,6 +272,7 @@ module.exports = {
       }
     ],
     link: [{
+      hid:  'icon',
       rel:  'icon',
       type: 'image/x-icon',
       href: `${ resourceBase || '/' }favicon.png`
