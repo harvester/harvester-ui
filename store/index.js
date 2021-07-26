@@ -72,6 +72,7 @@ export const getters = {
   },
 
   currentCluster(state, getters) {
+    console.log(getters['management/all'](MANAGEMENT.CLUSTER), 'state.clusterId')
     return getters['management/byId'](MANAGEMENT.CLUSTER, state.clusterId);
   },
 
@@ -442,10 +443,10 @@ export const actions = {
 
     const promises = {
       // Clusters guaranteed always available or your money back
-      // clusters: dispatch('management/findAll', {
-      //   type: MANAGEMENT.CLUSTER,
-      //   opt:  { url: MANAGEMENT.CLUSTER }
-      // }),
+      clusters: dispatch('management/findAll', {
+        type: MANAGEMENT.CLUSTER,
+        opt:  { url: MANAGEMENT.CLUSTER }
+      }),
     };
     const isRancher = getters['auth/isRancher'];
 

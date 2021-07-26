@@ -4439,6 +4439,8 @@ harvester:
     sections:
       events:
         label: Events
+      metrics:
+        label: Monitoring Metrics
   upgradePage:
     upgradeApp: Upgrade Software
     upgrade: Upgrade
@@ -4531,6 +4533,7 @@ harvester:
         monitor: Monitor Data
         keypairs: SSH Keys
         cloudConfig: Cloud Config
+        metrics: Metrics
       details:
         title:
           vmDetails: Virtual Machine Details
