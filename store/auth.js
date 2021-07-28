@@ -6,6 +6,7 @@ import { openAuthPopup, returnTo } from '@/utils/auth';
 import { GITHUB_SCOPE, GITHUB_NONCE, GITHUB_REDIRECT } from '@/config/query-params';
 import { base64Encode } from '@/utils/crypto';
 import { parse as parseUrl, removeParam, addParams } from '@/utils/url';
+import { _ALL_IF_AUTHED } from '@/plugins/steve/actions';
 import Parse from 'url-parse';
 
 export const BASE_SCOPES = {
@@ -379,25 +380,17 @@ export const actions = {
    
   },
 
-  async isFirstLogin({ state }) {
-    const isRancher = state.isRancher;
-    let url;
+  async isFirstLogin({rootGetters, state, dispatch }) {
+    await dispatch('management/findAll', {
+      type: MANAGEMENT.SETTING,
+      opt:  {
+        load: _ALL_IF_AUTHED, url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false
+      }
+    }, { root: true });
+    
+    const res = rootGetters['management/byId'](MANAGEMENT.SETTING, 'first-login');
 
-    if (isRancher) {
-      url = '/v3/settings/first-login';
-    } else {
-      url = '/v1/settings/first-login';
-    }
-
-    const headers = { 'Content-Type': 'application/json' }
-
-    const firstLogin = await this.$axios({
-      url,
-      headers,
-      method: 'get'
-    });
-
-    state.isFirstLogin = firstLogin?.data?.value === 'true';
+    state.isFirstLogin = res?.value === 'true';
   },
 
   async applyRancherFirstLogin(ctx, { data }) {
