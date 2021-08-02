@@ -29,7 +29,7 @@ $ yarn generate
  make run-host
 
  cd harvester-ui
- docker build -f Dockerfile.dev -t rancher/harvester-ui:dev
+ docker build -f Dockerfile.dev -t rancher/harvester-ui:dev .
  docker run -v $(pwd):/src \
    -v dashboard_node:/src/node_modules \
    -p 8005:8005 \
