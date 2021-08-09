@@ -121,7 +121,7 @@ export default {
           <h1>{{ setting.id }}<span v-if="setting.customized" class="modified">Modified</span></h1>
           <h2>{{ setting.description }}</h2>
         </div>
-        <div v-if="setting.hasActions" class="action">
+        <div v-if="setting.hasActions && setting.id != 'server-version'" class="action">
           <button aria-haspopup="true" aria-expanded="false" type="button" class="btn btn-sm role-multi-action actions" @click="showActionMenu($event, setting)">
             <i class="icon icon-actions" />
           </button>
