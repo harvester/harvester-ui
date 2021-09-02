@@ -201,6 +201,7 @@ export default {
 
       if (_disks.length === 0) {
         out.push({
+          bootOrder:        1,
           source:           SOURCE_TYPE.IMAGE,
           name:             'disk-0',
           accessMode:       'ReadWriteMany',
