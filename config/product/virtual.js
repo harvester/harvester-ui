@@ -218,4 +218,6 @@ export function init(store) {
     },
     exact: false
   });
+
+  configureType(HCI.NODE_NETWORK, { disableParentLink: true });
 }

@@ -21,5 +21,14 @@ export default {
       message: this.message,
       to:      `node/${ this.attachNodeName }?mode=edit`
     };
-  }
+  },
+
+  doneOverride() {
+    return () => {
+      this.currentRouter().replace({
+        name:   'c-cluster-product-resource',
+        params: { resource: 'host' }
+      });
+    };
+  },
 };

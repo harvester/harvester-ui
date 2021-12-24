@@ -2,7 +2,7 @@
 import ResourceTable from '@/components/ResourceTable';
 import Poller from '@/utils/poller';
 import { STATE, NAME, AGE } from '@/config/table-headers';
-import { METRIC, NODE, SCHEMA } from '@/config/types';
+import { METRIC, NODE, SCHEMA, HCI } from '@/config/types';
 import { allSettled } from '@/utils/promise';
 import MaintenanceModal from './maintenanceModal';
 import CordonModal from './cordonModal';
@@ -104,6 +104,10 @@ export default {
       if (schema) {
         await this.$store.dispatch('cluster/findAll', {
           type: METRIC.NODE,
+          opt:  { force: true }
+        });
+        await this.$store.dispatch('cluster/findAll', {
+          type: HCI.NODE_NETWORK,
           opt:  { force: true }
         });
         this.$forceUpdate();

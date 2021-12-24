@@ -4376,6 +4376,7 @@ harvester:
     disableMaintenance: Disable Maintenance Mode
     cordon: Cordon
     uncordon: Uncordon
+    editNodeNetworkYaml: Edit Node Network Yaml
   header:
     preference: Preferences
     logout: Log Out
