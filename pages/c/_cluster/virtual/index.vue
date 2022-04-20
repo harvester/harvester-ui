@@ -12,6 +12,7 @@ import { REASON } from '@/config/table-headers';
 import { EVENT, METRIC, NODE, HCI } from '@/config/types';
 import SimpleBox from '@/components/SimpleBox';
 import ResourceGauge from '@/components/ResourceGauge';
+import HarvesterMetrics from '@/components/HarvesterMetrics';
 import HardwareResourceGauge from './HardwareResourceGauge';
 import Upgrade from './Upgrade';
 
@@ -41,6 +42,9 @@ const RESOURCES = [{
   visitResource: 'host'
 }, { type: HCI.VM }, { type: HCI.NETWORK_ATTACHMENT }, { type: HCI.IMAGE }, { type: HCI.DATA_VOLUME }];
 
+const CLUSTER_METRICS_DETAIL_URL = '/api/v1/namespaces/harvester-monitoring/services/http:monitoring-grafana:80/proxy/d/HV_1uZwWk/vm-dashboard?orgId=1';
+const CLUSTER_METRICS_SUMMARY_URL = '/api/v1/namespaces/harvester-monitoring/services/http:monitoring-grafana:80/proxy/d/V3EJMiinz/vm-dashboard?orgId=1';
+
 export default {
   components: {
     Loading,
@@ -49,6 +53,7 @@ export default {
     SimpleBox,
     SortableTable,
     Upgrade,
+    HarvesterMetrics,
   },
 
   async fetch() {
@@ -106,7 +111,9 @@ export default {
       nodes:             [],
       metricNodes:       [],
       vms:               [],
-      currentCluster:    'local'
+      currentCluster:    'local',
+      CLUSTER_METRICS_DETAIL_URL,
+      CLUSTER_METRICS_SUMMARY_URL,
     };
   },
 
@@ -379,6 +386,15 @@ export default {
           </div>
         </template>
       </SortableTable>
+    </SimpleBox>
+
+    <SimpleBox class="events" :title="t('harvester.homePage.sections.metrics.label')">
+      <HarvesterMetrics
+        :detail-url="CLUSTER_METRICS_DETAIL_URL"
+        :summary-url="CLUSTER_METRICS_SUMMARY_URL"
+        graph-height="825px"
+        :has-sumarry-and-detail="false"
+      />
     </SimpleBox>
   </section>
 </template>
